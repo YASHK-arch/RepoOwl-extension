@@ -1,0 +1,19 @@
+name: Issue Assignment Rules
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  assign-warning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Assignment Warning
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "Thanks for opening this issue!\n\nA maintainer will assign it soon.\n\nPlease don't start working until assigned."
+            })

@@ -1,0 +1,10 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Questions & Help
+    url: https://github.com/Yashkart/RepoOwl-extension/discussions
+    about: Ask questions here
+
+  - name: Feature Ideas
+    url: https://github.com/Yashkart/RepoOwl-extension/discussions/categories/ideas
+    about: Share ideas before opening an issue

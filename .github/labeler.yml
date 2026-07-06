@@ -1,0 +1,17 @@
+frontend:
+  - '**/*.js'
+  - '**/*.jsx'
+  - '**/*.css'
+  - '**/*.html'
+
+backend:
+  - '**/*.py'
+  - '**/*.go'
+  - '**/*.ts'
+
+documentation:
+  - '**/*.md'
+
+tests:
+  - '**/*.test.js'
+  - '**/*.spec.js'

@@ -1,0 +1,33 @@
+name: Documentation Issue
+description: Report missing or incorrect documentation
+title: "[DOCS]: "
+labels:
+  - documentation
+
+body:
+  - type: textarea
+    id: missing
+    attributes:
+      label: What documentation is missing?
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Current Location
+
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested Improvement
+
+  - type: input
+    id: links
+    attributes:
+      label: Broken Links?
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots

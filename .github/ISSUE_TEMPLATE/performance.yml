@@ -1,0 +1,43 @@
+name: Performance Improvement
+description: Report a performance issue
+title: "[PERF]: "
+labels:
+  - performance
+
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Slow page
+    validations:
+      required: true
+
+  - type: input
+    id: benchmark
+    attributes:
+      label: Benchmark
+
+  - type: input
+    id: expected
+    attributes:
+      label: Expected Speed
+
+  - type: input
+    id: cpu
+    attributes:
+      label: CPU Usage
+
+  - type: input
+    id: memory
+    attributes:
+      label: Memory Usage
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs

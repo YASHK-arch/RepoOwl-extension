@@ -1,0 +1,38 @@
+name: UI / UX Improvement
+description: Suggest design improvements
+title: "[UI]: "
+labels:
+  - ui
+
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Which page?
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current Design
+
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested Design
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Attach Mockups
+
+  - type: textarea
+    id: accessibility
+    attributes:
+      label: Accessibility Concerns
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
