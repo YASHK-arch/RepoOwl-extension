@@ -1,0 +1,31 @@
+name: Welcome New Contributors
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Welcome message
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const isFirstIssue = async () => {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                creator: context.actor,
+                state: 'all'
+              });
+              return issues.length === 1;
+            };
+
+            if (await isFirstIssue()) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '👋 Thanks for contributing!\n\nA maintainer will review your issue shortly.\n\nPlease ensure you\'ve completed the checklist.'
+              });
+            }

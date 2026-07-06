@@ -1,0 +1,26 @@
+name: Refactor / Code Quality
+description: Improve code quality
+title: "[REFACTOR]: "
+labels:
+  - refactor
+
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Current Problem
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Improvement
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Benefits
+
+  - type: input
+    id: files
+    attributes:
+      label: Affected Files
