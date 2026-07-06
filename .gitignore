@@ -1,0 +1,50 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Secrets and risky files
+*.pem
+*.key
+*.cert
+*.p12
+secrets.json
+credentials.json
+*.secret
+*_secret*
+auth.json
+token.json
+.npmrc
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docs
+/docs/
+
+# Cursor / IDE
+.cursorrules
+.cursor/
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Node modules
+node_modules/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

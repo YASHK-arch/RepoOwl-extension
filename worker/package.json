@@ -1,0 +1,14 @@
+{
+  "name": "@repoowl/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=../.env src/index.js",
+    "test": "node --test test/**/*.test.js"
+  },
+  "dependencies": {
+    "@repoowl/shared": "0.1.0",
+    "@supabase/supabase-js": "^2.49.1"
+  }
+}

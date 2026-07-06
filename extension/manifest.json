@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "RepoOwl",
+  "version": "0.1.0",
+  "description": "AI-powered contributor issue insights for GitHub.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://github.com/*",
+    "https://*.supabase.co/*"
+  ],
+  "options_ui": {
+    "page": "src/options/index.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*/issues*"],
+      "js": ["src/content/index.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
