@@ -1,0 +1,13 @@
+{
+  "name": "repoowl-extension",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "worker",
+    "extension"
+  ],
+  "scripts": {
+    "start:worker": "npm run start --workspace=@repoowl/worker",
+    "build:extension": "npm run build --workspace=@repoowl/extension"
+  }
+}

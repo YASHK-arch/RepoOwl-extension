@@ -1,0 +1,39 @@
+.repoowl-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border: 1px solid #d0d7de;
+  border-radius: 999px;
+  background: #f6f8fa;
+  color: #24292f;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.repoowl-badge:hover {
+  background: #eaeef2;
+  border-color: #afb8c1;
+}
+
+.repoowl-badge--ready {
+  border-color: #0969da;
+  color: #0969da;
+  background: #ddf4ff;
+}
+
+.repoowl-badge--ready:hover {
+  background: #b6e3ff;
+}
+
+.repoowl-badge--pending {
+  opacity: 0.75;
+}
+
+.repoowl-badge--detail {
+  margin-left: 12px;
+  vertical-align: middle;
+}
