@@ -119,45 +119,83 @@ export function PromptSettings() {
   }
 
   return (
-    <div className="prompt-settings">
-      <h1>RepoOwl Prompt Settings</h1>
-      <p>
-        Configure repository-specific LLM analysis instructions. The background worker
-        uses this prompt when processing issues; if none is saved, it falls back to the
-        default template below.
+    <>
+      <div className="ro-panel-badge">Model Config</div>
+      <h1 className="ro-panel-title">Configure the model pipeline</h1>
+      <p className="ro-panel-desc">
+        Set repository-specific LLM analysis instructions. The background worker uses this
+        prompt when processing issues; if none is saved, it falls back to the default
+        template below.
       </p>
 
-      <label htmlFor="repository">Repository (owner/repo)</label>
-      <input
-        id="repository"
-        className="repo-input"
-        type="text"
-        placeholder="e.g. octocat/Hello-World"
-        value={repositoryFullName}
-        onChange={(event) => setRepositoryFullName(event.target.value)}
-      />
-
-      <label htmlFor="prompt-template">Analysis Prompt Template</label>
-      <textarea
-        id="prompt-template"
-        value={prompt}
-        onChange={(event) => setPrompt(event.target.value)}
-        disabled={isLoading}
-        spellCheck={false}
-      />
-
-      <div className="actions">
-        <button type="button" className="primary" onClick={handleSave} disabled={isSaving || isLoading}>
-          {isSaving ? 'Saving...' : 'Save Prompt'}
-        </button>
-        <button type="button" onClick={handleResetToDefault} disabled={isLoading}>
-          Reset to Default
-        </button>
+      {/* Repository field */}
+      <div className="ro-section">
+        <h2 className="ro-section-title">Repository</h2>
+        <p className="ro-section-desc">
+          Enter the repository in <code>owner/repo</code> format to load or save a
+          custom prompt.
+        </p>
+        <div className="ro-field">
+          <label htmlFor="ro-repository" className="ro-label">
+            Repository (owner/repo)
+          </label>
+          <input
+            id="ro-repository"
+            className="ro-input"
+            type="text"
+            placeholder="e.g. octocat/Hello-World"
+            value={repositoryFullName}
+            onChange={(event) => setRepositoryFullName(event.target.value)}
+          />
+        </div>
       </div>
 
-      {status.message ? (
-        <p className={`status ${status.type}`}>{status.message}</p>
-      ) : null}
-    </div>
+      {/* Prompt template */}
+      <div className="ro-section">
+        <h2 className="ro-section-title">Analysis Prompt Template</h2>
+        <p className="ro-section-desc">
+          Customise the instructions sent to the LLM for each issue. Use the default
+          template as a starting point.
+        </p>
+        <div className="ro-field">
+          <label htmlFor="ro-prompt-template" className="ro-label">
+            Prompt Template
+          </label>
+          <textarea
+            id="ro-prompt-template"
+            className="ro-textarea"
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            disabled={isLoading}
+            spellCheck={false}
+          />
+        </div>
+
+        <div className="ro-actions">
+          <button
+            id="ro-save-prompt"
+            type="button"
+            className="ro-btn ro-btn--primary"
+            onClick={handleSave}
+            disabled={isSaving || isLoading}
+          >
+            {isSaving ? 'Saving…' : 'Save Prompt'}
+          </button>
+          <button
+            id="ro-reset-prompt"
+            type="button"
+            className="ro-btn ro-btn--secondary"
+            onClick={handleResetToDefault}
+            disabled={isLoading}
+          >
+            Reset to Default
+          </button>
+        </div>
+
+        {status.message ? (
+          <p className={`ro-status ro-status--${status.type}`}>{status.message}</p>
+        ) : null}
+      </div>
+    </>
   );
 }

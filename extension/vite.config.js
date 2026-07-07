@@ -10,14 +10,16 @@ export default defineConfig({
     rollupOptions: {
       input: {
         content: resolve(__dirname, 'src/content/index.js'),
+        sidebarCard: resolve(__dirname, 'src/content/sidebarCard.js'),
         options: resolve(__dirname, 'src/options/index.html'),
+        popup: resolve(__dirname, 'src/popup/index.html'),
       },
       output: {
         entryFileNames: (chunkInfo) => {
-          if (chunkInfo.name === 'content') {
-            return 'content.js';
+          // Content scripts must be top-level files, not in assets/
+          if (chunkInfo.name === 'content' || chunkInfo.name === 'sidebarCard') {
+            return '[name].js';
           }
-
           return 'assets/[name]-[hash].js';
         },
         chunkFileNames: 'assets/[name]-[hash].js',

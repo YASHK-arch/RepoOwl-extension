@@ -1,24 +1,24 @@
 /**
- * Gemini structured-output schema aligned with the issues table columns
+ * Groq structured-output schema aligned with the issues table columns
  * `context` (TEXT) and `duplicate_data` (JSONB).
  */
-export const GEMINI_RESPONSE_SCHEMA = {
-  type: 'object',
+export const GROQ_RESPONSE_SCHEMA = {
+  type: 'OBJECT',
   properties: {
     context: {
-      type: 'string',
+      type: 'STRING',
       description: 'LLM-generated technical summary of the issue.',
     },
     duplicate_data: {
-      type: 'object',
+      type: 'OBJECT',
       properties: {
         original_issue_ids: {
-          type: 'array',
-          items: { type: 'integer' },
+          type: 'ARRAY',
+          items: { type: 'INTEGER' },
           description: 'GitHub issue IDs of structurally duplicate historical issues.',
         },
         explanation: {
-          type: 'string',
+          type: 'STRING',
           description: 'Technical breakdown of duplicate linkage or uniqueness justification.',
         },
       },
