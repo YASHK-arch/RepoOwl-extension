@@ -7,10 +7,7 @@ import { openInsightsOverlay } from '../overlay/OverlayRoot.jsx';
 import contentCss from './content.css?inline';
 
 function injectContentStyles() {
-  if (document.getElementById('repoowl-content-styles')) {
-    return;
-  }
-
+  if (document.getElementById('repoowl-content-styles')) return;
   const style = document.createElement('style');
   style.id = 'repoowl-content-styles';
   style.textContent = contentCss;
@@ -19,9 +16,7 @@ function injectContentStyles() {
 
 async function bootstrap() {
   const page = parseGitHubIssuesPage();
-  if (!page) {
-    return;
-  }
+  if (!page) return;
 
   injectContentStyles();
 
@@ -54,6 +49,14 @@ async function bootstrap() {
   );
 }
 
-bootstrap().catch((error) => {
-  console.warn('[RepoOwl] Failed to initialize content script:', error);
+// Run immediately
+bootstrap().catch((err) => console.warn('[RepoOwl] bootstrap error:', err));
+
+// Also re-run on GitHub's Turbo / pjax navigation events
+document.addEventListener('turbo:load', () => {
+  bootstrap().catch((err) => console.warn('[RepoOwl] turbo:load bootstrap error:', err));
+});
+
+document.addEventListener('pjax:end', () => {
+  bootstrap().catch((err) => console.warn('[RepoOwl] pjax:end bootstrap error:', err));
 });
