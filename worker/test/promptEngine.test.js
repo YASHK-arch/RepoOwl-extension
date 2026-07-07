@@ -97,9 +97,8 @@ describe('validateGroqResponse', () => {
         validateGroqResponse({
           context: 'Summary',
           duplicate_data: { original_issue_ids: ['bad'], explanation: 'x' },
-        }),
-      /integers/
-    );
+        });
+      }, /integers/);
   });
 });
 
