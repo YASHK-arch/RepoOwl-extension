@@ -1,14 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-import { GEMINI_RESPONSE_SCHEMA } from '@repoowl/shared';
-
 import { syncGitHubIssues } from './githubSync.js';
+import { assertGroqApiKey, callGroq } from './callGroq.js';
 import { buildRenderedPrompt } from './promptResolver.js';
-import {
-  GEMINI_THROTTLE_MS,
-  sleep,
-  validateGeminiResponse,
-} from './validateGeminiResponse.js';
+import { GROQ_THROTTLE_MS, sleep } from './validateGroqResponse.js';
 
 const UNPROCESSED_BATCH_SIZE = 10;
 
@@ -54,37 +49,6 @@ async function fetchHistoricalContext(supabase, repositoryFullName, excludeIssue
   return data ?? [];
 }
 
-async function callGemini(prompt, apiKey) {
-  const model = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-        responseSchema: GEMINI_RESPONSE_SCHEMA,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Gemini API error (${response.status}): ${body}`);
-  }
-
-  const result = await response.json();
-  const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-  if (!text) {
-    throw new Error('Gemini API returned an empty response.');
-  }
-
-  return validateGeminiResponse(JSON.parse(text));
-}
-
 async function markIssueProcessed(supabase, issueId, llmResult) {
   const { error } = await supabase
     .from('issues')
@@ -103,7 +67,8 @@ async function markIssueProcessed(supabase, issueId, llmResult) {
 export async function runWorker() {
   const supabaseUrl = requireEnv('SUPABASE_URL');
   const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
-  const geminiApiKey = requireEnv('GEMINI_API_KEY');
+  const groqApiKey = requireEnv('GROQ_API_KEY');
+  assertGroqApiKey(groqApiKey);
   const repositoryFullName = requireEnv('GITHUB_REPOSITORY');
 
   const githubToken = requireEnv('GITHUB_TOKEN');
@@ -135,14 +100,14 @@ export async function runWorker() {
       historicalIssues
     );
 
-    const llmResult = await callGemini(prompt, geminiApiKey);
+    const llmResult = await callGroq(prompt, groqApiKey);
     await markIssueProcessed(supabase, issue.issue_id, llmResult);
 
     console.log(`Processed issue #${issue.issue_id}`);
 
     const hasMore = index < unprocessedIssues.length - 1;
     if (hasMore) {
-      await sleep(GEMINI_THROTTLE_MS);
+      await sleep(GROQ_THROTTLE_MS);
     }
   }
 }

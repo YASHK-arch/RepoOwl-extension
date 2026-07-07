@@ -9,7 +9,7 @@ import {
 } from '@repoowl/shared';
 
 import { resolveRepositoryPrompt } from '../src/promptResolver.js';
-import { validateGeminiResponse } from '../src/validateGeminiResponse.js';
+import { validateGroqResponse } from '../src/validateGroqResponse.js';
 
 describe('renderPrompt', () => {
   it('replaces all default template variables', () => {
@@ -78,9 +78,9 @@ describe('resolveRepositoryPrompt', () => {
   });
 });
 
-describe('validateGeminiResponse', () => {
-  it('accepts a valid structured payload', () => {
-    const result = validateGeminiResponse({
+describe('validateGroqResponse', () => {
+  it('should accept a valid payload', () => {
+    const result = validateGroqResponse({
       context: 'Summary text',
       duplicate_data: {
         original_issue_ids: [101, 202],
@@ -93,9 +93,8 @@ describe('validateGeminiResponse', () => {
   });
 
   it('rejects invalid duplicate_data', () => {
-    assert.throws(
-      () =>
-        validateGeminiResponse({
+      assert.throws(() => {
+        validateGroqResponse({
           context: 'Summary',
           duplicate_data: { original_issue_ids: ['bad'], explanation: 'x' },
         }),
