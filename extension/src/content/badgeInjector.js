@@ -39,10 +39,16 @@ export function createBadge(issueNumber, status, duplicateIds = []) {
   if (status === 'duplicate') {
     const ids = duplicateIds.slice(0, 2).join(', #');
     el.className = 'repoowl-badge repoowl-badge--duplicate';
-    el.innerHTML = `<span class="repoowl-badge__icon">⚠️</span> Dup #${ids}`;
+    el.innerHTML = `<span class="repoowl-badge__icon">⚠️</span> Duplicate #${ids}`;
     el.setAttribute('role', 'button');
     el.setAttribute('tabindex', '0');
     el.setAttribute('aria-label', `Duplicate of issue #${ids}. Click for details.`);
+  } else if (status === 'duplicate_right') {
+    el.className = 'repoowl-badge repoowl-badge--duplicate-right';
+    el.innerHTML = `<span class="repoowl-badge__icon">⚠️</span> Duplicate`;
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('aria-label', `Duplicate issue. Click for details.`);
   } else if (status === 'ready') {
     el.className = 'repoowl-badge repoowl-badge--ready';
     el.innerHTML = `<span class="repoowl-badge__icon">✨</span> AI Insights`;
@@ -82,14 +88,20 @@ function findRowFromLink(link) {
 
 /* ─── Injection targets ─────────────────────────────────────────────── */
 function findLeftTarget(row) {
-  // New GitHub: Title container
+  // New GitHub: inside the subtitle timestamp line (e.g. "#4 · YASHK-arch opened 1h ago")
+  const createdAtContainer = row.querySelector('[data-testid="created-at"]');
+  if (createdAtContainer) {
+    return { container: createdAtContainer, mode: 'append' };
+  }
+
+  // Fallback: Title container
   const titleContainer = row.querySelector('[data-listview-item-title-container="true"]') ??
                          row.querySelector('[class*="Title-module__container"]');
   if (titleContainer) {
     return { container: titleContainer, mode: 'prepend' };
   }
 
-  // Fallback: before the title link itself
+  // Legacy fallback: before the title link itself
   const titleLink =
     row.querySelector('a[data-testid="issue-pr-title-link"]') ??
     row.querySelector('a[data-hovercard-type="issue"]');
@@ -102,13 +114,23 @@ function findLeftTarget(row) {
 }
 
 function findRightTarget(row) {
-  // New GitHub: MetadataContainer at the end of the LI
+  // New GitHub: MetadataContainer
+  const container = row.querySelector('[class*="MetadataContainer-module__container"]');
+  if (container) {
+    // Insert exactly between comments and assignees by placing it before the assignees container
+    const assignees = container.querySelector('[data-testid="list-row-assignees"]');
+    if (assignees) {
+      return { container, beforeNode: assignees, mode: 'before' };
+    }
+    return { container, mode: 'append' };
+  }
+  
+  // Legacy fallback
   return (
-    row.querySelector('[class*="MetadataContainer-module__container"]') ??
     row.querySelector('[class*="text-right"]') ??
     row.querySelector('[class*="IssueRow-module__meta"]') ??
     null
-  );
+  ) ? { container: row.querySelector('[class*="text-right"]') ?? row.querySelector('[class*="IssueRow-module__meta"]'), mode: 'append' } : null;
 }
 
 /* ─── Badge injection ───────────────────────────────────────────────── */
@@ -129,13 +151,30 @@ export function injectBadge(row, issueNumber, insight, onBadgeClick) {
       badge.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); onBadgeClick(issueNumber); });
       badge.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onBadgeClick(issueNumber); } });
       
-      if (leftTarget.mode === 'prepend') {
+      if (leftTarget.mode === 'append') {
+        leftTarget.container.appendChild(badge);
+      } else if (leftTarget.mode === 'prepend') {
         leftTarget.container.insertBefore(badge, leftTarget.container.firstChild);
       } else {
         leftTarget.container.insertBefore(badge, leftTarget.beforeNode);
       }
     }
-    return; // Duplicate = no right badge
+    
+    // Inject placeholder duplicate badge on the right so comments box doesn't shift
+    const rightBadge = createBadge(issueNumber, 'duplicate_right');
+    rightBadge.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); onBadgeClick(issueNumber); });
+    rightBadge.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onBadgeClick(issueNumber); } });
+    
+    const rightTarget = findRightTarget(row);
+    if (rightTarget) {
+      if (rightTarget.mode === 'before') {
+        rightTarget.container.insertBefore(rightBadge, rightTarget.beforeNode);
+      } else {
+        rightTarget.container.appendChild(rightBadge);
+      }
+    }
+    
+    return; // Done handling duplicates
   }
 
   // Right zone for ready/pending
@@ -149,7 +188,11 @@ export function injectBadge(row, issueNumber, insight, onBadgeClick) {
 
   const rightTarget = findRightTarget(row);
   if (rightTarget) {
-    rightTarget.appendChild(badge);
+    if (rightTarget.mode === 'before') {
+      rightTarget.container.insertBefore(badge, rightTarget.beforeNode);
+    } else {
+      rightTarget.container.appendChild(badge);
+    }
   } else {
     // Last resort: append to the trailing badges container (inside title)
     const trailingContainer = row.querySelector('[class*="trailingBadgesContainer"]');
