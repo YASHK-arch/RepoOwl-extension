@@ -1,41 +1,39 @@
-const BUG_DESCRIPTION_HEADER = '### Bug Description';
-const STEPS_HEADER = '### Steps to Reproduce';
-const EXPECTED_BEHAVIOR_HEADER = '### Expected Behavior';
-
-function extractSection(body, header, nextHeaders) {
-  if (!body) {
-    return null;
-  }
-
-  const startIndex = body.indexOf(header);
-  if (startIndex === -1) {
-    return null;
-  }
-
-  const contentStart = startIndex + header.length;
-  let endIndex = body.length;
-
-  for (const nextHeader of nextHeaders) {
-    const nextIndex = body.indexOf(nextHeader, contentStart);
-    if (nextIndex !== -1 && nextIndex < endIndex) {
-      endIndex = nextIndex;
-    }
-  }
-
-  const value = body.slice(contentStart, endIndex).trim();
-  return value || null;
-}
-
 export function parseIssueTemplateFields(body) {
+  if (!body) return {};
+
+  const sections = {};
+  const regex = /###\s+(.+?)(?:\r?\n)+([\s\S]*?)(?=###\s+|$)/g;
+  let match;
+  while ((match = regex.exec(body)) !== null) {
+    const header = match[1].trim();
+    const content = match[2].trim();
+    sections[header] = content;
+  }
+
+  const getVal = (possibleHeaders) => {
+    for (const h of possibleHeaders) {
+      if (sections[h]) return sections[h];
+    }
+    return null;
+  };
+
   return {
-    bug_description: extractSection(body, BUG_DESCRIPTION_HEADER, [
-      STEPS_HEADER,
-      EXPECTED_BEHAVIOR_HEADER,
+    primary_description: getVal([
+      "Bug Description", "Feature Description", "What documentation is missing?", 
+      "Task Description", "Vulnerability Type", "Current Problem", "Missing Tests"
     ]),
-    steps_to_reproduce: extractSection(body, STEPS_HEADER, [
-      EXPECTED_BEHAVIOR_HEADER,
+    context_steps: getVal([
+      "Steps to Reproduce", "Current Design", "Why is it useful?", 
+      "Which page?", "Slow page", "Affected Components"
     ]),
-    expected_behavior: extractSection(body, EXPECTED_BEHAVIOR_HEADER, []),
+    expected_outcome: getVal([
+      "Expected Behavior", "Suggested Improvement", "Proposed Improvement", 
+      "Expected Output", "Impact", "Suggested Fix", "Alternatives considered?"
+    ]),
+    technical_metrics: getVal([
+      "CPU Usage", "Memory Usage", "Logs", "Browser", "OS", 
+      "Files to modify", "Affected Files"
+    ])
   };
 }
 
@@ -84,9 +82,10 @@ export function mapGitHubIssueToRow(issue, repositoryFullName) {
     issue_number: issue.number,
     repository_full_name: repositoryFullName,
     title: issue.title,
-    bug_description: templateFields.bug_description,
-    steps_to_reproduce: templateFields.steps_to_reproduce,
-    expected_behavior: templateFields.expected_behavior,
+    primary_description: templateFields.primary_description,
+    context_steps: templateFields.context_steps,
+    expected_outcome: templateFields.expected_outcome,
+    technical_metrics: templateFields.technical_metrics,
   };
 }
 

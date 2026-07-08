@@ -15,22 +15,22 @@ describe('renderPrompt', () => {
   it('replaces all default template variables', () => {
     const variables = buildPromptVariables(
       {
-        title: 'Crash on save',
-        bug_description: 'Null pointer in parser',
-        steps_to_reproduce: 'Open file, click save',
-        expected_behavior: 'File should save',
+        primary_description: 'Null pointer in parser',
+        context_steps: 'Open file, click save',
+        expected_outcome: 'File should save',
+        technical_metrics: 'CPU at 100%',
       },
       '[Issue ID: #1]\nTitle: Old bug\nTechnical Summary: Parser failure'
     );
 
     const rendered = renderPrompt(DEFAULT_PROMPT_TEMPLATE, variables);
 
-    assert.match(rendered, /Crash on save/);
     assert.match(rendered, /Null pointer in parser/);
     assert.match(rendered, /Open file, click save/);
     assert.match(rendered, /File should save/);
+    assert.match(rendered, /CPU at 100%/);
     assert.match(rendered, /\[Issue ID: #1\]/);
-    assert.doesNotMatch(rendered, /\{\{issue\.title\}\}/);
+    assert.doesNotMatch(rendered, /\{\{issue\.primary_description\}\}/);
   });
 });
 
