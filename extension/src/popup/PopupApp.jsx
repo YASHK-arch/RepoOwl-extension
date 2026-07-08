@@ -61,10 +61,9 @@ export function PopupApp() {
     if (typeof chrome === 'undefined' || !chrome.tabs) return;
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const url = tabs[0]?.url ?? '';
-      const m = url.match(/https:\/\/github\.com\/([^/]+\/[^/]+)/);
+      const m = url.match(/https:\/\/github\.com\/([^/]+\/[^/?#]+)/);
       if (m) {
-        const repo = m[1].replace(/[/?#].*$/, '');
-        setCurrentRepo(repo);
+        setCurrentRepo(m[1]);
       }
     });
   }, []);
