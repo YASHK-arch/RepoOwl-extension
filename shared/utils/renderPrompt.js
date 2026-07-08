@@ -31,9 +31,10 @@ export function buildPromptVariables(issue, historicalContextLog) {
   return {
     issue: {
       title: issue.title ?? '',
-      bug_description: issue.bug_description ?? '',
-      steps_to_reproduce: issue.steps_to_reproduce ?? '',
-      expected_behavior: issue.expected_behavior ?? '',
+      primary_description: issue.primary_description ?? '',
+      context_steps: issue.context_steps ?? '',
+      expected_outcome: issue.expected_outcome ?? '',
+      technical_metrics: issue.technical_metrics ?? '',
     },
     repository: {
       historical_context_log: historicalContextLog ?? '',
