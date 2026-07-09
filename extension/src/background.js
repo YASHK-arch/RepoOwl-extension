@@ -128,6 +128,22 @@ async function saveToSupabase(repo, issue, analysis, keys) {
   }
 }
 
+async function updateGlobalRegistry(repo, totalAnalyzed, duplicatesFound, keys) {
+  const supabase = createClient(keys.supabaseUrl, keys.supabaseAnonKey);
+  const { error } = await supabase
+    .from('public_ecosystem_registry')
+    .upsert({
+      repo_name: repo,
+      total_issues_analyzed: totalAnalyzed,
+      duplicates_found: duplicatesFound,
+      last_updated: new Date().toISOString()
+    }, { onConflict: 'repo_name' });
+    
+  if (error) {
+    console.error("Supabase registry update error:", error);
+  }
+}
+
 async function executeSyncQueue(forceRepos = null) {
   const storage = await chrome.storage.local.get(['repoOwlConfig', 'trackedRepositories']);
   const keys = storage.repoOwlConfig;
@@ -144,13 +160,43 @@ async function executeSyncQueue(forceRepos = null) {
   for (const repo of repos) {
     console.log(`Syncing repository: ${repo}`);
     
+    try {
+      // 1. Verify Native GitHub Permissions
+      const repoMetaResponse = await fetch(`https://api.github.com/repos/${repo}`, {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Authorization': `Bearer ${keys.githubToken}`
+        }
+      });
+      
+      if (!repoMetaResponse.ok) {
+        console.warn(`Failed to fetch repo meta for ${repo}`);
+        continue;
+      }
+      
+      const repoMeta = await repoMetaResponse.json();
+      const isMaintainer = repoMeta.permissions?.push === true || repoMeta.permissions?.admin === true;
+
+      if (!isMaintainer) {
+        console.log(`RepoOwl: Contributor detected for ${repo}. Aborting global sync.`);
+        continue; // Skip global background sync for contributors
+      }
+      console.log(`RepoOwl: Confirmed Maintainer for ${repo}. Executing sync...`);
+    } catch (err) {
+      console.error(`Error checking permissions for ${repo}:`, err);
+      continue;
+    }
+
     // Check which issues are already processed
     const { data: processedIssues } = await supabase
       .from('issues')
-      .select('issue_number')
+      .select('issue_number, is_duplicate')
       .eq('repo_name', repo);
       
     const processedSet = new Set((processedIssues || []).map(r => r.issue_number));
+    let currentAnalyzed = processedSet.size;
+    let currentDuplicates = (processedIssues || []).filter(r => r.is_duplicate).length;
 
     const newIssues = await fetchFromGitHub(repo, keys.githubToken);
 
@@ -163,6 +209,11 @@ async function executeSyncQueue(forceRepos = null) {
         const analysis = await callGroqAPI(issue, history, keys.groqApiKey);
         await saveToSupabase(repo, issue, analysis, keys);
 
+        currentAnalyzed++;
+        if (analysis.is_duplicate) {
+          currentDuplicates++;
+        }
+
         // Mandatory 2-second delay
         await delay(DELAY_MS);
       } catch (error) {
@@ -170,5 +221,8 @@ async function executeSyncQueue(forceRepos = null) {
         continue;
       }
     }
+
+    // 3. Broadcast updated stats to the Global Registry
+    await updateGlobalRegistry(repo, currentAnalyzed, currentDuplicates, keys);
   }
 }
