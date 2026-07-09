@@ -49,6 +49,20 @@ function showUntrackedWarning() {
   container.insertBefore(warningDiv, container.firstChild);
 }
 
+function isValidSupabaseUrl(url) {
+  try {
+    const parsed = new URL(url);
+    // Reject placeholder values — must be a real HTTPS Supabase host
+    return (
+      parsed.protocol === 'https:' &&
+      parsed.hostname.endsWith('.supabase.co') &&
+      !parsed.hostname.startsWith('your-')
+    );
+  } catch {
+    return false;
+  }
+}
+
 async function fetchPublicRepoConfig(repoName) {
   try {
     const response = await fetch(`https://raw.githubusercontent.com/${repoName}/main/repoowl.json`);
@@ -202,9 +216,16 @@ async function bootstrap() {
     isTracked = true; // Fallback outside extension context
   }
 
-  // Check for public repoowl.json gateway
+  // Check for public repoowl.json gateway — validate URL is real before using it
+  // (Placeholder values like "https://your-maintainer-project.supabase.co" must be rejected
+  //  otherwise they poison the Hub Supabase client causing 8s timeouts on every page load)
   const publicConfig = await fetchPublicRepoConfig(page.repository.fullName);
-  if (publicConfig && publicConfig.supabaseUrl && publicConfig.supabaseAnonKey) {
+  if (
+    publicConfig &&
+    isValidSupabaseUrl(publicConfig.supabaseUrl) &&
+    publicConfig.supabaseAnonKey &&
+    !publicConfig.supabaseAnonKey.startsWith('your-')
+  ) {
     const { setPublicGatewayConfig } = await import('../lib/supabase.js');
     setPublicGatewayConfig(publicConfig.supabaseUrl, publicConfig.supabaseAnonKey);
     isTracked = true;
@@ -221,40 +242,80 @@ async function bootstrap() {
     return;
   }
 
-  // State 3: fetching_metrics
-  // Add a loading indicator? (Optional, but could be added here if desired)
-  const insightsCache = await fetchRepositoryInsights(page.repository.fullName);
-
-  if (insightsCache.error) {
-    console.warn('[RepoOwl]', insightsCache.error);
+  // State 3: Two-phase rendering
+  // Phase 1 (INSTANT): Paint badges immediately from the local hub_cache written by background.js.
+  // This makes badges appear in <50ms instead of waiting for the Supabase round-trip.
+  let cachedInsights = { byNumber: new Map(), byId: new Map(), error: null };
+  try {
+    const cacheKey = `hub_cache_${page.repository.fullName}`;
+    const cacheResult = await chrome.storage.local.get([cacheKey]);
+    const cachedRows = cacheResult[cacheKey] || [];
+    if (cachedRows.length > 0) {
+      for (const row of cachedRows) {
+        cachedInsights.byNumber.set(row.issue_number, { ...row, is_processed: true });
+        if (row.id) cachedInsights.byId.set(row.id, { ...row, is_processed: true });
+      }
+    }
+  } catch (e) {
+    console.warn('[RepoOwl] Could not read hub_cache from storage:', e);
   }
 
+  // Hold a mutable reference so the click handler always sees the latest data
+  let liveInsights = cachedInsights;
+
   const handleBadgeClick = (issueNumber) => {
-    const initialInsight = insightsCache.byNumber.get(issueNumber) ?? null;
+    const initialInsight = liveInsights.byNumber.get(issueNumber) ?? null;
     openInsightsOverlay({
       repositoryFullName: page.repository.fullName,
       issueNumber,
       initialInsight,
-      insightsById: insightsCache.byId,
+      insightsById: liveInsights.byId,
     });
   };
 
-  // State 4: ready
+  // State 4: Paint immediately with cached data
   if (page.type === 'list') {
-    observeIssueList(page.repository.fullName, insightsCache, handleBadgeClick);
+    const observer = observeIssueList(page.repository.fullName, cachedInsights, handleBadgeClick);
+
+    // Phase 2 (ASYNC): Fetch fresh data from Supabase in the background.
+    // When it arrives, update badges in-place without any blocking.
+    fetchRepositoryInsights(page.repository.fullName).then((freshInsights) => {
+      if (freshInsights.error) {
+        console.warn('[RepoOwl]', freshInsights.error);
+        return;
+      }
+      liveInsights = freshInsights;
+      // Remove old badges so the observer re-paints them with fresh data
+      document.querySelectorAll('[data-repoowl-badge]').forEach(el => el.remove());
+      // Also update the cache reference so the observer uses fresh data
+      observer.disconnect();
+      observeIssueList(page.repository.fullName, freshInsights, handleBadgeClick);
+    }).catch((err) => console.warn('[RepoOwl] Background fetch error:', err));
+
     return;
   }
 
+  // Detail page: also use two-phase approach
   observeIssueDetail(
     page.repository.fullName,
     page.issueNumber,
-    insightsCache,
+    cachedInsights,
     handleBadgeClick
   );
 
+  // Fetch live data and update if the badge changes state
+  fetchRepositoryInsights(page.repository.fullName).then((freshInsights) => {
+    if (!freshInsights.error) {
+      liveInsights = freshInsights;
+      // Re-run detail observer with fresh data
+      document.querySelectorAll('[data-repoowl-badge]').forEach(el => el.remove());
+      observeIssueDetail(page.repository.fullName, page.issueNumber, freshInsights, handleBadgeClick);
+    }
+  }).catch(() => {});
+
   // If issue hasn't been analyzed by Hub or Sandbox yet, analyze it and save to Sandbox
-  if (!insightsCache.byNumber.has(page.issueNumber) && localGroqKey) {
-    await autoAnalyzeAndSaveToSandbox(page.repository.fullName, page.issueNumber, localGroqKey, insightsCache);
+  if (!cachedInsights.byNumber.has(page.issueNumber) && localGroqKey) {
+    await autoAnalyzeAndSaveToSandbox(page.repository.fullName, page.issueNumber, localGroqKey, cachedInsights);
   }
 }
 
