@@ -195,6 +195,9 @@ async function bootstrap() {
     const repos = result[STORAGE_KEY] || [DEFAULT_REPO];
     isTracked = repos.includes(page.repository.fullName);
     localGroqKey = result.repoOwlConfig?.groqApiKey;
+    if (!localGroqKey && import.meta.env.VITE_GROQ_API_KEY) {
+      localGroqKey = import.meta.env.VITE_GROQ_API_KEY;
+    }
   } else {
     isTracked = true; // Fallback outside extension context
   }

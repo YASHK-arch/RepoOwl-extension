@@ -78,8 +78,6 @@ function EcosystemAnalytics({ keys }) {
 }
 
 const REPO_URL = 'https://github.com/YASHK-arch/RepoOwl-extension';
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
 
 function GitHubIcon() {
   return (
@@ -104,23 +102,19 @@ function getIconUrl(name) {
   return '';
 }
 
-async function fetchStatsForRepo(repo) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !repo) return null;
+async function fetchStatsForRepo(repo, supabaseUrl, supabaseAnonKey) {
+  if (!supabaseUrl || !supabaseAnonKey || !repo) return null;
   try {
-    const url = `${SUPABASE_URL}/rest/v1/issues?select=is_processed,duplicate_data&repository_full_name=eq.${encodeURIComponent(repo)}&limit=200`;
+    const url = `${supabaseUrl}/rest/v1/public_ecosystem_registry?select=total_issues_analyzed,duplicates_found&repo_name=eq.${encodeURIComponent(repo)}&limit=1`;
     const res = await fetch(url, {
-      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+      headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
     });
     if (!res.ok) return null;
     const rows = await res.json();
-    const processed = rows.filter((r) => r.is_processed).length;
-    const duplicates = rows.filter((r) => {
-      try {
-        const d = typeof r.duplicate_data === 'string' ? JSON.parse(r.duplicate_data) : r.duplicate_data;
-        return Array.isArray(d?.original_issue_ids) && d.original_issue_ids.length > 0;
-      } catch { return false; }
-    }).length;
-    return { total: rows.length, processed, duplicates };
+    if (!rows || rows.length === 0) return { total: 0, processed: 0, duplicates: 0 };
+    const processed = rows[0].total_issues_analyzed || 0;
+    const duplicates = rows[0].duplicates_found || 0;
+    return { total: processed, processed, duplicates };
   } catch {
     return null;
   }
@@ -131,9 +125,27 @@ export function PopupApp() {
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
   const [activeTab, setActiveTab] = useState('current');
-  const configured = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+  const [config, setConfig] = useState({
+    supabaseUrl: import.meta.env.VITE_SUPABASE_URL ?? '',
+    supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY ?? ''
+  });
+
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.get(['repoOwlConfig'], (result) => {
+        if (result.repoOwlConfig?.supabaseUrl && result.repoOwlConfig?.supabaseAnonKey) {
+          setConfig({
+            supabaseUrl: result.repoOwlConfig.supabaseUrl,
+            supabaseAnonKey: result.repoOwlConfig.supabaseAnonKey
+          });
+        }
+      });
+    }
+  }, []);
+
+  const configured = !!(config.supabaseUrl && config.supabaseAnonKey);
   
-  const ecosystemKeys = useMemo(() => ({ supabaseUrl: SUPABASE_URL, supabaseAnonKey: SUPABASE_ANON_KEY }), []);
+  const ecosystemKeys = useMemo(() => ({ supabaseUrl: config.supabaseUrl, supabaseAnonKey: config.supabaseAnonKey }), [config.supabaseUrl, config.supabaseAnonKey]);
 
   // Detect the active tab's repo
   useEffect(() => {
@@ -151,10 +163,10 @@ export function PopupApp() {
   const loadStats = useCallback(async () => {
     if (!currentRepo || !configured) return;
     setLoadingStats(true);
-    const result = await fetchStatsForRepo(currentRepo);
+    const result = await fetchStatsForRepo(currentRepo, config.supabaseUrl, config.supabaseAnonKey);
     setStats(result);
     setLoadingStats(false);
-  }, [currentRepo, configured]);
+  }, [currentRepo, configured, config.supabaseUrl, config.supabaseAnonKey]);
 
   useEffect(() => {
     loadStats();

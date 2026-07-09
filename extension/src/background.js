@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import Groq from 'groq-sdk';
 import { DEFAULT_PROMPT_TEMPLATE, buildPromptVariables, formatHistoricalContext, renderPrompt } from '@repoowl/shared';
+import { getSandboxClient, ensureAuthenticatedSession } from './lib/supabase.js';
 
 const DELAY_MS = 2000;
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -35,6 +36,7 @@ async function fetchFromGitHub(repo, token) {
   const url = new URL(`https://api.github.com/repos/${owner}/${name}/issues`);
   url.searchParams.set('state', 'open');
   url.searchParams.set('per_page', '100');
+  url.searchParams.set('direction', 'asc');
 
   const headers = {
     Accept: 'application/vnd.github+json',
@@ -55,7 +57,7 @@ async function fetchFromGitHub(repo, token) {
 }
 
 async function fetchFromSupabase(repo, keys) {
-  const supabase = createClient(keys.supabaseUrl, keys.supabaseAnonKey);
+  const supabase = await getSandboxClient();
   const { data, error } = await supabase
     .from('issues')
     .select('issue_number, analysis_summary')
@@ -71,17 +73,61 @@ async function fetchFromSupabase(repo, keys) {
   return data || [];
 }
 
+function parseIssueTemplateFields(body) {
+  if (!body) return {};
+
+  const sections = {};
+  const regex = /###\s+(.+?)(?:\r?\n)+([\s\S]*?)(?=###\s+|$)/g;
+  let match;
+  while ((match = regex.exec(body)) !== null) {
+    const header = match[1].trim();
+    const content = match[2].trim();
+    sections[header] = content;
+  }
+
+  const getVal = (possibleHeaders) => {
+    for (const h of possibleHeaders) {
+      if (sections[h]) return sections[h];
+    }
+    return null;
+  }
+
+  return {
+    primary_description: getVal([
+      "Bug Description", "Feature Description", "What documentation is missing?", 
+      "Task Description", "Vulnerability Type", "Current Problem", "Missing Tests"
+    ]),
+    context_steps: getVal([
+      "Steps to Reproduce", "Current Design", "Why is it useful?", 
+      "Which page?", "Slow page", "Affected Components"
+    ]),
+    expected_outcome: getVal([
+      "Expected Behavior", "Suggested Improvement", "Proposed Improvement", 
+      "Expected Output", "Impact", "Suggested Fix", "Alternatives considered?"
+    ]),
+    technical_metrics: getVal([
+      "CPU Usage", "Memory Usage", "Logs", "Browser", "OS", 
+      "Files to modify", "Affected Files"
+    ])
+  };
+}
+
 async function callGroqAPI(issue, history, apiKey) {
   const groq = new Groq({ apiKey: apiKey, dangerouslyAllowBrowser: true });
   
   // Format history to mimic the old schema structure for the shared prompt variables
-  const historicalContextLog = history.map(h => `Issue #${h.issue_number}:\n${h.analysis_summary}`).join('\n\n');
+  const historicalContextLog = history.map(h => `[Issue ID: #${h.issue_number}]\nTitle: ${h.title || 'Unknown Title'}\nTechnical Summary: ${h.analysis_summary}`).join('\n\n---\n\n');
   
+  const templateFields = parseIssueTemplateFields(issue.body || '');
+
   // Create an issue object that matches what buildPromptVariables expects
   const mappedIssue = {
     issue_number: issue.number,
     title: issue.title,
-    primary_description: issue.body || 'No description provided.'
+    primary_description: templateFields.primary_description || issue.body || 'No description provided.',
+    context_steps: templateFields.context_steps,
+    expected_outcome: templateFields.expected_outcome,
+    technical_metrics: templateFields.technical_metrics
   };
 
   const variables = buildPromptVariables(mappedIssue, historicalContextLog);
@@ -119,7 +165,7 @@ async function callGroqAPI(issue, history, apiKey) {
 }
 
 async function saveToSupabase(repo, issue, analysis, keys) {
-  const supabase = createClient(keys.supabaseUrl, keys.supabaseAnonKey);
+  const supabase = await getSandboxClient();
   const { error } = await supabase
     .from('issues')
     .insert({
@@ -131,12 +177,14 @@ async function saveToSupabase(repo, issue, analysis, keys) {
     });
     
   if (error) {
-    console.error("Supabase insert error:", error);
+    const errStr = JSON.stringify(error) || String(error);
+    console.error("Supabase insert error details:", errStr);
+    throw new Error(`Supabase insert failed: ${errStr}`);
   }
 }
 
 async function updateGlobalRegistry(repo, totalAnalyzed, duplicatesFound, keys) {
-  const supabase = createClient(keys.supabaseUrl, keys.supabaseAnonKey);
+  const supabase = await getSandboxClient();
   const { error } = await supabase
     .from('public_ecosystem_registry')
     .upsert({
@@ -146,8 +194,10 @@ async function updateGlobalRegistry(repo, totalAnalyzed, duplicatesFound, keys) 
       last_updated: new Date().toISOString()
     }, { onConflict: 'repo_name' });
     
-    if (error) {
-    console.error("Supabase registry update error:", error);
+  if (error) {
+    const errStr = JSON.stringify(error) || String(error);
+    console.error("Supabase registry update error details:", errStr);
+    throw new Error(`Registry update failed: ${errStr}`);
   }
 }
 
@@ -184,19 +234,41 @@ async function closeMissingOpenIssues(repo, supabase, newGithubOpenIssues) {
 
 async function executeSyncQueue(forceRepos = null) {
   const storage = await chrome.storage.local.get(['repoOwlConfig', 'trackedRepositories']);
-  const keys = storage.repoOwlConfig;
+  let keys = storage.repoOwlConfig || {};
   const repos = forceRepos || storage.trackedRepositories || [];
+  
+  if (!keys.groqApiKey && import.meta.env.VITE_GROQ_API_KEY) {
+    keys.groqApiKey = import.meta.env.VITE_GROQ_API_KEY;
+  }
+  if (!keys.supabaseUrl && import.meta.env.VITE_SUPABASE_URL) {
+    keys.supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  }
+  if (!keys.supabaseAnonKey && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    keys.supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  }
 
-  if (!keys || !keys.groqApiKey || !keys.supabaseUrl) {
-    console.warn("RepoOwl: API Keys not configured. Skipping sync.");
+  const broadcast = (msg) => {
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      chrome.runtime.sendMessage({ action: 'sync_progress', message: msg }).catch(() => {});
+    }
+    console.log(msg);
+  };
+
+  if (!keys.groqApiKey || !keys.supabaseUrl) {
+    broadcast("RepoOwl: API Keys not configured. Skipping sync.");
     return;
   }
 
   // Pre-fetch all processed issues to avoid re-processing
-  const supabase = createClient(keys.supabaseUrl, keys.supabaseAnonKey);
+  const authResult = await ensureAuthenticatedSession();
+  if (authResult.error) {
+    broadcast(`RepoOwl: Could not authenticate with Supabase: ${authResult.error}`);
+    return;
+  }
+  const supabase = await getSandboxClient();
 
   for (const repo of repos) {
-    console.log(`Syncing repository: ${repo}`);
+    broadcast(`\n[${repo}] Starting sync...`);
     
     try {
       // 1. Verify Native GitHub Permissions
@@ -209,7 +281,7 @@ async function executeSyncQueue(forceRepos = null) {
       });
       
       if (!repoMetaResponse.ok) {
-        console.warn(`Failed to fetch repo meta for ${repo}`);
+        broadcast(`[${repo}] Failed to fetch repo meta. Check token/permissions.`);
         continue;
       }
       
@@ -217,12 +289,12 @@ async function executeSyncQueue(forceRepos = null) {
       const isMaintainer = repoMeta.permissions?.push === true || repoMeta.permissions?.admin === true;
 
       if (!isMaintainer) {
-        console.log(`RepoOwl: Contributor detected for ${repo}. Aborting global sync.`);
+        broadcast(`[${repo}] Contributor detected. Aborting global sync.`);
         continue; // Skip global background sync for contributors
       }
-      console.log(`RepoOwl: Confirmed Maintainer for ${repo}. Executing sync...`);
+      broadcast(`[${repo}] Confirmed Maintainer. Fetching issues...`);
     } catch (err) {
-      console.error(`Error checking permissions for ${repo}:`, err);
+      broadcast(`[${repo}] Error checking permissions: ${err.message}`);
       continue;
     }
 
@@ -237,15 +309,19 @@ async function executeSyncQueue(forceRepos = null) {
     let currentDuplicates = (processedIssues || []).filter(r => r.is_duplicate).length;
 
     const newIssues = await fetchFromGitHub(repo, keys.githubToken);
+    broadcast(`[${repo}] Found ${newIssues.length} open issues on GitHub.`);
 
     // Update statuses for issues that were closed since last sync
     await closeMissingOpenIssues(repo, supabase, newIssues);
+
+    let pendingIssues = newIssues.filter(i => !processedSet.has(i.number));
+    broadcast(`[${repo}] ${processedSet.size} already processed. ${pendingIssues.length} issues need processing.`);
 
     for (const issue of newIssues) {
       if (processedSet.has(issue.number)) continue; // Skip already processed
 
       try {
-        console.log(`Processing issue #${issue.number} for ${repo}`);
+        broadcast(`[${repo}] Processing issue #${issue.number}...`);
         const history = await fetchFromSupabase(repo, keys);
         const analysis = await callGroqAPI(issue, history, keys.groqApiKey);
         await saveToSupabase(repo, issue, analysis, keys);
@@ -258,12 +334,14 @@ async function executeSyncQueue(forceRepos = null) {
         // Mandatory 2-second delay
         await delay(DELAY_MS);
       } catch (error) {
-        console.error(`Error processing issue ${issue.number}:`, error);
+        const errStr = error.message || String(error);
+        broadcast(`[${repo}] Error processing issue #${issue.number}: ${errStr}`);
         continue;
       }
     }
 
     // 3. Broadcast updated stats to the Global Registry
     await updateGlobalRegistry(repo, currentAnalyzed, currentDuplicates, keys);
+    broadcast(`[${repo}] Sync complete. Total Analyzed: ${currentAnalyzed}, Duplicates: ${currentDuplicates}`);
   }
 }
