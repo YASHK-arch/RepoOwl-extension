@@ -82,12 +82,26 @@ export async function getSandboxClient() {
 }
 
 export async function getHubClient() {
+  const keys = await getKeysFromStorage();
+  
+  // If the user has a Sandbox configured, and the Hub is the same URL, OR
+  // if they are the maintainer (meaning their keys are the source of truth),
+  // just reuse the Sandbox client. This prevents "Multiple GoTrueClient instances" warnings
+  // and completely bypasses the 5-minute raw.githubusercontent.com cache delay.
+  if (keys.supabaseUrl && keys.supabaseAnonKey) {
+    if (!publicGatewayConfig || keys.supabaseUrl === publicGatewayConfig.supabaseUrl) {
+      return await getSandboxClient();
+    }
+  }
+
   if (!publicGatewayConfig) return null;
 
   if (!hubClient) {
     hubClient = createClient(publicGatewayConfig.supabaseUrl, publicGatewayConfig.supabaseAnonKey, {
       auth: {
-        persistSession: false, // Hub is read-only, no need to persist auth
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
         storageKey: 'repoowl-hub-auth-token',
       }
     });
@@ -97,7 +111,7 @@ export async function getHubClient() {
 
 // Fallback for backwards compatibility
 export async function getSupabaseClient() {
-  return await getSandboxClient() || await getHubClient();
+  return (await getSandboxClient()) || (await getHubClient());
 }
 
 export async function isSupabaseConfigured() {
