@@ -8,8 +8,7 @@ async function fetchFromClient(client, repositoryFullName) {
     const { data, error } = await client
       .from('issues')
       .select('id, issue_number, is_duplicate, analysis_summary')
-      .eq('repo_name', repositoryFullName)
-      .eq('status', 'open');
+      .eq('repo_name', repositoryFullName);
 
     if (error) {
       console.error("[RepoOwl] Supabase Fetch Error:", error.message);
