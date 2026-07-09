@@ -33,7 +33,7 @@ async function fetchFromGitHub(repo, token) {
   if (!owner || !name) throw new Error(`Invalid repository: ${repo}`);
 
   const url = new URL(`https://api.github.com/repos/${owner}/${name}/issues`);
-  url.searchParams.set('state', 'all');
+  url.searchParams.set('state', 'open');
   url.searchParams.set('per_page', '100');
 
   const headers = {
@@ -60,6 +60,7 @@ async function fetchFromSupabase(repo, keys) {
     .from('issues')
     .select('issue_number, analysis_summary')
     .eq('repo_name', repo)
+    .eq('status', 'open')
     .order('created_at', { ascending: false })
     .limit(50);
 
@@ -90,7 +91,12 @@ async function callGroqAPI(issue, history, apiKey) {
     messages: [
       {
         role: 'system',
-        content: 'You are an expert AI assistant. You must respond in valid JSON format matching this schema:\n' +
+        content: 'You are an expert GitHub triage AI.\n' +
+                 'The user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\n' +
+                 'Do not assume any issues have been resolved, because they are all actively open.\n' +
+                 'Your job is to determine if the user\'s draft is a DUPLICATE of one of these specific OPEN issues.\n' +
+                 'If they are reporting a bug that already exists in this open list, flag it as a duplicate.\n' +
+                 'You must respond in valid JSON format matching this schema:\n' +
                  '{ "is_duplicate": boolean, "analysis_summary": "string" }\n' +
                  'Ensure the JSON is well-formed.'
       },
@@ -120,7 +126,8 @@ async function saveToSupabase(repo, issue, analysis, keys) {
       repo_name: repo,
       issue_number: issue.number,
       is_duplicate: analysis.is_duplicate,
-      analysis_summary: analysis.analysis_summary
+      analysis_summary: analysis.analysis_summary,
+      status: 'open'
     });
     
   if (error) {
@@ -139,8 +146,39 @@ async function updateGlobalRegistry(repo, totalAnalyzed, duplicatesFound, keys) 
       last_updated: new Date().toISOString()
     }, { onConflict: 'repo_name' });
     
-  if (error) {
+    if (error) {
     console.error("Supabase registry update error:", error);
+  }
+}
+
+async function closeMissingOpenIssues(repo, supabase, newGithubOpenIssues) {
+  // Get all issues currently tracked as 'open' in Supabase
+  const { data: dbOpenIssues, error } = await supabase
+    .from('issues')
+    .select('issue_number')
+    .eq('repo_name', repo)
+    .eq('status', 'open');
+
+  if (error || !dbOpenIssues) return;
+
+  const githubOpenSet = new Set(newGithubOpenIssues.map(i => i.number));
+  const toClose = dbOpenIssues
+    .map(i => i.issue_number)
+    .filter(num => !githubOpenSet.has(num));
+
+  if (toClose.length > 0) {
+    console.log(`RepoOwl: Found ${toClose.length} issues that are no longer open. Updating...`);
+    // Supabase JS doesn't have a simple 'where in array' for update without looping or using .in()
+    // We can do it in batches or a single query
+    const { error: updateError } = await supabase
+      .from('issues')
+      .update({ status: 'closed' })
+      .eq('repo_name', repo)
+      .in('issue_number', toClose);
+      
+    if (updateError) {
+      console.error("Error closing issues in Supabase:", updateError);
+    }
   }
 }
 
@@ -199,6 +237,9 @@ async function executeSyncQueue(forceRepos = null) {
     let currentDuplicates = (processedIssues || []).filter(r => r.is_duplicate).length;
 
     const newIssues = await fetchFromGitHub(repo, keys.githubToken);
+
+    // Update statuses for issues that were closed since last sync
+    await closeMissingOpenIssues(repo, supabase, newIssues);
 
     for (const issue of newIssues) {
       if (processedSet.has(issue.number)) continue; // Skip already processed

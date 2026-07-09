@@ -18,7 +18,8 @@ async function fetchFromClient(client, repositoryFullName) {
       client
         .from('issues')
         .select('id, issue_number, is_duplicate, analysis_summary')
-        .eq('repo_name', repositoryFullName),
+        .eq('repo_name', repositoryFullName)
+        .eq('status', 'open'),
       FETCH_TIMEOUT_MS
     );
     if (error) throw error;
