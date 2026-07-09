@@ -1,5 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
+const dummyStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {}
+};
+
 const STORAGE_KEY = 'repoOwlConfig';
 let sandboxClient = null;
 let hubClient = null;
@@ -72,7 +78,8 @@ export async function getSandboxClient() {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
-        detectSessionInUrl: false
+        detectSessionInUrl: false,
+        storage: dummyStorage
       },
     });
   }
@@ -100,6 +107,7 @@ export async function getHubClient() {
         persistSession: false,
         autoRefreshToken: false,
         detectSessionInUrl: false,
+        storage: dummyStorage,
         storageKey: 'repoowl-hub-auth-token',
       }
     });

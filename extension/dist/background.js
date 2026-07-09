@@ -18553,32 +18553,39 @@ function Uo(t, e) {
     }
   };
 }
-const Kr = "repoOwlConfig";
+const No = {
+  getItem: () => null,
+  setItem: () => {
+  },
+  removeItem: () => {
+  }
+}, Kr = "repoOwlConfig";
 let Ot = null;
 async function Fs() {
   var e;
   let t = {};
   return typeof chrome < "u" && ((e = chrome.storage) != null && e.local) && (t = (await chrome.storage.local.get([Kr]))[Kr] || {}), t.supabaseUrl, t.supabaseAnonKey, t;
 }
-async function No() {
+async function Lo() {
   const t = await Fs();
   return !!(t.supabaseUrl && t.supabaseAnonKey);
 }
 async function Ve() {
-  if (!await No()) return null;
+  if (!await Lo()) return null;
   if (!Ot) {
     const e = await Fs();
     Ot = ps(e.supabaseUrl, e.supabaseAnonKey, {
       auth: {
         persistSession: !1,
         autoRefreshToken: !1,
-        detectSessionInUrl: !1
+        detectSessionInUrl: !1,
+        storage: No
       }
     });
   }
   return Ot;
 }
-async function Lo() {
+async function Do() {
   const t = await Ve();
   if (!t)
     return { error: "Sandbox Supabase is not configured for RepoOwl." };
@@ -18598,17 +18605,17 @@ async function Lo() {
     };
   }
 }
-const Do = 2e3, Bo = (t) => new Promise((e) => setTimeout(e, t));
+const Bo = 2e3, qo = (t) => new Promise((e) => setTimeout(e, t));
 chrome.runtime.onMessage.addListener((t, e, r) => {
   if (t.action === "open_settings")
     chrome.runtime.openOptionsPage();
   else {
     if (t.action === "force_sync")
       return Ks([t.repoName]).then(() => r({ success: !0 })).catch((s) => r({ error: s.message })), !0;
-    t.action === "add_repo" && (qo(t.repoName).catch((s) => console.error("Error auto-publishing config:", s)), r({ success: !0 }));
+    t.action === "add_repo" && (Mo(t.repoName).catch((s) => console.error("Error auto-publishing config:", s)), r({ success: !0 }));
   }
 });
-async function qo(t) {
+async function Mo(t) {
   var s, n;
   const r = (await chrome.storage.local.get(["repoOwlConfig"])).repoOwlConfig || {};
   if (!(!r.githubToken || !r.supabaseUrl || !r.supabaseAnonKey))
@@ -18669,7 +18676,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.alarms.onAlarm.addListener(async (t) => {
   t.name === "repoOwlHourlySync" && (console.log("Waking up for hourly sync..."), await Ks());
 });
-async function Mo(t, e) {
+async function Ho(t, e) {
   const [r, s] = t.split("/");
   if (!r || !s) throw new Error(`Invalid repository: ${t}`);
   const n = new URL(`https://api.github.com/repos/${r}/${s}/issues`);
@@ -18686,11 +18693,11 @@ async function Mo(t, e) {
   }
   return (await a.json()).filter((l) => !l.pull_request);
 }
-async function Ho(t, e) {
+async function Fo(t, e) {
   const r = await Ve(), { data: s, error: n } = await r.from("issues").select("issue_number, analysis_summary").eq("repo_name", t).eq("status", "open").order("created_at", { ascending: !1 }).limit(50);
   return n ? (console.error("Error fetching history:", n), []) : s || [];
 }
-function Fo(t) {
+function Wo(t) {
   if (!t) return {};
   const e = {}, r = /###\s+(.+?)(?:\r?\n)+([\s\S]*?)(?=###\s+|$)/g;
   let s;
@@ -18741,7 +18748,7 @@ function Fo(t) {
     ])
   };
 }
-async function Wo(t, e, r) {
+async function Ko(t, e, r) {
   var h, f, d;
   const s = new O({ apiKey: r, dangerouslyAllowBrowser: !0 }), n = e.map((p) => `[Issue ID: #${p.issue_number}]
 Title: ${p.title || "Unknown Title"}
@@ -18749,7 +18756,7 @@ Technical Summary: ${p.analysis_summary}`).join(`
 
 ---
 
-`), i = Fo(t.body || ""), a = {
+`), i = Wo(t.body || ""), a = {
     issue_number: t.number,
     title: t.title,
     primary_description: i.primary_description || t.body || "No description provided.",
@@ -18782,7 +18789,7 @@ Ensure the JSON is well-formed.`
     throw new Error("Groq API returned an empty response.");
   return JSON.parse(u);
 }
-async function Ko(t, e, r, s) {
+async function Go(t, e, r, s) {
   const n = await Ve(), { error: i } = await n.from("issues").insert({
     repo_name: t,
     issue_number: e.number,
@@ -18795,7 +18802,7 @@ async function Ko(t, e, r, s) {
     throw console.error("Supabase insert error details:", a), new Error(`Supabase insert failed: ${a}`);
   }
 }
-async function Go(t, e, r, s) {
+async function Vo(t, e, r, s) {
   const n = await Ve(), { error: i } = await n.from("public_ecosystem_registry").upsert({
     repo_name: t,
     total_issues_analyzed: e,
@@ -18807,7 +18814,7 @@ async function Go(t, e, r, s) {
     throw console.error("Supabase registry update error details:", a), new Error(`Registry update failed: ${a}`);
   }
 }
-async function Vo(t, e, r) {
+async function Jo(t, e, r) {
   const { data: s, error: n } = await e.from("issues").select("issue_number").eq("repo_name", t).eq("status", "open");
   if (n || !s) return;
   const i = new Set(r.map((o) => o.number)), a = s.map((o) => o.issue_number).filter((o) => !i.has(o));
@@ -18831,7 +18838,7 @@ async function Ks(t = null) {
     n("RepoOwl: API Keys not configured. Skipping sync.");
     return;
   }
-  const i = await Lo();
+  const i = await Do();
   if (i.error) {
     n(`RepoOwl: Could not authenticate with Supabase: ${i.error}`);
     return;
@@ -18894,20 +18901,20 @@ async function Ks(t = null) {
     }
     const { data: f } = await a.from("issues").select("issue_number, is_duplicate").eq("repo_name", c), d = new Set((f || []).map((S) => S.issue_number));
     let p = d.size, g = (f || []).filter((S) => S.is_duplicate).length;
-    const _ = await Mo(c, r.githubToken);
-    u && await Vo(c, a, _);
+    const _ = await Ho(c, r.githubToken);
+    u && await Jo(c, a, _);
     let v = _.filter((S) => !d.has(S.number));
     u ? n(`[${c}] ${d.size} already processed. ${v.length} issues need processing.`) : h ? (v = v.filter((S) => S.user && S.user.login === h), n(`[${c}] Found ${v.length} unprocessed issues authored by you.`)) : (n(`[${c}] Could not determine your GitHub username, skipping sandbox processing.`), v = []);
     for (const S of v)
       try {
         n(`[${c}] Processing issue #${S.number}...`);
-        const T = await Ho(c, r);
+        const T = await Fo(c, r);
         T.forEach((R) => {
           const W = _.find((N) => N.number === R.issue_number);
           W && (R.title = W.title);
         });
-        const E = await Wo(S, T, r.groqApiKey);
-        await Ko(c, S, E, r), p++, E.is_duplicate && g++, await Bo(Do);
+        const E = await Ko(S, T, r.groqApiKey);
+        await Go(c, S, E, r), p++, E.is_duplicate && g++, await qo(Bo);
       } catch (T) {
         const E = T.message || String(T);
         n(`[${c}] Error processing issue #${S.number}: ${E}`);
@@ -18918,6 +18925,6 @@ async function Ks(t = null) {
       const T = (await chrome.storage.local.get([`hub_cache_${c}`]))[`hub_cache_${c}`] || [], E = new Set(T.map((R) => R.issue_number));
       d.forEach((R) => E.add(R)), w = E.size, y = g + T.filter((R) => R.is_duplicate).length;
     }
-    await Go(c, w, y), n(`[${c}] Sync complete. Total Analyzed: ${w}, Duplicates: ${y}`);
+    await Vo(c, w, y), n(`[${c}] Sync complete. Total Analyzed: ${w}, Duplicates: ${y}`);
   }
 }
