@@ -1,0 +1,4 @@
+{
+  "supabaseUrl": "https://your-maintainer-project.supabase.co",
+  "supabaseAnonKey": "your-maintainer-anon-key"
+}
