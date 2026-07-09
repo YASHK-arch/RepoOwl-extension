@@ -2,23 +2,9 @@ import '../overlay/overlay.css';
 
 const REPO_URL = 'https://github.com/YASHK-arch/RepoOwl-extension';
 
-function resolveDuplicateIssueNumber(issueId, insightsById) {
-  const match = insightsById?.get(issueId);
-  return match?.issue_number ?? null;
-}
-
-function resolveDuplicateHref(repositoryFullName, issueId, insightsById) {
-  const num = resolveDuplicateIssueNumber(issueId, insightsById);
-  if (num) return `https://github.com/${repositoryFullName}/issues/${num}`;
-  return null;
-}
-
 function getStatePill(insight) {
   if (!insight) return null;
-  const isDuplicate =
-    insight.is_processed &&
-    Array.isArray(insight.duplicate_data?.original_issue_ids) &&
-    insight.duplicate_data.original_issue_ids.length > 0;
+  const isDuplicate = insight.is_processed && insight.is_duplicate === true;
 
   if (isDuplicate) {
     return { cls: 'repoowl-state-pill--duplicate', icon: '⚠️', label: 'Duplicate' };
@@ -33,13 +19,11 @@ export function InsightsOverlay({
   repositoryFullName,
   issueNumber,
   insight,
-  insightsById,
   loading,
   error,
   onClose,
 }) {
-  const duplicateIds = insight?.duplicate_data?.original_issue_ids ?? [];
-  const isDuplicate = insight?.is_processed && duplicateIds.length > 0;
+  const isDuplicate = insight?.is_processed && insight?.is_duplicate === true;
   const isReady = insight?.is_processed && !isDuplicate;
   const statePill = getStatePill(insight);
 
@@ -126,13 +110,13 @@ export function InsightsOverlay({
           )}
 
           {/* AI Summary */}
-          {!loading && !error && insight?.context && (
+          {!loading && !error && insight?.analysis_summary && (
             <div className="repoowl-overlay-section">
               <div className="repoowl-overlay-section-header">
                 <span className="repoowl-overlay-section-icon">🧠</span>
                 <h3>Technical Summary</h3>
               </div>
-              <p>{insight.context}</p>
+              <p>{insight.analysis_summary}</p>
             </div>
           )}
 
@@ -143,39 +127,14 @@ export function InsightsOverlay({
                 <span className="repoowl-overlay-section-icon">🔗</span>
                 <h3>Duplicate Trace</h3>
               </div>
-
-              <ul className="repoowl-overlay-duplicate-list">
-                {duplicateIds.map((issueId) => {
-                  const href = resolveDuplicateHref(repositoryFullName, issueId, insightsById);
-                  const num = resolveDuplicateIssueNumber(issueId, insightsById) ?? issueId;
-                  return (
-                    <li className="repoowl-overlay-duplicate-item" key={issueId}>
-                      {href ? (
-                        <a href={href} target="_blank" rel="noreferrer">
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-                            <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z" />
-                          </svg>
-                          Original Issue #{num} ↗
-                        </a>
-                      ) : (
-                        <span style={{ color: '#8b949e', fontSize: 13 }}>Issue ID {issueId}</span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-
-              {insight.duplicate_data?.explanation && (
-                <div className="repoowl-overlay-explanation">
-                  {insight.duplicate_data.explanation}
-                </div>
-              )}
+              <div className="repoowl-overlay-explanation">
+                This issue has been flagged as a duplicate by RepoOwl AI.
+              </div>
             </div>
           )}
 
           {/* No duplicate */}
-          {!loading && !error && insight?.is_processed && !isDuplicate && insight?.duplicate_data && (
+          {!loading && !error && insight?.is_processed && !isDuplicate && (
             <div className="repoowl-overlay-section">
               <div className="repoowl-overlay-section-header">
                 <span className="repoowl-overlay-section-icon">✅</span>
