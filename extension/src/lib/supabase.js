@@ -15,11 +15,20 @@ export function getPublicGatewayConfig() {
 }
 
 async function getKeysFromStorage() {
+  let keys = {};
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
     const result = await chrome.storage.local.get([STORAGE_KEY]);
-    return result[STORAGE_KEY] || {};
+    keys = result[STORAGE_KEY] || {};
   }
-  return {};
+  
+  if (!keys.supabaseUrl && import.meta.env.VITE_SUPABASE_URL) {
+    keys.supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  }
+  if (!keys.supabaseAnonKey && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    keys.supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  }
+  
+  return keys;
 }
 
 function createAuthStorage() {
@@ -58,8 +67,8 @@ export async function getSandboxClient() {
     const keys = await getKeysFromStorage();
     sandboxClient = createClient(keys.supabaseUrl, keys.supabaseAnonKey, {
       auth: {
-        persistSession: true,
-        autoRefreshToken: true,
+        persistSession: typeof window === 'undefined',
+        autoRefreshToken: typeof window === 'undefined',
         detectSessionInUrl: false,
         storage: createAuthStorage(),
       },

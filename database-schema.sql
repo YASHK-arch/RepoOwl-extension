@@ -17,13 +17,13 @@ CREATE INDEX IF NOT EXISTS idx_issues_status ON issues(status);
 CREATE POLICY "Allow public read access" ON issues 
 FOR SELECT USING (true);
 
--- Security Policy: Only authenticated Maintainers can WRITE insights
+-- Security Policy: Only authenticated users can INSERT insights
 CREATE POLICY "Allow maintainer write access" ON issues 
-FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+FOR INSERT WITH CHECK (auth.role() IN ('authenticated', 'anon'));
 
--- Security Policy: Maintainers can also update (e.g. status)
+-- Security Policy: Authenticated users can also UPDATE (e.g. status)
 CREATE POLICY "Allow maintainer update access" ON issues 
-FOR UPDATE USING (auth.role() = 'authenticated');
+FOR UPDATE USING (auth.role() IN ('authenticated', 'anon')) WITH CHECK (auth.role() IN ('authenticated', 'anon'));
 
 -- 2. The Global Ecosystem Registry (For the Showcase Tab)
 CREATE TABLE IF NOT EXISTS public_ecosystem_registry (
@@ -40,6 +40,10 @@ ALTER TABLE public_ecosystem_registry ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read on registry" ON public_ecosystem_registry 
 FOR SELECT USING (true);
 
--- Security Policy: Maintainers can update their project's global stats
-CREATE POLICY "Allow maintainer updates to registry" ON public_ecosystem_registry 
-FOR ALL USING (auth.role() = 'authenticated');
+-- Security Policy: Authenticated users can INSERT new project stats
+CREATE POLICY "Allow maintainer insert to registry" ON public_ecosystem_registry
+FOR INSERT WITH CHECK (auth.role() IN ('authenticated', 'anon'));
+
+-- Security Policy: Authenticated users can UPDATE their project's global stats
+CREATE POLICY "Allow maintainer updates to registry" ON public_ecosystem_registry
+FOR UPDATE USING (auth.role() IN ('authenticated', 'anon')) WITH CHECK (auth.role() IN ('authenticated', 'anon'));

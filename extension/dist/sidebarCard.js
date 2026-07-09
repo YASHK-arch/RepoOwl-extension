@@ -1,4 +1,4 @@
-(function(){"use strict";const a="repoowl-sidebar-card",f=`
+(function(){"use strict";const c="repoowl-sidebar-card";async function g(){var o,s;let e="",t="";if(typeof chrome<"u"&&chrome.storage){const r=await new Promise(a=>chrome.storage.local.get(["repoOwlConfig"],a));(o=r.repoOwlConfig)!=null&&o.supabaseUrl&&((s=r.repoOwlConfig)!=null&&s.supabaseAnonKey)&&(e=r.repoOwlConfig.supabaseUrl,t=r.repoOwlConfig.supabaseAnonKey)}return{supabaseUrl:e,supabaseAnonKey:t}}const m=`
 #repoowl-sidebar-card {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   margin-bottom: 16px;
@@ -124,8 +124,27 @@
   text-align: center;
   padding: 6px 0 10px;
 }
-`;function u(){const t=window.location.pathname.match(/^\/([^/]+)\/([^/]+)\/?$/);return!t||["login","signup","explore","topics","trending","marketplace","settings","notifications","dashboard"].includes(t[1].toLowerCase())||["orgs","apps","marketplace"].includes(t[2].toLowerCase())?null:`${t[1]}/${t[2]}`}async function g(t){return null}function l(){const t=document.querySelector('[data-component="PageLayout.Pane"]');if(t){const e=t.querySelector(".BorderGrid");if(e&&e.firstElementChild)return{grid:e,firstRow:e.firstElementChild}}const r=document.querySelector(".Layout-sidebar .BorderGrid");return r&&r.firstElementChild?{grid:r,firstRow:r.firstElementChild}:null}function m(t,r){const e=typeof chrome<"u"&&chrome.runtime?chrome.runtime.getURL("src/options/index.html"):"#";let i;i='<div class="ro-sc-empty">Configure RepoOwl to see insights.</div>';const n='<span class="ro-sc-badge-pending">Setup needed</span>',o=document.createElement("div");return o.id=a,o.innerHTML=`
-    <style>${f}</style>
+`;function b(){const e=window.location.pathname.match(/^\/([^/]+)\/([^/]+)\/?$/);return!e||["login","signup","explore","topics","trending","marketplace","settings","notifications","dashboard"].includes(e[1].toLowerCase())||["orgs","apps","marketplace"].includes(e[2].toLowerCase())?null:`${e[1]}/${e[2]}`}async function x(e,t){if(!t.supabaseUrl||!t.supabaseAnonKey)return null;const o=`${t.supabaseUrl}/rest/v1/public_ecosystem_registry?select=total_issues_analyzed,duplicates_found&repo_name=eq.${encodeURIComponent(e)}&limit=1`;try{const s=await fetch(o,{headers:{apikey:t.supabaseAnonKey,Authorization:`Bearer ${t.supabaseAnonKey}`}});if(!s.ok)return null;const r=await s.json();if(!r||r.length===0)return{total:0,processed:0,duplicates:0};const a=r[0].total_issues_analyzed||0,n=r[0].duplicates_found||0;return{total:a,processed:a,duplicates:n}}catch{return null}}function p(){const e=document.querySelector('[data-component="PageLayout.Pane"]');if(e){const o=e.querySelector(".BorderGrid");if(o&&o.firstElementChild)return{grid:o,firstRow:o.firstElementChild}}const t=document.querySelector(".Layout-sidebar .BorderGrid");return t&&t.firstElementChild?{grid:t,firstRow:t.firstElementChild}:null}function v(e,t,o){const s=typeof chrome<"u"&&chrome.runtime?chrome.runtime.getURL("src/options/index.html"):"#",r=!!(o.supabaseUrl&&o.supabaseAnonKey);let a;!r||e===null?a=`<div class="ro-sc-empty">${r?"Connecting to RepoOwl…":"Configure RepoOwl to see insights."}</div>`:e.total===0?a='<div class="ro-sc-empty">No issues tracked yet. Run the worker to begin.</div>':a=`
+      <div class="ro-sc-stats">
+        <div class="ro-sc-stat">
+          <span class="ro-sc-stat-num">${e.processed}</span>
+          <span class="ro-sc-stat-label">Analysed</span>
+        </div>
+        <div class="ro-sc-stat">
+          <span class="ro-sc-stat-num">${e.duplicates}</span>
+          <span class="ro-sc-stat-label">Duplicates</span>
+        </div>
+        <div class="ro-sc-stat">
+          <span class="ro-sc-stat-num">${e.total}</span>
+          <span class="ro-sc-stat-label">Total</span>
+        </div>
+      </div>
+      <div class="ro-sc-meta">
+        <span class="ro-sc-dot"></span>
+        Groq LLaMA 3.3 · ${t}
+      </div>
+    `;const n=e!==null&&r?'<span class="ro-sc-badge-active">Active</span>':'<span class="ro-sc-badge-pending">Setup needed</span>',d=document.createElement("div");return d.id=c,d.innerHTML=`
+    <style>${m}</style>
     <div class="ro-sc-header">
       <div class="ro-sc-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -135,11 +154,11 @@
       </div>
       ${n}
     </div>
-    ${i}
-    <a href="${e}" target="_blank" rel="noreferrer" class="ro-sc-link">
+    ${a}
+    <a href="${s}" target="_blank" rel="noreferrer" class="ro-sc-link">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
         <path d="M7.429 1.525a6.593 6.593 0 0 1 1.142 0c.036.003.108.036.137.146l.289 1.105c.147.56.55.967.997 1.189.174.086.341.18.502.28.433.268.97.268 1.392.008l.938-.538c.098-.056.171-.06.207-.038a6.673 6.673 0 0 1 .57.498c.02.017.168.14.068.278l-.642.87a1.576 1.576 0 0 0-.173 1.463c.13.414.13.866 0 1.28a1.576 1.576 0 0 0 .173 1.463l.642.87c.1.138-.048.26-.068.278a6.662 6.662 0 0 1-.57.498.207.207 0 0 1-.207-.038l-.938-.538c-.422-.26-.959-.26-1.392.008a5.073 5.073 0 0 1-.502.28c-.447.222-.85.629-.997 1.189l-.289 1.105c-.029.11-.101.143-.137.146a6.593 6.593 0 0 1-1.142 0c-.036-.003-.108-.036-.137-.146l-.289-1.105c-.147-.56-.55-.967-.997-1.189a5.082 5.082 0 0 1-.502-.28c-.433-.268-.97-.268-1.392-.008l-.938.538a.207.207 0 0 1-.207.038 6.679 6.679 0 0 1-.57-.498c-.02-.018-.168-.14-.068-.278l.642-.87a1.576 1.576 0 0 0 .173-1.463 4.575 4.575 0 0 1 0-1.28 1.576 1.576 0 0 0-.173-1.463l-.642-.87c-.1-.138.048-.26.068-.278.185-.163.374-.315.57-.498a.207.207 0 0 1 .207.038l.938.538c.422.26.959.26 1.392-.008.161-.1.328-.194.502-.28.447-.222.85-.629.997-1.189l.289-1.105c.029-.11.101-.143.137-.146zM8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/>
       </svg>
       Settings &amp; Insights →
     </a>
-  `,o}async function x(t,r){if(document.getElementById(a))return;const e=l();if(!e)return;const i=m(),n=document.createElement("div");n.className="BorderGrid-row",n.style.cssText="border-top: none !important;";const o=document.createElement("div");o.className="BorderGrid-cell",o.appendChild(i),n.appendChild(o),e.grid.insertBefore(n,e.firstRow)}let c=0;const b=20,v=250;async function s(t,r){if(document.getElementById(a)||c>=b)return;if(c++,!l()){setTimeout(()=>s(),v);return}await x()}async function d(){var e;if(!u())return;c=0,s(),await g();const r=document.getElementById(a);r&&((e=r.closest(".BorderGrid-row"))==null||e.remove()),c=0,s()}let p=window.location.pathname;new MutationObserver(()=>{var r;const t=window.location.pathname;if(t!==p){p=t;const e=document.getElementById(a);e&&((r=e.closest(".BorderGrid-row"))==null||r.remove()),d()}}).observe(document.body,{childList:!0,subtree:!0}),d()})();
+  `,d}async function h(e,t,o){if(document.getElementById(c))return;const s=p();if(!s)return;const r=v(t,e,o),a=document.createElement("div");a.className="BorderGrid-row",a.style.cssText="border-top: none !important;";const n=document.createElement("div");n.className="BorderGrid-cell",n.appendChild(r),a.appendChild(n),s.grid.insertBefore(a,s.firstRow)}let i=0;const y=20,w=250;async function l(e,t,o){if(document.getElementById(c)||i>=y)return;if(i++,!p()){setTimeout(()=>l(e,t,o),w);return}await h(e,t,o)}async function u(){var r;const e=b();if(!e)return;const t=await g();i=0,l(e,null,t);const o=await x(e,t),s=document.getElementById(c);s&&((r=s.closest(".BorderGrid-row"))==null||r.remove()),i=0,l(e,o,t)}let f=window.location.pathname;new MutationObserver(()=>{var t;const e=window.location.pathname;if(e!==f){f=e;const o=document.getElementById(c);o&&((t=o.closest(".BorderGrid-row"))==null||t.remove()),u()}}).observe(document.body,{childList:!0,subtree:!0}),u()})();

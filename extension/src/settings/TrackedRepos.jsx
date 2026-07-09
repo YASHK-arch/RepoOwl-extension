@@ -7,7 +7,8 @@ export function TrackedRepos() {
   const [repos, setRepos] = useState([]);
   const [newRepo, setNewRepo] = useState('');
   const [status, setStatus] = useState({ type: '', message: '' });
-  const [syncing, setSyncing] = useState(false);
+  const [syncing, setSyncing] = useState(null);
+  const [syncLogs, setSyncLogs] = useState([]);
 
   useEffect(() => {
     if (typeof chrome !== 'undefined' && chrome.storage) {
@@ -26,6 +27,28 @@ export function TrackedRepos() {
       // Fallback for local dev without extension environment
       setRepos([DEFAULT_REPO]);
     }
+  }, []);
+
+  useEffect(() => {
+    const logListener = (msg) => {
+      if (msg.action === 'sync_progress' && msg.message) {
+        setSyncLogs(prev => {
+          const newLogs = [...prev, msg.message];
+          // Keep the last 50 logs to prevent memory issues
+          return newLogs.length > 50 ? newLogs.slice(newLogs.length - 50) : newLogs;
+        });
+      }
+    };
+    
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+      chrome.runtime.onMessage.addListener(logListener);
+    }
+    
+    return () => {
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+        chrome.runtime.onMessage.removeListener(logListener);
+      }
+    };
   }, []);
 
   const saveRepos = (newRepos) => {
@@ -73,6 +96,7 @@ export function TrackedRepos() {
   const handleForceSync = (repo) => {
     setSyncing(repo);
     setStatus({ type: '', message: '' });
+    setSyncLogs([`--- Initiated Force Sync for ${repo} ---`]);
     
     if (typeof chrome !== 'undefined' && chrome.runtime) {
       chrome.runtime.sendMessage({ action: 'force_sync', repoName: repo }, (response) => {
@@ -164,6 +188,28 @@ export function TrackedRepos() {
           ))}
         </div>
       </div>
+
+      {syncLogs.length > 0 && (
+        <div className="ro-section" style={{ marginTop: '20px' }}>
+          <h2 className="ro-section-title">Live Sync Logs</h2>
+          <div style={{
+            background: '#1f2328',
+            color: '#e6edf3',
+            fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+            fontSize: '11px',
+            padding: '12px',
+            borderRadius: '6px',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            whiteSpace: 'pre-wrap',
+            lineHeight: '1.5'
+          }}>
+            {syncLogs.map((log, index) => (
+              <div key={index} style={{ marginBottom: '4px' }}>{log}</div>
+            ))}
+          </div>
+        </div>
+      )}
     </>
   );
 }
