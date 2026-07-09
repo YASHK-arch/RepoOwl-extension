@@ -6,6 +6,9 @@ let hubClient = null;
 let publicGatewayConfig = null;
 
 export function setPublicGatewayConfig(url, anonKey) {
+  if (publicGatewayConfig?.supabaseUrl === url && publicGatewayConfig?.supabaseAnonKey === anonKey) {
+    return;
+  }
   publicGatewayConfig = { supabaseUrl: url, supabaseAnonKey: anonKey };
   hubClient = null; // Force client recreation
 }
@@ -71,6 +74,7 @@ export async function getSandboxClient() {
         autoRefreshToken: typeof window === 'undefined',
         detectSessionInUrl: false,
         storage: createAuthStorage(),
+        storageKey: 'repoowl-sandbox-auth-token',
       },
     });
   }
@@ -83,7 +87,8 @@ export async function getHubClient() {
   if (!hubClient) {
     hubClient = createClient(publicGatewayConfig.supabaseUrl, publicGatewayConfig.supabaseAnonKey, {
       auth: {
-        persistSession: false // Hub is read-only, no need to persist auth
+        persistSession: false, // Hub is read-only, no need to persist auth
+        storageKey: 'repoowl-hub-auth-token',
       }
     });
   }
