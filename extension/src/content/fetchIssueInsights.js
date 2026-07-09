@@ -1,30 +1,23 @@
 import { getSandboxClient, getHubClient } from '../lib/supabase.js';
 
-const FETCH_TIMEOUT_MS = 3000;
-
-function withTimeout(promise, timeoutMs) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timed out.')), timeoutMs);
-    }),
-  ]);
-}
+// Removed FETCH_TIMEOUT_MS and withTimeout to allow cold-start queries to complete
 
 async function fetchFromClient(client, repositoryFullName) {
   if (!client) return [];
   try {
-    const { data, error } = await withTimeout(
-      client
-        .from('issues')
-        .select('id, issue_number, is_duplicate, analysis_summary')
-        .eq('repo_name', repositoryFullName)
-        .eq('status', 'open'),
-      FETCH_TIMEOUT_MS
-    );
-    if (error) throw error;
+    const { data, error } = await client
+      .from('issues')
+      .select('id, issue_number, is_duplicate, analysis_summary')
+      .eq('repo_name', repositoryFullName)
+      .eq('status', 'open');
+
+    if (error) {
+      console.error("[RepoOwl] Supabase Fetch Error:", error.message);
+      return [];
+    }
     return data ?? [];
-  } catch {
+  } catch (err) {
+    console.error("[RepoOwl] Unexpected Fetch Error:", err);
     return [];
   }
 }
@@ -75,18 +68,20 @@ export async function fetchRepositoryInsights(repositoryFullName) {
 async function fetchSingleFromClient(client, repositoryFullName, issueNumber) {
   if (!client) return null;
   try {
-    const { data, error } = await withTimeout(
-      client
-        .from('issues')
-        .select('id, issue_number, is_duplicate, analysis_summary')
-        .eq('repo_name', repositoryFullName)
-        .eq('issue_number', issueNumber)
-        .maybeSingle(),
-      FETCH_TIMEOUT_MS
-    );
-    if (error) throw error;
+    const { data, error } = await client
+      .from('issues')
+      .select('id, issue_number, is_duplicate, analysis_summary')
+      .eq('repo_name', repositoryFullName)
+      .eq('issue_number', issueNumber)
+      .maybeSingle();
+
+    if (error) {
+      console.error("[RepoOwl] Supabase Fetch Error:", error.message);
+      return null;
+    }
     return data;
-  } catch {
+  } catch (err) {
+    console.error("[RepoOwl] Unexpected Fetch Error:", err);
     return null;
   }
 }

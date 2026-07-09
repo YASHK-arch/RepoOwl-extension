@@ -70,11 +70,9 @@ export async function getSandboxClient() {
     const keys = await getKeysFromStorage();
     sandboxClient = createClient(keys.supabaseUrl, keys.supabaseAnonKey, {
       auth: {
-        persistSession: typeof window === 'undefined',
-        autoRefreshToken: typeof window === 'undefined',
-        detectSessionInUrl: false,
-        storage: createAuthStorage(),
-        storageKey: 'repoowl-sandbox-auth-token',
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
       },
     });
   }
