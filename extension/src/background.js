@@ -227,6 +227,7 @@ async function closeMissingOpenIssues(repo, supabase, newGithubOpenIssues) {
       .in('issue_number', toClose);
       
     if (updateError) {
+
       console.error("Error closing issues in Supabase:", updateError);
     }
   }
@@ -270,8 +271,10 @@ async function executeSyncQueue(forceRepos = null) {
   for (const repo of repos) {
     broadcast(`\n[${repo}] Starting sync...`);
     
+    let isMaintainer = false;
+    let currentUserLogin = null;
+
     try {
-      // 1. Verify Native GitHub Permissions
       const repoMetaResponse = await fetch(`https://api.github.com/repos/${repo}`, {
         headers: {
           Accept: 'application/vnd.github+json',
@@ -286,13 +289,55 @@ async function executeSyncQueue(forceRepos = null) {
       }
       
       const repoMeta = await repoMetaResponse.json();
-      const isMaintainer = repoMeta.permissions?.push === true || repoMeta.permissions?.admin === true;
+      isMaintainer = repoMeta.permissions?.push === true || repoMeta.permissions?.admin === true;
 
       if (!isMaintainer) {
-        broadcast(`[${repo}] Contributor detected. Aborting global sync.`);
-        continue; // Skip global background sync for contributors
+        broadcast(`[${repo}] Contributor detected. Starting Sandbox sync...`);
+        
+        try {
+          const userResponse = await fetch('https://api.github.com/user', {
+            headers: {
+              Accept: 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'Authorization': `Bearer ${keys.githubToken}`
+            }
+          });
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            currentUserLogin = userData.login;
+          }
+        } catch (e) {
+          broadcast(`[${repo}] Error fetching your GitHub username: ${e.message}`);
+        }
+
+        // Phase 1: Hub Hydration
+        try {
+          const configResponse = await fetch(`https://raw.githubusercontent.com/${repo}/main/repoowl.json`);
+          if (configResponse.ok) {
+            const hubConfig = await configResponse.json();
+            const hubSupabase = createClient(hubConfig.supabaseUrl, hubConfig.supabaseAnonKey, {
+              auth: { persistSession: false }
+            });
+            
+            const { data: hubIssues, error: hubError } = await hubSupabase
+              .from('issues')
+              .select('id, issue_number, is_duplicate, analysis_summary')
+              .eq('repo_name', repo)
+              .eq('status', 'open');
+              
+            if (!hubError && hubIssues) {
+              await chrome.storage.local.set({ [`hub_cache_${repo}`]: hubIssues });
+              broadcast(`[${repo}] Hydrated UI with ${hubIssues.length} issues from Maintainer's Hub.`);
+            }
+          } else {
+             broadcast(`[${repo}] No public Hub found for this repository.`);
+          }
+        } catch (e) {
+           broadcast(`[${repo}] Error hydrating Hub data: ${e.message}`);
+        }
+      } else {
+        broadcast(`[${repo}] Confirmed Maintainer. Fetching issues...`);
       }
-      broadcast(`[${repo}] Confirmed Maintainer. Fetching issues...`);
     } catch (err) {
       broadcast(`[${repo}] Error checking permissions: ${err.message}`);
       continue;
@@ -309,20 +354,36 @@ async function executeSyncQueue(forceRepos = null) {
     let currentDuplicates = (processedIssues || []).filter(r => r.is_duplicate).length;
 
     const newIssues = await fetchFromGitHub(repo, keys.githubToken);
-    broadcast(`[${repo}] Found ${newIssues.length} open issues on GitHub.`);
-
-    // Update statuses for issues that were closed since last sync
-    await closeMissingOpenIssues(repo, supabase, newIssues);
+    
+    // Only close missing issues if we are a maintainer processing the whole repo
+    if (isMaintainer) {
+      await closeMissingOpenIssues(repo, supabase, newIssues);
+    }
 
     let pendingIssues = newIssues.filter(i => !processedSet.has(i.number));
-    broadcast(`[${repo}] ${processedSet.size} already processed. ${pendingIssues.length} issues need processing.`);
+    
+    if (!isMaintainer) {
+      if (currentUserLogin) {
+        pendingIssues = pendingIssues.filter(i => i.user && i.user.login === currentUserLogin);
+        broadcast(`[${repo}] Found ${pendingIssues.length} unprocessed issues authored by you.`);
+      } else {
+        broadcast(`[${repo}] Could not determine your GitHub username, skipping sandbox processing.`);
+        pendingIssues = [];
+      }
+    } else {
+      broadcast(`[${repo}] ${processedSet.size} already processed. ${pendingIssues.length} issues need processing.`);
+    }
 
-    for (const issue of newIssues) {
-      if (processedSet.has(issue.number)) continue; // Skip already processed
-
+    for (const issue of pendingIssues) {
       try {
         broadcast(`[${repo}] Processing issue #${issue.number}...`);
         const history = await fetchFromSupabase(repo, keys);
+        history.forEach(h => {
+          const matchingIssue = newIssues.find(ni => ni.number === h.issue_number);
+          if (matchingIssue) {
+            h.title = matchingIssue.title;
+          }
+        });
         const analysis = await callGroqAPI(issue, history, keys.groqApiKey);
         await saveToSupabase(repo, issue, analysis, keys);
 
@@ -340,8 +401,45 @@ async function executeSyncQueue(forceRepos = null) {
       }
     }
 
+    // Check if we have hub cache to show accurate total in popup
+    let totalHubAndSandbox = currentAnalyzed;
+    let totalDuplicates = currentDuplicates;
+    if (!isMaintainer) {
+        const hubCacheResult = await chrome.storage.local.get([`hub_cache_${repo}`]);
+        const hubIssues = hubCacheResult[`hub_cache_${repo}`] || [];
+        // Approximate total by adding Hub (preventing double counting if overlapping, though unlikely)
+        const hubSet = new Set(hubIssues.map(i => i.issue_number));
+        processedSet.forEach(num => hubSet.add(num));
+        totalHubAndSandbox = hubSet.size;
+        totalDuplicates = currentDuplicates + hubIssues.filter(i => i.is_duplicate).length;
+    }
+    
     // 3. Broadcast updated stats to the Global Registry
-    await updateGlobalRegistry(repo, currentAnalyzed, currentDuplicates, keys);
-    broadcast(`[${repo}] Sync complete. Total Analyzed: ${currentAnalyzed}, Duplicates: ${currentDuplicates}`);
+    await updateGlobalRegistry(repo, totalHubAndSandbox, totalDuplicates, keys);
+    
+    broadcast(`[${repo}] Sync complete. Total Analyzed: ${totalHubAndSandbox}, Duplicates: ${totalDuplicates}`);
   }
 }
+
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'open_settings') {
+    chrome.runtime.openOptionsPage();
+  } else if (message.action === 'force_sync') {
+    executeSyncQueue([message.repoName]).then(() => sendResponse({ success: true })).catch(err => sendResponse({ error: err.message }));
+    return true; // Keep message channel open for async
+  }
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.alarms.create('repoOwlHourlySync', {
+    periodInMinutes: 60
+  });
+});
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === 'repoOwlHourlySync') {
+    console.log('Waking up for hourly sync...');
+    await executeSyncQueue();
+  }
+});
