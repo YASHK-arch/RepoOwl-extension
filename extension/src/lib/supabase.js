@@ -1,10 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
-
+const STORAGE_KEY = 'repoOwlConfig';
 let client = null;
-let authInitialization = null;
+
+async function getKeysFromStorage() {
+  if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+    const result = await chrome.storage.local.get([STORAGE_KEY]);
+    return result[STORAGE_KEY] || {};
+  }
+  return {};
+}
 
 function createAuthStorage() {
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
@@ -29,17 +34,20 @@ function createAuthStorage() {
   return undefined;
 }
 
-export function isSupabaseConfigured() {
-  return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+export async function isSupabaseConfigured() {
+  const keys = await getKeysFromStorage();
+  return Boolean(keys.supabaseUrl && keys.supabaseAnonKey);
 }
 
-export function getSupabaseClient() {
-  if (!isSupabaseConfigured()) {
+export async function getSupabaseClient() {
+  const configured = await isSupabaseConfigured();
+  if (!configured) {
     return null;
   }
 
   if (!client) {
-    client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    const keys = await getKeysFromStorage();
+    client = createClient(keys.supabaseUrl, keys.supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -52,39 +60,27 @@ export function getSupabaseClient() {
   return client;
 }
 
-/**
- * Prompt saves require the authenticated role under tightened RLS.
- * Anonymous sign-in gives the extension a scoped JWT without maintainer signup.
- */
 export async function ensureAuthenticatedSession() {
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
   if (!supabase) {
     return { error: 'Supabase is not configured for RepoOwl.' };
   }
 
-  if (!authInitialization) {
-    authInitialization = (async () => {
-      const { data, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        throw new Error(sessionError.message);
-      }
-
-      if (data.session) {
-        return;
-      }
-
-      const { error: signInError } = await supabase.auth.signInAnonymously();
-      if (signInError) {
-        throw new Error(signInError.message);
-      }
-    })().catch((error) => {
-      authInitialization = null;
-      throw error;
-    });
-  }
-
   try {
-    await authInitialization;
+    const { data, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      throw new Error(sessionError.message);
+    }
+
+    if (data.session) {
+      return { error: null };
+    }
+
+    const { error: signInError } = await supabase.auth.signInAnonymously();
+    if (signInError) {
+      throw new Error(signInError.message);
+    }
+
     return { error: null };
   } catch (error) {
     return {

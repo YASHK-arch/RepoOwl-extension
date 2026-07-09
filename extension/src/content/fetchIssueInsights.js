@@ -12,7 +12,8 @@ function withTimeout(promise, timeoutMs) {
 }
 
 export async function fetchRepositoryInsights(repositoryFullName) {
-  if (!isSupabaseConfigured()) {
+  const configured = await isSupabaseConfigured();
+  if (!configured) {
     return {
       byNumber: new Map(),
       byId: new Map(),
@@ -20,16 +21,16 @@ export async function fetchRepositoryInsights(repositoryFullName) {
     };
   }
 
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
 
   try {
     const { data, error } = await withTimeout(
       supabase
         .from('issues')
         .select(
-          'issue_id, issue_number, title, context, duplicate_data, is_processed'
+          'id, issue_number, is_duplicate, analysis_summary'
         )
-        .eq('repository_full_name', repositoryFullName),
+        .eq('repo_name', repositoryFullName),
       FETCH_TIMEOUT_MS
     );
 
@@ -41,8 +42,9 @@ export async function fetchRepositoryInsights(repositoryFullName) {
     const byId = new Map();
 
     for (const row of data ?? []) {
-      byNumber.set(row.issue_number, row);
-      byId.set(row.issue_id, row);
+      // Flag 'is_processed' conceptually for the UI to know it exists
+      byNumber.set(row.issue_number, { ...row, is_processed: true });
+      byId.set(row.id, { ...row, is_processed: true });
     }
 
     return { byNumber, byId, error: null };
@@ -56,20 +58,21 @@ export async function fetchRepositoryInsights(repositoryFullName) {
 }
 
 export async function fetchIssueInsight(repositoryFullName, issueNumber) {
-  if (!isSupabaseConfigured()) {
+  const configured = await isSupabaseConfigured();
+  if (!configured) {
     return { data: null, error: 'Supabase is not configured for RepoOwl.' };
   }
 
-  const supabase = getSupabaseClient();
+  const supabase = await getSupabaseClient();
 
   try {
     const { data, error } = await withTimeout(
       supabase
         .from('issues')
         .select(
-          'issue_id, issue_number, title, context, duplicate_data, is_processed'
+          'id, issue_number, is_duplicate, analysis_summary'
         )
-        .eq('repository_full_name', repositoryFullName)
+        .eq('repo_name', repositoryFullName)
         .eq('issue_number', issueNumber)
         .maybeSingle(),
       FETCH_TIMEOUT_MS
@@ -79,7 +82,7 @@ export async function fetchIssueInsight(repositoryFullName, issueNumber) {
       throw error;
     }
 
-    return { data, error: null };
+    return { data: data ? { ...data, is_processed: true } : null, error: null };
   } catch (error) {
     return {
       data: null,
