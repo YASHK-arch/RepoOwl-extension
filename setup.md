@@ -9,9 +9,7 @@ This guide provides a comprehensive walkthrough to get RepoOwl running locally a
 
 ## 1. Prerequisites
 
-Before you begin, ensure you have the following installed and set up:
-- **Node.js** (v18 or higher)
-- **Git**
+Before you begin, ensure you have the following ready:
 - **Google Chrome** (for the browser extension)
 - A **[Supabase](https://supabase.com/)** account
 - A **[Groq](https://console.groq.com/)** account (for fast LLM inference)
@@ -40,37 +38,18 @@ You must apply the database schema so your Sandbox can save your analysis, track
 
 ---
 
-## 3. Install Dependencies & Build
-
-Because RepoOwl operates as a pure BYOK (Bring Your Own Key) client-side extension, **there are no `.env` files to configure!** You will input your keys directly into the extension's user interface.
-
-Install the workspace dependencies from the root of the project:
-
-```bash
-npm install
-```
-
-Now, build the extension so it's ready to be loaded into Chrome:
-
-```bash
-npm run build:extension
-```
-This command compiles the React code, bundles the content scripts, and creates the `extension/dist/` directory.
-
----
-
-## 4. Load the Extension & Configure Keys
+## 3. Load the Extension & Configure Keys
 
 1. Open Google Chrome and navigate to `chrome://extensions/`.
 2. Toggle **Developer mode** ON (in the top right corner).
 3. Click the **Load unpacked** button.
-4. Select the `extension/` folder inside the `RepoOwl-extension` directory.
+4. Select the `extension/dist/` folder inside the `RepoOwl-extension` directory (or the folder containing `manifest.json`).
 5. The RepoOwl icon should now appear in your browser toolbar! 
 6. **Important:** Click the RepoOwl icon to open the popup, go to the Settings tab, and paste your **Supabase URL**, **Supabase Anon Key**, **Groq API Key**, and **GitHub Token**.
 
 ---
 
-## 5. Usage Guide: Role-Based Workflows
+## 4. Usage Guide: Role-Based Workflows
 
 RepoOwl behaves intelligently depending on your role in a repository. All sync logic runs directly inside the browser extension!
 
