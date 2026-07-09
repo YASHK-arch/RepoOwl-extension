@@ -242,10 +242,10 @@ class Xs {
         const p = new URL(`${this.url}/${r}`);
         d && d !== "any" && (f["x-region"] = d, p.searchParams.set("forceFunctionRegion", d));
         let g;
-        const v = !!o && Object.keys(o).some((E) => E.toLowerCase() === "content-type");
-        c && !v ? typeof Blob < "u" && c instanceof Blob || c instanceof ArrayBuffer ? (f["Content-Type"] = "application/octet-stream", g = c) : typeof c == "string" ? (f["Content-Type"] = "text/plain", g = c) : typeof FormData < "u" && c instanceof FormData ? g = c : (f["Content-Type"] = "application/json", g = JSON.stringify(c)) : c && typeof c != "string" && !(typeof Blob < "u" && c instanceof Blob) && !(c instanceof ArrayBuffer) && !(typeof FormData < "u" && c instanceof FormData) ? g = JSON.stringify(c) : g = c;
-        let _ = u;
-        h && (a = new AbortController(), i = setTimeout(() => a.abort(), h), u ? (_ = a.signal, u.addEventListener("abort", () => a.abort())) : _ = a.signal);
+        const _ = !!o && Object.keys(o).some((E) => E.toLowerCase() === "content-type");
+        c && !_ ? typeof Blob < "u" && c instanceof Blob || c instanceof ArrayBuffer ? (f["Content-Type"] = "application/octet-stream", g = c) : typeof c == "string" ? (f["Content-Type"] = "text/plain", g = c) : typeof FormData < "u" && c instanceof FormData ? g = c : (f["Content-Type"] = "application/json", g = JSON.stringify(c)) : c && typeof c != "string" && !(typeof Blob < "u" && c instanceof Blob) && !(c instanceof ArrayBuffer) && !(typeof FormData < "u" && c instanceof FormData) ? g = JSON.stringify(c) : g = c;
+        let v = u;
+        h && (a = new AbortController(), i = setTimeout(() => a.abort(), h), u ? (v = a.signal, u.addEventListener("abort", () => a.abort())) : v = a.signal);
         const w = yield this.fetch(p.toString(), {
           method: l || "POST",
           // headers priority is (high to low):
@@ -254,7 +254,7 @@ class Xs {
           // 3. default Content-Type header
           headers: Object.assign(Object.assign(Object.assign({}, f), this.headers), o),
           body: g,
-          signal: _
+          signal: v
         }).catch((E) => {
           throw new zs(E);
         }), y = w.headers.get("x-relay-error");
@@ -515,11 +515,11 @@ var Zs = class {
 Caused by: ${(g = h == null ? void 0 : h.name) !== null && g !== void 0 ? g : "Error"}: ${w}`, y && (l += ` (${y})`), h != null && h.stack && (l += `
 ${h.stack}`);
       } else {
-        var v;
-        l = (v = a == null ? void 0 : a.stack) !== null && v !== void 0 ? v : "";
+        var _;
+        l = (_ = a == null ? void 0 : a.stack) !== null && _ !== void 0 ? _ : "";
       }
-      const _ = this.url.toString().length;
-      return (a == null ? void 0 : a.name) === "AbortError" || (a == null ? void 0 : a.code) === "ABORT_ERR" ? (u = "", c = "Request was aborted (timeout or manual cancellation)", _ > this.urlLengthLimit && (c += `. Note: Your request URL is ${_} characters, which may exceed server limits. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [many IDs])), consider using an RPC function to pass values server-side.`)) : ((h == null ? void 0 : h.name) === "HeadersOverflowError" || (h == null ? void 0 : h.code) === "UND_ERR_HEADERS_OVERFLOW") && (u = "", c = "HTTP headers exceeded server limits (typically 16KB)", _ > this.urlLengthLimit && (c += `. Your request URL is ${_} characters. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [200+ IDs])), consider using an RPC function instead.`)), {
+      const v = this.url.toString().length;
+      return (a == null ? void 0 : a.name) === "AbortError" || (a == null ? void 0 : a.code) === "ABORT_ERR" ? (u = "", c = "Request was aborted (timeout or manual cancellation)", v > this.urlLengthLimit && (c += `. Note: Your request URL is ${v} characters, which may exceed server limits. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [many IDs])), consider using an RPC function to pass values server-side.`)) : ((h == null ? void 0 : h.name) === "HeadersOverflowError" || (h == null ? void 0 : h.code) === "UND_ERR_HEADERS_OVERFLOW") && (u = "", c = "HTTP headers exceeded server limits (typically 16KB)", v > this.urlLengthLimit && (c += `. Your request URL is ${v} characters. If selecting many fields, consider using views. If filtering with large arrays (e.g., .in('id', [200+ IDs])), consider using an RPC function instead.`)), {
         success: !1,
         error: {
           message: `${(o = a == null ? void 0 : a.name) !== null && o !== void 0 ? o : "FetchError"}: ${a == null ? void 0 : a.message}`,
@@ -3995,9 +3995,9 @@ class pn {
       throw new Error(`metadata length ${h.length} exceeds maximum of 255`);
     const f = this.USER_BROADCAST_PUSH_META_LENGTH + l.length + o.length + a.length + c.length + h.length, d = new ArrayBuffer(this.HEADER_LENGTH + f);
     let p = new DataView(d), g = 0;
-    p.setUint8(g++, this.KINDS.userBroadcastPush), p.setUint8(g++, l.length), p.setUint8(g++, o.length), p.setUint8(g++, a.length), p.setUint8(g++, c.length), p.setUint8(g++, h.length), p.setUint8(g++, r), Array.from(l, (_) => p.setUint8(g++, _.charCodeAt(0))), Array.from(o, (_) => p.setUint8(g++, _.charCodeAt(0))), Array.from(a, (_) => p.setUint8(g++, _.charCodeAt(0))), Array.from(c, (_) => p.setUint8(g++, _.charCodeAt(0))), Array.from(h, (_) => p.setUint8(g++, _.charCodeAt(0)));
-    var v = new Uint8Array(d.byteLength + s.byteLength);
-    return v.set(new Uint8Array(d), 0), v.set(new Uint8Array(s), d.byteLength), v.buffer;
+    p.setUint8(g++, this.KINDS.userBroadcastPush), p.setUint8(g++, l.length), p.setUint8(g++, o.length), p.setUint8(g++, a.length), p.setUint8(g++, c.length), p.setUint8(g++, h.length), p.setUint8(g++, r), Array.from(l, (v) => p.setUint8(g++, v.charCodeAt(0))), Array.from(o, (v) => p.setUint8(g++, v.charCodeAt(0))), Array.from(a, (v) => p.setUint8(g++, v.charCodeAt(0))), Array.from(c, (v) => p.setUint8(g++, v.charCodeAt(0))), Array.from(h, (v) => p.setUint8(g++, v.charCodeAt(0)));
+    var _ = new Uint8Array(d.byteLength + s.byteLength);
+    return _.set(new Uint8Array(d), 0), _.set(new Uint8Array(s), d.byteLength), _.buffer;
   }
   decode(e, r) {
     if (this._isArrayBuffer(e)) {
@@ -4072,7 +4072,7 @@ const ar = (t, e, r = {}) => {
     case A.jsonb:
       return wn(e);
     case A.timestamp:
-      return vn(e);
+      return _n(e);
     // Format to be consistent with PostgREST
     case A.abstime:
     // To allow users to cast it based on Timezone
@@ -4136,7 +4136,7 @@ const ar = (t, e, r = {}) => {
     return i.map((o) => Yr(e, o));
   }
   return t;
-}, vn = (t) => typeof t == "string" ? t.replace(" ", "T") : t, Qr = (t) => {
+}, _n = (t) => typeof t == "string" ? t.replace(" ", "T") : t, Qr = (t) => {
   const e = new URL(t);
   return e.protocol = e.protocol.replace(/^ws/i, "http"), e.pathname = e.pathname.replace(/\/+$/, "").replace(/\/socket\/websocket$/i, "").replace(/\/socket$/i, "").replace(/\/websocket$/i, ""), e.pathname === "" || e.pathname === "/" ? e.pathname = "/api/broadcast" : e.pathname = e.pathname + "/api/broadcast", e.href;
 };
@@ -4145,7 +4145,7 @@ var xe = (t) => typeof t == "function" ? (
   t
 ) : function() {
   return t;
-}, _n = typeof self < "u" ? self : null, me = typeof window < "u" ? window : null, Y = _n || me || globalThis, Sn = "2.0.0", kn = 1e4, En = 1e3, Q = (
+}, vn = typeof self < "u" ? self : null, me = typeof window < "u" ? window : null, Y = vn || me || globalThis, Sn = "2.0.0", kn = 1e4, En = 1e3, Q = (
   /** @type {const} */
   { connecting: 0, open: 1, closing: 2, closed: 3 }
 ), L = (
@@ -5655,10 +5655,10 @@ var ur;
 (function(t) {
   t.ALL = "*", t.INSERT = "INSERT", t.UPDATE = "UPDATE", t.DELETE = "DELETE";
 })(ur || (ur = {}));
-var ve;
+var _e;
 (function(t) {
   t.BROADCAST = "broadcast", t.PRESENCE = "presence", t.POSTGRES_CHANGES = "postgres_changes", t.SYSTEM = "system";
-})(ve || (ve = {}));
+})(_e || (_e = {}));
 var re;
 (function(t) {
   t.SUBSCRIBED = "SUBSCRIBED", t.TIMED_OUT = "TIMED_OUT", t.CLOSED = "CLOSED", t.CHANNEL_ERROR = "CHANNEL_ERROR";
@@ -5744,7 +5744,7 @@ class Ue {
   subscribe(e, r = this.timeout) {
     var s, n, i;
     if (this.socket.isConnected() || this.socket.connect(), this.channelAdapter.isClosed()) {
-      const { config: { broadcast: a, presence: o, private: l } } = this.params, c = (n = (s = this.bindings.postgres_changes) === null || s === void 0 ? void 0 : s.map((d) => d.filter)) !== null && n !== void 0 ? n : [], u = !!this.bindings[ve.PRESENCE] && this.bindings[ve.PRESENCE].length > 0 || ((i = this.params.config.presence) === null || i === void 0 ? void 0 : i.enabled) === !0, h = {}, f = {
+      const { config: { broadcast: a, presence: o, private: l } } = this.params, c = (n = (s = this.bindings.postgres_changes) === null || s === void 0 ? void 0 : s.map((d) => d.filter)) !== null && n !== void 0 ? n : [], u = !!this.bindings[_e.PRESENCE] && this.bindings[_e.PRESENCE].length > 0 || ((i = this.params.config.presence) === null || i === void 0 ? void 0 : i.enabled) === !0, h = {}, f = {
         broadcast: a,
         presence: Object.assign(Object.assign({}, o), { enabled: u }),
         postgres_changes: c,
@@ -5977,7 +5977,7 @@ class Ue {
    * ```
    */
   on(e, r, s) {
-    const n = this.channelAdapter.isJoined() || this.channelAdapter.isJoining(), i = e === ve.PRESENCE || e === ve.POSTGRES_CHANGES;
+    const n = this.channelAdapter.isJoined() || this.channelAdapter.isJoining(), i = e === _e.PRESENCE || e === _e.POSTGRES_CHANGES;
     if (n && i)
       throw this.socket.log("channel", `cannot add \`${e}\` callbacks for ${this.topic} after \`subscribe()\`.`), new Error(`cannot add \`${e}\` callbacks for ${this.topic} after \`subscribe()\`.`);
     return this._on(e, r, s);
@@ -6815,19 +6815,19 @@ class Jn {
     this.worker = (r = e == null ? void 0 : e.worker) !== null && r !== void 0 ? r : !1, this.accessToken = (s = e == null ? void 0 : e.accessToken) !== null && s !== void 0 ? s : null;
     const p = {};
     p.timeout = (n = e == null ? void 0 : e.timeout) !== null && n !== void 0 ? n : dn, p.heartbeatIntervalMs = (i = e == null ? void 0 : e.heartbeatIntervalMs) !== null && i !== void 0 ? i : hr.HEARTBEAT_INTERVAL, this._disconnectOnEmptyChannelsAfterMs = (a = e == null ? void 0 : e.disconnectOnEmptyChannelsAfterMs) !== null && a !== void 0 ? a : 2 * ((o = e == null ? void 0 : e.heartbeatIntervalMs) !== null && o !== void 0 ? o : hr.HEARTBEAT_INTERVAL), p.transport = (l = e == null ? void 0 : e.transport) !== null && l !== void 0 ? l : on.getWebSocketConstructor(), p.params = e == null ? void 0 : e.params, p.logger = e == null ? void 0 : e.logger, p.heartbeatCallback = this._wrapHeartbeatCallback(e == null ? void 0 : e.heartbeatCallback), p.sessionStorage = (c = e == null ? void 0 : e.sessionStorage) !== null && c !== void 0 ? c : Gn(), p.reconnectAfterMs = (u = e == null ? void 0 : e.reconnectAfterMs) !== null && u !== void 0 ? u : ((w) => Fn[w - 1] || Wn);
-    let g, v;
-    const _ = (h = e == null ? void 0 : e.vsn) !== null && h !== void 0 ? h : hn;
-    switch (_) {
+    let g, _;
+    const v = (h = e == null ? void 0 : e.vsn) !== null && h !== void 0 ? h : hn;
+    switch (v) {
       case un:
-        g = (w, y) => y(JSON.stringify(w)), v = (w, y) => y(JSON.parse(w));
+        g = (w, y) => y(JSON.stringify(w)), _ = (w, y) => y(JSON.parse(w));
         break;
       case zr:
-        g = this.serializer.encode.bind(this.serializer), v = this.serializer.decode.bind(this.serializer);
+        g = this.serializer.encode.bind(this.serializer), _ = this.serializer.decode.bind(this.serializer);
         break;
       default:
         throw new Error(`Unsupported serializer version: ${p.vsn}`);
     }
-    if (p.vsn = _, p.encode = (f = e == null ? void 0 : e.encode) !== null && f !== void 0 ? f : g, p.decode = (d = e == null ? void 0 : e.decode) !== null && d !== void 0 ? d : v, p.beforeReconnect = this._reconnectAuth.bind(this), (e != null && e.logLevel || e != null && e.log_level) && (this.logLevel = e.logLevel || e.log_level, p.params = Object.assign(Object.assign({}, p.params), { log_level: this.logLevel })), this.worker) {
+    if (p.vsn = v, p.encode = (f = e == null ? void 0 : e.encode) !== null && f !== void 0 ? f : g, p.decode = (d = e == null ? void 0 : e.decode) !== null && d !== void 0 ? d : _, p.beforeReconnect = this._reconnectAuth.bind(this), (e != null && e.logLevel || e != null && e.log_level) && (this.logLevel = e.logLevel || e.log_level, p.params = Object.assign(Object.assign({}, p.params), { log_level: this.logLevel })), this.worker) {
       if (typeof window < "u" && !window.Worker)
         throw new Error("Web Worker is not supported");
       this.workerUrl = e == null ? void 0 : e.workerUrl, p.autoSendHeartbeat = !this.worker;
@@ -7626,7 +7626,7 @@ var fi = class {
     }
   }
 };
-const _t = {
+const vt = {
   limit: 100,
   offset: 0,
   sortBy: {
@@ -8500,7 +8500,7 @@ var pi = class extends Ee {
   async list(t, e, r) {
     var s = this;
     return s.handleOperation(async () => {
-      const n = e != null && e.sortBy ? k(k({}, _t.sortBy), e.sortBy) : _t.sortBy, i = k(k(k({}, _t), e), {}, {
+      const n = e != null && e.sortBy ? k(k({}, vt.sortBy), e.sortBy) : vt.sortBy, i = k(k(k({}, vt), e), {}, {
         sortBy: n,
         prefix: t || ""
       });
@@ -9302,7 +9302,7 @@ var yi = class extends Ee {
     if (t.keys.length < 1 || t.keys.length > 500) throw new Error("Keys batch size must be between 1 and 500 items");
     return e.handleOperation(async () => await M.post(e.fetch, `${e.url}/DeleteVectors`, t, { headers: e.headers }) || {});
   }
-}, vi = class extends Ee {
+}, _i = class extends Ee {
   /** Creates a new VectorBucketApi instance */
   constructor(t, e = {}, r) {
     const s = t.replace(/\/$/, ""), n = k(k({}, Ke), {}, { "Content-Type": "application/json" }, e);
@@ -9328,7 +9328,7 @@ var yi = class extends Ee {
     var e = this;
     return e.handleOperation(async () => await M.post(e.fetch, `${e.url}/DeleteVectorBucket`, { vectorBucketName: t }, { headers: e.headers }) || {});
   }
-}, _i = class extends vi {
+}, vi = class extends _i {
   /**
   * @alpha
   *
@@ -9882,7 +9882,7 @@ var yi = class extends Ee {
   * @returns A StorageVectorsClient instance configured with the current storage settings.
   */
   get vectors() {
-    return new _i(this.url + "/vector", {
+    return new vi(this.url + "/vector", {
       headers: this.headers,
       fetch: this.fetch
     });
@@ -10026,7 +10026,7 @@ const ct = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".sp
     t[ct[e].charCodeAt(0)] = e;
   return t;
 })();
-function vr(t, e, r) {
+function _r(t, e, r) {
   if (t !== null)
     for (e.queue = e.queue << 8 | t, e.queuedBits += 8; e.queuedBits >= 6; ) {
       const s = e.queue >> e.queuedBits - 6 & 63;
@@ -10049,7 +10049,7 @@ function as(t, e, r) {
     throw new Error(`Invalid Base64-URL character "${String.fromCharCode(t)}"`);
   }
 }
-function _r(t) {
+function vr(t) {
   const e = [], r = (a) => {
     e.push(String.fromCodePoint(a));
   }, s = {
@@ -10130,7 +10130,7 @@ function ue(t) {
   const e = [], r = { queue: 0, queuedBits: 0 }, s = (n) => {
     e.push(n);
   };
-  return t.forEach((n) => vr(n, r, s)), vr(null, r, s), e.join("");
+  return t.forEach((n) => _r(n, r, s)), _r(null, r, s), e.join("");
 }
 function Mi(t) {
   return Math.round(Date.now() / 1e3) + t;
@@ -10204,8 +10204,8 @@ function tt(t) {
       throw new lt("JWT not in base64url format");
   return {
     // using base64url lib
-    header: JSON.parse(_r(e[0])),
-    payload: JSON.parse(_r(e[1])),
+    header: JSON.parse(vr(e[0])),
+    payload: JSON.parse(vr(e[1])),
     signature: ke(e[2]),
     raw: {
       header: e[0],
@@ -10895,8 +10895,8 @@ class ca {
         throw u.error;
       const h = await u.json(), f = (a = u.headers.get("x-total-count")) !== null && a !== void 0 ? a : 0, d = (l = (o = u.headers.get("link")) === null || o === void 0 ? void 0 : o.split(",")) !== null && l !== void 0 ? l : [];
       return d.length > 0 && (d.forEach((p) => {
-        const g = parseInt(p.split(";")[0].split("=")[1].substring(0, 1)), v = JSON.parse(p.split(";")[1].split("=")[1]);
-        c[`${v}Page`] = g;
+        const g = parseInt(p.split(";")[0].split("=")[1].substring(0, 1)), _ = JSON.parse(p.split(";")[1].split("=")[1]);
+        c[`${_}Page`] = g;
       }), c.total = parseInt(f)), { data: Object.assign(Object.assign({}, h), c), error: null };
     } catch (c) {
       if (m(c))
@@ -11233,8 +11233,8 @@ class ca {
         throw u.error;
       const h = await u.json(), f = (a = u.headers.get("x-total-count")) !== null && a !== void 0 ? a : 0, d = (l = (o = u.headers.get("link")) === null || o === void 0 ? void 0 : o.split(",")) !== null && l !== void 0 ? l : [];
       return d.length > 0 && (d.forEach((p) => {
-        const g = parseInt(p.split(";")[0].split("=")[1].substring(0, 1)), v = JSON.parse(p.split(";")[1].split("=")[1]);
-        c[`${v}Page`] = g;
+        const g = parseInt(p.split(";")[0].split("=")[1].substring(0, 1)), _ = JSON.parse(p.split(";")[1].split("=")[1]);
+        c[`${_}Page`] = g;
       }), c.total = parseInt(f)), { data: Object.assign(Object.assign({}, h), c), error: null };
     } catch (c) {
       if (m(c))
@@ -11533,18 +11533,18 @@ function pa(t) {
       throw new Error(`@supabase/auth-js: Invalid SIWE message field "statement". Statement must not include '\\n'. Provided value: ${t.statement}`);
   }
   const d = cs(t.address), p = u ? `${u}://${s}` : s, g = t.statement ? `${t.statement}
-` : "", v = `${p} wants you to sign in with your Ethereum account:
+` : "", _ = `${p} wants you to sign in with your Ethereum account:
 ${d}
 
 ${g}`;
-  let _ = `URI: ${h}
+  let v = `URI: ${h}
 Version: ${f}
 Chain ID: ${r}${a ? `
 Nonce: ${a}` : ""}
 Issued At: ${i.toISOString()}`;
-  if (n && (_ += `
-Expiration Time: ${n.toISOString()}`), o && (_ += `
-Not Before: ${o.toISOString()}`), l && (_ += `
+  if (n && (v += `
+Expiration Time: ${n.toISOString()}`), o && (v += `
+Not Before: ${o.toISOString()}`), l && (v += `
 Request ID: ${l}`), c) {
     let w = `
 Resources:`;
@@ -11554,10 +11554,10 @@ Resources:`;
       w += `
 - ${y}`;
     }
-    _ += w;
+    v += w;
   }
-  return `${v}
-${_}`;
+  return `${_}
+${v}`;
 }
 class I extends Error {
   constructor({ message: e, code: r, cause: s, name: n }) {
@@ -11929,10 +11929,10 @@ function dt(...t) {
       }
   return s;
 }
-function va(t, e) {
+function _a(t, e) {
   return dt(wa, t, e || {});
 }
-function _a(t, e) {
+function va(t, e) {
   return dt(ba, t, e || {});
 }
 class Sa {
@@ -11990,7 +11990,7 @@ class Sa {
       }
       switch (o.webauthn.type) {
         case "create": {
-          const u = va(o.webauthn.credential_options.publicKey, i == null ? void 0 : i.create), { data: h, error: f } = await hs({
+          const u = _a(o.webauthn.credential_options.publicKey, i == null ? void 0 : i.create), { data: h, error: f } = await hs({
             publicKey: u,
             signal: c
           });
@@ -12007,7 +12007,7 @@ class Sa {
           } : { data: null, error: f };
         }
         case "request": {
-          const u = _a(o.webauthn.credential_options.publicKey, i == null ? void 0 : i.request), { data: h, error: f } = await ds(Object.assign(Object.assign({}, o.webauthn.credential_options), { publicKey: u, signal: c }));
+          const u = va(o.webauthn.credential_options.publicKey, i == null ? void 0 : i.request), { data: h, error: f } = await ds(Object.assign(Object.assign({}, o.webauthn.credential_options), { publicKey: u, signal: c }));
           return h ? {
             data: {
               factorId: e,
@@ -13209,11 +13209,11 @@ class Fe {
     if ("message" in e)
       d = e.message, p = e.signature;
     else {
-      const { chain: g, wallet: v, statement: _, options: w } = e;
+      const { chain: g, wallet: _, statement: v, options: w } = e;
       let y;
       if (U())
-        if (typeof v == "object")
-          y = v;
+        if (typeof _ == "object")
+          y = _;
         else {
           const N = window;
           if ("ethereum" in N && typeof N.ethereum == "object" && "request" in N.ethereum && typeof N.ethereum.request == "function")
@@ -13222,9 +13222,9 @@ class Fe {
             throw new Error("@supabase/auth-js: No compatible Ethereum wallet interface on the window object (window.ethereum) detected. Make sure the user already has a wallet installed and connected for this app. Prefer passing the wallet interface object directly to signInWithWeb3({ chain: 'ethereum', wallet: resolvedUserWallet }) instead.");
         }
       else {
-        if (typeof v != "object" || !(w != null && w.url))
+        if (typeof _ != "object" || !(w != null && w.url))
           throw new Error("@supabase/auth-js: Both wallet and url must be specified in non-browser environments.");
-        y = v;
+        y = _;
       }
       const S = new URL((r = w == null ? void 0 : w.url) !== null && r !== void 0 ? r : window.location.href), T = await y.request({
         method: "eth_requestAccounts"
@@ -13244,7 +13244,7 @@ class Fe {
       const W = {
         domain: S.host,
         address: E,
-        statement: _,
+        statement: v,
         uri: S.href,
         version: "1",
         chainId: R,
@@ -13261,7 +13261,7 @@ class Fe {
       });
     }
     try {
-      const { data: g, error: v } = await b(this.fetch, "POST", `${this.url}/token?grant_type=web3`, {
+      const { data: g, error: _ } = await b(this.fetch, "POST", `${this.url}/token?grant_type=web3`, {
         headers: this.headers,
         body: Object.assign({
           chain: "ethereum",
@@ -13270,13 +13270,13 @@ class Fe {
         }, !((h = e.options) === null || h === void 0) && h.captchaToken ? { gotrue_meta_security: { captcha_token: (f = e.options) === null || f === void 0 ? void 0 : f.captchaToken } } : null),
         xform: H
       });
-      if (v)
-        throw v;
+      if (_)
+        throw _;
       if (!g || !g.session || !g.user) {
-        const _ = new pe();
-        return this._returnResult({ data: { user: null, session: null }, error: _ });
+        const v = new pe();
+        return this._returnResult({ data: { user: null, session: null }, error: v });
       }
-      return g.session && (await this._saveSession(g.session), await this._notifyAllSubscribers("SIGNED_IN", g.session)), this._returnResult({ data: Object.assign({}, g), error: v });
+      return g.session && (await this._saveSession(g.session), await this._notifyAllSubscribers("SIGNED_IN", g.session)), this._returnResult({ data: Object.assign({}, g), error: _ });
     } catch (g) {
       if (m(g))
         return this._returnResult({ data: { user: null, session: null }, error: g });
@@ -13289,11 +13289,11 @@ class Fe {
     if ("message" in e)
       p = e.message, g = e.signature;
     else {
-      const { chain: v, wallet: _, statement: w, options: y } = e;
+      const { chain: _, wallet: v, statement: w, options: y } = e;
       let S;
       if (U())
-        if (typeof _ == "object")
-          S = _;
+        if (typeof v == "object")
+          S = v;
         else {
           const E = window;
           if ("solana" in E && typeof E.solana == "object" && ("signIn" in E.solana && typeof E.solana.signIn == "function" || "signMessage" in E.solana && typeof E.solana.signMessage == "function"))
@@ -13302,9 +13302,9 @@ class Fe {
             throw new Error("@supabase/auth-js: No compatible Solana wallet interface on the window object (window.solana) detected. Make sure the user already has a wallet installed and connected for this app. Prefer passing the wallet interface object directly to signInWithWeb3({ chain: 'solana', wallet: resolvedUserWallet }) instead.");
         }
       else {
-        if (typeof _ != "object" || !(y != null && y.url))
+        if (typeof v != "object" || !(y != null && y.url))
           throw new Error("@supabase/auth-js: Both wallet and url must be specified in non-browser environments.");
-        S = _;
+        S = v;
       }
       const T = new URL((r = y == null ? void 0 : y.url) !== null && r !== void 0 ? r : window.location.href);
       if ("signIn" in S && S.signIn) {
@@ -13353,22 +13353,22 @@ class Fe {
       }
     }
     try {
-      const { data: v, error: _ } = await b(this.fetch, "POST", `${this.url}/token?grant_type=web3`, {
+      const { data: _, error: v } = await b(this.fetch, "POST", `${this.url}/token?grant_type=web3`, {
         headers: this.headers,
         body: Object.assign({ chain: "solana", message: p, signature: ue(g) }, !((f = e.options) === null || f === void 0) && f.captchaToken ? { gotrue_meta_security: { captcha_token: (d = e.options) === null || d === void 0 ? void 0 : d.captchaToken } } : null),
         xform: H
       });
-      if (_)
-        throw _;
-      if (!v || !v.session || !v.user) {
+      if (v)
+        throw v;
+      if (!_ || !_.session || !_.user) {
         const w = new pe();
         return this._returnResult({ data: { user: null, session: null }, error: w });
       }
-      return v.session && (await this._saveSession(v.session), await this._notifyAllSubscribers("SIGNED_IN", v.session)), this._returnResult({ data: Object.assign({}, v), error: _ });
-    } catch (v) {
-      if (m(v))
-        return this._returnResult({ data: { user: null, session: null }, error: v });
-      throw v;
+      return _.session && (await this._saveSession(_.session), await this._notifyAllSubscribers("SIGNED_IN", _.session)), this._returnResult({ data: Object.assign({}, _), error: v });
+    } catch (_) {
+      if (m(_))
+        return this._returnResult({ data: { user: null, session: null }, error: _ });
+      throw _;
     }
   }
   async _exchangeCodeForSession(e) {
@@ -14787,9 +14787,9 @@ class Fe {
       p * 1e3 <= se && console.warn(`@supabase/gotrue-js: Session as retrieved from URL expires in ${p}s, should have been closer to ${f}s`);
       const g = d - f;
       h - g >= 120 ? console.warn("@supabase/gotrue-js: Session as retrieved from URL was issued over 120s ago, URL could be stale", g, d, h) : h - g < 0 && console.warn("@supabase/gotrue-js: Session as retrieved from URL was issued in the future? Check the device clock for skew", g, d, h);
-      const { data: v, error: _ } = await this._getUser(a);
-      if (_)
-        throw _;
+      const { data: _, error: v } = await this._getUser(a);
+      if (v)
+        throw v;
       const w = {
         provider_token: n,
         provider_refresh_token: i,
@@ -14798,7 +14798,7 @@ class Fe {
         expires_at: d,
         refresh_token: o,
         token_type: u,
-        user: v.user
+        user: _.user
       };
       return window.location.hash = "", this._debug("#_getSessionFromURL()", "clearing window.location.hash"), this._returnResult({ data: { session: w, redirectType: e.type }, error: null });
     } catch (n) {
@@ -15971,10 +15971,10 @@ class Fe {
         let p = null;
         d.aal && (p = d.aal);
         let g = p;
-        const { data: { user: v }, error: _ } = await this.getUser(e);
-        if (_)
-          return this._returnResult({ data: null, error: _ });
-        ((s = (r = v == null ? void 0 : v.factors) === null || r === void 0 ? void 0 : r.filter((S) => S.status === "verified")) !== null && s !== void 0 ? s : []).length > 0 && (g = "aal2");
+        const { data: { user: _ }, error: v } = await this.getUser(e);
+        if (v)
+          return this._returnResult({ data: null, error: v });
+        ((s = (r = _ == null ? void 0 : _.factors) === null || r === void 0 ? void 0 : r.filter((S) => S.status === "verified")) !== null && s !== void 0 ? s : []).length > 0 && (g = "aal2");
         const y = d.amr || [];
         return { data: { currentLevel: p, nextLevel: g, currentAuthenticationMethods: y }, error: null };
       } catch (d) {
@@ -16718,15 +16718,15 @@ function Va(t) {
 }
 function Ja(t, e) {
   var r, s, n, i, a, o;
-  const { db: l, auth: c, realtime: u, global: h } = t, { db: f, auth: d, realtime: p, global: g } = e, v = Ir(t.tracePropagation), _ = Ir(e.tracePropagation), w = {
+  const { db: l, auth: c, realtime: u, global: h } = t, { db: f, auth: d, realtime: p, global: g } = e, _ = Ir(t.tracePropagation), v = Ir(e.tracePropagation), w = {
     db: C(C({}, f), l),
     auth: C(C({}, d), c),
     realtime: C(C({}, p), u),
     storage: {},
     global: C(C(C({}, g), h), {}, { headers: C(C({}, (r = g == null ? void 0 : g.headers) !== null && r !== void 0 ? r : {}), (s = h == null ? void 0 : h.headers) !== null && s !== void 0 ? s : {}) }),
     tracePropagation: {
-      enabled: (n = (i = v == null ? void 0 : v.enabled) !== null && i !== void 0 ? i : _ == null ? void 0 : _.enabled) !== null && n !== void 0 ? n : !1,
-      respectSamplingDecision: (a = (o = v == null ? void 0 : v.respectSamplingDecision) !== null && o !== void 0 ? o : _ == null ? void 0 : _.respectSamplingDecision) !== null && a !== void 0 ? a : !0
+      enabled: (n = (i = _ == null ? void 0 : _.enabled) !== null && i !== void 0 ? i : v == null ? void 0 : v.enabled) !== null && n !== void 0 ? n : !1,
+      respectSamplingDecision: (a = (o = _ == null ? void 0 : _.respectSamplingDecision) !== null && o !== void 0 ? o : v == null ? void 0 : v.respectSamplingDecision) !== null && a !== void 0 ? a : !0
     },
     accessToken: async () => ""
   };
@@ -17135,7 +17135,7 @@ var Xa = class extends Ea {
       fetch: p,
       lockAcquireTimeout: h,
       skipAutoInitialize: f,
-      hasCustomAuthorizationHeader: Object.keys(this.headers).some((v) => v.toLowerCase() === "authorization")
+      hasCustomAuthorizationHeader: Object.keys(this.headers).some((_) => _.toLowerCase() === "authorization")
     });
   }
   _initRealtimeClient(t) {
@@ -17217,7 +17217,7 @@ class j extends F {
     if (!e || !n)
       return new bt({ message: s, cause: Mt(r) });
     const i = r;
-    return e === 400 ? new ms(e, i, s, n) : e === 401 ? new ws(e, i, s, n) : e === 403 ? new bs(e, i, s, n) : e === 404 ? new vs(e, i, s, n) : e === 409 ? new _s(e, i, s, n) : e === 422 ? new Ss(e, i, s, n) : e === 429 ? new ks(e, i, s, n) : e >= 500 ? new Es(e, i, s, n) : new j(e, i, s, n);
+    return e === 400 ? new ms(e, i, s, n) : e === 401 ? new ws(e, i, s, n) : e === 403 ? new bs(e, i, s, n) : e === 404 ? new _s(e, i, s, n) : e === 409 ? new vs(e, i, s, n) : e === 422 ? new Ss(e, i, s, n) : e === 429 ? new ks(e, i, s, n) : e >= 500 ? new Es(e, i, s, n) : new j(e, i, s, n);
   }
 }
 class Ht extends j {
@@ -17241,9 +17241,9 @@ class ws extends j {
 }
 class bs extends j {
 }
-class vs extends j {
-}
 class _s extends j {
+}
+class vs extends j {
 }
 class Ss extends j {
 }
@@ -17481,7 +17481,7 @@ const yo = async (t, e) => {
       throw new TypeError(`Invalid value given to form, expected a string, number, boolean, object, Array, File or Blob but got ${r} instead`);
   }
 }, Ps = (t) => t != null && typeof t == "object" && typeof t.size == "number" && typeof t.type == "string" && typeof t.text == "function" && typeof t.slice == "function" && typeof t.arrayBuffer == "function", wo = (t) => t != null && typeof t == "object" && typeof t.name == "string" && typeof t.lastModified == "number" && Ps(t), bo = (t) => t != null && typeof t == "object" && typeof t.url == "string" && typeof t.blob == "function";
-async function vo(t, e, r) {
+async function _o(t, e, r) {
   if (Os(), t = await t, wo(t))
     return t instanceof File ? t : Ne([await t.arrayBuffer()], t.name);
   if (bo(t)) {
@@ -17508,11 +17508,11 @@ async function Kt(t) {
       e.push(...await Kt(s));
   else {
     const s = (r = t == null ? void 0 : t.constructor) == null ? void 0 : r.name;
-    throw new Error(`Unexpected data type: ${typeof t}${s ? `; constructor: ${s}` : ""}${_o(t)}`);
+    throw new Error(`Unexpected data type: ${typeof t}${s ? `; constructor: ${s}` : ""}${vo(t)}`);
   }
   return e;
 }
-function _o(t) {
+function vo(t) {
   return typeof t != "object" || t === null ? "" : `; props: [${Object.getOwnPropertyNames(t).map((r) => `"${r}"`).join(", ")}]`;
 }
 class X {
@@ -17543,7 +17543,7 @@ function* So(t) {
       o !== void 0 && (e && !a && (a = !0, yield [n, null]), yield [n, o]);
   }
 }
-const _e = (t) => {
+const ve = (t) => {
   const e = new Headers(), r = /* @__PURE__ */ new Set();
   for (const s of t) {
     const n = /* @__PURE__ */ new Set();
@@ -17574,7 +17574,7 @@ class Is extends X {
     return this._client.post("/openai/v1/audio/speech", {
       body: e,
       ...r,
-      headers: _e([{ Accept: "audio/wav" }, r == null ? void 0 : r.headers]),
+      headers: ve([{ Accept: "audio/wav" }, r == null ? void 0 : r.headers]),
       __binaryResponse: !0
     });
   }
@@ -17749,7 +17749,7 @@ class qs extends X {
   content(e, r) {
     return this._client.get(he`/openai/v1/files/${e}/content`, {
       ...r,
-      headers: _e([{ Accept: "application/octet-stream" }, r == null ? void 0 : r.headers]),
+      headers: ve([{ Accept: "application/octet-stream" }, r == null ? void 0 : r.headers]),
       __binaryResponse: !0
     });
   }
@@ -17801,7 +17801,7 @@ function Hr(t) {
   return (Mr ?? (e = new globalThis.TextDecoder(), Mr = e.decode.bind(e)))(t);
 }
 var B, q;
-class vt {
+class _t {
   constructor() {
     B.set(this, void 0), q.set(this, void 0), J(this, B, new Uint8Array()), J(this, q, null);
   }
@@ -17832,9 +17832,9 @@ class vt {
   }
 }
 B = /* @__PURE__ */ new WeakMap(), q = /* @__PURE__ */ new WeakMap();
-vt.NEWLINE_CHARS = /* @__PURE__ */ new Set([`
+_t.NEWLINE_CHARS = /* @__PURE__ */ new Set([`
 `, "\r"]);
-vt.NEWLINE_REGEXP = /\r\n|[\n\r]/g;
+_t.NEWLINE_REGEXP = /\r\n|[\n\r]/g;
 function To(t, e) {
   for (let n = e ?? 0; n < t.length; n++) {
     if (t[n] === 10)
@@ -17957,7 +17957,7 @@ class Se {
   static fromReadableStream(e, r, s) {
     let n = !1;
     async function* i() {
-      const o = new vt(), l = As(e);
+      const o = new _t(), l = As(e);
       for await (const c of l)
         for (const u of o.decode(c))
           yield u;
@@ -18039,7 +18039,7 @@ class Se {
 async function* Oo(t, e) {
   if (!t.body)
     throw e.abort(), typeof globalThis.navigator < "u" && globalThis.navigator.product === "ReactNative" ? new F("The default react-native fetch implementation does not support streaming. Please use expo/fetch: https://docs.expo.dev/versions/latest/sdk/expo/#expofetch-api") : new F("Attempted to iterate over a response with no body");
-  const r = new Po(), s = new vt(), n = As(t.body);
+  const r = new Po(), s = new _t(), n = As(t.body);
   for await (const i of Co(n))
     for (const a of s.decode(i)) {
       const o = r.decode(a);
@@ -18238,7 +18238,7 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
   validateHeaders({ values: e, nulls: r }) {
   }
   async authHeaders(e) {
-    return _e([{ Authorization: `Bearer ${this.apiKey}` }]);
+    return ve([{ Authorization: `Bearer ${this.apiKey}` }]);
   }
   /**
    * Basic re-implementation of `qs.stringify` for primitive types.
@@ -18294,7 +18294,7 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
     return new Yt(this, this.makeRequest(e, r, void 0));
   }
   async makeRequest(e, r, s) {
-    var v, _;
+    var _, v;
     const n = await e, i = n.maxRetries ?? this.maxRetries;
     r == null && (r = i), await this.prepareOptions(n);
     const { req: a, url: o, timeout: l } = await this.buildRequest(n, {
@@ -18308,12 +18308,12 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
       url: o,
       options: n,
       headers: a.headers
-    })), (v = n.signal) != null && v.aborted)
+    })), (_ = n.signal) != null && _.aborted)
       throw new Ht();
     const f = new AbortController(), d = await this.fetchWithTimeout(o, a, l, f).catch(Mt), p = Date.now();
     if (d instanceof globalThis.Error) {
       const w = `retrying, ${r} attempts remaining`;
-      if ((_ = n.signal) != null && _.aborted)
+      if ((v = n.signal) != null && v.aborted)
         throw new Ht();
       const y = qt(d) || /timed? ?out/i.test(String(d) + ("cause" in d ? String(d.cause) : ""));
       if (r)
@@ -18422,7 +18422,7 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
   async buildHeaders({ options: e, method: r, bodyHeaders: s, retryCount: n }) {
     let i = {};
     this.idempotencyHeader && r !== "get" && (e.idempotencyKey || (e.idempotencyKey = this.defaultIdempotencyKey()), i[this.idempotencyHeader] = e.idempotencyKey);
-    const a = _e([
+    const a = ve([
       i,
       {
         Accept: "application/json",
@@ -18444,8 +18444,8 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
   buildBody({ options: e }) {
     const { body: r, headers: s } = e;
     if (!r)
-      return r == null && "body" in e ? $(this, Ie, "f").call(this, { body: r, headers: _e([s]) }) : { bodyHeaders: void 0, body: void 0 };
-    const n = _e([s]);
+      return r == null && "body" in e ? $(this, Ie, "f").call(this, { body: r, headers: ve([s]) }) : { bodyHeaders: void 0, body: void 0 };
+    const n = ve([s]);
     return (
       // Pass raw type verbatim
       ArrayBuffer.isView(r) || r instanceof ArrayBuffer || r instanceof DataView || typeof r == "string" && // Preserve legacy string encoding behavior for now
@@ -18470,15 +18470,15 @@ O.APIError = j;
 O.APIConnectionError = bt;
 O.APIConnectionTimeoutError = ys;
 O.APIUserAbortError = Ht;
-O.NotFoundError = vs;
-O.ConflictError = _s;
+O.NotFoundError = _s;
+O.ConflictError = vs;
 O.RateLimitError = ks;
 O.BadRequestError = ms;
 O.AuthenticationError = ws;
 O.InternalServerError = Es;
 O.PermissionDeniedError = bs;
 O.UnprocessableEntityError = Ss;
-O.toFile = vo;
+O.toFile = _o;
 O.Completions = Ds;
 O.Chat = zt;
 O.Embeddings = Bs;
@@ -18560,42 +18560,25 @@ async function Fs() {
   let t = {};
   return typeof chrome < "u" && ((e = chrome.storage) != null && e.local) && (t = (await chrome.storage.local.get([Kr]))[Kr] || {}), t.supabaseUrl, t.supabaseAnonKey, t;
 }
-function No() {
-  var t;
-  if (typeof chrome < "u" && ((t = chrome.storage) != null && t.local))
-    return {
-      getItem: async (e) => (await chrome.storage.local.get([e]))[e] ?? null,
-      setItem: async (e, r) => {
-        await chrome.storage.local.set({ [e]: r });
-      },
-      removeItem: async (e) => {
-        await chrome.storage.local.remove([e]);
-      }
-    };
-  if (typeof window < "u" && window.localStorage)
-    return window.localStorage;
-}
-async function Lo() {
+async function No() {
   const t = await Fs();
   return !!(t.supabaseUrl && t.supabaseAnonKey);
 }
 async function Ve() {
-  if (!await Lo()) return null;
+  if (!await No()) return null;
   if (!Ot) {
     const e = await Fs();
     Ot = ps(e.supabaseUrl, e.supabaseAnonKey, {
       auth: {
-        persistSession: typeof window > "u",
-        autoRefreshToken: typeof window > "u",
-        detectSessionInUrl: !1,
-        storage: No(),
-        storageKey: "repoowl-sandbox-auth-token"
+        persistSession: !1,
+        autoRefreshToken: !1,
+        detectSessionInUrl: !1
       }
     });
   }
   return Ot;
 }
-async function Do() {
+async function Lo() {
   const t = await Ve();
   if (!t)
     return { error: "Sandbox Supabase is not configured for RepoOwl." };
@@ -18615,17 +18598,17 @@ async function Do() {
     };
   }
 }
-const Bo = 2e3, qo = (t) => new Promise((e) => setTimeout(e, t));
+const Do = 2e3, Bo = (t) => new Promise((e) => setTimeout(e, t));
 chrome.runtime.onMessage.addListener((t, e, r) => {
   if (t.action === "open_settings")
     chrome.runtime.openOptionsPage();
   else {
     if (t.action === "force_sync")
       return Ks([t.repoName]).then(() => r({ success: !0 })).catch((s) => r({ error: s.message })), !0;
-    t.action === "add_repo" && (Mo(t.repoName).catch((s) => console.error("Error auto-publishing config:", s)), r({ success: !0 }));
+    t.action === "add_repo" && (qo(t.repoName).catch((s) => console.error("Error auto-publishing config:", s)), r({ success: !0 }));
   }
 });
-async function Mo(t) {
+async function qo(t) {
   var s, n;
   const r = (await chrome.storage.local.get(["repoOwlConfig"])).repoOwlConfig || {};
   if (!(!r.githubToken || !r.supabaseUrl || !r.supabaseAnonKey))
@@ -18686,7 +18669,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.alarms.onAlarm.addListener(async (t) => {
   t.name === "repoOwlHourlySync" && (console.log("Waking up for hourly sync..."), await Ks());
 });
-async function Ho(t, e) {
+async function Mo(t, e) {
   const [r, s] = t.split("/");
   if (!r || !s) throw new Error(`Invalid repository: ${t}`);
   const n = new URL(`https://api.github.com/repos/${r}/${s}/issues`);
@@ -18703,11 +18686,11 @@ async function Ho(t, e) {
   }
   return (await a.json()).filter((l) => !l.pull_request);
 }
-async function Fo(t, e) {
+async function Ho(t, e) {
   const r = await Ve(), { data: s, error: n } = await r.from("issues").select("issue_number, analysis_summary").eq("repo_name", t).eq("status", "open").order("created_at", { ascending: !1 }).limit(50);
   return n ? (console.error("Error fetching history:", n), []) : s || [];
 }
-function Wo(t) {
+function Fo(t) {
   if (!t) return {};
   const e = {}, r = /###\s+(.+?)(?:\r?\n)+([\s\S]*?)(?=###\s+|$)/g;
   let s;
@@ -18758,7 +18741,7 @@ function Wo(t) {
     ])
   };
 }
-async function Ko(t, e, r) {
+async function Wo(t, e, r) {
   var h, f, d;
   const s = new O({ apiKey: r, dangerouslyAllowBrowser: !0 }), n = e.map((p) => `[Issue ID: #${p.issue_number}]
 Title: ${p.title || "Unknown Title"}
@@ -18766,7 +18749,7 @@ Technical Summary: ${p.analysis_summary}`).join(`
 
 ---
 
-`), i = Wo(t.body || ""), a = {
+`), i = Fo(t.body || ""), a = {
     issue_number: t.number,
     title: t.title,
     primary_description: i.primary_description || t.body || "No description provided.",
@@ -18799,7 +18782,7 @@ Ensure the JSON is well-formed.`
     throw new Error("Groq API returned an empty response.");
   return JSON.parse(u);
 }
-async function Go(t, e, r, s) {
+async function Ko(t, e, r, s) {
   const n = await Ve(), { error: i } = await n.from("issues").insert({
     repo_name: t,
     issue_number: e.number,
@@ -18812,7 +18795,7 @@ async function Go(t, e, r, s) {
     throw console.error("Supabase insert error details:", a), new Error(`Supabase insert failed: ${a}`);
   }
 }
-async function Vo(t, e, r, s) {
+async function Go(t, e, r, s) {
   const n = await Ve(), { error: i } = await n.from("public_ecosystem_registry").upsert({
     repo_name: t,
     total_issues_analyzed: e,
@@ -18824,7 +18807,7 @@ async function Vo(t, e, r, s) {
     throw console.error("Supabase registry update error details:", a), new Error(`Registry update failed: ${a}`);
   }
 }
-async function Jo(t, e, r) {
+async function Vo(t, e, r) {
   const { data: s, error: n } = await e.from("issues").select("issue_number").eq("repo_name", t).eq("status", "open");
   if (n || !s) return;
   const i = new Set(r.map((o) => o.number)), a = s.map((o) => o.issue_number).filter((o) => !i.has(o));
@@ -18848,7 +18831,7 @@ async function Ks(t = null) {
     n("RepoOwl: API Keys not configured. Skipping sync.");
     return;
   }
-  const i = await Do();
+  const i = await Lo();
   if (i.error) {
     n(`RepoOwl: Could not authenticate with Supabase: ${i.error}`);
     return;
@@ -18911,20 +18894,20 @@ async function Ks(t = null) {
     }
     const { data: f } = await a.from("issues").select("issue_number, is_duplicate").eq("repo_name", c), d = new Set((f || []).map((S) => S.issue_number));
     let p = d.size, g = (f || []).filter((S) => S.is_duplicate).length;
-    const v = await Ho(c, r.githubToken);
-    u && await Jo(c, a, v);
-    let _ = v.filter((S) => !d.has(S.number));
-    u ? n(`[${c}] ${d.size} already processed. ${_.length} issues need processing.`) : h ? (_ = _.filter((S) => S.user && S.user.login === h), n(`[${c}] Found ${_.length} unprocessed issues authored by you.`)) : (n(`[${c}] Could not determine your GitHub username, skipping sandbox processing.`), _ = []);
-    for (const S of _)
+    const _ = await Mo(c, r.githubToken);
+    u && await Vo(c, a, _);
+    let v = _.filter((S) => !d.has(S.number));
+    u ? n(`[${c}] ${d.size} already processed. ${v.length} issues need processing.`) : h ? (v = v.filter((S) => S.user && S.user.login === h), n(`[${c}] Found ${v.length} unprocessed issues authored by you.`)) : (n(`[${c}] Could not determine your GitHub username, skipping sandbox processing.`), v = []);
+    for (const S of v)
       try {
         n(`[${c}] Processing issue #${S.number}...`);
-        const T = await Fo(c, r);
+        const T = await Ho(c, r);
         T.forEach((R) => {
-          const W = v.find((N) => N.number === R.issue_number);
+          const W = _.find((N) => N.number === R.issue_number);
           W && (R.title = W.title);
         });
-        const E = await Ko(S, T, r.groqApiKey);
-        await Go(c, S, E, r), p++, E.is_duplicate && g++, await qo(Bo);
+        const E = await Wo(S, T, r.groqApiKey);
+        await Ko(c, S, E, r), p++, E.is_duplicate && g++, await Bo(Do);
       } catch (T) {
         const E = T.message || String(T);
         n(`[${c}] Error processing issue #${S.number}: ${E}`);
@@ -18935,6 +18918,6 @@ async function Ks(t = null) {
       const T = (await chrome.storage.local.get([`hub_cache_${c}`]))[`hub_cache_${c}`] || [], E = new Set(T.map((R) => R.issue_number));
       d.forEach((R) => E.add(R)), w = E.size, y = g + T.filter((R) => R.is_duplicate).length;
     }
-    await Vo(c, w, y), n(`[${c}] Sync complete. Total Analyzed: ${w}, Duplicates: ${y}`);
+    await Go(c, w, y), n(`[${c}] Sync complete. Total Analyzed: ${w}, Duplicates: ${y}`);
   }
 }
