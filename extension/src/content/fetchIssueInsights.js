@@ -1,6 +1,6 @@
 import { getSandboxClient, getHubClient } from '../lib/supabase.js';
 
-const FETCH_TIMEOUT_MS = 8000;
+const FETCH_TIMEOUT_MS = 3000;
 
 function withTimeout(promise, timeoutMs) {
   return Promise.race([
