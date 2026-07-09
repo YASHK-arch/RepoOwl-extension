@@ -91,7 +91,12 @@ async function enableContributorDraftChecker(repoName, localGroqKey) {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert AI assistant. You must respond in valid JSON format matching this schema:\n' +
+            content: 'You are an expert GitHub triage AI.\n' +
+                     'The user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\n' +
+                     'Do not assume any issues have been resolved, because they are all actively open.\n' +
+                     'Your job is to determine if the user\'s draft is a DUPLICATE of one of these specific OPEN issues.\n' +
+                     'If they are reporting a bug that already exists in this open list, flag it as a duplicate.\n' +
+                     'You must respond in valid JSON format matching this schema:\n' +
                      '{ "is_duplicate": boolean, "analysis_summary": "string" }\n' +
                      'Ensure the JSON is well-formed.'
           },
@@ -144,7 +149,12 @@ async function autoAnalyzeAndSaveToSandbox(repoName, issueNumber, localGroqKey, 
       messages: [
         {
           role: 'system',
-          content: 'You are an expert AI assistant. You must respond in valid JSON format matching this schema:\n' +
+          content: 'You are an expert GitHub triage AI.\n' +
+                   'The user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\n' +
+                   'Do not assume any issues have been resolved, because they are all actively open.\n' +
+                   'Your job is to determine if the user\'s draft is a DUPLICATE of one of these specific OPEN issues.\n' +
+                   'If they are reporting a bug that already exists in this open list, flag it as a duplicate.\n' +
+                   'You must respond in valid JSON format matching this schema:\n' +
                    '{ "is_duplicate": boolean, "analysis_summary": "string" }\n' +
                    'Ensure the JSON is well-formed.'
         },

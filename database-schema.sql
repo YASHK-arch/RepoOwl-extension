@@ -5,10 +5,13 @@ CREATE TABLE IF NOT EXISTS issues (
   issue_number INT NOT NULL,
   is_duplicate BOOLEAN DEFAULT FALSE,
   analysis_summary TEXT,
+  status TEXT DEFAULT 'open',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 ALTER TABLE issues ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX IF NOT EXISTS idx_issues_status ON issues(status);
 
 -- Security Policy: The public (contributors) can READ the insights
 CREATE POLICY "Allow public read access" ON issues 
@@ -18,6 +21,9 @@ FOR SELECT USING (true);
 CREATE POLICY "Allow maintainer write access" ON issues 
 FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
+-- Security Policy: Maintainers can also update (e.g. status)
+CREATE POLICY "Allow maintainer update access" ON issues 
+FOR UPDATE USING (auth.role() = 'authenticated');
 
 -- 2. The Global Ecosystem Registry (For the Showcase Tab)
 CREATE TABLE IF NOT EXISTS public_ecosystem_registry (

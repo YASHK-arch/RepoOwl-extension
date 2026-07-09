@@ -19,24 +19,26 @@ Before you begin, ensure you have the following installed and set up:
 
 ---
 
-## 2. Supabase Configuration
+## 2. Supabase Configuration (Required for All Users)
 
-RepoOwl uses Supabase for database storage, edge functions, and anonymous authentication (for storing user-defined prompts locally).
+RepoOwl uses Supabase for database storage. Since there is no central Node.js backend, you must create your own database to store your issue analysis (your Sandbox).
 
 ### 2.1 Create a Project
 1. Go to your Supabase Dashboard and create a new project.
-2. Under **Project Settings > API**, retrieve your `Project URL`, `anon / public` key, and `service_role` key.
+2. Under **Project Settings > API**, retrieve your `Project URL` and `anon / public` key. 
+
+*(Maintainers: You will also need the `service_role` key to run the CLI worker).*
 
 ### 2.2 Enable Anonymous Sign-ins
-The extension needs anonymous authentication to allow users to save settings safely.
-1. Navigate to **Authentication > Providers**.
+The extension securely connects to your Supabase instance using Anonymous Authentication so it can read/write your data.
+1. Navigate to **Authentication > Providers** in Supabase.
 2. Scroll down to **Anonymous sign-ins** and toggle it **ON**.
 3. Save your changes.
 
 ### 2.3 Initialize the Database Schema
-You must apply the database schema so your Sandbox can save your analysis.
+You must apply the database schema so your Sandbox can save your analysis, track open vs. closed status (to prevent regression false positives), and participate in ecosystem analytics.
 1. Navigate to the **SQL Editor** in your Supabase dashboard.
-2. Open `database-schema.sql` from this repository, copy the contents, and run it. This will create the `issues` and `public_ecosystem_registry` tables with Row Level Security (RLS) configured.
+2. Open `database-schema.sql` from this repository, copy the contents, and run it. This will create the `issues` and `public_ecosystem_registry` tables with all necessary Row Level Security (RLS) policies.
 
 ---
 
@@ -52,17 +54,15 @@ Open `.env` in your editor and provide the keys:
 ```env
 # Supabase
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
-# Extension
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key # Maintainers only
 
 # Groq
 GROQ_API_KEY=gsk_...
 
 # GitHub Actions worker
-GITHUB_TOKEN=your-github-token
+GITHUB_TOKEN=your-github-token # Maintainers only
 ```
 
 ---
@@ -90,49 +90,47 @@ This command compiles the React code, bundles the content scripts, and creates t
 2. Toggle **Developer mode** ON (in the top right corner).
 3. Click the **Load unpacked** button.
 4. Select the `extension/` folder inside the `RepoOwl-extension` directory.
-5. The RepoOwl icon should now appear in your browser toolbar!
+5. The RepoOwl icon should now appear in your browser toolbar! Open it and ensure your Groq key is saved in the extension settings.
 
 ---
 
-## 6. Maintainer: Running the Background Worker
+## 6. Usage Guide: Role-Based Workflows
 
-If you are a repository **Maintainer** and want to retroactively analyze historical issues in your repository, run the CLI worker. The worker fetches all existing issues, classifies them, and saves them to your Hub.
+RepoOwl behaves intelligently depending on your role in a repository.
 
-Ensure your `GITHUB_TOKEN` is set in the `.env` file, then run:
+### For Maintainers (The Hub)
 
-```bash
-npm run start:worker
-```
-The worker will sync all issues and begin processing them.
+If you are a repository **Maintainer**, you need to build the official database for your repository (The Hub).
 
----
+1. **Sync Issues:** Run the CLI worker to fetch and classify all open issues in your repository:
+   ```bash
+   npm run start:worker
+   ```
+   *Note: This script automatically detects when issues are closed and updates your database to prevent false positives on regression bugs.*
 
-## 7. Contributor: Analyzing Issues
-
-If you are a **Contributor**, you don't need to run any background workers! Simply browse the repository. 
-- When you visit an existing issue that hasn't been analyzed by the Maintainer, RepoOwl will analyze it locally using your Groq key and save it to your Sandbox.
-- When the Maintainer's Hub eventually analyzes that issue, their official analysis will seamlessly override your Sandbox analysis in the UI.
-
----
-
-## 7. Supabase Webhooks (Optional for Real-time)
-
-To process new issues as soon as they are opened on GitHub, you need to deploy the Supabase Edge Function and configure a GitHub webhook.
-
-### 7.1 Deploy the Function
-If you have the [Supabase CLI](https://supabase.com/docs/guides/cli) installed:
+2. **Open the Gateway:** To allow your contributors to read your official "Hub" data, create a `repoowl.json` file in the root of your repository's `main` branch with your public keys:
+   ```json
+   {
+     "supabaseUrl": "https://your-project.supabase.co",
+     "supabaseAnonKey": "your-anon-key"
+   }
+   ```
+   
+*(Optional)* **Real-time Webhooks:** To process new issues automatically, you can deploy the Supabase Edge Function:
 ```bash
 supabase link --project-ref your-project-ref
 supabase secrets set GROQ_API_KEY=gsk_...
 supabase functions deploy github-webhook
 ```
+Then configure a GitHub Webhook pointing to `https://your-project-ref.supabase.co/functions/v1/github-webhook` for Issue events.
 
-### 7.2 Configure GitHub Webhook
-1. Go to your GitHub Repository **Settings > Webhooks > Add webhook**.
-2. **Payload URL**: `https://your-project-ref.supabase.co/functions/v1/github-webhook`
-3. **Content type**: `application/json`
-4. Select **Let me select individual events** and check **Issues**.
-5. Save the webhook.
+### For Contributors (The Sandbox)
+
+If you are a **Contributor**, you are completely done! You don't need to run any background workers or webhooks. Simply browse GitHub as normal.
+
+- **Sandbox Analysis:** When you visit an existing issue that the Maintainer hasn't analyzed yet, your extension will analyze it locally using your Groq key and save it securely to your personal **Sandbox** database.
+- **Draft Protection:** When you draft a new issue, the extension checks your text against the Hub's history of OPEN issues and warns you if you are submitting a duplicate.
+- **The Cascade Merge:** Whenever the Maintainer analyzes an issue, their official "Hub" analysis will automatically cascade over your Sandbox data in the UI so you stay perfectly in sync with the ecosystem.
 
 ---
 
