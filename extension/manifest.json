@@ -3,7 +3,7 @@
   "name": "RepoOwl",
   "version": "0.1.0",
   "description": "AI-powered issue insights and duplicate detection for GitHub repositories.",
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage", "activeTab", "alarms"],
   "host_permissions": [
     "https://github.com/*",
     "https://*.supabase.co/*"
@@ -25,6 +25,10 @@
   "options_ui": {
     "page": "src/options/index.html",
     "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {

@@ -9,9 +9,21 @@
  *   - div.BorderGrid-row for each section (first = About)
  */
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
 const CARD_ID = 'repoowl-sidebar-card';
+
+async function getKeys() {
+  let supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? '';
+  let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
+  
+  if (typeof chrome !== 'undefined' && chrome.storage) {
+    const result = await new Promise(r => chrome.storage.local.get(['repoOwlConfig'], r));
+    if (result.repoOwlConfig?.supabaseUrl && result.repoOwlConfig?.supabaseAnonKey) {
+      supabaseUrl = result.repoOwlConfig.supabaseUrl;
+      supabaseAnonKey = result.repoOwlConfig.supabaseAnonKey;
+    }
+  }
+  return { supabaseUrl, supabaseAnonKey };
+}
 
 /* ─── Styles ─────────────────────────────────────────────────────────── */
 const CARD_CSS = `
@@ -155,26 +167,23 @@ function getRepoFromPath() {
   return `${m[1]}/${m[2]}`;
 }
 
-async function fetchStats(repoFullName) {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
-  const url = `${SUPABASE_URL}/rest/v1/issues?select=is_processed,duplicate_data&repository_full_name=eq.${encodeURIComponent(repoFullName)}&limit=500`;
+async function fetchStats(repoFullName, keys) {
+  if (!keys.supabaseUrl || !keys.supabaseAnonKey) return null;
+  const url = `${keys.supabaseUrl}/rest/v1/public_ecosystem_registry?select=total_issues_analyzed,duplicates_found&repo_name=eq.${encodeURIComponent(repoFullName)}&limit=1`;
   try {
     const res = await fetch(url, {
       headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        apikey: keys.supabaseAnonKey,
+        Authorization: `Bearer ${keys.supabaseAnonKey}`,
       },
     });
     if (!res.ok) return null;
     const rows = await res.json();
-    const processed = rows.filter((r) => r.is_processed).length;
-    const duplicates = rows.filter((r) => {
-      try {
-        const d = typeof r.duplicate_data === 'string' ? JSON.parse(r.duplicate_data) : r.duplicate_data;
-        return Array.isArray(d?.original_issue_ids) && d.original_issue_ids.length > 0;
-      } catch { return false; }
-    }).length;
-    return { total: rows.length, processed, duplicates };
+    if (!rows || rows.length === 0) return { total: 0, processed: 0, duplicates: 0 };
+    
+    const processed = rows[0].total_issues_analyzed || 0;
+    const duplicates = rows[0].duplicates_found || 0;
+    return { total: processed, processed, duplicates };
   } catch {
     return null;
   }
@@ -200,12 +209,12 @@ function findSidebarTarget() {
   return null;
 }
 
-function buildCard(stats, repoFullName) {
+function buildCard(stats, repoFullName, keys) {
   const settingsUrl = typeof chrome !== 'undefined' && chrome.runtime
     ? chrome.runtime.getURL('src/options/index.html')
     : '#';
 
-  const configured = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+  const configured = !!(keys.supabaseUrl && keys.supabaseAnonKey);
 
   let statsHtml;
   if (!configured || stats === null) {
@@ -265,13 +274,13 @@ function buildCard(stats, repoFullName) {
   return wrapper;
 }
 
-async function injectCard(repoFullName, stats) {
+async function injectCard(repoFullName, stats, keys) {
   if (document.getElementById(CARD_ID)) return;
 
   const target = findSidebarTarget();
   if (!target) return;
 
-  const card = buildCard(stats, repoFullName);
+  const card = buildCard(stats, repoFullName, keys);
 
   // Inject as a BorderGrid-row to match GitHub's native structure
   const rowWrapper = document.createElement('div');
@@ -292,18 +301,18 @@ let injectionAttempts = 0;
 const MAX_ATTEMPTS = 20;
 const RETRY_INTERVAL_MS = 250;
 
-async function tryInject(repoFullName, stats) {
+async function tryInject(repoFullName, stats, keys) {
   if (document.getElementById(CARD_ID)) return; // already done
   if (injectionAttempts >= MAX_ATTEMPTS) return;
   injectionAttempts++;
 
   const target = findSidebarTarget();
   if (!target) {
-    setTimeout(() => tryInject(repoFullName, stats), RETRY_INTERVAL_MS);
+    setTimeout(() => tryInject(repoFullName, stats, keys), RETRY_INTERVAL_MS);
     return;
   }
 
-  await injectCard(repoFullName, stats);
+  await injectCard(repoFullName, stats, keys);
 }
 
 /* ─── Entry ──────────────────────────────────────────────────────────── */
@@ -311,20 +320,21 @@ async function run() {
   const repo = getRepoFromPath();
   if (!repo) return;
 
+  const keys = await getKeys();
   injectionAttempts = 0;
 
   // Kick off injection with loading state first (immediate)
-  tryInject(repo, null);
+  tryInject(repo, null, keys);
 
   // Fetch real data in parallel
-  const stats = await fetchStats(repo);
+  const stats = await fetchStats(repo, keys);
 
   // Remove the loading card and inject with real data
   const existing = document.getElementById(CARD_ID);
   if (existing) existing.closest('.BorderGrid-row')?.remove();
 
   injectionAttempts = 0;
-  tryInject(repo, stats);
+  tryInject(repo, stats, keys);
 }
 
 // Handle GitHub's Turbo/pjax soft-navigation

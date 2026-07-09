@@ -46,10 +46,7 @@ Ensure all quotes inside text strings are properly escaped to prevent parsing fa
 
 Your response must strictly conform to the following schema structure:
 {
-  "context": "Provide a crisp, highly technical summary of the issue's core scope and impact.",
-  "duplicate_data": {
-    "original_issue_ids": [Include integers of matching historical issue IDs here if a duplicate is confirmed. If the issue is entirely unique, leave this array empty.],
-    "explanation": "Provide a thorough technical breakdown explaining why these issues are structurally linked or, if unique, a justification of how its technical root cause or scope differs from existing logs."
-  }
+  "is_duplicate": true,
+  "analysis_summary": "Provide a thorough technical breakdown explaining why this issue is structurally linked to an existing issue, or if unique, a crisp summary of its core scope."
 }
 `;

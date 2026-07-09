@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { ModelConfig } from '../settings/ModelConfig.jsx';
 import { PromptSettings } from '../settings/PromptSettings.jsx';
 import { AboutPanel } from '../settings/AboutPanel.jsx';
+import { TrackedRepos } from '../settings/TrackedRepos.jsx';
 import './styles.css';
 
 const REPO_URL = 'https://github.com/YASHK-arch/RepoOwl-extension';
@@ -18,6 +19,11 @@ const NAV_ITEMS = [
     id: 'prompt',
     title: 'Summary Preferences',
     sub: 'Tune language, detail level, and prompt templates.',
+  },
+  {
+    id: 'repos',
+    title: 'Tracked Repositories',
+    sub: 'Manage which repositories are actively analyzed.',
   },
   {
     id: 'about',
@@ -112,6 +118,7 @@ function OptionsApp() {
       <main className="ro-main">
         {activeTab === 'model' && <ModelConfig />}
         {activeTab === 'prompt' && <PromptSettings />}
+        {activeTab === 'repos' && <TrackedRepos />}
         {activeTab === 'about' && <AboutPanel />}
       </main>
     </div>

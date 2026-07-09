@@ -5,25 +5,14 @@
 export const GROQ_RESPONSE_SCHEMA = {
   type: 'OBJECT',
   properties: {
-    context: {
-      type: 'STRING',
-      description: 'LLM-generated technical summary of the issue.',
+    is_duplicate: {
+      type: 'BOOLEAN',
+      description: 'True if the issue is a duplicate of a previously logged issue, otherwise false.',
     },
-    duplicate_data: {
-      type: 'OBJECT',
-      properties: {
-        original_issue_ids: {
-          type: 'ARRAY',
-          items: { type: 'INTEGER' },
-          description: 'GitHub issue IDs of structurally duplicate historical issues.',
-        },
-        explanation: {
-          type: 'STRING',
-          description: 'Technical breakdown of duplicate linkage or uniqueness justification.',
-        },
-      },
-      required: ['original_issue_ids', 'explanation'],
+    analysis_summary: {
+      type: 'STRING',
+      description: 'LLM-generated technical summary and duplicate linkage explanation.',
     },
   },
-  required: ['context', 'duplicate_data'],
+  required: ['is_duplicate', 'analysis_summary'],
 };

@@ -1,10 +1,38 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
+const STORAGE_KEY = 'repoOwlConfig';
+let sandboxClient = null;
+let hubClient = null;
+let publicGatewayConfig = null;
 
-let client = null;
-let authInitialization = null;
+export function setPublicGatewayConfig(url, anonKey) {
+  if (publicGatewayConfig?.supabaseUrl === url && publicGatewayConfig?.supabaseAnonKey === anonKey) {
+    return;
+  }
+  publicGatewayConfig = { supabaseUrl: url, supabaseAnonKey: anonKey };
+  hubClient = null; // Force client recreation
+}
+
+export function getPublicGatewayConfig() {
+  return publicGatewayConfig;
+}
+
+async function getKeysFromStorage() {
+  let keys = {};
+  if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+    const result = await chrome.storage.local.get([STORAGE_KEY]);
+    keys = result[STORAGE_KEY] || {};
+  }
+  
+  if (!keys.supabaseUrl && import.meta.env.VITE_SUPABASE_URL) {
+    keys.supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  }
+  if (!keys.supabaseAnonKey && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    keys.supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  }
+  
+  return keys;
+}
 
 function createAuthStorage() {
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
@@ -29,62 +57,74 @@ function createAuthStorage() {
   return undefined;
 }
 
-export function isSupabaseConfigured() {
-  return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+export async function isSandboxConfigured() {
+  const keys = await getKeysFromStorage();
+  return Boolean(keys.supabaseUrl && keys.supabaseAnonKey);
 }
 
-export function getSupabaseClient() {
-  if (!isSupabaseConfigured()) {
-    return null;
-  }
+export async function getSandboxClient() {
+  const configured = await isSandboxConfigured();
+  if (!configured) return null;
 
-  if (!client) {
-    client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  if (!sandboxClient) {
+    const keys = await getKeysFromStorage();
+    sandboxClient = createClient(keys.supabaseUrl, keys.supabaseAnonKey, {
       auth: {
-        persistSession: true,
-        autoRefreshToken: true,
+        persistSession: typeof window === 'undefined',
+        autoRefreshToken: typeof window === 'undefined',
         detectSessionInUrl: false,
         storage: createAuthStorage(),
+        storageKey: 'repoowl-sandbox-auth-token',
       },
     });
   }
-
-  return client;
+  return sandboxClient;
 }
 
-/**
- * Prompt saves require the authenticated role under tightened RLS.
- * Anonymous sign-in gives the extension a scoped JWT without maintainer signup.
- */
-export async function ensureAuthenticatedSession() {
-  const supabase = getSupabaseClient();
-  if (!supabase) {
-    return { error: 'Supabase is not configured for RepoOwl.' };
-  }
+export async function getHubClient() {
+  if (!publicGatewayConfig) return null;
 
-  if (!authInitialization) {
-    authInitialization = (async () => {
-      const { data, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        throw new Error(sessionError.message);
+  if (!hubClient) {
+    hubClient = createClient(publicGatewayConfig.supabaseUrl, publicGatewayConfig.supabaseAnonKey, {
+      auth: {
+        persistSession: false, // Hub is read-only, no need to persist auth
+        storageKey: 'repoowl-hub-auth-token',
       }
-
-      if (data.session) {
-        return;
-      }
-
-      const { error: signInError } = await supabase.auth.signInAnonymously();
-      if (signInError) {
-        throw new Error(signInError.message);
-      }
-    })().catch((error) => {
-      authInitialization = null;
-      throw error;
     });
+  }
+  return hubClient;
+}
+
+// Fallback for backwards compatibility
+export async function getSupabaseClient() {
+  return await getSandboxClient() || await getHubClient();
+}
+
+export async function isSupabaseConfigured() {
+  return (await isSandboxConfigured()) || Boolean(publicGatewayConfig);
+}
+
+export async function ensureAuthenticatedSession() {
+  const supabase = await getSandboxClient();
+  if (!supabase) {
+    return { error: 'Sandbox Supabase is not configured for RepoOwl.' };
   }
 
   try {
-    await authInitialization;
+    const { data, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      throw new Error(sessionError.message);
+    }
+
+    if (data.session) {
+      return { error: null };
+    }
+
+    const { error: signInError } = await supabase.auth.signInAnonymously();
+    if (signInError) {
+      throw new Error(signInError.message);
+    }
+
     return { error: null };
   } catch (error) {
     return {

@@ -21,7 +21,7 @@ export function PromptSettings() {
       return;
     }
 
-    if (!isSupabaseConfigured()) {
+    if (!(await isSupabaseConfigured())) {
       setStatus({
         type: 'error',
         message: 'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
@@ -29,7 +29,7 @@ export function PromptSettings() {
       return;
     }
 
-    const supabase = getSupabaseClient();
+    const supabase = await getSupabaseClient();
     setIsLoading(true);
     setStatus({ type: '', message: '' });
 
@@ -77,7 +77,7 @@ export function PromptSettings() {
       return;
     }
 
-    if (!isSupabaseConfigured()) {
+    if (!(await isSupabaseConfigured())) {
       setStatus({
         type: 'error',
         message: 'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
@@ -94,7 +94,7 @@ export function PromptSettings() {
         throw new Error(authResult.error);
       }
 
-      const supabase = getSupabaseClient();
+      const supabase = await getSupabaseClient();
       const { error } = await supabase.from('repository_prompts').upsert(
         {
           repository_full_name: trimmedRepo,
