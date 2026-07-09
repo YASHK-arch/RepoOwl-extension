@@ -77,6 +77,10 @@ export function TrackedRepos() {
       return;
     }
 
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      chrome.runtime.sendMessage({ action: 'add_repo', repoName: repo });
+    }
+
     const updatedRepos = [...repos, repo];
     saveRepos(updatedRepos);
     setNewRepo('');
