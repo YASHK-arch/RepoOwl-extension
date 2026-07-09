@@ -414,6 +414,12 @@ async function executeSyncQueue(forceRepos = null) {
         }
       } else {
         broadcast(`[${repo}] Confirmed Maintainer. Fetching issues...`);
+        try {
+          await autoPublishHubConfig(repo, keys);
+          broadcast(`[${repo}] Public Hub Config ensured on GitHub.`);
+        } catch (e) {
+          broadcast(`[${repo}] Warning: Failed to auto-publish Hub config: ${e.message}`);
+        }
       }
     } catch (err) {
       broadcast(`[${repo}] Error checking permissions: ${err.message}`);
