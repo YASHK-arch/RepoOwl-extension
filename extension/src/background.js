@@ -422,24 +422,3 @@ async function executeSyncQueue(forceRepos = null) {
 }
 
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'open_settings') {
-    chrome.runtime.openOptionsPage();
-  } else if (message.action === 'force_sync') {
-    executeSyncQueue([message.repoName]).then(() => sendResponse({ success: true })).catch(err => sendResponse({ error: err.message }));
-    return true; // Keep message channel open for async
-  }
-});
-
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create('repoOwlHourlySync', {
-    periodInMinutes: 60
-  });
-});
-
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name === 'repoOwlHourlySync') {
-    console.log('Waking up for hourly sync...');
-    await executeSyncQueue();
-  }
-});
