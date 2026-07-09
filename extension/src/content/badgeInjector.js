@@ -37,12 +37,11 @@ export function createBadge(issueNumber, status, duplicateIds = []) {
   el.setAttribute(BADGE_ATTR, String(issueNumber));
 
   if (status === 'duplicate') {
-    const ids = duplicateIds.slice(0, 2).join(', #');
     el.className = 'repoowl-badge repoowl-badge--duplicate';
-    el.innerHTML = `<span class="repoowl-badge__icon">⚠️</span> Duplicate #${ids}`;
+    el.innerHTML = `<span class="repoowl-badge__icon">⚠️</span> Duplicate`;
     el.setAttribute('role', 'button');
     el.setAttribute('tabindex', '0');
-    el.setAttribute('aria-label', `Duplicate of issue #${ids}. Click for details.`);
+    el.setAttribute('aria-label', `Duplicate issue. Click for details.`);
   } else if (status === 'duplicate_right') {
     el.className = 'repoowl-badge repoowl-badge--duplicate-right';
     el.innerHTML = `<span class="repoowl-badge__icon">⚠️</span> Duplicate`;
@@ -137,17 +136,14 @@ function findRightTarget(row) {
 export function injectBadge(row, issueNumber, insight, onBadgeClick) {
   if (row.querySelector(`[${BADGE_ATTR}="${issueNumber}"]`)) return;
 
-  const isDuplicate =
-    insight?.is_processed === true &&
-    Array.isArray(insight?.duplicate_data?.original_issue_ids) &&
-    insight.duplicate_data.original_issue_ids.length > 0;
+  const isDuplicate = insight?.is_processed === true && insight?.is_duplicate === true;
 
   const isReady = insight?.is_processed === true && !isDuplicate;
 
   if (isDuplicate) {
     const leftTarget = findLeftTarget(row);
     if (leftTarget) {
-      const badge = createBadge(issueNumber, 'duplicate', insight.duplicate_data.original_issue_ids);
+      const badge = createBadge(issueNumber, 'duplicate');
       badge.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); onBadgeClick(issueNumber); });
       badge.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onBadgeClick(issueNumber); } });
       

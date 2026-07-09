@@ -2,13 +2,14 @@
 
 This guide provides a comprehensive walkthrough to get RepoOwl running locally and connected to your repositories.
 
+> [!IMPORTANT]
+> **Dual-Layer Architecture:** RepoOwl uses a Hub (Maintainer) and Sandbox (Contributor) architecture. **Both Maintainers and Contributors** must set up their own personal Supabase project (the Sandbox) to store their local analysis!
+
 ---
 
 ## 1. Prerequisites
 
-Before you begin, ensure you have the following installed and set up:
-- **Node.js** (v18 or higher)
-- **Git**
+Before you begin, ensure you have the following ready:
 - **Google Chrome** (for the browser extension)
 - A **[Supabase](https://supabase.com/)** account
 - A **[Groq](https://console.groq.com/)** account (for fast LLM inference)
@@ -16,112 +17,63 @@ Before you begin, ensure you have the following installed and set up:
 
 ---
 
-## 2. Supabase Configuration
+## 2. Supabase Configuration (Required for All Users)
 
-RepoOwl uses Supabase for database storage, edge functions, and anonymous authentication (for storing user-defined prompts locally).
+RepoOwl uses Supabase for database storage. Since there is no central backend, you must create your own database to store your issue analysis (your Sandbox).
 
 ### 2.1 Create a Project
 1. Go to your Supabase Dashboard and create a new project.
-2. Under **Project Settings > API**, retrieve your `Project URL`, `anon / public` key, and `service_role` key.
+2. Under **Project Settings > API**, retrieve your `Project URL` and `anon / public` key. 
 
 ### 2.2 Enable Anonymous Sign-ins
-The extension needs anonymous authentication to allow users to save settings safely.
-1. Navigate to **Authentication > Providers**.
+The extension securely connects to your Supabase instance using Anonymous Authentication so it can read/write your data.
+1. Navigate to **Authentication > Providers** in Supabase.
 2. Scroll down to **Anonymous sign-ins** and toggle it **ON**.
 3. Save your changes.
 
 ### 2.3 Initialize the Database Schema
-You can apply the database migrations using the Supabase CLI, or run the SQL directly in the Supabase SQL Editor.
-1. If using the dashboard, navigate to the **SQL Editor**.
-2. Copy the contents of `supabase/migrations/001_initial_schema.sql` and run the script. This will create the `issues` and `custom_prompts` tables with Row Level Security (RLS) configured.
+You must apply the database schema so your Sandbox can save your analysis, track open vs. closed status (to prevent regression false positives), and participate in ecosystem analytics.
+1. Navigate to the **SQL Editor** in your Supabase dashboard.
+2. Open `database-schema.sql` from this repository, copy the contents, and run it. This will create the `issues` and `public_ecosystem_registry` tables with all necessary Row Level Security (RLS) policies.
 
 ---
 
-## 3. Environment Setup
-
-Copy the example environment file and fill in your credentials.
-
-```bash
-cp .env.example .env
-```
-
-Open `.env` in your editor and provide the keys:
-```env
-# Supabase
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
-# Extension
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-
-# Groq
-GROQ_API_KEY=gsk_...
-
-# GitHub Actions worker
-GITHUB_TOKEN=your-github-token
-```
-
----
-
-## 4. Install Dependencies & Build
-
-Install the workspace dependencies from the root of the project:
-
-```bash
-npm install
-```
-
-Now, build the extension so it's ready to be loaded into Chrome:
-
-```bash
-npm run build:extension
-```
-This command compiles the React code, bundles the content scripts, and creates the `extension/dist/` directory.
-
----
-
-## 5. Load the Extension into Chrome
+## 3. Load the Extension & Configure Keys
 
 1. Open Google Chrome and navigate to `chrome://extensions/`.
 2. Toggle **Developer mode** ON (in the top right corner).
 3. Click the **Load unpacked** button.
-4. Select the `extension/` folder inside the `RepoOwl-extension` directory.
-5. The RepoOwl icon should now appear in your browser toolbar!
+4. Select the `extension/dist/` folder inside the `RepoOwl-extension` directory (or the folder containing `manifest.json`).
+5. The RepoOwl icon should now appear in your browser toolbar! 
+6. **Important:** Click the RepoOwl icon to open the popup, go to the Settings tab, and paste your **Supabase URL**, **Supabase Anon Key**, **Groq API Key**, and **GitHub Token**.
 
 ---
 
-## 6. Running the Background Worker
+## 4. Usage Guide: Role-Based Workflows
 
-If you want to retroactively analyze historical issues in your repository, run the CLI worker. The worker fetches all existing issues from a target GitHub repository, inserts them into Supabase, and uses Groq to classify duplicates.
+RepoOwl behaves intelligently depending on your role in a repository. All sync logic runs directly inside the browser extension!
 
-Ensure your `GITHUB_TOKEN` is set in the `.env` file, then run:
+### For Maintainers (The Hub)
 
-```bash
-npm run start:worker
-```
-The worker will sync all issues and begin processing them.
+If you are a repository **Maintainer**, you need to build the official database for your repository (The Hub).
 
----
+1. **Automatic Background Sync:** Because you provided a GitHub Token with Push/Admin access in the extension settings, the extension's background script will automatically wake up every hour to sync your repository's open issues to your Supabase database.
+2. **Open the Gateway:** To allow your contributors to read your official "Hub" data, create a `repoowl.json` file in the root of your repository's `main` branch with your public keys:
+   ```json
+   {
+     "supabaseUrl": "https://your-project.supabase.co",
+     "supabaseAnonKey": "your-anon-key"
+   }
+   ```
+Contributors visiting your repo will now seamlessly merge your Hub data with their Sandbox!
 
-## 7. Supabase Webhooks (Optional for Real-time)
+### For Contributors (The Sandbox)
 
-To process new issues as soon as they are opened on GitHub, you need to deploy the Supabase Edge Function and configure a GitHub webhook.
+If you are a **Contributor**, simply browse GitHub as normal.
 
-### 7.1 Deploy the Function
-If you have the [Supabase CLI](https://supabase.com/docs/guides/cli) installed:
-```bash
-supabase link --project-ref your-project-ref
-supabase secrets set GROQ_API_KEY=gsk_...
-supabase functions deploy github-webhook
-```
-
-### 7.2 Configure GitHub Webhook
-1. Go to your GitHub Repository **Settings > Webhooks > Add webhook**.
-2. **Payload URL**: `https://your-project-ref.supabase.co/functions/v1/github-webhook`
-3. **Content type**: `application/json`
-4. Select **Let me select individual events** and check **Issues**.
-5. Save the webhook.
+- **Sandbox Analysis:** When you visit an existing issue that the Maintainer hasn't analyzed yet, your extension will analyze it locally using your Groq key and save it securely to your personal **Sandbox** database.
+- **Draft Protection:** When you draft a new issue, the extension checks your text against the Hub's history of OPEN issues and warns you if you are submitting a duplicate.
+- **The Cascade Merge:** Whenever the Maintainer analyzes an issue, their official "Hub" analysis will automatically cascade over your Sandbox data in the UI so you stay perfectly in sync with the ecosystem.
 
 ---
 
