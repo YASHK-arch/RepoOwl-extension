@@ -1,5 +1,81 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import './popup.css';
+
+function EcosystemAnalytics({ keys }) {
+  const [registry, setRegistry] = useState([]);
+  const [metrics, setMetrics] = useState({ totalRepos: 0, totalAnalyzed: 0, totalDupes: 0 });
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    async function fetchEcosystemData() {
+      try {
+        const response = await fetch(`${keys.supabaseUrl}/rest/v1/public_ecosystem_registry?select=*`, {
+          headers: { 'apikey': keys.supabaseAnonKey }
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        
+        setRegistry(data);
+        
+        const aggregated = data.reduce((acc, curr) => ({
+          totalRepos: acc.totalRepos + 1,
+          totalAnalyzed: acc.totalAnalyzed + curr.total_issues_analyzed,
+          totalDupes: acc.totalDupes + curr.duplicates_found
+        }), { totalRepos: 0, totalAnalyzed: 0, totalDupes: 0 });
+        
+        setMetrics(aggregated);
+      } catch (err) {
+        console.error("Failed to fetch ecosystem data", err);
+      }
+    }
+    
+    if (keys.supabaseUrl) fetchEcosystemData();
+  }, [keys]);
+
+  const filteredRegistry = registry.filter(r => r.repo_name.includes(searchTerm));
+
+  return (
+    <div className="ecosystem-container" style={{ padding: '0 16px 16px 16px' }}>
+      <div className="metrics-header" style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        <div className="metric-card" style={{ flex: 1, backgroundColor: '#f6f8fa', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+          <h4 style={{ margin: 0, fontSize: '10px', color: '#57606a' }}>Repos</h4>
+          <h2 style={{ margin: '4px 0 0 0', fontSize: '16px' }}>{metrics.totalRepos}</h2>
+        </div>
+        <div className="metric-card" style={{ flex: 1, backgroundColor: '#f6f8fa', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+          <h4 style={{ margin: 0, fontSize: '10px', color: '#57606a' }}>Analyzed</h4>
+          <h2 style={{ margin: '4px 0 0 0', fontSize: '16px' }}>{metrics.totalAnalyzed}</h2>
+        </div>
+        <div className="metric-card" style={{ flex: 1, backgroundColor: '#f6f8fa', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+          <h4 style={{ margin: 0, fontSize: '10px', color: '#57606a' }}>Dupes Prevented</h4>
+          <h2 style={{ margin: '4px 0 0 0', fontSize: '16px' }}>{metrics.totalDupes}</h2>
+        </div>
+      </div>
+
+      <input 
+        type="text" 
+        placeholder="Search ecosystem..." 
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-input"
+        style={{ width: '100%', padding: '6px 8px', marginBottom: '12px', border: '1px solid #d0d7de', borderRadius: '6px' }}
+      />
+
+      <div className="registry-table" style={{ maxHeight: '150px', overflowY: 'auto', borderTop: '1px solid #d0d7de' }}>
+        {filteredRegistry.map(repo => (
+          <div key={repo.repo_name} className="registry-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #eaeef2', fontSize: '12px' }}>
+            <span className="repo-name" style={{ fontWeight: 'bold' }}>{repo.repo_name}</span>
+            <div style={{ display: 'flex', gap: '8px', color: '#57606a' }}>
+              <span className="stats">Analysed: {repo.total_issues_analyzed}</span>
+              <span className="stats">Saved: {repo.duplicates_found}</span>
+            </div>
+          </div>
+        ))}
+        {filteredRegistry.length === 0 && (
+          <div style={{ padding: '8px 0', textAlign: 'center', color: '#57606a', fontSize: '12px' }}>No projects found.</div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const REPO_URL = 'https://github.com/YASHK-arch/RepoOwl-extension';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? '';
@@ -54,7 +130,10 @@ export function PopupApp() {
   const [currentRepo, setCurrentRepo] = useState(null);
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [activeTab, setActiveTab] = useState('current');
   const configured = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+  
+  const ecosystemKeys = useMemo(() => ({ supabaseUrl: SUPABASE_URL, supabaseAnonKey: SUPABASE_ANON_KEY }), []);
 
   // Detect the active tab's repo
   useEffect(() => {
@@ -125,45 +204,67 @@ export function PopupApp() {
 
       <div className="ro-divider" />
 
-      {/* Stats grid */}
-      {configured && (
-        <div className="ro-stats">
-          {loadingStats ? (
-            <div className="ro-stats-loading">Fetching insights…</div>
-          ) : stats ? (
-            <>
-              <div className="ro-stat">
-                <span className="ro-stat__num">{stats.processed}</span>
-                <span className="ro-stat__label">Analysed</span>
-              </div>
-              <div className="ro-stat">
-                <span className="ro-stat__num">{stats.duplicates}</span>
-                <span className="ro-stat__label">Duplicates</span>
-              </div>
-              <div className="ro-stat">
-                <span className="ro-stat__num">{stats.total}</span>
-                <span className="ro-stat__label">Total</span>
-              </div>
-            </>
-          ) : (
-            <div className="ro-stats-empty">
-              {currentRepo ? 'No issues tracked yet.' : 'Visit a GitHub repo to see stats.'}
+      {/* Tabs */}
+      <div style={{ display: 'flex', borderBottom: '1px solid #d0d7de', margin: '0 16px 16px 16px' }}>
+        <button 
+          onClick={() => setActiveTab('current')} 
+          style={{ flex: 1, padding: '8px', background: 'none', border: 'none', borderBottom: activeTab === 'current' ? '2px solid #0969da' : 'none', fontWeight: activeTab === 'current' ? 'bold' : 'normal', cursor: 'pointer', color: activeTab === 'current' ? '#24292f' : '#57606a' }}
+        >
+          Current Repo
+        </button>
+        <button 
+          onClick={() => setActiveTab('ecosystem')} 
+          style={{ flex: 1, padding: '8px', background: 'none', border: 'none', borderBottom: activeTab === 'ecosystem' ? '2px solid #0969da' : 'none', fontWeight: activeTab === 'ecosystem' ? 'bold' : 'normal', cursor: 'pointer', color: activeTab === 'ecosystem' ? '#24292f' : '#57606a' }}
+        >
+          Ecosystem
+        </button>
+      </div>
+
+      {activeTab === 'current' ? (
+        <>
+          {/* Stats grid */}
+          {configured && (
+            <div className="ro-stats">
+              {loadingStats ? (
+                <div className="ro-stats-loading">Fetching insights…</div>
+              ) : stats ? (
+                <>
+                  <div className="ro-stat">
+                    <span className="ro-stat__num">{stats.processed}</span>
+                    <span className="ro-stat__label">Analysed</span>
+                  </div>
+                  <div className="ro-stat">
+                    <span className="ro-stat__num">{stats.duplicates}</span>
+                    <span className="ro-stat__label">Duplicates</span>
+                  </div>
+                  <div className="ro-stat">
+                    <span className="ro-stat__num">{stats.total}</span>
+                    <span className="ro-stat__label">Total</span>
+                  </div>
+                </>
+              ) : (
+                <div className="ro-stats-empty">
+                  {currentRepo ? 'No issues tracked yet.' : 'Visit a GitHub repo to see stats.'}
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
 
-      {/* Pill row */}
-      <div className="ro-pills">
-        <div className="ro-pill">
-          <span className="ro-pill__label">Provider</span>
-          <span className="ro-pill__value">Groq</span>
-        </div>
-        <div className="ro-pill">
-          <span className="ro-pill__label">Model</span>
-          <span className="ro-pill__value">LLaMA 3.3</span>
-        </div>
-      </div>
+          {/* Pill row */}
+          <div className="ro-pills">
+            <div className="ro-pill">
+              <span className="ro-pill__label">Provider</span>
+              <span className="ro-pill__value">Groq</span>
+            </div>
+            <div className="ro-pill">
+              <span className="ro-pill__label">Model</span>
+              <span className="ro-pill__value">LLaMA 3.3</span>
+            </div>
+          </div>
+        </>
+      ) : (
+        <EcosystemAnalytics keys={ecosystemKeys} />
+      )}
 
       <div className="ro-divider" />
 

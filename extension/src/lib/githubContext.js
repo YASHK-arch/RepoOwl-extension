@@ -1,5 +1,6 @@
 const ISSUE_LIST_PATH = /^\/([^/]+)\/([^/]+)\/issues\/?$/;
 const ISSUE_DETAIL_PATH = /^\/([^/]+)\/([^/]+)\/issues\/(\d+)\/?$/;
+const ISSUE_NEW_PATH = /^\/([^/]+)\/([^/]+)\/issues\/new\/?/;
 const ISSUE_LINK_PATH = ISSUE_DETAIL_PATH;
 
 function buildRepository(owner, repo) {
@@ -17,6 +18,14 @@ export function parseGitHubIssuesPage(url = window.location) {
       type: 'detail',
       repository: buildRepository(detailMatch[1], detailMatch[2]),
       issueNumber: Number(detailMatch[3]),
+    };
+  }
+  
+  const newMatch = url.pathname.match(ISSUE_NEW_PATH);
+  if (newMatch) {
+    return {
+      type: 'new',
+      repository: buildRepository(newMatch[1], newMatch[2]),
     };
   }
 

@@ -1,7 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
 const STORAGE_KEY = 'repoOwlConfig';
-let client = null;
+let sandboxClient = null;
+let hubClient = null;
+let publicGatewayConfig = null;
+
+export function setPublicGatewayConfig(url, anonKey) {
+  publicGatewayConfig = { supabaseUrl: url, supabaseAnonKey: anonKey };
+  hubClient = null; // Force client recreation
+}
+
+export function getPublicGatewayConfig() {
+  return publicGatewayConfig;
+}
 
 async function getKeysFromStorage() {
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
@@ -34,20 +45,18 @@ function createAuthStorage() {
   return undefined;
 }
 
-export async function isSupabaseConfigured() {
+export async function isSandboxConfigured() {
   const keys = await getKeysFromStorage();
   return Boolean(keys.supabaseUrl && keys.supabaseAnonKey);
 }
 
-export async function getSupabaseClient() {
-  const configured = await isSupabaseConfigured();
-  if (!configured) {
-    return null;
-  }
+export async function getSandboxClient() {
+  const configured = await isSandboxConfigured();
+  if (!configured) return null;
 
-  if (!client) {
+  if (!sandboxClient) {
     const keys = await getKeysFromStorage();
-    client = createClient(keys.supabaseUrl, keys.supabaseAnonKey, {
+    sandboxClient = createClient(keys.supabaseUrl, keys.supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -56,14 +65,35 @@ export async function getSupabaseClient() {
       },
     });
   }
+  return sandboxClient;
+}
 
-  return client;
+export async function getHubClient() {
+  if (!publicGatewayConfig) return null;
+
+  if (!hubClient) {
+    hubClient = createClient(publicGatewayConfig.supabaseUrl, publicGatewayConfig.supabaseAnonKey, {
+      auth: {
+        persistSession: false // Hub is read-only, no need to persist auth
+      }
+    });
+  }
+  return hubClient;
+}
+
+// Fallback for backwards compatibility
+export async function getSupabaseClient() {
+  return await getSandboxClient() || await getHubClient();
+}
+
+export async function isSupabaseConfigured() {
+  return (await isSandboxConfigured()) || Boolean(publicGatewayConfig);
 }
 
 export async function ensureAuthenticatedSession() {
-  const supabase = await getSupabaseClient();
+  const supabase = await getSandboxClient();
   if (!supabase) {
-    return { error: 'Supabase is not configured for RepoOwl.' };
+    return { error: 'Sandbox Supabase is not configured for RepoOwl.' };
   }
 
   try {

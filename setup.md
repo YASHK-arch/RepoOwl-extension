@@ -2,6 +2,9 @@
 
 This guide provides a comprehensive walkthrough to get RepoOwl running locally and connected to your repositories.
 
+> [!IMPORTANT]
+> **Dual-Layer Architecture:** RepoOwl uses a Hub (Maintainer) and Sandbox (Contributor) architecture. **Both Maintainers and Contributors** must set up their own personal Supabase project (the Sandbox) to store their local analysis!
+
 ---
 
 ## 1. Prerequisites
@@ -31,9 +34,9 @@ The extension needs anonymous authentication to allow users to save settings saf
 3. Save your changes.
 
 ### 2.3 Initialize the Database Schema
-You can apply the database migrations using the Supabase CLI, or run the SQL directly in the Supabase SQL Editor.
-1. If using the dashboard, navigate to the **SQL Editor**.
-2. Copy the contents of `supabase/migrations/001_initial_schema.sql` and run the script. This will create the `issues` and `custom_prompts` tables with Row Level Security (RLS) configured.
+You must apply the database schema so your Sandbox can save your analysis.
+1. Navigate to the **SQL Editor** in your Supabase dashboard.
+2. Open `database-schema.sql` from this repository, copy the contents, and run it. This will create the `issues` and `public_ecosystem_registry` tables with Row Level Security (RLS) configured.
 
 ---
 
@@ -91,9 +94,9 @@ This command compiles the React code, bundles the content scripts, and creates t
 
 ---
 
-## 6. Running the Background Worker
+## 6. Maintainer: Running the Background Worker
 
-If you want to retroactively analyze historical issues in your repository, run the CLI worker. The worker fetches all existing issues from a target GitHub repository, inserts them into Supabase, and uses Groq to classify duplicates.
+If you are a repository **Maintainer** and want to retroactively analyze historical issues in your repository, run the CLI worker. The worker fetches all existing issues, classifies them, and saves them to your Hub.
 
 Ensure your `GITHUB_TOKEN` is set in the `.env` file, then run:
 
@@ -101,6 +104,14 @@ Ensure your `GITHUB_TOKEN` is set in the `.env` file, then run:
 npm run start:worker
 ```
 The worker will sync all issues and begin processing them.
+
+---
+
+## 7. Contributor: Analyzing Issues
+
+If you are a **Contributor**, you don't need to run any background workers! Simply browse the repository. 
+- When you visit an existing issue that hasn't been analyzed by the Maintainer, RepoOwl will analyze it locally using your Groq key and save it to your Sandbox.
+- When the Maintainer's Hub eventually analyzes that issue, their official analysis will seamlessly override your Sandbox analysis in the UI.
 
 ---
 
