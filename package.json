@@ -9,5 +9,8 @@
   "scripts": {
     "start:worker": "npm run start --workspace=@repoowl/worker",
     "build:extension": "npm run build --workspace=@repoowl/extension"
+  },
+  "devDependencies": {
+    "supabase": "^2.109.1"
   }
 }
