@@ -10126,7 +10126,7 @@ function Ki(t) {
   const e = [];
   return Hi(t, (r) => e.push(r)), new Uint8Array(e);
 }
-function ue(t) {
+function he(t) {
   const e = [], r = { queue: 0, queuedBits: 0 }, s = (n) => {
     e.push(n);
   };
@@ -10138,7 +10138,7 @@ function Ji(t) {
 function Vi() {
   return Symbol("auth-callback");
 }
-const N = () => typeof window < "u" && typeof document < "u", ae = {
+const N = () => typeof window < "u" && typeof document < "u", oe = {
   tested: !1,
   writable: !1
 }, us = () => {
@@ -10150,15 +10150,15 @@ const N = () => typeof window < "u" && typeof document < "u", ae = {
   } catch {
     return !1;
   }
-  if (ae.tested)
-    return ae.writable;
+  if (oe.tested)
+    return oe.writable;
   const t = `lswt-${Math.random()}${Math.random()}`;
   try {
-    globalThis.localStorage.setItem(t, t), globalThis.localStorage.removeItem(t), ae.tested = !0, ae.writable = !0;
+    globalThis.localStorage.setItem(t, t), globalThis.localStorage.removeItem(t), oe.tested = !0, oe.writable = !0;
   } catch {
-    ae.tested = !0, ae.writable = !1;
+    oe.tested = !0, oe.writable = !1;
   }
-  return ae.writable;
+  return oe.writable;
 };
 function Gi(t) {
   const e = {}, r = new URL(t);
@@ -10261,7 +10261,7 @@ async function ta(t) {
   const r = await ea(t);
   return btoa(r).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
-async function oe(t, e, r = !1) {
+async function le(t, e, r = !1) {
   const s = Zi();
   let n = s;
   r && (n += "/recovery"), await be(t, `${e}-code-verifier`, n);
@@ -10350,7 +10350,7 @@ function oa(t, e) {
 function Tr(t) {
   return JSON.parse(JSON.stringify(t));
 }
-const le = (t) => {
+const ce = (t) => {
   if (typeof t == "object" && t !== null) {
     const e = t;
     if (typeof e.msg == "string")
@@ -10384,25 +10384,25 @@ const le = (t) => {
 async function Rr(t) {
   var e;
   if (!zi(t))
-    throw new Mt(le(t), 0);
+    throw new Mt(ce(t), 0);
   if (la.includes(t.status))
-    throw new Mt(le(t), t.status);
+    throw new Mt(ce(t), t.status);
   let r;
   try {
     r = await t.json();
   } catch (i) {
-    throw new z(le(i), i);
+    throw new z(ce(i), i);
   }
   let s;
   const n = sa(t);
   if (n && n.getTime() >= ls["2024-01-01"].timestamp && typeof r == "object" && r && typeof r.code == "string" ? s = r.code : typeof r == "object" && r && typeof r.error_code == "string" && (s = r.error_code), s) {
     if (s === "weak_password")
-      throw new _r(le(r), t.status, ((e = r.weak_password) === null || e === void 0 ? void 0 : e.reasons) || []);
+      throw new _r(ce(r), t.status, ((e = r.weak_password) === null || e === void 0 ? void 0 : e.reasons) || []);
     if (s === "session_not_found")
       throw new j();
   } else if (typeof r == "object" && r && typeof r.weak_password == "object" && r.weak_password && Array.isArray(r.weak_password.reasons) && r.weak_password.reasons.length && r.weak_password.reasons.reduce((i, a) => i && typeof a == "string", !0))
-    throw new _r(le(r), t.status, r.weak_password.reasons);
-  throw new Ni(le(r), t.status || 500, s);
+    throw new _r(ce(r), t.status, r.weak_password.reasons);
+  throw new Ni(ce(r), t.status || 500, s);
 }
 const ca = (t, e, r, s) => {
   const n = { method: t, headers: (e == null ? void 0 : e.headers) || {} };
@@ -10426,7 +10426,7 @@ async function ua(t, e, r, s, n, i) {
   try {
     o = await t(r, Object.assign({}, a));
   } catch (l) {
-    throw console.error(l), new Mt(le(l), 0);
+    throw console.error(l), new Mt(ce(l), 0);
   }
   if (o.ok || await Rr(o), s != null && s.noResolveJson)
     return o;
@@ -11808,8 +11808,8 @@ function $r(t) {
     id: t.id,
     rawId: t.id,
     response: {
-      attestationObject: ue(new Uint8Array(t.response.attestationObject)),
-      clientDataJSON: ue(new Uint8Array(t.response.clientDataJSON))
+      attestationObject: he(new Uint8Array(t.response.attestationObject)),
+      clientDataJSON: he(new Uint8Array(t.response.clientDataJSON))
     },
     type: "public-key",
     clientExtensionResults: t.getClientExtensionResults(),
@@ -11827,10 +11827,10 @@ function jr(t) {
     rawId: t.id,
     // W3C spec expects rawId to match id for JSON format
     response: {
-      authenticatorData: ue(new Uint8Array(n.authenticatorData)),
-      clientDataJSON: ue(new Uint8Array(n.clientDataJSON)),
-      signature: ue(new Uint8Array(n.signature)),
-      userHandle: n.userHandle ? ue(new Uint8Array(n.userHandle)) : void 0
+      authenticatorData: he(new Uint8Array(n.authenticatorData)),
+      clientDataJSON: he(new Uint8Array(n.clientDataJSON)),
+      signature: he(new Uint8Array(n.signature)),
+      userHandle: n.userHandle ? he(new Uint8Array(n.userHandle)) : void 0
     },
     type: "public-key",
     clientExtensionResults: s,
@@ -12628,7 +12628,7 @@ class We {
       if ("email" in e) {
         const { email: u, password: h, options: f } = e;
         let d = null, p = null;
-        this.flowType === "pkce" && ([d, p] = await oe(this.storage, this.storageKey)), i = await b(this.fetch, "POST", `${this.url}/signup`, {
+        this.flowType === "pkce" && ([d, p] = await le(this.storage, this.storageKey)), i = await b(this.fetch, "POST", `${this.url}/signup`, {
           headers: this.headers,
           redirectTo: f == null ? void 0 : f.emailRedirectTo,
           body: {
@@ -13355,7 +13355,7 @@ class We {
     try {
       const { data: v, error: _ } = await b(this.fetch, "POST", `${this.url}/token?grant_type=web3`, {
         headers: this.headers,
-        body: Object.assign({ chain: "solana", message: p, signature: ue(g) }, !((f = e.options) === null || f === void 0) && f.captchaToken ? { gotrue_meta_security: { captcha_token: (d = e.options) === null || d === void 0 ? void 0 : d.captchaToken } } : null),
+        body: Object.assign({ chain: "solana", message: p, signature: he(g) }, !((f = e.options) === null || f === void 0) && f.captchaToken ? { gotrue_meta_security: { captcha_token: (d = e.options) === null || d === void 0 ? void 0 : d.captchaToken } } : null),
         xform: F
       });
       if (_)
@@ -13587,7 +13587,7 @@ class We {
       if ("email" in e) {
         const { email: o, options: l } = e;
         let c = null, u = null;
-        this.flowType === "pkce" && ([c, u] = await oe(this.storage, this.storageKey));
+        this.flowType === "pkce" && ([c, u] = await le(this.storage, this.storageKey));
         const { error: h } = await b(this.fetch, "POST", `${this.url}/otp`, {
           headers: this.headers,
           body: {
@@ -13842,7 +13842,7 @@ class We {
     var r, s, n, i, a;
     try {
       let o = null, l = null;
-      this.flowType === "pkce" && ([o, l] = await oe(this.storage, this.storageKey));
+      this.flowType === "pkce" && ([o, l] = await le(this.storage, this.storageKey));
       const c = await b(this.fetch, "POST", `${this.url}/sso`, {
         body: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, "providerId" in e ? { provider_id: e.providerId } : null), "domain" in e ? { domain: e.domain } : null), { redirect_to: (s = (r = e.options) === null || r === void 0 ? void 0 : r.redirectTo) !== null && s !== void 0 ? s : void 0 }), !((n = e == null ? void 0 : e.options) === null || n === void 0) && n.captchaToken ? { gotrue_meta_security: { captcha_token: e.options.captchaToken } } : null), { skip_http_redirect: !0, code_challenge: o, code_challenge_method: l }),
         headers: this.headers,
@@ -13964,7 +13964,7 @@ class We {
       if ("email" in e) {
         const { email: s, type: n, options: i } = e;
         let a = null, o = null;
-        this.flowType === "pkce" && ([a, o] = await oe(this.storage, this.storageKey));
+        this.flowType === "pkce" && ([a, o] = await le(this.storage, this.storageKey));
         const { error: l } = await b(this.fetch, "POST", r, {
           headers: this.headers,
           body: {
@@ -14413,7 +14413,7 @@ class We {
           throw new j();
         const a = n.session;
         let o = null, l = null;
-        this.flowType === "pkce" && e.email != null && ([o, l] = await oe(this.storage, this.storageKey));
+        this.flowType === "pkce" && e.email != null && ([o, l] = await le(this.storage, this.storageKey));
         const { data: c, error: u } = await b(this.fetch, "PUT", `${this.url}/user`, {
           headers: this.headers,
           redirectTo: r == null ? void 0 : r.emailRedirectTo,
@@ -15154,7 +15154,7 @@ class We {
    */
   async resetPasswordForEmail(e, r = {}) {
     let s = null, n = null;
-    this.flowType === "pkce" && ([s, n] = await oe(
+    this.flowType === "pkce" && ([s, n] = await le(
       this.storage,
       this.storageKey,
       !0
@@ -15814,7 +15814,7 @@ class We {
   async _getUrlForProvider(e, r, s) {
     const n = [`provider=${encodeURIComponent(r)}`];
     if (s != null && s.redirectTo && n.push(`redirect_to=${encodeURIComponent(s.redirectTo)}`), s != null && s.scopes && n.push(`scopes=${encodeURIComponent(s.scopes)}`), this.flowType === "pkce") {
-      const [i, a] = await oe(this.storage, this.storageKey), o = new URLSearchParams({
+      const [i, a] = await le(this.storage, this.storageKey), o = new URLSearchParams({
         code_challenge: `${encodeURIComponent(i)}`,
         code_challenge_method: `${encodeURIComponent(a)}`
       });
@@ -17657,7 +17657,7 @@ ${a}
 ${h}`);
   }
   return a;
-}, he = /* @__PURE__ */ Oo(Ds);
+}, de = /* @__PURE__ */ Oo(Ds);
 class Bs extends X {
   /**
    * Creates and executes a batch from an uploaded file of requests.
@@ -17670,7 +17670,7 @@ class Bs extends X {
    * Retrieves a batch.
    */
   retrieve(e, r) {
-    return this._client.get(he`/openai/v1/batches/${e}`, r);
+    return this._client.get(de`/openai/v1/batches/${e}`, r);
   }
   /**
    * List your organization's batches.
@@ -17682,7 +17682,7 @@ class Bs extends X {
    * Cancels a batch.
    */
   cancel(e, r) {
-    return this._client.post(he`/openai/v1/batches/${e}/cancel`, r);
+    return this._client.post(de`/openai/v1/batches/${e}/cancel`, r);
   }
 }
 let qs = class extends X {
@@ -17741,13 +17741,13 @@ class Hs extends X {
    * Delete a file.
    */
   delete(e, r) {
-    return this._client.delete(he`/openai/v1/files/${e}`, r);
+    return this._client.delete(de`/openai/v1/files/${e}`, r);
   }
   /**
    * Returns the contents of the specified file.
    */
   content(e, r) {
-    return this._client.get(he`/openai/v1/files/${e}/content`, {
+    return this._client.get(de`/openai/v1/files/${e}/content`, {
       ...r,
       headers: Se([{ Accept: "application/octet-stream" }, r == null ? void 0 : r.headers]),
       __binaryResponse: !0
@@ -17757,7 +17757,7 @@ class Hs extends X {
    * Returns information about a file.
    */
   info(e, r) {
-    return this._client.get(he`/openai/v1/files/${e}`, r);
+    return this._client.get(de`/openai/v1/files/${e}`, r);
   }
 }
 class Ws extends X {
@@ -17765,7 +17765,7 @@ class Ws extends X {
    * Get a specific model
    */
   retrieve(e, r) {
-    return this._client.get(he`/openai/v1/models/${e}`, r);
+    return this._client.get(de`/openai/v1/models/${e}`, r);
   }
   /**
    * get all available models
@@ -17777,7 +17777,7 @@ class Ws extends X {
    * Delete a model
    */
   delete(e, r) {
-    return this._client.delete(he`/openai/v1/models/${e}`, r);
+    return this._client.delete(de`/openai/v1/models/${e}`, r);
   }
 }
 function Co(t) {
@@ -17893,7 +17893,7 @@ function D(t) {
   };
   return Vr.set(e, [r, n]), n;
 }
-const ce = (t) => (t.options && (t.options = { ...t.options }, delete t.options.headers), t.headers && (t.headers = Object.fromEntries((t.headers instanceof Headers ? [...t.headers] : Object.entries(t.headers)).map(([e, r]) => [
+const ue = (t) => (t.options && (t.options = { ...t.options }, delete t.options.headers), t.headers && (t.headers = Object.fromEntries((t.headers instanceof Headers ? [...t.headers] : Object.entries(t.headers)).map(([e, r]) => [
   e,
   e.toLowerCase() === "authorization" || e.toLowerCase() === "api-key" || e.toLowerCase() === "x-api-key" || e.toLowerCase() === "cookie" || e.toLowerCase() === "set-cookie" ? "***" : r
 ]))), "retryOfRequestLogID" in t && (t.retryOfRequestLogID && (t.retryOf = t.retryOfRequestLogID), delete t.retryOfRequestLogID), t);
@@ -18102,7 +18102,7 @@ async function Lo(t, e) {
     const o = r.headers.get("content-type"), l = (h = o == null ? void 0 : o.split(";")[0]) == null ? void 0 : h.trim();
     return (l == null ? void 0 : l.includes("application/json")) || (l == null ? void 0 : l.endsWith("+json")) ? r.headers.get("content-length") === "0" ? void 0 : await r.json() : await r.text();
   })();
-  return D(t).debug(`[${s}] response parsed`, ce({
+  return D(t).debug(`[${s}] response parsed`, ue({
     retryOfRequestLogID: n,
     url: r.url,
     status: r.status,
@@ -18302,7 +18302,7 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
     });
     await this.prepareRequest(a, { url: o, options: n });
     const c = "log_" + (Math.random() * (1 << 24) | 0).toString(16).padStart(6, "0"), u = s === void 0 ? "" : `, retryOf: ${s}`, h = Date.now();
-    if (D(this).debug(`[${c}] sending request`, ce({
+    if (D(this).debug(`[${c}] sending request`, ue({
       retryOfRequestLogID: s,
       method: n.method,
       url: o,
@@ -18317,13 +18317,13 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
         throw new Kt();
       const y = Ht(d) || /timed? ?out/i.test(String(d) + ("cause" in d ? String(d.cause) : ""));
       if (r)
-        return D(this).info(`[${c}] connection ${y ? "timed out" : "failed"} - ${w}`), D(this).debug(`[${c}] connection ${y ? "timed out" : "failed"} (${w})`, ce({
+        return D(this).info(`[${c}] connection ${y ? "timed out" : "failed"} - ${w}`), D(this).debug(`[${c}] connection ${y ? "timed out" : "failed"} (${w})`, ue({
           retryOfRequestLogID: s,
           url: o,
           durationMs: p - h,
           message: d.message
         })), this.retryRequest(n, r, s ?? c);
-      throw D(this).info(`[${c}] connection ${y ? "timed out" : "failed"} - error; no more retries left`), D(this).debug(`[${c}] connection ${y ? "timed out" : "failed"} (error; no more retries left)`, ce({
+      throw D(this).info(`[${c}] connection ${y ? "timed out" : "failed"} - error; no more retries left`), D(this).debug(`[${c}] connection ${y ? "timed out" : "failed"} (error; no more retries left)`, ue({
         retryOfRequestLogID: s,
         url: o,
         durationMs: p - h,
@@ -18335,7 +18335,7 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
       const w = await this.shouldRetry(d);
       if (r && w) {
         const W = `retrying, ${r} attempts remaining`;
-        return await mo(d.body), D(this).info(`${g} - ${W}`), D(this).debug(`[${c}] response error (${W})`, ce({
+        return await mo(d.body), D(this).info(`${g} - ${W}`), D(this).debug(`[${c}] response error (${W})`, ue({
           retryOfRequestLogID: s,
           url: d.url,
           status: d.status,
@@ -18346,7 +18346,7 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
       const y = w ? "error; no more retries left" : "error; not retryable";
       D(this).info(`${g} - ${y}`);
       const S = await d.text().catch((W) => Wt(W).message), T = lo(S), E = T ? void 0 : S;
-      throw D(this).debug(`[${c}] response error (${y})`, ce({
+      throw D(this).debug(`[${c}] response error (${y})`, ue({
         retryOfRequestLogID: s,
         url: d.url,
         status: d.status,
@@ -18355,7 +18355,7 @@ new Groq({ apiKey, dangerouslyAllowBrowser: true })`);
         durationMs: Date.now() - h
       })), this.makeStatusError(d.status, T, E, d.headers);
     }
-    return D(this).info(g), D(this).debug(`[${c}] response start`, ce({
+    return D(this).info(g), D(this).debug(`[${c}] response start`, ue({
       retryOfRequestLogID: s,
       url: d.url,
       status: d.status,
@@ -18570,7 +18570,7 @@ async function Fo() {
   const t = await Js();
   return !!(t.supabaseUrl && t.supabaseAnonKey);
 }
-async function de() {
+async function ae() {
   if (!await Fo()) return null;
   if (!It) {
     const e = await Js();
@@ -18586,7 +18586,7 @@ async function de() {
   return It;
 }
 async function Ho() {
-  const t = await de();
+  const t = await ae();
   if (!t)
     return { error: "Sandbox Supabase is not configured for RepoOwl." };
   try {
@@ -18612,7 +18612,10 @@ chrome.runtime.onMessage.addListener((t, e, r) => {
   else {
     if (t.action === "force_sync")
       return zs([t.repoName]).then(() => r({ success: !0 })).catch((s) => r({ error: s.message })), !0;
-    t.action === "add_repo" && (Jo(t.repoName).catch((s) => console.error("Error auto-publishing config:", s)), r({ success: !0 }));
+    if (t.action === "add_repo")
+      Jo(t.repoName).catch((s) => console.error("Error auto-publishing config:", s)), r({ success: !0 });
+    else if (t.action === "check_mediator_status")
+      return Vo(t.repoName).then((s) => r(s)).catch((s) => r({ error: s.message })), !0;
   }
 });
 async function Jo(t) {
@@ -18669,7 +18672,7 @@ async function Vs(t, e) {
   });
 }
 async function Gs(t, e) {
-  const [r, s] = t.split("/"), n = await de();
+  const [r, s] = t.split("/"), n = await ae();
   try {
     const { data: i, error: a } = await n.functions.invoke("registry", {
       body: {
@@ -18685,6 +18688,15 @@ async function Gs(t, e) {
     console.error(`[${t}] Mediator registration exception:`, i);
   }
 }
+async function Vo(t) {
+  const [e, r] = t.split("/");
+  try {
+    const s = await ae(), { data: n, error: i } = await s.from("registry").select("created_at").eq("owner", e).eq("repo", r).single();
+    return !i && n ? { registered: !0, createdAt: n.created_at } : { registered: !1 };
+  } catch (s) {
+    return { registered: !1, error: s.message };
+  }
+}
 chrome.runtime.onInstalled.addListener(() => {
   chrome.alarms.create("repoOwlHourlySync", {
     periodInMinutes: 60
@@ -18693,7 +18705,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.alarms.onAlarm.addListener(async (t) => {
   t.name === "repoOwlHourlySync" && (console.log("Waking up for hourly sync..."), await zs());
 });
-async function Vo(t, e) {
+async function Go(t, e) {
   const [r, s] = t.split("/");
   if (!r || !s) throw new Error(`Invalid repository: ${t}`);
   const n = new URL(`https://api.github.com/repos/${r}/${s}/issues`);
@@ -18710,11 +18722,11 @@ async function Vo(t, e) {
   }
   return (await a.json()).filter((l) => !l.pull_request);
 }
-async function Go(t, e) {
-  const r = await de(), { data: s, error: n } = await r.from("issues").select("issue_number, analysis_summary").eq("repo_name", t).eq("status", "open").order("created_at", { ascending: !1 }).limit(50);
+async function zo(t, e) {
+  const r = await ae(), { data: s, error: n } = await r.from("issues").select("issue_number, analysis_summary").eq("repo_name", t).eq("status", "open").order("created_at", { ascending: !1 }).limit(50);
   return n ? (console.error("Error fetching history:", n), []) : s || [];
 }
-function zo(t) {
+function Xo(t) {
   if (!t) return {};
   const e = {}, r = /###\s+(.+?)(?:\r?\n)+([\s\S]*?)(?=###\s+|$)/g;
   let s;
@@ -18765,7 +18777,7 @@ function zo(t) {
     ])
   };
 }
-async function Xo(t, e, r) {
+async function Yo(t, e, r) {
   var h, f, d;
   const s = new O({ apiKey: r, dangerouslyAllowBrowser: !0 }), n = e.map((p) => `[Issue ID: #${p.issue_number}]
 Title: ${p.title || "Unknown Title"}
@@ -18773,7 +18785,7 @@ Technical Summary: ${p.analysis_summary}`).join(`
 
 ---
 
-`), i = zo(t.body || ""), a = {
+`), i = Xo(t.body || ""), a = {
     issue_number: t.number,
     title: t.title,
     primary_description: i.primary_description || t.body || "No description provided.",
@@ -18806,8 +18818,8 @@ Ensure the JSON is well-formed.`
     throw new Error("Groq API returned an empty response.");
   return JSON.parse(u);
 }
-async function Yo(t, e, r, s) {
-  const n = await de(), { error: i } = await n.from("issues").insert({
+async function Qo(t, e, r, s) {
+  const n = await ae(), { error: i } = await n.from("issues").insert({
     repo_name: t,
     issue_number: e.number,
     is_duplicate: r.is_duplicate,
@@ -18819,8 +18831,8 @@ async function Yo(t, e, r, s) {
     throw console.error("Supabase insert error details:", a), new Error(`Supabase insert failed: ${a}`);
   }
 }
-async function Qo(t, e, r, s) {
-  const n = await de(), { error: i } = await n.from("public_ecosystem_registry").upsert({
+async function Zo(t, e, r, s) {
+  const n = await ae(), { error: i } = await n.from("public_ecosystem_registry").upsert({
     repo_name: t,
     total_issues_analyzed: e,
     duplicates_found: r,
@@ -18831,7 +18843,7 @@ async function Qo(t, e, r, s) {
     throw console.error("Supabase registry update error details:", a), new Error(`Registry update failed: ${a}`);
   }
 }
-async function Zo(t, e, r) {
+async function el(t, e, r) {
   const { data: s, error: n } = await e.from("issues").select("issue_number").eq("repo_name", t).eq("status", "open");
   if (n || !s) return;
   const i = new Set(r.map((o) => o.number)), a = s.map((o) => o.issue_number).filter((o) => !i.has(o));
@@ -18860,7 +18872,7 @@ async function zs(t = null) {
     n(`RepoOwl: Could not authenticate with Supabase: ${i.error}`);
     return;
   }
-  const a = await de();
+  const a = await ae();
   for (const c of s) {
     n(`
 [${c}] Starting sync...`);
@@ -18900,7 +18912,7 @@ async function zs(t = null) {
           n(`[${c}] Error fetching your GitHub username: ${E.message}`);
         }
         try {
-          const [E, R] = c.split("/"), W = await de();
+          const [E, R] = c.split("/"), W = await ae();
           let x = null;
           const { data: St, error: Xs } = await W.from("registry").select("supabase_url, supabase_anon_key").eq("owner", E).eq("repo", R).single();
           if (!Xs && St)
@@ -18930,20 +18942,20 @@ async function zs(t = null) {
     }
     const { data: f } = await a.from("issues").select("issue_number, is_duplicate").eq("repo_name", c), d = new Set((f || []).map((S) => S.issue_number));
     let p = d.size, g = (f || []).filter((S) => S.is_duplicate).length;
-    const v = await Vo(c, r.githubToken);
-    u && await Zo(c, a, v);
+    const v = await Go(c, r.githubToken);
+    u && await el(c, a, v);
     let _ = v.filter((S) => !d.has(S.number));
     u ? n(`[${c}] ${d.size} already processed. ${_.length} issues need processing.`) : h ? (_ = _.filter((S) => S.user && S.user.login === h), n(`[${c}] Found ${_.length} unprocessed issues authored by you.`)) : (n(`[${c}] Could not determine your GitHub username, skipping sandbox processing.`), _ = []);
     for (const S of _)
       try {
         n(`[${c}] Processing issue #${S.number}...`);
-        const T = await Go(c, r);
+        const T = await zo(c, r);
         T.forEach((R) => {
           const W = v.find((x) => x.number === R.issue_number);
           W && (R.title = W.title);
         });
-        const E = await Xo(S, T, r.groqApiKey);
-        await Yo(c, S, E, r), p++, E.is_duplicate && g++, await Ko(Wo);
+        const E = await Yo(S, T, r.groqApiKey);
+        await Qo(c, S, E, r), p++, E.is_duplicate && g++, await Ko(Wo);
       } catch (T) {
         const E = T.message || String(T);
         n(`[${c}] Error processing issue #${S.number}: ${E}`);
@@ -18954,6 +18966,6 @@ async function zs(t = null) {
       const T = (await chrome.storage.local.get([`hub_cache_${c}`]))[`hub_cache_${c}`] || [], E = new Set(T.map((R) => R.issue_number));
       d.forEach((R) => E.add(R)), w = E.size, y = g + T.filter((R) => R.is_duplicate).length;
     }
-    await Qo(c, w, y), n(`[${c}] Sync complete. Total Analyzed: ${w}, Duplicates: ${y}`);
+    await Zo(c, w, y), n(`[${c}] Sync complete. Total Analyzed: ${w}, Duplicates: ${y}`);
   }
 }
