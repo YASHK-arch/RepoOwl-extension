@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!extension/.env
 
 # Secrets and risky files
 *.pem
