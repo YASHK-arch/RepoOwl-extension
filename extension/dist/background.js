@@ -18671,21 +18671,21 @@ async function Vs(t, e) {
     })
   });
 }
-async function Gs(t, e) {
-  const [r, s] = t.split("/"), n = await ae();
+async function Gs(t, e, r = console.log) {
+  const [s, n] = t.split("/"), i = await ae();
   try {
-    const { data: i, error: a } = await n.functions.invoke("registry", {
+    const { data: a, error: o } = await i.functions.invoke("registry", {
       body: {
-        owner: r,
-        repo: s,
+        owner: s,
+        repo: n,
         supabaseUrl: e.supabaseUrl,
         supabaseAnonKey: e.supabaseAnonKey,
         githubToken: e.githubToken
       }
     });
-    a ? console.error(`[${t}] Error registering with Mediator:`, a) : console.log(`[${t}] Successfully registered keys with Central Mediator.`);
-  } catch (i) {
-    console.error(`[${t}] Mediator registration exception:`, i);
+    r(o ? `[${t}] Error registering with Mediator: ${o.message || JSON.stringify(o)}` : `[${t}] Successfully registered keys with Central Mediator.`);
+  } catch (a) {
+    r(`[${t}] Mediator registration exception: ${a.message}`);
   }
 }
 async function Vo(t) {
@@ -18893,7 +18893,7 @@ async function zs(t = null) {
       if (u = ((o = T.permissions) == null ? void 0 : o.push) === !0 || ((l = T.permissions) == null ? void 0 : l.admin) === !0, u) {
         n(`[${c}] Confirmed Maintainer. Fetching issues...`);
         try {
-          await Vs(c, r), await Gs(c, r), n(`[${c}] Public Hub Config ensured on GitHub and Central Mediator.`);
+          await Vs(c, r), await Gs(c, r, n);
         } catch (E) {
           n(`[${c}] Warning: Failed to auto-publish Hub config: ${E.message}`);
         }

@@ -128,6 +128,7 @@ export function TrackedRepos() {
         } else {
           setStatus({ type: 'error', message: `Sync failed for ${repo}: ${response?.error || 'Unknown error'}` });
         }
+        fetchStatus(repo);
       });
     } else {
       setSyncing(null);
