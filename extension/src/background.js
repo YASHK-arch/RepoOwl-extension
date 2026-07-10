@@ -96,7 +96,7 @@ async function autoPublishHubConfig(repo, keys) {
   });
 }
 
-async function registerWithMediator(repo, keys) {
+async function registerWithMediator(repo, keys, broadcast = console.log) {
   const [owner, name] = repo.split('/');
   const supabase = await getSandboxClient();
   
@@ -112,12 +112,12 @@ async function registerWithMediator(repo, keys) {
     });
 
     if (error) {
-      console.error(`[${repo}] Error registering with Mediator:`, error);
+      broadcast(`[${repo}] Error registering with Mediator: ${error.message || JSON.stringify(error)}`);
     } else {
-      console.log(`[${repo}] Successfully registered keys with Central Mediator.`);
+      broadcast(`[${repo}] Successfully registered keys with Central Mediator.`);
     }
   } catch (e) {
-    console.error(`[${repo}] Mediator registration exception:`, e);
+    broadcast(`[${repo}] Mediator registration exception: ${e.message}`);
   }
 }
 
@@ -491,8 +491,7 @@ async function executeSyncQueue(forceRepos = null) {
         broadcast(`[${repo}] Confirmed Maintainer. Fetching issues...`);
         try {
           await autoPublishHubConfig(repo, keys);
-          await registerWithMediator(repo, keys);
-          broadcast(`[${repo}] Public Hub Config ensured on GitHub and Central Mediator.`);
+          await registerWithMediator(repo, keys, broadcast);
         } catch (e) {
           broadcast(`[${repo}] Warning: Failed to auto-publish Hub config: ${e.message}`);
         }
