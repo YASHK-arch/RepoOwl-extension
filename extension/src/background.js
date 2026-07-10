@@ -98,10 +98,17 @@ async function autoPublishHubConfig(repo, keys) {
 
 async function registerWithMediator(repo, keys, broadcast = console.log) {
   const [owner, name] = repo.split('/');
-  const supabase = await getSandboxClient();
+  
+  const centralUrl = import.meta.env.VITE_SUPABASE_URL;
+  const centralKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  if (!centralUrl || !centralKey) {
+    broadcast(`[${repo}] Error: Central Mediator not configured in extension environment.`);
+    return;
+  }
+  const centralSupabase = createClient(centralUrl, centralKey, { auth: { persistSession: false } });
   
   try {
-    const { data, error } = await supabase.functions.invoke('registry', {
+    const { data, error } = await centralSupabase.functions.invoke('registry', {
       body: { 
         owner, 
         repo: name, 
@@ -124,7 +131,11 @@ async function registerWithMediator(repo, keys, broadcast = console.log) {
 async function checkMediatorStatus(repo) {
   const [owner, name] = repo.split('/');
   try {
-    const centralSupabase = await getSandboxClient();
+    const centralUrl = import.meta.env.VITE_SUPABASE_URL;
+    const centralKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    if (!centralUrl || !centralKey) return { registered: false };
+
+    const centralSupabase = createClient(centralUrl, centralKey, { auth: { persistSession: false } });
     const { data, error } = await centralSupabase
       .from('registry')
       .select('created_at')
@@ -439,24 +450,35 @@ async function executeSyncQueue(forceRepos = null) {
         // Phase 1: Hub Hydration
         try {
           const [owner, name] = repo.split('/');
-          const centralSupabase = await getSandboxClient();
+          
+          const centralUrl = import.meta.env.VITE_SUPABASE_URL;
+          const centralKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+          let centralSupabase = null;
+          if (centralUrl && centralKey) {
+            centralSupabase = createClient(centralUrl, centralKey, { auth: { persistSession: false } });
+          }
+
           let hubConfig = null;
 
           // 1. Try Central Mediator Registry
-          const { data: registryData, error: registryError } = await centralSupabase
-            .from('registry')
-            .select('supabase_url, supabase_anon_key')
-            .eq('owner', owner)
-            .eq('repo', name)
-            .single();
+          if (centralSupabase) {
+            const { data: registryData, error: registryError } = await centralSupabase
+              .from('registry')
+              .select('supabase_url, supabase_anon_key')
+              .eq('owner', owner)
+              .eq('repo', name)
+              .single();
 
-          if (!registryError && registryData) {
-            hubConfig = {
-              supabaseUrl: registryData.supabase_url,
-              supabaseAnonKey: registryData.supabase_anon_key
-            };
-            broadcast(`[${repo}] Discovered Hub config from Central Mediator.`);
-          } else {
+            if (!registryError && registryData) {
+              hubConfig = {
+                supabaseUrl: registryData.supabase_url,
+                supabaseAnonKey: registryData.supabase_anon_key
+              };
+              broadcast(`[${repo}] Discovered Hub config from Central Mediator.`);
+            }
+          }
+
+          if (!hubConfig) {
             // 2. Fallback to repoowl.json
             broadcast(`[${repo}] Central Mediator returned no config. Falling back to repoowl.json...`);
             const configResponse = await fetch(`https://raw.githubusercontent.com/${repo}/main/repoowl.json`);
