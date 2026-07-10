@@ -4,6 +4,15 @@ RepoOwl is an AI-powered GitHub extension that automates issue triage by identif
 
 ---
 
+## ✨ What's New in v0.1.1 (Client-Side Overhaul)
+
+* **3-Layer Central Mediator Architecture:** Completely eliminated manual environment configuration for contributors.
+* **Zero-Config Contributor Discovery:** Contributors no longer need to ask for or paste manual keys; the extension automatically discovers the maintainer's Supabase connection via the central mediator registry.
+* **Maintainer Live Sync Tracking:** Maintainers can force sync their keys to the mediator and track real-time registration status directly from the extension UI.
+* **Idempotent SQL Schema & Secure RLS:** Enhanced database configurations with robust Row-Level Security ensuring seamless and secure read/write capabilities across roles.
+
+---
+
 ## 🎯 Why RepoOwl?
 
 Managing large-scale repositories often leads to a deluge of duplicate issues and complex technical debt. RepoOwl acts as your first-line triager:
