@@ -284,12 +284,14 @@ async function bootstrap() {
         console.warn('[RepoOwl]', freshInsights.error);
         return;
       }
-      liveInsights = freshInsights;
+      // Update the existing cache reference so the observer uses fresh data
+      liveInsights.byNumber = freshInsights.byNumber;
+      liveInsights.byId = freshInsights.byId;
+      liveInsights.error = freshInsights.error;
+      
       // Remove old badges so the observer re-paints them with fresh data
+      // This triggers the existing MutationObserver to automatically re-scan.
       document.querySelectorAll('[data-repoowl-badge]').forEach(el => el.remove());
-      // Also update the cache reference so the observer uses fresh data
-      observer.disconnect();
-      observeIssueList(page.repository.fullName, freshInsights, handleBadgeClick);
     }).catch((err) => console.warn('[RepoOwl] Background fetch error:', err));
 
     return;
@@ -306,10 +308,14 @@ async function bootstrap() {
   // Fetch live data and update if the badge changes state
   fetchRepositoryInsights(page.repository.fullName).then((freshInsights) => {
     if (!freshInsights.error) {
-      liveInsights = freshInsights;
-      // Re-run detail observer with fresh data
+      // Update the existing cache reference so the observer uses fresh data
+      liveInsights.byNumber = freshInsights.byNumber;
+      liveInsights.byId = freshInsights.byId;
+      liveInsights.error = freshInsights.error;
+      
+      // Remove old badges so the observer re-paints them with fresh data
+      // This triggers the existing MutationObserver to automatically re-scan.
       document.querySelectorAll('[data-repoowl-badge]').forEach(el => el.remove());
-      observeIssueDetail(page.repository.fullName, page.issueNumber, freshInsights, handleBadgeClick);
     }
   }).catch(() => {});
 
