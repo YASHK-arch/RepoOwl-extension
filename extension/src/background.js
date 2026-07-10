@@ -16,6 +16,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === 'add_repo') {
     handleNewRepoAdded(message.repoName).catch(err => console.error("Error auto-publishing config:", err));
     sendResponse({ success: true });
+  } else if (message.action === 'check_mediator_status') {
+    checkMediatorStatus(message.repoName).then(res => sendResponse(res)).catch(err => sendResponse({ error: err.message }));
+    return true;
   }
 });
 
@@ -118,6 +121,26 @@ async function registerWithMediator(repo, keys) {
   }
 }
 
+async function checkMediatorStatus(repo) {
+  const [owner, name] = repo.split('/');
+  try {
+    const centralSupabase = await getSandboxClient();
+    const { data, error } = await centralSupabase
+      .from('registry')
+      .select('created_at')
+      .eq('owner', owner)
+      .eq('repo', name)
+      .single();
+    
+    if (!error && data) {
+      return { registered: true, createdAt: data.created_at };
+    } else {
+      return { registered: false };
+    }
+  } catch (e) {
+    return { registered: false, error: e.message };
+  }
+}
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.alarms.create("repoOwlHourlySync", {
