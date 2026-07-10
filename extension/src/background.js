@@ -43,6 +43,7 @@ async function handleNewRepoAdded(repo) {
 
     if (isMaintainer) {
       await autoPublishHubConfig(repo, keys);
+      await registerWithMediator(repo, keys);
     }
   } catch (err) {
     console.error(`[${repo}] Error verifying permissions for auto-publish:`, err);
@@ -90,6 +91,31 @@ async function autoPublishHubConfig(repo, keys) {
       ...(fileSha && { sha: fileSha })
     })
   });
+}
+
+async function registerWithMediator(repo, keys) {
+  const [owner, name] = repo.split('/');
+  const supabase = await getSandboxClient();
+  
+  try {
+    const { data, error } = await supabase.functions.invoke('registry', {
+      body: { 
+        owner, 
+        repo: name, 
+        supabaseUrl: keys.supabaseUrl, 
+        supabaseAnonKey: keys.supabaseAnonKey, 
+        githubToken: keys.githubToken 
+      }
+    });
+
+    if (error) {
+      console.error(`[${repo}] Error registering with Mediator:`, error);
+    } else {
+      console.log(`[${repo}] Successfully registered keys with Central Mediator.`);
+    }
+  } catch (e) {
+    console.error(`[${repo}] Mediator registration exception:`, e);
+  }
 }
 
 
@@ -389,9 +415,35 @@ async function executeSyncQueue(forceRepos = null) {
 
         // Phase 1: Hub Hydration
         try {
-          const configResponse = await fetch(`https://raw.githubusercontent.com/${repo}/main/repoowl.json`);
-          if (configResponse.ok) {
-            const hubConfig = await configResponse.json();
+          const [owner, name] = repo.split('/');
+          const centralSupabase = await getSandboxClient();
+          let hubConfig = null;
+
+          // 1. Try Central Mediator Registry
+          const { data: registryData, error: registryError } = await centralSupabase
+            .from('registry')
+            .select('supabase_url, supabase_anon_key')
+            .eq('owner', owner)
+            .eq('repo', name)
+            .single();
+
+          if (!registryError && registryData) {
+            hubConfig = {
+              supabaseUrl: registryData.supabase_url,
+              supabaseAnonKey: registryData.supabase_anon_key
+            };
+            broadcast(`[${repo}] Discovered Hub config from Central Mediator.`);
+          } else {
+            // 2. Fallback to repoowl.json
+            broadcast(`[${repo}] Central Mediator returned no config. Falling back to repoowl.json...`);
+            const configResponse = await fetch(`https://raw.githubusercontent.com/${repo}/main/repoowl.json`);
+            if (configResponse.ok) {
+              hubConfig = await configResponse.json();
+              broadcast(`[${repo}] Discovered Hub config from repoowl.json.`);
+            }
+          }
+
+          if (hubConfig) {
             const hubSupabase = createClient(hubConfig.supabaseUrl, hubConfig.supabaseAnonKey, {
               auth: { persistSession: false }
             });
@@ -416,7 +468,8 @@ async function executeSyncQueue(forceRepos = null) {
         broadcast(`[${repo}] Confirmed Maintainer. Fetching issues...`);
         try {
           await autoPublishHubConfig(repo, keys);
-          broadcast(`[${repo}] Public Hub Config ensured on GitHub.`);
+          await registerWithMediator(repo, keys);
+          broadcast(`[${repo}] Public Hub Config ensured on GitHub and Central Mediator.`);
         } catch (e) {
           broadcast(`[${repo}] Warning: Failed to auto-publish Hub config: ${e.message}`);
         }
