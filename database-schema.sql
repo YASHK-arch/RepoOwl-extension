@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS issues (
   is_duplicate BOOLEAN DEFAULT FALSE,
   analysis_summary TEXT,
   status TEXT DEFAULT 'open',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(repo_name, issue_number)
 );
 
 ALTER TABLE issues ENABLE ROW LEVEL SECURITY;
@@ -14,14 +15,17 @@ ALTER TABLE issues ENABLE ROW LEVEL SECURITY;
 CREATE INDEX IF NOT EXISTS idx_issues_status ON issues(status);
 
 -- Security Policy: The public (contributors) can READ the insights
+DROP POLICY IF EXISTS "Allow public read access" ON issues;
 CREATE POLICY "Allow public read access" ON issues 
 FOR SELECT USING (true);
 
 -- Security Policy: Only authenticated users can INSERT insights
+DROP POLICY IF EXISTS "Allow maintainer write access" ON issues;
 CREATE POLICY "Allow maintainer write access" ON issues 
 FOR INSERT WITH CHECK (auth.role() IN ('authenticated', 'anon'));
 
 -- Security Policy: Authenticated users can also UPDATE (e.g. status)
+DROP POLICY IF EXISTS "Allow maintainer update access" ON issues;
 CREATE POLICY "Allow maintainer update access" ON issues 
 FOR UPDATE USING (auth.role() IN ('authenticated', 'anon')) WITH CHECK (auth.role() IN ('authenticated', 'anon'));
 
@@ -37,14 +41,17 @@ CREATE TABLE IF NOT EXISTS public_ecosystem_registry (
 ALTER TABLE public_ecosystem_registry ENABLE ROW LEVEL SECURITY;
 
 -- Security Policy: Anyone can view the ecosystem registry
+DROP POLICY IF EXISTS "Allow public read on registry" ON public_ecosystem_registry;
 CREATE POLICY "Allow public read on registry" ON public_ecosystem_registry 
 FOR SELECT USING (true);
 
 -- Security Policy: Authenticated users can INSERT new project stats
+DROP POLICY IF EXISTS "Allow maintainer insert to registry" ON public_ecosystem_registry;
 CREATE POLICY "Allow maintainer insert to registry" ON public_ecosystem_registry
 FOR INSERT WITH CHECK (auth.role() IN ('authenticated', 'anon'));
 
 -- Security Policy: Authenticated users can UPDATE their project's global stats
+DROP POLICY IF EXISTS "Allow maintainer updates to registry" ON public_ecosystem_registry;
 CREATE POLICY "Allow maintainer updates to registry" ON public_ecosystem_registry
 FOR UPDATE USING (auth.role() IN ('authenticated', 'anon')) WITH CHECK (auth.role() IN ('authenticated', 'anon'));
 
@@ -61,6 +68,7 @@ CREATE TABLE IF NOT EXISTS registry (
 ALTER TABLE registry ENABLE ROW LEVEL SECURITY;
 
 -- Security Policy: The public (contributors) can READ the registry to discover keys
+DROP POLICY IF EXISTS "Allow public read access to registry" ON registry;
 CREATE POLICY "Allow public read access to registry" ON registry
 FOR SELECT USING (true);
 
