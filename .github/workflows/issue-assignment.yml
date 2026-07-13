@@ -30,7 +30,7 @@ jobs:
       issues: write
     steps:
       - name: Assign User on Request
-        uses: actions/github-script@v6
+        uses: actions/github-script@v9
         with:
           script: |
             const comment = context.payload.comment.body.trim().toLowerCase();
