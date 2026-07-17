@@ -58,7 +58,7 @@ class RepoOwlApp extends StatelessWidget {
           surface: AppColors.surface,
         ),
       ),
-      home: const SplashScreen(),
+      home: const LandingPage(),
     );
   }
 }
@@ -482,7 +482,9 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
         .animate(CurvedAnimation(
             parent: _hero,
             curve: const Interval(0.2, 1, curve: Curves.easeOut)));
-    Future.delayed(const Duration(milliseconds: 120), () {
+    
+    // Delay Hero entrance to synchronize with the web loader exit ripples
+    Future.delayed(const Duration(milliseconds: 4500), () {
       if (mounted) _hero.forward();
     });
   }
