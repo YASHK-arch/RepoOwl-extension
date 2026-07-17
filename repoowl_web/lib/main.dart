@@ -28,11 +28,11 @@ class AppColors {
 }
 
 class AppLinks {
-  static const githubRepo = 'https://github.com/YashK-194/RepoOwl';
+  static const githubRepo = 'https://github.com/YASHK-arch/RepoOwl-extension';
   static const downloadZip =
-      'https://github.com/YashK-194/RepoOwl/releases/latest/download/RepoOwl.zip';
+      'https://github.com/YASHK-arch/RepoOwl-extension/releases/download/v0.1.1-client-side-overhaul/RepoOwl_v0.1.1.zip';
   static const license =
-      'https://github.com/YashK-194/RepoOwl/blob/main/LICENSE';
+      'https://github.com/YASHK-arch/RepoOwl-extension/blob/main/LICENSE';
 }
 
 // --------------- Main App ---------------
