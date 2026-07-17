@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@repoowl/shared": "0.1.0",
-    "@supabase/supabase-js": "^2.49.1",
+    "@supabase/supabase-js": "^2.110.3",
     "groq-sdk": "^1.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
