@@ -1,0 +1,41 @@
+name: RepoOwl PR Analyzer
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: read
+
+jobs:
+  analyze-pr:
+    # Only run if it's a PR creation OR if the comment contains exactly "/analyze" (or "/analyse")
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event.issue.pull_request && (contains(github.event.comment.body, '/analyze') || contains(github.event.comment.body, '/analyse')))
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install node-fetch
+
+      - name: Run RepoOwl PR Analysis
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: node .github/scripts/analyze-pr.js
