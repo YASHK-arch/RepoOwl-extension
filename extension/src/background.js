@@ -1,7 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import Groq from 'groq-sdk';
 import { DEFAULT_PROMPT_TEMPLATE, buildPromptVariables, formatHistoricalContext, renderPrompt } from '@repoowl/shared';
-import { getSandboxClient, ensureAuthenticatedSession } from './lib/supabase.js';const DELAY_MS = 2000;
+import { getSandboxClient, ensureAuthenticatedSession } from './lib/supabase.js';
+import { initializeRepoOwl } from './background/githubInstaller.js';
+
+const DELAY_MS = 2000;
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Existing message listener for options page
@@ -15,6 +18,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ success: true });
   } else if (message.action === 'check_mediator_status') {
     checkMediatorStatus(message.repoName).then(res => sendResponse(res)).catch(err => sendResponse({ error: err.message }));
+    return true;
+  } else if (message.action === 'initialize_repoowl_pr') {
+    initializeRepoOwl(message.repoName, message.githubPat, message.groqApiKey)
+      .then(() => sendResponse({ success: true }))
+      .catch(err => sendResponse({ error: err.message }));
     return true;
   }
 });
