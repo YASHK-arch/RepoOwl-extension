@@ -1,10 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import Groq from 'groq-sdk';
 import { DEFAULT_PROMPT_TEMPLATE, buildPromptVariables, formatHistoricalContext, renderPrompt } from '@repoowl/shared';
-import { getSandboxClient, ensureAuthenticatedSession } from './lib/supabase.js';
-import { fetchPullRequestsFromGitHub, processPullRequestMapReduce } from './prTriage.js';
-
-const DELAY_MS = 2000;
+import { getSandboxClient, ensureAuthenticatedSession } from './lib/supabase.js';const DELAY_MS = 2000;
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Existing message listener for options page
@@ -13,10 +10,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     chrome.runtime.openOptionsPage();
   } else if (message.action === 'force_sync_issues') {
     executeIssueSyncQueue([message.repoName]).then(() => sendResponse({ success: true })).catch(err => sendResponse({ error: err.message }));
-    return true;
-  } else if (message.action === 'force_sync_prs') {
-    executePRSyncQueue([message.repoName]).then(() => sendResponse({ success: true })).catch(err => sendResponse({ error: err.message }));
-    return true;
   } else if (message.action === 'add_repo') {
     handleNewRepoAdded(message.repoName).catch(err => console.error("Error auto-publishing config:", err));
     sendResponse({ success: true });
@@ -665,88 +658,5 @@ async function executeIssueSyncQueue(forceRepos = null) {
     await updateGlobalRegistry(repo, totalHubAndSandbox, totalDuplicates, keys);
     
     broadcast(`[${repo}] Issue Sync complete. Total Analyzed: ${totalHubAndSandbox}, Duplicates: ${totalDuplicates}`);
-  }
-}
-
-async function executePRSyncQueue(forceRepos = null) {
-  const { keys, repos } = await initSyncEnv(forceRepos);
-  const broadcast = createBroadcast('pr');
-
-  if (!keys.groqApiKey || !keys.supabaseUrl) {
-    broadcast("RepoOwl: API Keys not configured. Skipping sync.");
-    return;
-  }
-
-  const authResult = await ensureAuthenticatedSession();
-  if (authResult.error) {
-    broadcast(`RepoOwl: Could not authenticate with Supabase: ${authResult.error}`);
-    return;
-  }
-  const supabase = await getSandboxClient();
-
-  for (const repo of repos) {
-    broadcast(`\n[${repo}] Starting PR sync...`);
-    
-    let isMaintainer = false;
-    let currentUserLogin = null;
-
-    try {
-      const meta = await getRepoMetaAndUser(repo, keys, broadcast);
-      if (!meta) continue;
-      isMaintainer = meta.isMaintainer;
-      currentUserLogin = meta.currentUserLogin;
-    } catch (err) {
-      broadcast(`[${repo}] Error checking permissions: ${err.message}`);
-      continue;
-    }
-
-    let processedPRSet = new Set();
-    let pendingPRs = [];
-    
-    try {
-      const { data: processedPRs, error: fetchError } = await supabase
-        .from('pull_requests')
-        .select('pr_number')
-        .eq('repo_name', repo);
-        
-      if (fetchError) {
-        throw new Error(`Failed to fetch processed PRs: ${fetchError.message || JSON.stringify(fetchError)}`);
-      }
-      
-      processedPRSet = new Set((processedPRs || []).map(r => r.pr_number));
-      const allPRs = await fetchPullRequestsFromGitHub(repo, keys.githubToken);
-      pendingPRs = allPRs.filter(pr => !processedPRSet.has(pr.number));
-      
-      if (!isMaintainer && currentUserLogin) {
-        pendingPRs = pendingPRs.filter(pr => pr.user && pr.user.login === currentUserLogin);
-      } else if (!isMaintainer) {
-        pendingPRs = [];
-      }
-      
-      broadcast(`[${repo}] ${processedPRSet.size} PRs already analyzed. ${pendingPRs.length} PRs need processing.`);
-    } catch (err) {
-      broadcast(`[${repo}] Error fetching PRs: ${err.message}`);
-      continue;
-    }
-
-    for (const pr of pendingPRs) {
-      try {
-        broadcast(`[${repo}] Analyzing PR #${pr.number} (Slop Detection)...`);
-        await processPullRequestMapReduce(repo, pr, keys);
-        await delay(DELAY_MS);
-      } catch (err) {
-        broadcast(`[${repo}] Error processing PR #${pr.number}: ${err.message}`);
-      }
-    }
-    
-    // Refresh PR cache for instant UI loads
-    try {
-        const { data: updatedPRs } = await supabase.from('pull_requests').select('id, pr_number, slop_detection, issue_resolution, domain_impact, recommended_labels').eq('repo_name', repo);
-        if (updatedPRs) await chrome.storage.local.set({ [`pr_hub_cache_${repo}`]: updatedPRs });
-    } catch (e) {
-        console.error(e);
-    }
-    
-    broadcast(`[${repo}] PR Sync complete.`);
   }
 }

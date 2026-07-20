@@ -3505,10 +3505,10 @@ var { get: Xt, post: E, put: Zt, head: Qt, remove: $t } = Yt("storage"), D = Yt(
 	get analytics() {
 		return new dn(this.url + "/iceberg", this.headers, this.fetch);
 	}
-}, yn = "2.110.3", bn = 30 * 1e3, xn = 3 * bn, Sn = 2 * bn, Cn = "http://localhost:9999", wn = "supabase.auth.token", Tn = { "X-Client-Info": `gotrue-js/${yn}` }, En = "X-Supabase-Api-Version", Dn = { "2024-01-01": {
+}, yn = "2.110.3", O = 30 * 1e3, bn = 3 * O, xn = 2 * O, Sn = "http://localhost:9999", Cn = "supabase.auth.token", wn = { "X-Client-Info": `gotrue-js/${yn}` }, Tn = "X-Supabase-Api-Version", En = { "2024-01-01": {
 	timestamp: Date.parse("2024-01-01T00:00:00.0Z"),
 	name: "2024-01-01"
-} }, On = /^([a-z0-9_-]{4})*($|[a-z0-9_-]{3}$|[a-z0-9_-]{2}$)$/i, kn = class extends Error {
+} }, Dn = /^([a-z0-9_-]{4})*($|[a-z0-9_-]{3}$|[a-z0-9_-]{2}$)$/i, On = class extends Error {
 	constructor(e, t, n) {
 		super(e), this.__isAuthError = !0, this.name = "AuthError", this.status = t, this.code = n;
 	}
@@ -3521,42 +3521,42 @@ var { get: Xt, post: E, put: Zt, head: Qt, remove: $t } = Yt("storage"), D = Yt(
 		};
 	}
 };
-function O(e) {
+function k(e) {
 	return typeof e == "object" && !!e && "__isAuthError" in e;
 }
-var An = class extends kn {
+var kn = class extends On {
 	constructor(e, t, n) {
 		super(e, t, n), this.name = "AuthApiError", this.status = t, this.code = n;
 	}
 };
-function jn(e) {
-	return O(e) && e.name === "AuthApiError";
+function An(e) {
+	return k(e) && e.name === "AuthApiError";
 }
-var k = class extends kn {
+var A = class extends On {
 	constructor(e, t) {
 		super(e), this.name = "AuthUnknownError", this.originalError = t;
 	}
-}, A = class extends kn {
+}, j = class extends On {
 	constructor(e, t, n, r) {
 		super(e, n, r), this.name = t, this.status = n;
 	}
-}, j = class extends A {
+}, M = class extends j {
 	constructor() {
 		super("Auth session missing!", "AuthSessionMissingError", 400, void 0);
 	}
 };
-function Mn(e) {
-	return O(e) && e.name === "AuthSessionMissingError";
+function jn(e) {
+	return k(e) && e.name === "AuthSessionMissingError";
 }
-var Nn = class extends A {
+var Mn = class extends j {
 	constructor() {
 		super("Auth session or user missing", "AuthInvalidTokenResponseError", 500, void 0);
 	}
-}, Pn = class extends A {
+}, Nn = class extends j {
 	constructor(e) {
 		super(e, "AuthInvalidCredentialsError", 400, void 0);
 	}
-}, Fn = class extends A {
+}, Pn = class extends j {
 	constructor(e, t = null) {
 		super(e, "AuthImplicitGrantRedirectError", 500, void 0), this.details = null, this.details = t;
 	}
@@ -3564,65 +3564,65 @@ var Nn = class extends A {
 		return Object.assign(Object.assign({}, super.toJSON()), { details: this.details });
 	}
 };
-function In(e) {
-	return O(e) && e.name === "AuthImplicitGrantRedirectError";
+function Fn(e) {
+	return k(e) && e.name === "AuthImplicitGrantRedirectError";
 }
-var Ln = class extends A {
+var In = class extends j {
 	constructor(e, t = null) {
 		super(e, "AuthPKCEGrantCodeExchangeError", 500, void 0), this.details = null, this.details = t;
 	}
 	toJSON() {
 		return Object.assign(Object.assign({}, super.toJSON()), { details: this.details });
 	}
-}, Rn = class extends A {
+}, Ln = class extends j {
 	constructor() {
 		super("PKCE code verifier not found in storage. This can happen if the auth flow was initiated in a different browser or device, or if the storage was cleared. For SSR frameworks (Next.js, SvelteKit, etc.), use @supabase/ssr on both the server and client to store the code verifier in cookies.", "AuthPKCECodeVerifierMissingError", 400, "pkce_code_verifier_not_found");
 	}
-}, zn = class extends A {
+}, Rn = class extends j {
 	constructor(e, t) {
 		super(e, "AuthRetryableFetchError", t, void 0);
 	}
 };
-function Bn(e) {
-	return O(e) && e.name === "AuthRetryableFetchError";
+function zn(e) {
+	return k(e) && e.name === "AuthRetryableFetchError";
 }
-var Vn = class extends A {
+var Bn = class extends j {
 	constructor(e = "Refresh result discarded: session state changed mid-flight (e.g., concurrent signOut)") {
 		super(e, "AuthRefreshDiscardedError", 409, void 0);
 	}
 };
-function Hn(e) {
-	return O(e) && e.name === "AuthRefreshDiscardedError";
+function Vn(e) {
+	return k(e) && e.name === "AuthRefreshDiscardedError";
 }
-var Un = class extends A {
+var Hn = class extends j {
 	constructor(e, t, n) {
 		super(e, "AuthWeakPasswordError", t, "weak_password"), this.reasons = n;
 	}
 	toJSON() {
 		return Object.assign(Object.assign({}, super.toJSON()), { reasons: this.reasons });
 	}
-}, Wn = class extends A {
+}, Un = class extends j {
 	constructor(e) {
 		super(e, "AuthInvalidJwtError", 400, "invalid_jwt");
 	}
-}, Gn = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".split(""), Kn = " 	\n\r=".split(""), qn = (() => {
+}, Wn = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".split(""), Gn = " 	\n\r=".split(""), Kn = (() => {
 	let e = Array(128);
 	for (let t = 0; t < e.length; t += 1) e[t] = -1;
-	for (let t = 0; t < Kn.length; t += 1) e[Kn[t].charCodeAt(0)] = -2;
-	for (let t = 0; t < Gn.length; t += 1) e[Gn[t].charCodeAt(0)] = t;
+	for (let t = 0; t < Gn.length; t += 1) e[Gn[t].charCodeAt(0)] = -2;
+	for (let t = 0; t < Wn.length; t += 1) e[Wn[t].charCodeAt(0)] = t;
 	return e;
 })();
-function Jn(e, t, n) {
-	if (e !== null) for (t.queue = t.queue << 8 | e, t.queuedBits += 8; t.queuedBits >= 6;) n(Gn[t.queue >> t.queuedBits - 6 & 63]), t.queuedBits -= 6;
-	else if (t.queuedBits > 0) for (t.queue <<= 6 - t.queuedBits, t.queuedBits = 6; t.queuedBits >= 6;) n(Gn[t.queue >> t.queuedBits - 6 & 63]), t.queuedBits -= 6;
+function qn(e, t, n) {
+	if (e !== null) for (t.queue = t.queue << 8 | e, t.queuedBits += 8; t.queuedBits >= 6;) n(Wn[t.queue >> t.queuedBits - 6 & 63]), t.queuedBits -= 6;
+	else if (t.queuedBits > 0) for (t.queue <<= 6 - t.queuedBits, t.queuedBits = 6; t.queuedBits >= 6;) n(Wn[t.queue >> t.queuedBits - 6 & 63]), t.queuedBits -= 6;
 }
-function Yn(e, t, n) {
-	let r = qn[e];
+function Jn(e, t, n) {
+	let r = Kn[e];
 	if (r > -1) for (t.queue = t.queue << 6 | r, t.queuedBits += 6; t.queuedBits >= 8;) n(t.queue >> t.queuedBits - 8 & 255), t.queuedBits -= 8;
 	else if (r === -2) return;
 	else throw Error(`Invalid Base64-URL character "${String.fromCharCode(e)}"`);
 }
-function Xn(e) {
+function Yn(e) {
 	let t = [], n = (e) => {
 		t.push(String.fromCodePoint(e));
 	}, r = {
@@ -3632,12 +3632,12 @@ function Xn(e) {
 		queue: 0,
 		queuedBits: 0
 	}, a = (e) => {
-		$n(e, r, n);
+		Qn(e, r, n);
 	};
-	for (let t = 0; t < e.length; t += 1) Yn(e.charCodeAt(t), i, a);
+	for (let t = 0; t < e.length; t += 1) Jn(e.charCodeAt(t), i, a);
 	return t.join("");
 }
-function Zn(e, t) {
+function Xn(e, t) {
 	if (e <= 127) {
 		t(e);
 		return;
@@ -3653,17 +3653,17 @@ function Zn(e, t) {
 	}
 	throw Error(`Unrecognized Unicode codepoint: ${e.toString(16)}`);
 }
-function Qn(e, t) {
+function Zn(e, t) {
 	for (let n = 0; n < e.length; n += 1) {
 		let r = e.charCodeAt(n);
 		if (r > 55295 && r <= 56319) {
 			let t = (r - 55296) * 1024 & 65535;
 			r = (e.charCodeAt(n + 1) - 56320 & 65535 | t) + 65536, n += 1;
 		}
-		Zn(r, t);
+		Xn(r, t);
 	}
 }
-function $n(e, t, n) {
+function Qn(e, t, n) {
 	if (t.utf8seq === 0) {
 		if (e <= 127) {
 			n(e);
@@ -3683,57 +3683,57 @@ function $n(e, t, n) {
 		t.codepoint = t.codepoint << 6 | e & 63, --t.utf8seq, t.utf8seq === 0 && n(t.codepoint);
 	}
 }
-function er(e) {
+function $n(e) {
 	let t = [], n = {
 		queue: 0,
 		queuedBits: 0
 	}, r = (e) => {
 		t.push(e);
 	};
-	for (let t = 0; t < e.length; t += 1) Yn(e.charCodeAt(t), n, r);
+	for (let t = 0; t < e.length; t += 1) Jn(e.charCodeAt(t), n, r);
 	return new Uint8Array(t);
 }
-function tr(e) {
+function er(e) {
 	let t = [];
-	return Qn(e, (e) => t.push(e)), new Uint8Array(t);
+	return Zn(e, (e) => t.push(e)), new Uint8Array(t);
 }
-function nr(e) {
+function tr(e) {
 	let t = [], n = {
 		queue: 0,
 		queuedBits: 0
 	}, r = (e) => {
 		t.push(e);
 	};
-	return e.forEach((e) => Jn(e, n, r)), Jn(null, n, r), t.join("");
+	return e.forEach((e) => qn(e, n, r)), qn(null, n, r), t.join("");
 }
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/lib/helpers.js
-function rr(e) {
+function nr(e) {
 	return Math.round(Date.now() / 1e3) + e;
 }
-function ir() {
+function rr() {
 	return Symbol("auth-callback");
 }
-var M = () => typeof window < "u" && typeof document < "u", ar = {
+var N = () => typeof window < "u" && typeof document < "u", P = {
 	tested: !1,
 	writable: !1
-}, or = () => {
-	if (!M()) return !1;
+}, ir = () => {
+	if (!N()) return !1;
 	try {
 		if (typeof globalThis.localStorage != "object") return !1;
 	} catch {
 		return !1;
 	}
-	if (ar.tested) return ar.writable;
+	if (P.tested) return P.writable;
 	let e = `lswt-${Math.random()}${Math.random()}`;
 	try {
-		globalThis.localStorage.setItem(e, e), globalThis.localStorage.removeItem(e), ar.tested = !0, ar.writable = !0;
+		globalThis.localStorage.setItem(e, e), globalThis.localStorage.removeItem(e), P.tested = !0, P.writable = !0;
 	} catch {
-		ar.tested = !0, ar.writable = !1;
+		P.tested = !0, P.writable = !1;
 	}
-	return ar.writable;
+	return P.writable;
 };
-function sr(e) {
+function ar(e) {
 	let t = {}, n = new URL(e);
 	if (n.hash && n.hash[0] === "#") try {
 		new URLSearchParams(n.hash.substring(1)).forEach((e, n) => {
@@ -3744,9 +3744,9 @@ function sr(e) {
 		t[n] = e;
 	}), t;
 }
-var cr = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), lr = (e) => typeof e == "object" && !!e && "status" in e && "ok" in e && "json" in e && typeof e.json == "function", ur = async (e, t, n) => {
+var or = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), sr = (e) => typeof e == "object" && !!e && "status" in e && "ok" in e && "json" in e && typeof e.json == "function", cr = async (e, t, n) => {
 	await e.setItem(t, JSON.stringify(n));
-}, N = async (e, t) => {
+}, F = async (e, t) => {
 	let n = await e.getItem(t);
 	if (!n) return null;
 	try {
@@ -3754,36 +3754,36 @@ var cr = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), lr = (e) => typeo
 	} catch {
 		return null;
 	}
-}, P = async (e, t) => {
+}, I = async (e, t) => {
 	await e.removeItem(t);
-}, dr = class e {
+}, lr = class e {
 	constructor() {
 		this.promise = new e.promiseConstructor((e, t) => {
 			this.resolve = e, this.reject = t;
 		});
 	}
 };
-dr.promiseConstructor = Promise;
-function fr(e) {
+lr.promiseConstructor = Promise;
+function ur(e) {
 	let t = e.split(".");
-	if (t.length !== 3) throw new Wn("Invalid JWT structure");
-	for (let e = 0; e < t.length; e++) if (!On.test(t[e])) throw new Wn("JWT not in base64url format");
+	if (t.length !== 3) throw new Un("Invalid JWT structure");
+	for (let e = 0; e < t.length; e++) if (!Dn.test(t[e])) throw new Un("JWT not in base64url format");
 	return {
-		header: JSON.parse(Xn(t[0])),
-		payload: JSON.parse(Xn(t[1])),
-		signature: er(t[2]),
+		header: JSON.parse(Yn(t[0])),
+		payload: JSON.parse(Yn(t[1])),
+		signature: $n(t[2]),
 		raw: {
 			header: t[0],
 			payload: t[1]
 		}
 	};
 }
-async function pr(e) {
+async function dr(e) {
 	return await new Promise((t) => {
 		setTimeout(() => t(null), e);
 	});
 }
-function mr(e, t) {
+function fr(e, t) {
 	return new Promise((n, r) => {
 		(async () => {
 			for (let i = 0; i < Infinity; i++) try {
@@ -3801,48 +3801,48 @@ function mr(e, t) {
 		})();
 	});
 }
-function hr(e) {
+function pr(e) {
 	return ("0" + e.toString(16)).substr(-2);
 }
-function gr() {
+function mr() {
 	let e = /* @__PURE__ */ new Uint32Array(56);
 	if (typeof crypto > "u") {
 		let e = "";
 		for (let t = 0; t < 56; t++) e += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~".charAt(Math.floor(Math.random() * 66));
 		return e;
 	}
-	return crypto.getRandomValues(e), Array.from(e, hr).join("");
+	return crypto.getRandomValues(e), Array.from(e, pr).join("");
 }
-async function _r(e) {
+async function hr(e) {
 	let t = new TextEncoder().encode(e), n = await crypto.subtle.digest("SHA-256", t), r = new Uint8Array(n);
 	return Array.from(r).map((e) => String.fromCharCode(e)).join("");
 }
-async function vr(e) {
+async function gr(e) {
 	if (!(typeof crypto < "u" && crypto.subtle !== void 0 && typeof TextEncoder < "u")) return console.warn("WebCrypto API is not supported. Code challenge method will default to use plain instead of sha256."), e;
-	let t = await _r(e);
+	let t = await hr(e);
 	return btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
-async function F(e, t, n = !1) {
-	let r = gr(), i = r;
-	n && (i += "/recovery"), await ur(e, `${t}-code-verifier`, i);
-	let a = await vr(r);
+async function _r(e, t, n = !1) {
+	let r = mr(), i = r;
+	n && (i += "/recovery"), await cr(e, `${t}-code-verifier`, i);
+	let a = await gr(r);
 	return [a, r === a ? "plain" : "s256"];
 }
-var yr = /^2[0-9]{3}-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$/i;
-function br(e) {
-	let t = e.headers.get(En);
-	if (!t || !t.match(yr)) return null;
+var vr = /^2[0-9]{3}-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$/i;
+function yr(e) {
+	let t = e.headers.get(Tn);
+	if (!t || !t.match(vr)) return null;
 	try {
 		return /* @__PURE__ */ new Date(`${t}T00:00:00.0Z`);
 	} catch {
 		return null;
 	}
 }
-function xr(e) {
+function br(e) {
 	if (!e) throw Error("Missing exp claim");
 	if (e <= Math.floor(Date.now() / 1e3)) throw Error("JWT has expired");
 }
-function Sr(e) {
+function xr(e) {
 	switch (e) {
 		case "RS256": return {
 			name: "RSASSA-PKCS1-v1_5",
@@ -3856,14 +3856,14 @@ function Sr(e) {
 		default: throw Error("Invalid alg claim");
 	}
 }
-var Cr = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-function I(e) {
-	if (!Cr.test(e)) throw Error("@supabase/auth-js: Expected parameter to be UUID but is not");
-}
+var Sr = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 function L(e) {
+	if (!Sr.test(e)) throw Error("@supabase/auth-js: Expected parameter to be UUID but is not");
+}
+function R(e) {
 	if (!e.passkey) throw Error("@supabase/auth-js: the passkey API is experimental and disabled by default. Enable it by passing `auth: { experimental: { passkey: true } }` to createClient (or to the GoTrueClient constructor).");
 }
-function wr() {
+function Cr() {
 	return new Proxy({}, {
 		get: (e, t) => {
 			if (t === "__isUserNotAvailableProxy") return !0;
@@ -3881,7 +3881,7 @@ function wr() {
 		}
 	});
 }
-function Tr(e, t) {
+function wr(e, t) {
 	return new Proxy(e, { get: (e, n, r) => {
 		if (n === "__isInsecureUserWarningProxy") return !0;
 		if (typeof n == "symbol") {
@@ -3891,12 +3891,12 @@ function Tr(e, t) {
 		return !t.value && typeof n == "string" && (console.warn("Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server."), t.value = !0), Reflect.get(e, n, r);
 	} });
 }
-function Er(e) {
+function Tr(e) {
 	return JSON.parse(JSON.stringify(e));
 }
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/lib/fetch.js
-var R = (e) => {
+var Er = (e) => {
 	if (typeof e == "object" && e) {
 		let t = e;
 		if (typeof t.msg == "string") return t.msg;
@@ -3924,20 +3924,20 @@ var R = (e) => {
 	530
 ];
 async function Or(e) {
-	if (!lr(e)) throw new zn(R(e), 0);
-	if (Dr.includes(e.status)) throw new zn(R(e), e.status);
+	if (!sr(e)) throw new Rn(Er(e), 0);
+	if (Dr.includes(e.status)) throw new Rn(Er(e), e.status);
 	let t;
 	try {
 		t = await e.json();
 	} catch (e) {
-		throw new k(R(e), e);
+		throw new A(Er(e), e);
 	}
-	let n, r = br(e);
-	if (r && r.getTime() >= Dn["2024-01-01"].timestamp && typeof t == "object" && t && typeof t.code == "string" ? n = t.code : typeof t == "object" && t && typeof t.error_code == "string" && (n = t.error_code), !n) {
-		if (typeof t == "object" && t && typeof t.weak_password == "object" && t.weak_password && Array.isArray(t.weak_password.reasons) && t.weak_password.reasons.length && t.weak_password.reasons.reduce((e, t) => e && typeof t == "string", !0)) throw new Un(R(t), e.status, t.weak_password.reasons);
-	} else if (n === "weak_password") throw new Un(R(t), e.status, t.weak_password?.reasons || []);
-	else if (n === "session_not_found") throw new j();
-	throw new An(R(t), e.status || 500, n);
+	let n, r = yr(e);
+	if (r && r.getTime() >= En["2024-01-01"].timestamp && typeof t == "object" && t && typeof t.code == "string" ? n = t.code : typeof t == "object" && t && typeof t.error_code == "string" && (n = t.error_code), !n) {
+		if (typeof t == "object" && t && typeof t.weak_password == "object" && t.weak_password && Array.isArray(t.weak_password.reasons) && t.weak_password.reasons.length && t.weak_password.reasons.reduce((e, t) => e && typeof t == "string", !0)) throw new Hn(Er(t), e.status, t.weak_password.reasons);
+	} else if (n === "weak_password") throw new Hn(Er(t), e.status, t.weak_password?.reasons || []);
+	else if (n === "session_not_found") throw new M();
+	throw new kn(Er(t), e.status || 500, n);
 }
 var kr = (e, t, n, r) => {
 	let i = {
@@ -3948,7 +3948,7 @@ var kr = (e, t, n, r) => {
 };
 async function z(e, t, n, r) {
 	let i = Object.assign({}, r?.headers);
-	i["X-Supabase-Api-Version"] || (i[En] = Dn["2024-01-01"].name), r?.jwt && (i.Authorization = `Bearer ${r.jwt}`);
+	i["X-Supabase-Api-Version"] || (i[Tn] = En["2024-01-01"].name), r?.jwt && (i.Authorization = `Bearer ${r.jwt}`);
 	let a = r?.query ?? {};
 	r?.redirectTo && (a.redirect_to = r.redirectTo);
 	let o = await Ar(e, t, n + (Object.keys(a).length ? "?" + new URLSearchParams(a).toString() : ""), {
@@ -3965,7 +3965,7 @@ async function Ar(e, t, n, r, i, a) {
 	try {
 		s = await e(n, Object.assign({}, o));
 	} catch (e) {
-		throw console.error(e), new zn(R(e), 0);
+		throw console.error(e), new Rn(Er(e), 0);
 	}
 	if (s.ok || await Or(s), r?.noResolveJson) return s;
 	try {
@@ -3976,7 +3976,7 @@ async function Ar(e, t, n, r, i, a) {
 }
 function B(e) {
 	let t = null;
-	Fr(e) && (t = Object.assign({}, e), e.expires_at || (t.expires_at = rr(e.expires_in)));
+	Fr(e) && (t = Object.assign({}, e), e.expires_at || (t.expires_at = nr(e.expires_in)));
 	let n = e.user ?? (typeof e?.id == "string" ? e : null);
 	return {
 		data: {
@@ -4038,7 +4038,7 @@ var Ir = [
 	"others"
 ], Lr = class {
 	constructor({ url: e = "", headers: t = {}, fetch: n, experimental: r }) {
-		this.url = e, this.headers = t, this.fetch = cr(n), this.experimental = r ?? {}, this.mfa = {
+		this.url = e, this.headers = t, this.fetch = or(n), this.experimental = r ?? {}, this.mfa = {
 			listFactors: this._listFactors.bind(this),
 			deleteFactor: this._deleteFactor.bind(this)
 		}, this.oauth = {
@@ -4071,7 +4071,7 @@ var Ir = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4090,7 +4090,7 @@ var Ir = [
 				xform: V
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4107,7 +4107,7 @@ var Ir = [
 				redirectTo: n?.redirectTo
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: {
 					properties: null,
 					user: null
@@ -4125,7 +4125,7 @@ var Ir = [
 				xform: V
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4157,7 +4157,7 @@ var Ir = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: { users: [] },
 				error: e
 			};
@@ -4165,14 +4165,14 @@ var Ir = [
 		}
 	}
 	async getUserById(e) {
-		I(e);
+		L(e);
 		try {
 			return await z(this.fetch, "GET", `${this.url}/admin/users/${e}`, {
 				headers: this.headers,
 				xform: V
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4180,7 +4180,7 @@ var Ir = [
 		}
 	}
 	async updateUserById(e, t) {
-		I(e);
+		L(e);
 		try {
 			return await z(this.fetch, "PUT", `${this.url}/admin/users/${e}`, {
 				body: t,
@@ -4188,7 +4188,7 @@ var Ir = [
 				xform: V
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4196,7 +4196,7 @@ var Ir = [
 		}
 	}
 	async deleteUser(e, t = !1) {
-		I(e);
+		L(e);
 		try {
 			return await z(this.fetch, "DELETE", `${this.url}/admin/users/${e}`, {
 				headers: this.headers,
@@ -4204,7 +4204,7 @@ var Ir = [
 				xform: V
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4212,7 +4212,7 @@ var Ir = [
 		}
 	}
 	async _listFactors(e) {
-		I(e.userId);
+		L(e.userId);
 		try {
 			let { data: t, error: n } = await z(this.fetch, "GET", `${this.url}/admin/users/${e.userId}/factors`, {
 				headers: this.headers,
@@ -4226,7 +4226,7 @@ var Ir = [
 				error: n
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4234,14 +4234,14 @@ var Ir = [
 		}
 	}
 	async _deleteFactor(e) {
-		I(e.userId), I(e.id);
+		L(e.userId), L(e.id);
 		try {
 			return {
 				data: await z(this.fetch, "DELETE", `${this.url}/admin/users/${e.userId}/factors/${e.id}`, { headers: this.headers }),
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4273,7 +4273,7 @@ var Ir = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: { clients: [] },
 				error: e
 			};
@@ -4291,7 +4291,7 @@ var Ir = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4308,7 +4308,7 @@ var Ir = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4326,7 +4326,7 @@ var Ir = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4343,7 +4343,7 @@ var Ir = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4360,7 +4360,7 @@ var Ir = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4379,7 +4379,7 @@ var Ir = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: { providers: [] },
 				error: e
 			};
@@ -4397,7 +4397,7 @@ var Ir = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4414,7 +4414,7 @@ var Ir = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4432,7 +4432,7 @@ var Ir = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4449,7 +4449,7 @@ var Ir = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4457,7 +4457,7 @@ var Ir = [
 		}
 	}
 	async _adminListPasskeys(e) {
-		L(this.experimental), I(e.userId);
+		R(this.experimental), L(e.userId);
 		try {
 			return await z(this.fetch, "GET", `${this.url}/admin/users/${e.userId}/passkeys`, {
 				headers: this.headers,
@@ -4467,7 +4467,7 @@ var Ir = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4475,7 +4475,7 @@ var Ir = [
 		}
 	}
 	async _adminDeletePasskey(e) {
-		L(this.experimental), I(e.userId), I(e.passkeyId);
+		R(this.experimental), L(e.userId), L(e.passkeyId);
 		try {
 			return await z(this.fetch, "DELETE", `${this.url}/admin/users/${e.userId}/passkeys/${e.passkeyId}`, {
 				headers: this.headers,
@@ -4485,7 +4485,7 @@ var Ir = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (k(e)) return {
 				data: null,
 				error: e
 			};
@@ -4506,7 +4506,7 @@ function Rr(e = {}) {
 		}
 	};
 }
-globalThis && or() && globalThis.localStorage && globalThis.localStorage.getItem("supabase.gotrue-js.locks.debug");
+globalThis && ir() && globalThis.localStorage && globalThis.localStorage.getItem("supabase.gotrue-js.locks.debug");
 var zr = class extends Error {
 	constructor(e) {
 		super(e), this.isAcquireTimeout = !0;
@@ -4713,7 +4713,7 @@ function Yr(t) {
 		"challenge",
 		"user",
 		"excludeCredentials"
-	]), o = er(n).buffer, s = Object.assign(Object.assign({}, r), { id: er(r.id).buffer }), c = Object.assign(Object.assign({}, a), {
+	]), o = $n(n).buffer, s = Object.assign(Object.assign({}, r), { id: $n(r.id).buffer }), c = Object.assign(Object.assign({}, a), {
 		challenge: o,
 		user: s
 	});
@@ -4722,7 +4722,7 @@ function Yr(t) {
 		for (let e = 0; e < i.length; e++) {
 			let t = i[e];
 			c.excludeCredentials[e] = Object.assign(Object.assign({}, t), {
-				id: er(t.id).buffer,
+				id: $n(t.id).buffer,
 				type: t.type || "public-key",
 				transports: t.transports
 			});
@@ -4733,13 +4733,13 @@ function Yr(t) {
 function Xr(t) {
 	if (!t) throw Error("Credential request options are required");
 	if (typeof PublicKeyCredential < "u" && "parseRequestOptionsFromJSON" in PublicKeyCredential && typeof PublicKeyCredential.parseRequestOptionsFromJSON == "function") return PublicKeyCredential.parseRequestOptionsFromJSON(t);
-	let { challenge: n, allowCredentials: r } = t, i = e(t, ["challenge", "allowCredentials"]), a = er(n).buffer, o = Object.assign(Object.assign({}, i), { challenge: a });
+	let { challenge: n, allowCredentials: r } = t, i = e(t, ["challenge", "allowCredentials"]), a = $n(n).buffer, o = Object.assign(Object.assign({}, i), { challenge: a });
 	if (r && r.length > 0) {
 		o.allowCredentials = Array(r.length);
 		for (let e = 0; e < r.length; e++) {
 			let t = r[e];
 			o.allowCredentials[e] = Object.assign(Object.assign({}, t), {
-				id: er(t.id).buffer,
+				id: $n(t.id).buffer,
 				type: t.type || "public-key",
 				transports: t.transports
 			});
@@ -4754,8 +4754,8 @@ function Zr(e) {
 		id: e.id,
 		rawId: e.id,
 		response: {
-			attestationObject: nr(new Uint8Array(e.response.attestationObject)),
-			clientDataJSON: nr(new Uint8Array(e.response.clientDataJSON))
+			attestationObject: tr(new Uint8Array(e.response.attestationObject)),
+			clientDataJSON: tr(new Uint8Array(e.response.clientDataJSON))
 		},
 		type: "public-key",
 		clientExtensionResults: e.getClientExtensionResults(),
@@ -4769,10 +4769,10 @@ function Qr(e) {
 		id: e.id,
 		rawId: e.id,
 		response: {
-			authenticatorData: nr(new Uint8Array(r.authenticatorData)),
-			clientDataJSON: nr(new Uint8Array(r.clientDataJSON)),
-			signature: nr(new Uint8Array(r.signature)),
-			userHandle: r.userHandle ? nr(new Uint8Array(r.userHandle)) : void 0
+			authenticatorData: tr(new Uint8Array(r.authenticatorData)),
+			clientDataJSON: tr(new Uint8Array(r.clientDataJSON)),
+			signature: tr(new Uint8Array(r.signature)),
+			userHandle: r.userHandle ? tr(new Uint8Array(r.userHandle)) : void 0
 		},
 		type: "public-key",
 		clientExtensionResults: n,
@@ -4783,7 +4783,7 @@ function $r(e) {
 	return e === "localhost" || /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i.test(e);
 }
 function ei() {
-	return !!(M() && "PublicKeyCredential" in window && window.PublicKeyCredential && "credentials" in navigator && typeof (navigator == null ? void 0 : navigator.credentials)?.create == "function" && typeof (navigator == null ? void 0 : navigator.credentials)?.get == "function");
+	return !!(N() && "PublicKeyCredential" in window && window.PublicKeyCredential && "credentials" in navigator && typeof (navigator == null ? void 0 : navigator.credentials)?.create == "function" && typeof (navigator == null ? void 0 : navigator.credentials)?.get == "function");
 }
 async function ti(e) {
 	try {
@@ -4937,12 +4937,12 @@ var ci = class {
 				}
 			}
 		} catch (e) {
-			return O(e) ? {
+			return k(e) ? {
 				data: null,
 				error: e
 			} : {
 				data: null,
-				error: new k("Unexpected error in challenge", e)
+				error: new A("Unexpected error in challenge", e)
 			};
 		}
 	}
@@ -4956,12 +4956,12 @@ var ci = class {
 	async _authenticate({ factorId: e, webauthn: { rpId: t = typeof window < "u" ? window.location.hostname : void 0, rpOrigins: n = typeof window < "u" ? [window.location.origin] : void 0, signal: r } = {} }, i) {
 		if (!t) return {
 			data: null,
-			error: new kn("rpId is required for WebAuthn authentication")
+			error: new On("rpId is required for WebAuthn authentication")
 		};
 		try {
 			if (!ei()) return {
 				data: null,
-				error: new k("Browser does not support WebAuthn", null)
+				error: new A("Browser does not support WebAuthn", null)
 			};
 			let { data: a, error: o } = await this.challenge({
 				factorId: e,
@@ -4987,24 +4987,24 @@ var ci = class {
 				}
 			});
 		} catch (e) {
-			return O(e) ? {
+			return k(e) ? {
 				data: null,
 				error: e
 			} : {
 				data: null,
-				error: new k("Unexpected error in authenticate", e)
+				error: new A("Unexpected error in authenticate", e)
 			};
 		}
 	}
 	async _register({ friendlyName: e, webauthn: { rpId: t = typeof window < "u" ? window.location.hostname : void 0, rpOrigins: n = typeof window < "u" ? [window.location.origin] : void 0, signal: r } = {} }, i) {
 		if (!t) return {
 			data: null,
-			error: new kn("rpId is required for WebAuthn registration")
+			error: new On("rpId is required for WebAuthn registration")
 		};
 		try {
 			if (!ei()) return {
 				data: null,
-				error: new k("Browser does not support WebAuthn", null)
+				error: new A("Browser does not support WebAuthn", null)
 			};
 			let { data: a, error: o } = await this._enroll({ friendlyName: e });
 			if (!a) return await this.client.mfa.listFactors().then((t) => t.data?.all.find((t) => t.factor_type === "webauthn" && t.friendly_name === e && t.status !== "unverified")).then((e) => e ? this.client.mfa.unenroll({ factorId: e?.id }) : void 0), {
@@ -5034,12 +5034,12 @@ var ci = class {
 				error: c
 			};
 		} catch (e) {
-			return O(e) ? {
+			return k(e) ? {
 				data: null,
 				error: e
 			} : {
 				data: null,
-				error: new k("Unexpected error in register", e)
+				error: new A("Unexpected error in register", e)
 			};
 		}
 	}
@@ -5048,12 +5048,12 @@ var ci = class {
 //#region ../node_modules/@supabase/auth-js/dist/module/GoTrueClient.js
 Br();
 var li = {
-	url: Cn,
-	storageKey: wn,
+	url: Sn,
+	storageKey: Cn,
 	autoRefreshToken: !0,
 	persistSession: !0,
 	detectSessionInUrl: !0,
-	headers: Tn,
+	headers: wn,
 	flowType: "implicit",
 	debug: !1,
 	hasCustomAuthorizationHeader: !1,
@@ -5078,7 +5078,7 @@ var li = {
 		var n;
 		this.userStorage = null, this.memoryStorage = null, this.stateChangeEmitters = /* @__PURE__ */ new Map(), this.autoRefreshTicker = null, this.autoRefreshTickTimeout = null, this.visibilityChangedCallback = null, this.refreshingDeferred = null, this.lastRefreshFailure = null, this._sessionRemovalEpoch = 0, this.initializePromise = null, this._pendingInitNotifications = null, this.detectSessionInUrl = !0, this.hasCustomAuthorizationHeader = !1, this.suppressGetSessionWarning = !1, this.lock = null, this.lockAcquired = !1, this.pendingInLock = [], this.broadcastChannel = null, this.logger = console.log;
 		let r = Object.assign(Object.assign({}, li), t);
-		if (this.storageKey = r.storageKey, this.instanceID = e.nextInstanceID[this.storageKey] ?? 0, e.nextInstanceID[this.storageKey] = this.instanceID + 1, this.logDebugMessages = !!r.debug, typeof r.debug == "function" && (this.logger = r.debug), this.instanceID > 0 && M()) {
+		if (this.storageKey = r.storageKey, this.instanceID = e.nextInstanceID[this.storageKey] ?? 0, e.nextInstanceID[this.storageKey] = this.instanceID + 1, this.logDebugMessages = !!r.debug, typeof r.debug == "function" && (this.logger = r.debug), this.instanceID > 0 && N()) {
 			let e = `${this._logPrefix()} Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.`;
 			console.warn(e), this.logDebugMessages && console.trace(e);
 		}
@@ -5087,7 +5087,7 @@ var li = {
 			headers: r.headers,
 			fetch: r.fetch,
 			experimental: this.experimental
-		}), this.url = r.url, this.headers = r.headers, this.fetch = cr(r.fetch), this.detectSessionInUrl = r.detectSessionInUrl, this.flowType = r.flowType, this.hasCustomAuthorizationHeader = r.hasCustomAuthorizationHeader, this.throwOnError = r.throwOnError, this.lockAcquireTimeout = r.lockAcquireTimeout, r.lock != null && (this.lock = r.lock), this.jwks || (this.jwks = { keys: [] }, this.jwks_cached_at = -(2 ** 53 - 1)), this.mfa = {
+		}), this.url = r.url, this.headers = r.headers, this.fetch = or(r.fetch), this.detectSessionInUrl = r.detectSessionInUrl, this.flowType = r.flowType, this.hasCustomAuthorizationHeader = r.hasCustomAuthorizationHeader, this.throwOnError = r.throwOnError, this.lockAcquireTimeout = r.lockAcquireTimeout, r.lock != null && (this.lock = r.lock), this.jwks || (this.jwks = { keys: [] }, this.jwks_cached_at = -(2 ** 53 - 1)), this.mfa = {
 			verify: this._verify.bind(this),
 			enroll: this._enroll.bind(this),
 			unenroll: this._unenroll.bind(this),
@@ -5110,7 +5110,7 @@ var li = {
 			list: this._listPasskeys.bind(this),
 			update: this._updatePasskey.bind(this),
 			delete: this._deletePasskey.bind(this)
-		}, this.persistSession ? (r.storage ? this.storage = r.storage : or() ? this.storage = globalThis.localStorage : (this.memoryStorage = {}, this.storage = Rr(this.memoryStorage)), r.userStorage && (this.userStorage = r.userStorage)) : (this.memoryStorage = {}, this.storage = Rr(this.memoryStorage)), M() && globalThis.BroadcastChannel && this.persistSession && this.storageKey) {
+		}, this.persistSession ? (r.storage ? this.storage = r.storage : ir() ? this.storage = globalThis.localStorage : (this.memoryStorage = {}, this.storage = Rr(this.memoryStorage)), r.userStorage && (this.userStorage = r.userStorage)) : (this.memoryStorage = {}, this.storage = Rr(this.memoryStorage)), N() && globalThis.BroadcastChannel && this.persistSession && this.storageKey) {
 			try {
 				this.broadcastChannel = new globalThis.BroadcastChannel(this.storageKey);
 			} catch (e) {
@@ -5153,10 +5153,10 @@ var li = {
 	async _initialize() {
 		try {
 			let e = {}, t = "none";
-			if (M() && (e = sr(window.location.href), this._isImplicitGrantCallback(e) ? t = "implicit" : await this._isPKCECallback(e) && (t = "pkce")), M() && this.detectSessionInUrl && t !== "none") {
+			if (N() && (e = ar(window.location.href), this._isImplicitGrantCallback(e) ? t = "implicit" : await this._isPKCECallback(e) && (t = "pkce")), N() && this.detectSessionInUrl && t !== "none") {
 				let { data: n, error: r } = await this._getSessionFromURL(e, t);
 				if (r) {
-					if (this._debug("#_initialize()", "error detecting session from URL", r), In(r)) {
+					if (this._debug("#_initialize()", "error detecting session from URL", r), Fn(r)) {
 						let e = r.details?.code;
 						if (e === "identity_already_exists" || e === "identity_not_found" || e === "single_identity_not_deletable") return { error: r };
 					}
@@ -5169,7 +5169,7 @@ var li = {
 			}
 			return await this._recoverAndRefresh(), { error: null };
 		} catch (e) {
-			return O(e) ? this._returnResult({ error: e }) : this._returnResult({ error: new k("Unexpected error during initialization", e) });
+			return k(e) ? this._returnResult({ error: e }) : this._returnResult({ error: new A("Unexpected error during initialization", e) });
 		} finally {
 			await this._handleVisibilityChange(), this._debug("#_initialize()", "end");
 		}
@@ -5200,7 +5200,7 @@ var li = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5215,7 +5215,7 @@ var li = {
 			let t;
 			if ("email" in e) {
 				let { email: n, password: r, options: i } = e, a = null, o = null;
-				this.flowType === "pkce" && ([a, o] = await F(this.storage, this.storageKey)), t = await z(this.fetch, "POST", `${this.url}/signup`, {
+				this.flowType === "pkce" && ([a, o] = await _r(this.storage, this.storageKey)), t = await z(this.fetch, "POST", `${this.url}/signup`, {
 					headers: this.headers,
 					redirectTo: i?.emailRedirectTo,
 					body: {
@@ -5241,9 +5241,9 @@ var li = {
 					},
 					xform: B
 				});
-			} else throw new Pn("You must provide either an email or phone number and a password");
+			} else throw new Nn("You must provide either an email or phone number and a password");
 			let { data: n, error: r } = t;
-			if (r || !n) return await P(this.storage, `${this.storageKey}-code-verifier`), this._returnResult({
+			if (r || !n) return await I(this.storage, `${this.storageKey}-code-verifier`), this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5259,7 +5259,7 @@ var li = {
 				error: null
 			});
 		} catch (e) {
-			if (await P(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await I(this.storage, `${this.storageKey}-code-verifier`), k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5294,7 +5294,7 @@ var li = {
 					},
 					xform: jr
 				});
-			} else throw new Pn("You must provide either an email or phone number and a password");
+			} else throw new Nn("You must provide either an email or phone number and a password");
 			let { data: n, error: r } = t;
 			if (r) return this._returnResult({
 				data: {
@@ -5304,7 +5304,7 @@ var li = {
 				error: r
 			});
 			if (!n || !n.session || !n.user) {
-				let e = new Nn();
+				let e = new Mn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5321,7 +5321,7 @@ var li = {
 				error: r
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5355,7 +5355,7 @@ var li = {
 		if ("message" in e) t = e.message, n = e.signature;
 		else {
 			let { chain: r, wallet: i, statement: a, options: o } = e, s;
-			if (!M()) {
+			if (!N()) {
 				if (typeof i != "object" || !o?.url) throw Error("@supabase/auth-js: Both wallet and url must be specified in non-browser environments.");
 				s = i;
 			} else if (typeof i == "object") s = i;
@@ -5399,7 +5399,7 @@ var li = {
 			});
 			if (i) throw i;
 			if (!r || !r.session || !r.user) {
-				let e = new Nn();
+				let e = new Mn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5413,7 +5413,7 @@ var li = {
 				error: i
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5428,7 +5428,7 @@ var li = {
 		if ("message" in e) t = e.message, n = e.signature;
 		else {
 			let { chain: r, wallet: i, statement: a, options: o } = e, s;
-			if (!M()) {
+			if (!N()) {
 				if (typeof i != "object" || !o?.url) throw Error("@supabase/auth-js: Both wallet and url must be specified in non-browser environments.");
 				s = i;
 			} else if (typeof i == "object") s = i;
@@ -5480,13 +5480,13 @@ var li = {
 				body: Object.assign({
 					chain: "solana",
 					message: t,
-					signature: nr(n)
+					signature: tr(n)
 				}, e.options?.captchaToken ? { gotrue_meta_security: { captcha_token: e.options?.captchaToken } } : null),
 				xform: B
 			});
 			if (i) throw i;
 			if (!r || !r.session || !r.user) {
-				let e = new Nn();
+				let e = new Mn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5500,7 +5500,7 @@ var li = {
 				error: i
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5511,9 +5511,9 @@ var li = {
 		}
 	}
 	async _exchangeCodeForSession(e) {
-		let [t, n] = (await N(this.storage, `${this.storageKey}-code-verifier`) ?? "").split("/");
+		let [t, n] = (await F(this.storage, `${this.storageKey}-code-verifier`) ?? "").split("/");
 		try {
-			if (!t && this.flowType === "pkce") throw new Rn();
+			if (!t && this.flowType === "pkce") throw new Ln();
 			let { data: r, error: i } = await z(this.fetch, "POST", `${this.url}/token?grant_type=pkce`, {
 				headers: this.headers,
 				body: {
@@ -5522,9 +5522,9 @@ var li = {
 				},
 				xform: B
 			});
-			if (await P(this.storage, `${this.storageKey}-code-verifier`), i) throw i;
+			if (await I(this.storage, `${this.storageKey}-code-verifier`), i) throw i;
 			if (!r || !r.session || !r.user) {
-				let e = new Nn();
+				let e = new Mn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5539,7 +5539,7 @@ var li = {
 				error: i
 			});
 		} catch (e) {
-			if (await P(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await I(this.storage, `${this.storageKey}-code-verifier`), k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null,
@@ -5571,7 +5571,7 @@ var li = {
 				error: s
 			});
 			if (!o || !o.session || !o.user) {
-				let e = new Nn();
+				let e = new Mn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5585,7 +5585,7 @@ var li = {
 				error: s
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5599,7 +5599,7 @@ var li = {
 		try {
 			if ("email" in e) {
 				let { email: t, options: n } = e, r = null, i = null;
-				this.flowType === "pkce" && ([r, i] = await F(this.storage, this.storageKey));
+				this.flowType === "pkce" && ([r, i] = await _r(this.storage, this.storageKey));
 				let { error: a } = await z(this.fetch, "POST", `${this.url}/otp`, {
 					headers: this.headers,
 					body: {
@@ -5640,9 +5640,9 @@ var li = {
 					error: i
 				});
 			}
-			throw new Pn("You must provide either an email or phone number.");
+			throw new Nn("You must provide either an email or phone number.");
 		} catch (e) {
-			if (await P(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await I(this.storage, `${this.storageKey}-code-verifier`), k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5673,7 +5673,7 @@ var li = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5686,7 +5686,7 @@ var li = {
 	async signInWithSSO(e) {
 		try {
 			let t = null, n = null;
-			this.flowType === "pkce" && ([t, n] = await F(this.storage, this.storageKey));
+			this.flowType === "pkce" && ([t, n] = await _r(this.storage, this.storageKey));
 			let r = await z(this.fetch, "POST", `${this.url}/sso`, {
 				body: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, "providerId" in e ? { provider_id: e.providerId } : null), "domain" in e ? { domain: e.domain } : null), { redirect_to: e.options?.redirectTo ?? void 0 }), e?.options?.captchaToken ? { gotrue_meta_security: { captcha_token: e.options.captchaToken } } : null), {
 					skip_http_redirect: !0,
@@ -5696,9 +5696,9 @@ var li = {
 				headers: this.headers,
 				xform: Mr
 			});
-			return r.data?.url && M() && !e.options?.skipBrowserRedirect && window.location.assign(r.data.url), this._returnResult(r);
+			return r.data?.url && N() && !e.options?.skipBrowserRedirect && window.location.assign(r.data.url), this._returnResult(r);
 		} catch (e) {
-			if (await P(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await I(this.storage, `${this.storageKey}-code-verifier`), k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -5713,7 +5713,7 @@ var li = {
 			return await this._useSession(async (e) => {
 				let { data: { session: t }, error: n } = e;
 				if (n) throw n;
-				if (!t) throw new j();
+				if (!t) throw new M();
 				let { error: r } = await z(this.fetch, "GET", `${this.url}/reauthenticate`, {
 					headers: this.headers,
 					jwt: t.access_token
@@ -5727,7 +5727,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5742,7 +5742,7 @@ var li = {
 			let t = `${this.url}/resend`;
 			if ("email" in e) {
 				let { email: n, type: r, options: i } = e, a = null, o = null;
-				this.flowType === "pkce" && ([a, o] = await F(this.storage, this.storageKey));
+				this.flowType === "pkce" && ([a, o] = await _r(this.storage, this.storageKey));
 				let { error: s } = await z(this.fetch, "POST", t, {
 					headers: this.headers,
 					body: {
@@ -5754,7 +5754,7 @@ var li = {
 					},
 					redirectTo: i?.emailRedirectTo
 				});
-				return s && await P(this.storage, `${this.storageKey}-code-verifier`), this._returnResult({
+				return s && await I(this.storage, `${this.storageKey}-code-verifier`), this._returnResult({
 					data: {
 						user: null,
 						session: null
@@ -5779,9 +5779,9 @@ var li = {
 					error: o
 				});
 			}
-			throw new Pn("You must provide either an email or phone number and a type");
+			throw new Nn("You must provide either an email or phone number and a type");
 		} catch (e) {
-			if (await P(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await I(this.storage, `${this.storageKey}-code-verifier`), k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5838,20 +5838,20 @@ var li = {
 	async __loadSession() {
 		this._debug("#__loadSession()", "begin"), this.lock != null && !this.lockAcquired && this._debug("#__loadSession()", "used outside of an acquired lock!", (/* @__PURE__ */ Error()).stack);
 		try {
-			let e = null, t = await N(this.storage, this.storageKey);
+			let e = null, t = await F(this.storage, this.storageKey);
 			if (this._debug("#getSession()", "session from storage", t), t !== null && (this._isValidSession(t) ? e = t : (this._debug("#getSession()", "session from storage is not valid"), await this._removeSession())), !e) return {
 				data: { session: null },
 				error: null
 			};
-			let n = e.expires_at ? e.expires_at * 1e3 - Date.now() < xn : !1;
+			let n = e.expires_at ? e.expires_at * 1e3 - Date.now() < bn : !1;
 			if (this._debug("#__loadSession()", `session has${n ? "" : " not"} expired`, "expires_at", e.expires_at), !n) {
 				if (this.userStorage) {
-					let t = await N(this.userStorage, this.storageKey + "-user");
-					t?.user ? e.user = t.user : e.user = wr();
+					let t = await F(this.userStorage, this.storageKey + "-user");
+					t?.user ? e.user = t.user : e.user = Cr();
 				}
 				if (this.storage.isServer && e.user && !e.user.__isUserNotAvailableProxy) {
 					let t = { value: this.suppressGetSessionWarning };
-					e.user = Tr(e.user, t), t.value && (this.suppressGetSessionWarning = !0);
+					e.user = wr(e.user, t), t.value && (this.suppressGetSessionWarning = !0);
 				}
 				return {
 					data: { session: e },
@@ -5861,7 +5861,7 @@ var li = {
 			let { data: r, error: i } = await this._callRefreshToken(e.refresh_token);
 			if (i) {
 				if (e.expires_at && e.expires_at * 1e3 > Date.now()) {
-					let t = await N(this.storage, this.storageKey);
+					let t = await F(this.storage, this.storageKey);
 					if (t && t.refresh_token === e.refresh_token) return this._returnResult({
 						data: { session: e },
 						error: null
@@ -5897,7 +5897,7 @@ var li = {
 				if (n) throw n;
 				return !t.session?.access_token && !this.hasCustomAuthorizationHeader ? {
 					data: { user: null },
-					error: new j()
+					error: new M()
 				} : await z(this.fetch, "GET", `${this.url}/user`, {
 					headers: this.headers,
 					jwt: t.session?.access_token ?? void 0,
@@ -5905,7 +5905,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return Mn(e) && (await this._removeSession(), await P(this.storage, `${this.storageKey}-code-verifier`)), this._returnResult({
+			if (k(e)) return jn(e) && (await this._removeSession(), await I(this.storage, `${this.storageKey}-code-verifier`)), this._returnResult({
 				data: { user: null },
 				error: e
 			});
@@ -5920,9 +5920,9 @@ var li = {
 			return await this._useSession(async (n) => {
 				let { data: r, error: i } = n;
 				if (i) throw i;
-				if (!r.session) throw new j();
+				if (!r.session) throw new M();
 				let a = r.session, o = null, s = null;
-				this.flowType === "pkce" && e.email != null && ([o, s] = await F(this.storage, this.storageKey));
+				this.flowType === "pkce" && e.email != null && ([o, s] = await _r(this.storage, this.storageKey));
 				let { data: c, error: l } = await z(this.fetch, "PUT", `${this.url}/user`, {
 					headers: this.headers,
 					redirectTo: t?.emailRedirectTo,
@@ -5940,7 +5940,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (await P(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await I(this.storage, `${this.storageKey}-code-verifier`), k(e)) return this._returnResult({
 				data: { user: null },
 				error: e
 			});
@@ -5952,8 +5952,8 @@ var li = {
 	}
 	async _setSession(e) {
 		try {
-			if (!e.access_token || !e.refresh_token) throw new j();
-			let t = Date.now() / 1e3, n = t, r = !0, i = null, { payload: a } = fr(e.access_token);
+			if (!e.access_token || !e.refresh_token) throw new M();
+			let t = Date.now() / 1e3, n = t, r = !0, i = null, { payload: a } = ur(e.access_token);
 			if (a.exp && (n = a.exp, r = n <= t), r) {
 				let { data: t, error: n } = await this._callRefreshToken(e.refresh_token);
 				if (n) return this._returnResult({
@@ -5997,7 +5997,7 @@ var li = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					session: null,
 					user: null
@@ -6018,7 +6018,7 @@ var li = {
 					if (r) throw r;
 					e = n.session ?? void 0;
 				}
-				if (!e?.refresh_token) throw new j();
+				if (!e?.refresh_token) throw new M();
 				let { data: n, error: r } = await this._callRefreshToken(e.refresh_token);
 				return r ? this._returnResult({
 					data: {
@@ -6041,7 +6041,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -6053,22 +6053,22 @@ var li = {
 	}
 	async _getSessionFromURL(e, t) {
 		try {
-			if (!M()) throw new Fn("No browser detected.");
-			if (e.error || e.error_description || e.error_code) throw new Fn(e.error_description || "Error in URL with unspecified error_description", {
+			if (!N()) throw new Pn("No browser detected.");
+			if (e.error || e.error_description || e.error_code) throw new Pn(e.error_description || "Error in URL with unspecified error_description", {
 				error: e.error || "unspecified_error",
 				code: e.error_code || "unspecified_code"
 			});
 			switch (t) {
 				case "implicit":
-					if (this.flowType === "pkce") throw new Ln("Not a valid PKCE flow url.");
+					if (this.flowType === "pkce") throw new In("Not a valid PKCE flow url.");
 					break;
 				case "pkce":
-					if (this.flowType === "implicit") throw new Fn("Not a valid implicit grant flow url.");
+					if (this.flowType === "implicit") throw new Pn("Not a valid implicit grant flow url.");
 					break;
 				default:
 			}
 			if (t === "pkce") {
-				if (this._debug("#_initialize()", "begin", "is PKCE flow", !0), !e.code) throw new Ln("No code detected.");
+				if (this._debug("#_initialize()", "begin", "is PKCE flow", !0), !e.code) throw new In("No code detected.");
 				let { data: t, error: n } = await this._exchangeCodeForSession(e.code);
 				if (n) throw n;
 				let r = new URL(window.location.href);
@@ -6081,7 +6081,7 @@ var li = {
 				};
 			}
 			let { provider_token: n, provider_refresh_token: r, access_token: i, refresh_token: a, expires_in: o, expires_at: s, token_type: c } = e;
-			if (!i || !o || !a || !c) throw new Fn("No session defined in URL");
+			if (!i || !o || !a || !c) throw new Pn("No session defined in URL");
 			let l = Math.round(Date.now() / 1e3), u = parseInt(o), d = l + u;
 			s && (d = parseInt(s));
 			let f = d - l;
@@ -6108,7 +6108,7 @@ var li = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: {
 					session: null,
 					redirectType: null
@@ -6122,7 +6122,7 @@ var li = {
 		return typeof this.detectSessionInUrl == "function" ? this.detectSessionInUrl(new URL(window.location.href), e) : !!(e.access_token || e.error || e.error_description || e.error_code);
 	}
 	async _isPKCECallback(e) {
-		let t = await N(this.storage, `${this.storageKey}-code-verifier`);
+		let t = await F(this.storage, `${this.storageKey}-code-verifier`);
 		return !!(e.code && t);
 	}
 	async signOut(e = { scope: "global" }) {
@@ -6131,19 +6131,19 @@ var li = {
 	async _signOut({ scope: e } = { scope: "global" }) {
 		return await this._useSession(async (t) => {
 			let n = async () => {
-				await this._removeSession(), await P(this.storage, `${this.storageKey}-code-verifier`);
+				await this._removeSession(), await I(this.storage, `${this.storageKey}-code-verifier`);
 			}, { data: r, error: i } = t;
-			if (i && !Mn(i)) return this._returnResult({ error: i });
+			if (i && !jn(i)) return this._returnResult({ error: i });
 			let a = r.session?.access_token;
 			if (a) {
 				let { error: t } = await this.admin.signOut(a, e);
-				if (t && !(jn(t) && (t.status === 404 || t.status === 401 || t.status === 403) || Mn(t))) return e !== "others" && await n(), this._returnResult({ error: t });
+				if (t && !(An(t) && (t.status === 404 || t.status === 401 || t.status === 403) || jn(t))) return e !== "others" && await n(), this._returnResult({ error: t });
 			}
 			return e !== "others" && await n(), this._returnResult({ error: null });
 		});
 	}
 	onAuthStateChange(e) {
-		let t = ir(), n = {
+		let t = rr(), n = {
 			id: t,
 			callback: e,
 			unsubscribe: () => {
@@ -6163,13 +6163,13 @@ var li = {
 				if (r) throw r;
 				await this.stateChangeEmitters.get(e)?.callback("INITIAL_SESSION", n), this._debug("INITIAL_SESSION", "callback id", e, "session", n);
 			} catch (t) {
-				await this.stateChangeEmitters.get(e)?.callback("INITIAL_SESSION", null), this._debug("INITIAL_SESSION", "callback id", e, "error", t), Mn(t) ? console.warn(t) : console.error(t);
+				await this.stateChangeEmitters.get(e)?.callback("INITIAL_SESSION", null), this._debug("INITIAL_SESSION", "callback id", e, "error", t), jn(t) ? console.warn(t) : console.error(t);
 			}
 		});
 	}
 	async resetPasswordForEmail(e, t = {}) {
 		let n = null, r = null;
-		this.flowType === "pkce" && ([n, r] = await F(this.storage, this.storageKey, !0));
+		this.flowType === "pkce" && ([n, r] = await _r(this.storage, this.storageKey, !0));
 		try {
 			return await z(this.fetch, "POST", `${this.url}/recover`, {
 				body: {
@@ -6182,7 +6182,7 @@ var li = {
 				redirectTo: t.redirectTo
 			});
 		} catch (e) {
-			if (await P(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await I(this.storage, `${this.storageKey}-code-verifier`), k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6198,7 +6198,7 @@ var li = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6225,7 +6225,7 @@ var li = {
 				});
 			});
 			if (n) throw n;
-			return M() && !e.options?.skipBrowserRedirect && window.location.assign(t?.url), this._returnResult({
+			return N() && !e.options?.skipBrowserRedirect && window.location.assign(t?.url), this._returnResult({
 				data: {
 					provider: e.provider,
 					url: t?.url
@@ -6233,7 +6233,7 @@ var li = {
 				error: null
 			});
 		} catch (t) {
-			if (O(t)) return this._returnResult({
+			if (k(t)) return this._returnResult({
 				data: {
 					provider: e.provider,
 					url: null
@@ -6272,13 +6272,13 @@ var li = {
 						user: null,
 						session: null
 					},
-					error: new Nn()
+					error: new Mn()
 				}) : (l.session && (await this._saveSession(l.session), await this._notifyAllSubscribers("USER_UPDATED", l.session)), this._returnResult({
 					data: l,
 					error: u
 				}));
 			} catch (e) {
-				if (await P(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+				if (await I(this.storage, `${this.storageKey}-code-verifier`), k(e)) return this._returnResult({
 					data: {
 						user: null,
 						session: null
@@ -6300,7 +6300,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6312,16 +6312,16 @@ var li = {
 		this._debug(t, "begin");
 		try {
 			let n = Date.now();
-			return await mr(async (n) => (n > 0 && await pr(200 * 2 ** (n - 1)), this._debug(t, "refreshing attempt", n), await z(this.fetch, "POST", `${this.url}/token?grant_type=refresh_token`, {
+			return await fr(async (n) => (n > 0 && await dr(200 * 2 ** (n - 1)), this._debug(t, "refreshing attempt", n), await z(this.fetch, "POST", `${this.url}/token?grant_type=refresh_token`, {
 				body: { refresh_token: e },
 				headers: this.headers,
 				xform: B
 			})), (e, t) => {
 				let r = 200 * 2 ** e;
-				return t && Bn(t) && Date.now() + r - n < 3e4;
+				return t && zn(t) && Date.now() + r - n < 3e4;
 			});
 		} catch (e) {
-			if (this._debug(t, "error", e), O(e)) return this._returnResult({
+			if (this._debug(t, "error", e), k(e)) return this._returnResult({
 				data: {
 					session: null,
 					user: null
@@ -6342,7 +6342,7 @@ var li = {
 			scopes: t.scopes,
 			queryParams: t.queryParams
 		});
-		return this._debug("#_handleProviderSignIn()", "provider", e, "options", t, "url", n), M() && !t.skipBrowserRedirect && window.location.assign(n), {
+		return this._debug("#_handleProviderSignIn()", "provider", e, "options", t, "url", n), N() && !t.skipBrowserRedirect && window.location.assign(n), {
 			data: {
 				provider: e,
 				url: n
@@ -6354,23 +6354,23 @@ var li = {
 		let e = "#_recoverAndRefresh()";
 		this._debug(e, "begin");
 		try {
-			let t = await N(this.storage, this.storageKey);
+			let t = await F(this.storage, this.storageKey);
 			if (t && this.userStorage) {
-				let e = await N(this.userStorage, this.storageKey + "-user");
-				!this.storage.isServer && Object.is(this.storage, this.userStorage) && !e && (e = { user: t.user }, await ur(this.userStorage, this.storageKey + "-user", e)), t.user = e?.user ?? wr();
+				let e = await F(this.userStorage, this.storageKey + "-user");
+				!this.storage.isServer && Object.is(this.storage, this.userStorage) && !e && (e = { user: t.user }, await cr(this.userStorage, this.storageKey + "-user", e)), t.user = e?.user ?? Cr();
 			} else if (t && !t.user && !t.user) {
-				let e = await N(this.storage, this.storageKey + "-user");
-				e && e?.user ? (t.user = e.user, await P(this.storage, this.storageKey + "-user"), await ur(this.storage, this.storageKey, t)) : t.user = wr();
+				let e = await F(this.storage, this.storageKey + "-user");
+				e && e?.user ? (t.user = e.user, await I(this.storage, this.storageKey + "-user"), await cr(this.storage, this.storageKey, t)) : t.user = Cr();
 			}
 			if (this._debug(e, "session from storage", t), !this._isValidSession(t)) {
 				this._debug(e, "session is not valid"), t !== null && await this._removeSession();
 				return;
 			}
-			let n = (t.expires_at ?? Infinity) * 1e3 - Date.now() < xn;
-			if (this._debug(e, `session has${n ? "" : " not"} expired with margin of ${xn}s`), n) {
+			let n = (t.expires_at ?? Infinity) * 1e3 - Date.now() < bn;
+			if (this._debug(e, `session has${n ? "" : " not"} expired with margin of ${bn}s`), n) {
 				if (this.autoRefreshToken && t.refresh_token) {
 					let { error: n } = await this._callRefreshToken(t.refresh_token);
-					n && (Hn(n) ? this._debug(e, "refresh discarded by commit guard", n) : this._debug(e, "refresh failed", n));
+					n && (Vn(n) ? this._debug(e, "refresh discarded by commit guard", n) : this._debug(e, "refresh failed", n));
 				}
 			} else if (t.user && t.user.__isUserNotAvailableProxy === !0) try {
 				let { data: n, error: r } = await this._getUser(t.access_token);
@@ -6388,17 +6388,17 @@ var li = {
 	}
 	async _callRefreshToken(e) {
 		var t, n;
-		if (!e) throw new j();
+		if (!e) throw new M();
 		if (this.refreshingDeferred) return this.refreshingDeferred.promise;
 		if (this.lastRefreshFailure && this.lastRefreshFailure.refreshToken === e && Date.now() < this.lastRefreshFailure.expiresAt) return this._debug("#_callRefreshToken()", "returning cached failure (cooldown active)"), this.lastRefreshFailure.result;
 		let r = "#_callRefreshToken()";
 		this._debug(r, "begin");
 		try {
-			this.refreshingDeferred = new dr();
-			let t = await N(this.storage, this.storageKey), { data: n, error: i } = await this._refreshAccessToken(e);
+			this.refreshingDeferred = new lr();
+			let t = await F(this.storage, this.storageKey), { data: n, error: i } = await this._refreshAccessToken(e);
 			if (i) throw i;
-			if (!n.session) throw new j();
-			let a = await N(this.storage, this.storageKey);
+			if (!n.session) throw new M();
+			let a = await F(this.storage, this.storageKey);
 			if (t !== null && (a === null || a.refresh_token !== t.refresh_token)) {
 				this._debug(r, "commit guard: storage changed since refresh started, discarding rotated tokens", {
 					startedWith: "present",
@@ -6406,16 +6406,16 @@ var li = {
 				});
 				let e = {
 					data: null,
-					error: new Vn()
+					error: new Bn()
 				};
 				return this.refreshingDeferred.resolve(e), e;
 			}
 			let o = this._sessionRemovalEpoch;
 			if (await this._saveSession(n.session), this._sessionRemovalEpoch !== o) {
-				this._debug(r, "commit guard (post-save): _removeSession ran during _saveSession, undoing write"), await P(this.storage, this.storageKey), this.userStorage && await P(this.userStorage, this.storageKey + "-user");
+				this._debug(r, "commit guard (post-save): _removeSession ran during _saveSession, undoing write"), await I(this.storage, this.storageKey), this.userStorage && await I(this.userStorage, this.storageKey + "-user");
 				let e = {
 					data: null,
-					error: new Vn()
+					error: new Bn()
 				};
 				return this.refreshingDeferred.resolve(e), e;
 			}
@@ -6426,19 +6426,19 @@ var li = {
 			};
 			return this.lastRefreshFailure = null, this.refreshingDeferred.resolve(s), s;
 		} catch (i) {
-			if (this._debug(r, "error", i), O(i)) {
+			if (this._debug(r, "error", i), k(i)) {
 				let n = {
 					data: null,
 					error: i
 				};
-				if (!Bn(i)) {
-					let e = await N(this.storage, this.storageKey);
+				if (!zn(i)) {
+					let e = await F(this.storage, this.storageKey);
 					e?.expires_at && e.expires_at * 1e3 > Date.now() ? this._debug(r, "proactive refresh failed, access token still valid — preserving session") : await this._removeSession();
 				}
 				return this.lastRefreshFailure = {
 					refreshToken: e,
 					result: n,
-					expiresAt: Date.now() + Sn
+					expiresAt: Date.now() + xn
 				}, (t = this.refreshingDeferred) == null || t.resolve(n), n;
 			}
 			throw (n = this.refreshingDeferred) == null || n.reject(i), i;
@@ -6481,32 +6481,32 @@ var li = {
 		this._debug("#_saveSession()", e), this.suppressGetSessionWarning = !0;
 		let t = Object.assign({}, e), n = t.user && t.user.__isUserNotAvailableProxy === !0;
 		if (this.userStorage) {
-			!n && t.user && await ur(this.userStorage, this.storageKey + "-user", { user: t.user });
+			!n && t.user && await cr(this.userStorage, this.storageKey + "-user", { user: t.user });
 			let e = Object.assign({}, t);
 			delete e.user;
-			let r = Er(e);
-			await ur(this.storage, this.storageKey, r);
+			let r = Tr(e);
+			await cr(this.storage, this.storageKey, r);
 		} else {
-			let e = Er(t);
-			await ur(this.storage, this.storageKey, e);
+			let e = Tr(t);
+			await cr(this.storage, this.storageKey, e);
 		}
 	}
 	async _removeSession() {
-		this._sessionRemovalEpoch += 1, this._debug("#_removeSession()"), this.lastRefreshFailure = null, this.suppressGetSessionWarning = !1, await P(this.storage, this.storageKey), await P(this.storage, this.storageKey + "-code-verifier"), await P(this.storage, this.storageKey + "-user"), this.userStorage && await P(this.userStorage, this.storageKey + "-user"), await this._notifyAllSubscribers("SIGNED_OUT", null);
+		this._sessionRemovalEpoch += 1, this._debug("#_removeSession()"), this.lastRefreshFailure = null, this.suppressGetSessionWarning = !1, await I(this.storage, this.storageKey), await I(this.storage, this.storageKey + "-code-verifier"), await I(this.storage, this.storageKey + "-user"), this.userStorage && await I(this.userStorage, this.storageKey + "-user"), await this._notifyAllSubscribers("SIGNED_OUT", null);
 	}
 	_removeVisibilityChangedCallback() {
 		this._debug("#_removeVisibilityChangedCallback()");
 		let e = this.visibilityChangedCallback;
 		this.visibilityChangedCallback = null;
 		try {
-			e && M() && window != null && window.removeEventListener && window.removeEventListener("visibilitychange", e);
+			e && N() && window != null && window.removeEventListener && window.removeEventListener("visibilitychange", e);
 		} catch (e) {
 			console.error("removing visibilitychange callback failed", e);
 		}
 	}
 	async _startAutoRefresh() {
 		await this._stopAutoRefresh(), this._debug("#_startAutoRefresh()");
-		let e = setInterval(() => this._autoRefreshTokenTick(), bn);
+		let e = setInterval(() => this._autoRefreshTokenTick(), O);
 		this.autoRefreshTicker = e, e && typeof e == "object" && typeof e.unref == "function" ? e.unref() : typeof Deno < "u" && typeof Deno.unrefTimer == "function" && Deno.unrefTimer(e);
 		let t = setTimeout(async () => {
 			await this.initializePromise, await this._autoRefreshTokenTick();
@@ -6543,8 +6543,8 @@ var li = {
 									this._debug("#_autoRefreshTokenTick()", "no session");
 									return;
 								}
-								let r = Math.floor((n.expires_at * 1e3 - e) / bn);
-								this._debug("#_autoRefreshTokenTick()", `access token expires in ${r} ticks, a tick lasts ${bn}ms, refresh threshold is 3 ticks`), r <= 3 && await this._callRefreshToken(n.refresh_token);
+								let r = Math.floor((n.expires_at * 1e3 - e) / O);
+								this._debug("#_autoRefreshTokenTick()", `access token expires in ${r} ticks, a tick lasts ${O}ms, refresh threshold is 3 ticks`), r <= 3 && await this._callRefreshToken(n.refresh_token);
 							});
 						} catch (e) {
 							console.error("Auto refresh tick failed with error. This is likely a transient error.", e);
@@ -6572,8 +6572,8 @@ var li = {
 						this._debug("#_autoRefreshTokenTick()", "no session");
 						return;
 					}
-					let r = Math.floor((n.expires_at * 1e3 - e) / bn);
-					this._debug("#_autoRefreshTokenTick()", `access token expires in ${r} ticks, a tick lasts ${bn}ms, refresh threshold is 3 ticks`), r <= 3 && await this._callRefreshToken(n.refresh_token);
+					let r = Math.floor((n.expires_at * 1e3 - e) / O);
+					this._debug("#_autoRefreshTokenTick()", `access token expires in ${r} ticks, a tick lasts ${O}ms, refresh threshold is 3 ticks`), r <= 3 && await this._callRefreshToken(n.refresh_token);
 				});
 			} catch (e) {
 				console.error("Auto refresh tick failed with error. This is likely a transient error.", e);
@@ -6583,7 +6583,7 @@ var li = {
 		}
 	}
 	async _handleVisibilityChange() {
-		if (this._debug("#_handleVisibilityChange()"), !M() || !(window != null && window.addEventListener)) return this.autoRefreshToken && this.startAutoRefresh(), !1;
+		if (this._debug("#_handleVisibilityChange()"), !N() || !(window != null && window.addEventListener)) return this.autoRefreshToken && this.startAutoRefresh(), !1;
 		try {
 			this.visibilityChangedCallback = async () => {
 				try {
@@ -6618,7 +6618,7 @@ var li = {
 	async _getUrlForProvider(e, t, n) {
 		let r = [`provider=${encodeURIComponent(t)}`];
 		if (n?.redirectTo && r.push(`redirect_to=${encodeURIComponent(n.redirectTo)}`), n?.scopes && r.push(`scopes=${encodeURIComponent(n.scopes)}`), this.flowType === "pkce") {
-			let [e, t] = await F(this.storage, this.storageKey), n = new URLSearchParams({
+			let [e, t] = await _r(this.storage, this.storageKey), n = new URLSearchParams({
 				code_challenge: `${encodeURIComponent(e)}`,
 				code_challenge_method: `${encodeURIComponent(t)}`
 			});
@@ -6643,7 +6643,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6675,7 +6675,7 @@ var li = {
 				}));
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6705,7 +6705,7 @@ var li = {
 					}));
 				});
 			} catch (e) {
-				if (O(e)) return this._returnResult({
+				if (k(e)) return this._returnResult({
 					data: null,
 					error: e
 				});
@@ -6746,7 +6746,7 @@ var li = {
 					}
 				});
 			} catch (e) {
-				if (O(e)) return this._returnResult({
+				if (k(e)) return this._returnResult({
 					data: null,
 					error: e
 				});
@@ -6786,7 +6786,7 @@ var li = {
 	}
 	async _getAuthenticatorAssuranceLevel(e) {
 		if (e) try {
-			let { payload: t } = fr(e), n = null;
+			let { payload: t } = ur(e), n = null;
 			t.aal && (n = t.aal);
 			let r = n, { data: { user: i }, error: a } = await this.getUser(e);
 			if (a) return this._returnResult({
@@ -6804,7 +6804,7 @@ var li = {
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6823,7 +6823,7 @@ var li = {
 			},
 			error: null
 		};
-		let { payload: r } = fr(t.access_token), i = null;
+		let { payload: r } = ur(t.access_token), i = null;
 		r.aal && (i = r.aal);
 		let a = i;
 		(t.user.factors?.filter((e) => e.status === "verified") ?? []).length > 0 && (a = "aal2");
@@ -6853,11 +6853,11 @@ var li = {
 					})
 				}) : this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6874,7 +6874,7 @@ var li = {
 				});
 				if (!r) return this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 				let a = await z(this.fetch, "POST", `${this.url}/oauth/authorizations/${e}/consent`, {
 					headers: this.headers,
@@ -6885,10 +6885,10 @@ var li = {
 						error: null
 					})
 				});
-				return a.data && a.data.redirect_url && M() && !t?.skipBrowserRedirect && window.location.assign(a.data.redirect_url), a;
+				return a.data && a.data.redirect_url && N() && !t?.skipBrowserRedirect && window.location.assign(a.data.redirect_url), a;
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6905,7 +6905,7 @@ var li = {
 				});
 				if (!r) return this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 				let a = await z(this.fetch, "POST", `${this.url}/oauth/authorizations/${e}/consent`, {
 					headers: this.headers,
@@ -6916,10 +6916,10 @@ var li = {
 						error: null
 					})
 				});
-				return a.data && a.data.redirect_url && M() && !t?.skipBrowserRedirect && window.location.assign(a.data.redirect_url), a;
+				return a.data && a.data.redirect_url && N() && !t?.skipBrowserRedirect && window.location.assign(a.data.redirect_url), a;
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6942,11 +6942,11 @@ var li = {
 					})
 				}) : this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6970,11 +6970,11 @@ var li = {
 					error: null
 				}) : this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7001,11 +7001,11 @@ var li = {
 				});
 				n = e.session.access_token;
 			}
-			let { header: r, payload: i, signature: a, raw: { header: o, payload: s } } = fr(n);
+			let { header: r, payload: i, signature: a, raw: { header: o, payload: s } } = ur(n);
 			if (!t?.allowExpired) try {
-				xr(i.exp);
+				br(i.exp);
 			} catch (e) {
-				throw new Wn(e instanceof Error ? e.message : "JWT validation failed");
+				throw new Un(e instanceof Error ? e.message : "JWT validation failed");
 			}
 			let c = !r.alg || r.alg.startsWith("HS") || !r.kid || !("crypto" in globalThis && "subtle" in globalThis.crypto) ? null : await this.fetchJwk(r.kid, t?.keys ? { keys: t.keys } : t?.jwks);
 			if (!c) {
@@ -7020,8 +7020,8 @@ var li = {
 					error: null
 				};
 			}
-			let l = Sr(r.alg), u = await crypto.subtle.importKey("jwk", c, l, !0, ["verify"]);
-			if (!await crypto.subtle.verify(l, u, a, tr(`${o}.${s}`))) throw new Wn("Invalid JWT signature");
+			let l = xr(r.alg), u = await crypto.subtle.importKey("jwk", c, l, !0, ["verify"]);
+			if (!await crypto.subtle.verify(l, u, a, er(`${o}.${s}`))) throw new Un("Invalid JWT signature");
 			return {
 				data: {
 					claims: i,
@@ -7031,7 +7031,7 @@ var li = {
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7039,11 +7039,11 @@ var li = {
 		}
 	}
 	async signInWithPasskey(e) {
-		L(this.experimental);
+		R(this.experimental);
 		try {
 			if (!ei()) return this._returnResult({
 				data: null,
-				error: new k("Browser does not support WebAuthn", null)
+				error: new A("Browser does not support WebAuthn", null)
 			});
 			let { data: t, error: n } = await this._startPasskeyAuthentication({ options: { captchaToken: e?.options?.captchaToken } });
 			if (n || !t) return this._returnResult({
@@ -7056,7 +7056,7 @@ var li = {
 			});
 			if (i || !r) return this._returnResult({
 				data: null,
-				error: i ?? new k("WebAuthn ceremony failed", null)
+				error: i ?? new A("WebAuthn ceremony failed", null)
 			});
 			let a = Qr(r);
 			return this._verifyPasskeyAuthentication({
@@ -7064,7 +7064,7 @@ var li = {
 				credential: a
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7072,11 +7072,11 @@ var li = {
 		}
 	}
 	async registerPasskey(e) {
-		L(this.experimental);
+		R(this.experimental);
 		try {
 			if (!ei()) return this._returnResult({
 				data: null,
-				error: new k("Browser does not support WebAuthn", null)
+				error: new A("Browser does not support WebAuthn", null)
 			});
 			let { data: t, error: n } = await this._startPasskeyRegistration();
 			if (n || !t) return this._returnResult({
@@ -7089,7 +7089,7 @@ var li = {
 			});
 			if (i || !r) return this._returnResult({
 				data: null,
-				error: i ?? new k("WebAuthn ceremony failed", null)
+				error: i ?? new A("WebAuthn ceremony failed", null)
 			});
 			let a = Zr(r);
 			return this._verifyPasskeyRegistration({
@@ -7097,7 +7097,7 @@ var li = {
 				credential: a
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7105,7 +7105,7 @@ var li = {
 		}
 	}
 	async _startPasskeyRegistration() {
-		L(this.experimental);
+		R(this.experimental);
 		try {
 			return await this._useSession(async (e) => {
 				let { data: { session: t }, error: n } = e;
@@ -7115,7 +7115,7 @@ var li = {
 				});
 				if (!t) return this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 				let { data: r, error: i } = await z(this.fetch, "POST", `${this.url}/passkeys/registration/options`, {
 					headers: this.headers,
@@ -7131,7 +7131,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7139,7 +7139,7 @@ var li = {
 		}
 	}
 	async _verifyPasskeyRegistration(e) {
-		L(this.experimental);
+		R(this.experimental);
 		try {
 			return await this._useSession(async (t) => {
 				let { data: { session: n }, error: r } = t;
@@ -7149,7 +7149,7 @@ var li = {
 				});
 				if (!n) return this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 				let { data: i, error: a } = await z(this.fetch, "POST", `${this.url}/passkeys/registration/verify`, {
 					headers: this.headers,
@@ -7168,7 +7168,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7176,7 +7176,7 @@ var li = {
 		}
 	}
 	async _startPasskeyAuthentication(e) {
-		L(this.experimental);
+		R(this.experimental);
 		try {
 			let { data: t, error: n } = await z(this.fetch, "POST", `${this.url}/passkeys/authentication/options`, {
 				headers: this.headers,
@@ -7190,7 +7190,7 @@ var li = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7198,7 +7198,7 @@ var li = {
 		}
 	}
 	async _verifyPasskeyAuthentication(e) {
-		L(this.experimental);
+		R(this.experimental);
 		try {
 			let { data: t, error: n } = await z(this.fetch, "POST", `${this.url}/passkeys/authentication/verify`, {
 				headers: this.headers,
@@ -7216,7 +7216,7 @@ var li = {
 				error: null
 			}));
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7224,7 +7224,7 @@ var li = {
 		}
 	}
 	async _listPasskeys() {
-		L(this.experimental);
+		R(this.experimental);
 		try {
 			return await this._useSession(async (e) => {
 				let { data: { session: t }, error: n } = e;
@@ -7234,7 +7234,7 @@ var li = {
 				});
 				if (!t) return this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 				let { data: r, error: i } = await z(this.fetch, "GET", `${this.url}/passkeys`, {
 					headers: this.headers,
@@ -7253,7 +7253,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7261,7 +7261,7 @@ var li = {
 		}
 	}
 	async _updatePasskey(e) {
-		L(this.experimental);
+		R(this.experimental);
 		try {
 			return await this._useSession(async (t) => {
 				let { data: { session: n }, error: r } = t;
@@ -7271,7 +7271,7 @@ var li = {
 				});
 				if (!n) return this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 				let { data: i, error: a } = await z(this.fetch, "PATCH", `${this.url}/passkeys/${e.passkeyId}`, {
 					headers: this.headers,
@@ -7287,7 +7287,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7295,7 +7295,7 @@ var li = {
 		}
 	}
 	async _deletePasskey(e) {
-		L(this.experimental);
+		R(this.experimental);
 		try {
 			return await this._useSession(async (t) => {
 				let { data: { session: n }, error: r } = t;
@@ -7305,7 +7305,7 @@ var li = {
 				});
 				if (!n) return this._returnResult({
 					data: null,
-					error: new j()
+					error: new M()
 				});
 				let { error: i } = await z(this.fetch, "DELETE", `${this.url}/passkeys/${e.passkeyId}`, {
 					headers: this.headers,
@@ -7321,7 +7321,7 @@ var li = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (k(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -8265,9 +8265,9 @@ function Z(e) {
 	};
 	return Eo.set(t, [n, i]), i;
 }
-var Do = (e) => (e.options && (e.options = { ...e.options }, delete e.options.headers), e.headers &&= Object.fromEntries((e.headers instanceof Headers ? [...e.headers] : Object.entries(e.headers)).map(([e, t]) => [e, e.toLowerCase() === "authorization" || e.toLowerCase() === "api-key" || e.toLowerCase() === "x-api-key" || e.toLowerCase() === "cookie" || e.toLowerCase() === "set-cookie" ? "***" : t])), "retryOfRequestLogID" in e && (e.retryOfRequestLogID && (e.retryOf = e.retryOfRequestLogID), delete e.retryOfRequestLogID), e), Oo, ko = class e {
+var Q = (e) => (e.options && (e.options = { ...e.options }, delete e.options.headers), e.headers &&= Object.fromEntries((e.headers instanceof Headers ? [...e.headers] : Object.entries(e.headers)).map(([e, t]) => [e, e.toLowerCase() === "authorization" || e.toLowerCase() === "api-key" || e.toLowerCase() === "x-api-key" || e.toLowerCase() === "cookie" || e.toLowerCase() === "set-cookie" ? "***" : t])), "retryOfRequestLogID" in e && (e.retryOfRequestLogID && (e.retryOf = e.retryOfRequestLogID), delete e.retryOfRequestLogID), e), Do, Oo = class e {
 	constructor(e, t, n) {
-		this.iterator = e, Oo.set(this, void 0), this.controller = t, W(this, Oo, n, "f");
+		this.iterator = e, Do.set(this, void 0), this.controller = t, W(this, Do, n, "f");
 	}
 	static fromSSEResponse(t, n, r) {
 		let i = !1, a = r ? Z(r) : console;
@@ -8276,7 +8276,7 @@ var Do = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 			i = !0;
 			let e = !1;
 			try {
-				for await (let r of Ao(t, n)) if (!e) {
+				for await (let r of ko(t, n)) if (!e) {
 					if (r.data.startsWith("[DONE]")) {
 						e = !0;
 						continue;
@@ -8337,7 +8337,7 @@ var Do = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 		}
 		return new e(o, n, r);
 	}
-	[(Oo = /* @__PURE__ */ new WeakMap(), Symbol.asyncIterator)]() {
+	[(Do = /* @__PURE__ */ new WeakMap(), Symbol.asyncIterator)]() {
 		return this.iterator();
 	}
 	tee() {
@@ -8348,7 +8348,7 @@ var Do = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 			}
 			return e.shift();
 		} });
-		return [new e(() => i(t), this.controller, G(this, Oo, "f")), new e(() => i(n), this.controller, G(this, Oo, "f"))];
+		return [new e(() => i(t), this.controller, G(this, Do, "f")), new e(() => i(n), this.controller, G(this, Do, "f"))];
 	}
 	toReadableStream() {
 		let e = this, t;
@@ -8372,10 +8372,10 @@ var Do = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 		});
 	}
 };
-async function* Ao(e, t) {
+async function* ko(e, t) {
 	if (!e.body) throw t.abort(), globalThis.navigator !== void 0 && globalThis.navigator.product === "ReactNative" ? new K("The default react-native fetch implementation does not support streaming. Please use expo/fetch: https://docs.expo.dev/versions/latest/sdk/expo/#expofetch-api") : new K("Attempted to iterate over a response with no body");
-	let n = new Mo(), r = new vo(), i = ka(e.body);
-	for await (let e of jo(i)) for (let t of r.decode(e)) {
+	let n = new jo(), r = new vo(), i = ka(e.body);
+	for await (let e of Ao(i)) for (let t of r.decode(e)) {
 		let e = n.decode(t);
 		e && (yield e);
 	}
@@ -8384,7 +8384,7 @@ async function* Ao(e, t) {
 		t && (yield t);
 	}
 }
-async function* jo(e) {
+async function* Ao(e) {
 	let t = /* @__PURE__ */ new Uint8Array();
 	for await (let n of e) {
 		if (n == null) continue;
@@ -8395,7 +8395,7 @@ async function* jo(e) {
 	}
 	t.length > 0 && (yield t);
 }
-var Mo = class {
+var jo = class {
 	constructor() {
 		this.event = null, this.data = [], this.chunks = [];
 	}
@@ -8410,11 +8410,11 @@ var Mo = class {
 			return this.event = null, this.data = [], this.chunks = [], e;
 		}
 		if (this.chunks.push(e), e.startsWith(":")) return null;
-		let [t, n, r] = No(e, ":");
+		let [t, n, r] = Mo(e, ":");
 		return r.startsWith(" ") && (r = r.substring(1)), t === "event" ? this.event = r : t === "data" && this.data.push(r), null;
 	}
 };
-function No(e, t) {
+function Mo(e, t) {
 	let n = e.indexOf(t);
 	return n === -1 ? [
 		e,
@@ -8428,15 +8428,15 @@ function No(e, t) {
 }
 //#endregion
 //#region ../node_modules/groq-sdk/internal/parse.mjs
-async function Po(e, t) {
+async function No(e, t) {
 	let { response: n, requestLogID: r, retryOfRequestLogID: i, startTime: a } = t, o = await (async () => {
 		if (n.status === 204) return null;
 		if (t.options.__binaryResponse) return n;
-		if (t.options.stream) return ko.fromSSEResponse(n, t.controller, e);
+		if (t.options.stream) return Oo.fromSSEResponse(n, t.controller, e);
 		let r = n.headers.get("content-type")?.split(";")[0]?.trim();
 		return r?.includes("application/json") || r?.endsWith("+json") ? n.headers.get("content-length") === "0" ? void 0 : await n.json() : await n.text();
 	})();
-	return Z(e).debug(`[${r}] response parsed`, Do({
+	return Z(e).debug(`[${r}] response parsed`, Q({
 		retryOfRequestLogID: i,
 		url: n.url,
 		status: n.status,
@@ -8446,14 +8446,14 @@ async function Po(e, t) {
 }
 //#endregion
 //#region ../node_modules/groq-sdk/core/api-promise.mjs
-var Fo, Io = class e extends Promise {
-	constructor(e, t, n = Po) {
+var Po, Fo = class e extends Promise {
+	constructor(e, t, n = No) {
 		super((e) => {
 			e(null);
-		}), this.responsePromise = t, this.parseResponse = n, Fo.set(this, void 0), W(this, Fo, e, "f");
+		}), this.responsePromise = t, this.parseResponse = n, Po.set(this, void 0), W(this, Po, e, "f");
 	}
 	_thenUnwrap(t) {
-		return new e(G(this, Fo, "f"), this.responsePromise, async (e, n) => t(await this.parseResponse(e, n), n));
+		return new e(G(this, Po, "f"), this.responsePromise, async (e, n) => t(await this.parseResponse(e, n), n));
 	}
 	asResponse() {
 		return this.responsePromise.then((e) => e.response);
@@ -8466,7 +8466,7 @@ var Fo, Io = class e extends Promise {
 		};
 	}
 	parse() {
-		return this.parsedPromise ||= this.responsePromise.then((e) => this.parseResponse(G(this, Fo, "f"), e)), this.parsedPromise;
+		return this.parsedPromise ||= this.responsePromise.then((e) => this.parseResponse(G(this, Po, "f"), e)), this.parsedPromise;
 	}
 	then(e, t) {
 		return this.parse().then(e, t);
@@ -8478,25 +8478,25 @@ var Fo, Io = class e extends Promise {
 		return this.parse().finally(e);
 	}
 };
-Fo = /* @__PURE__ */ new WeakMap();
+Po = /* @__PURE__ */ new WeakMap();
 //#endregion
 //#region ../node_modules/groq-sdk/internal/utils/env.mjs
-var Lo = (e) => {
+var Io = (e) => {
 	if (globalThis.process !== void 0) return globalThis.process.env?.[e]?.trim() || void 0;
 	if (globalThis.Deno !== void 0) return globalThis.Deno.env?.get?.(e)?.trim() || void 0;
-}, Ro, zo, Bo, Vo, Q = class {
-	constructor({ baseURL: e = Lo("GROQ_BASE_URL"), apiKey: t = Lo("GROQ_API_KEY"), ...n } = {}) {
-		if (Ro.add(this), Bo.set(this, void 0), this.completions = new co(this), this.chat = new so(this), this.embeddings = new lo(this), this.audio = new to(this), this.models = new fo(this), this.batches = new ao(this), this.files = new uo(this), t === void 0) throw new K("The GROQ_API_KEY environment variable is missing or empty; either provide it, or instantiate the Groq client with an apiKey option, like new Groq({ apiKey: 'My API Key' }).");
+}, Lo, Ro, zo, Bo, $ = class {
+	constructor({ baseURL: e = Io("GROQ_BASE_URL"), apiKey: t = Io("GROQ_API_KEY"), ...n } = {}) {
+		if (Lo.add(this), zo.set(this, void 0), this.completions = new co(this), this.chat = new so(this), this.embeddings = new lo(this), this.audio = new to(this), this.models = new fo(this), this.batches = new ao(this), this.files = new uo(this), t === void 0) throw new K("The GROQ_API_KEY environment variable is missing or empty; either provide it, or instantiate the Groq client with an apiKey option, like new Groq({ apiKey: 'My API Key' }).");
 		let r = {
 			apiKey: t,
 			...n,
 			baseURL: e || "https://api.groq.com"
 		};
 		if (!r.dangerouslyAllowBrowser && va()) throw new K("It looks like you're running in a browser-like environment.\n\nThis is disabled by default, as it risks exposing your secret API credentials to attackers.\nIf you understand the risks and have appropriate mitigations in place,\nyou can set the `dangerouslyAllowBrowser` option to `true`, e.g.,\n\nnew Groq({ apiKey, dangerouslyAllowBrowser: true })");
-		this.baseURL = r.baseURL, this.timeout = r.timeout ?? zo.DEFAULT_TIMEOUT, this.logger = r.logger ?? console;
+		this.baseURL = r.baseURL, this.timeout = r.timeout ?? Ro.DEFAULT_TIMEOUT, this.logger = r.logger ?? console;
 		let i = "warn";
-		this.logLevel = i, this.logLevel = So(r.logLevel, "ClientOptions.logLevel", this) ?? So(Lo("GROQ_LOG"), "process.env['GROQ_LOG']", this) ?? i, this.fetchOptions = r.fetchOptions, this.maxRetries = r.maxRetries ?? 2, this.fetch = r.fetch ?? Ea(), W(this, Bo, ja, "f");
-		let a = Lo("GROQ_CUSTOM_HEADERS");
+		this.logLevel = i, this.logLevel = So(r.logLevel, "ClientOptions.logLevel", this) ?? So(Io("GROQ_LOG"), "process.env['GROQ_LOG']", this) ?? i, this.fetchOptions = r.fetchOptions, this.maxRetries = r.maxRetries ?? 2, this.fetch = r.fetch ?? Ea(), W(this, zo, ja, "f");
+		let a = Io("GROQ_CUSTOM_HEADERS");
 		if (a) {
 			let e = {};
 			for (let t of a.split("\n")) {
@@ -8544,7 +8544,7 @@ var Lo = (e) => {
 		return q.generate(e, t, n, r);
 	}
 	buildURL(e, t, n) {
-		let r = !G(this, Ro, "m", Vo).call(this) && n || this.baseURL, i = la(e) ? new URL(e) : new URL(r + (r.endsWith("/") && e.startsWith("/") ? e.slice(1) : e)), a = this.defaultQuery(), o = Object.fromEntries(i.searchParams);
+		let r = !G(this, Lo, "m", Bo).call(this) && n || this.baseURL, i = la(e) ? new URL(e) : new URL(r + (r.endsWith("/") && e.startsWith("/") ? e.slice(1) : e)), a = this.defaultQuery(), o = Object.fromEntries(i.searchParams);
 		return (!fa(a) || !fa(o)) && (t = {
 			...o,
 			...a,
@@ -8576,7 +8576,7 @@ var Lo = (e) => {
 		})));
 	}
 	request(e, t = null) {
-		return new Io(this, this.makeRequest(e, t, void 0));
+		return new Fo(this, this.makeRequest(e, t, void 0));
 	}
 	async makeRequest(e, t, n) {
 		let r = await e, i = r.maxRetries ?? this.maxRetries;
@@ -8587,7 +8587,7 @@ var Lo = (e) => {
 			options: r
 		});
 		let c = "log_" + (Math.random() * (1 << 24) | 0).toString(16).padStart(6, "0"), l = n === void 0 ? "" : `, retryOf: ${n}`, u = Date.now();
-		if (Z(this).debug(`[${c}] sending request`, Do({
+		if (Z(this).debug(`[${c}] sending request`, Q({
 			retryOfRequestLogID: n,
 			method: r.method,
 			url: o,
@@ -8599,13 +8599,13 @@ var Lo = (e) => {
 			let e = `retrying, ${t} attempts remaining`;
 			if (r.signal?.aborted) throw new Zi();
 			let i = Yi(f) || /timed? ?out/i.test(String(f) + ("cause" in f ? String(f.cause) : ""));
-			if (t) return Z(this).info(`[${c}] connection ${i ? "timed out" : "failed"} - ${e}`), Z(this).debug(`[${c}] connection ${i ? "timed out" : "failed"} (${e})`, Do({
+			if (t) return Z(this).info(`[${c}] connection ${i ? "timed out" : "failed"} - ${e}`), Z(this).debug(`[${c}] connection ${i ? "timed out" : "failed"} (${e})`, Q({
 				retryOfRequestLogID: n,
 				url: o,
 				durationMs: p - u,
 				message: f.message
 			})), this.retryRequest(r, t, n ?? c);
-			throw Z(this).info(`[${c}] connection ${i ? "timed out" : "failed"} - error; no more retries left`), Z(this).debug(`[${c}] connection ${i ? "timed out" : "failed"} (error; no more retries left)`, Do({
+			throw Z(this).info(`[${c}] connection ${i ? "timed out" : "failed"} - error; no more retries left`), Z(this).debug(`[${c}] connection ${i ? "timed out" : "failed"} (error; no more retries left)`, Q({
 				retryOfRequestLogID: n,
 				url: o,
 				durationMs: p - u,
@@ -8617,7 +8617,7 @@ var Lo = (e) => {
 			let e = await this.shouldRetry(f);
 			if (t && e) {
 				let e = `retrying, ${t} attempts remaining`;
-				return await Aa(f.body), Z(this).info(`${m} - ${e}`), Z(this).debug(`[${c}] response error (${e})`, Do({
+				return await Aa(f.body), Z(this).info(`${m} - ${e}`), Z(this).debug(`[${c}] response error (${e})`, Q({
 					retryOfRequestLogID: n,
 					url: f.url,
 					status: f.status,
@@ -8628,7 +8628,7 @@ var Lo = (e) => {
 			let i = e ? "error; no more retries left" : "error; not retryable";
 			Z(this).info(`${m} - ${i}`);
 			let a = await f.text().catch((e) => Xi(e).message), o = ha(a), s = o ? void 0 : a;
-			throw Z(this).debug(`[${c}] response error (${i})`, Do({
+			throw Z(this).debug(`[${c}] response error (${i})`, Q({
 				retryOfRequestLogID: n,
 				url: f.url,
 				status: f.status,
@@ -8637,7 +8637,7 @@ var Lo = (e) => {
 				durationMs: Date.now() - u
 			})), this.makeStatusError(f.status, o, s, f.headers);
 		}
-		return Z(this).info(m), Z(this).debug(`[${c}] response start`, Do({
+		return Z(this).info(m), Z(this).debug(`[${c}] response start`, Q({
 			retryOfRequestLogID: n,
 			url: f.url,
 			status: f.status,
@@ -8740,7 +8740,7 @@ var Lo = (e) => {
 	}
 	buildBody({ options: e }) {
 		let { body: t, headers: n } = e;
-		if (!t) return t == null && "body" in e ? G(this, Bo, "f").call(this, {
+		if (!t) return t == null && "body" in e ? G(this, zo, "f").call(this, {
 			body: t,
 			headers: Za([n])
 		}) : {
@@ -8757,21 +8757,21 @@ var Lo = (e) => {
 		} : typeof t == "object" && r.values.get("content-type") === "application/x-www-form-urlencoded" ? {
 			bodyHeaders: { "content-type": "application/x-www-form-urlencoded" },
 			body: this.stringifyQuery(t)
-		} : G(this, Bo, "f").call(this, {
+		} : G(this, zo, "f").call(this, {
 			body: t,
 			headers: r
 		});
 	}
 };
-zo = Q, Bo = /* @__PURE__ */ new WeakMap(), Ro = /* @__PURE__ */ new WeakSet(), Vo = function() {
+Ro = $, zo = /* @__PURE__ */ new WeakMap(), Lo = /* @__PURE__ */ new WeakSet(), Bo = function() {
 	return this.baseURL !== "https://api.groq.com";
-}, Q.Groq = zo, Q.DEFAULT_TIMEOUT = 6e4, Q.GroqError = K, Q.APIError = q, Q.APIConnectionError = Qi, Q.APIConnectionTimeoutError = $i, Q.APIUserAbortError = Zi, Q.NotFoundError = ra, Q.ConflictError = ia, Q.RateLimitError = oa, Q.BadRequestError = ea, Q.AuthenticationError = ta, Q.InternalServerError = sa, Q.PermissionDeniedError = na, Q.UnprocessableEntityError = aa, Q.toFile = Ka, Q.Completions = co, Q.Chat = so, Q.Embeddings = lo, Q.Audio = to, Q.Models = fo, Q.Batches = ao, Q.Files = uo;
+}, $.Groq = Ro, $.DEFAULT_TIMEOUT = 6e4, $.GroqError = K, $.APIError = q, $.APIConnectionError = Qi, $.APIConnectionTimeoutError = $i, $.APIUserAbortError = Zi, $.NotFoundError = ra, $.ConflictError = ia, $.RateLimitError = oa, $.BadRequestError = ea, $.AuthenticationError = ta, $.InternalServerError = sa, $.PermissionDeniedError = na, $.UnprocessableEntityError = aa, $.toFile = Ka, $.Completions = co, $.Chat = so, $.Embeddings = lo, $.Audio = to, $.Models = fo, $.Batches = ao, $.Files = uo;
 //#endregion
 //#region ../shared/prompts/defaultPrompt.js
-var Ho = "You are an expert open-source repository maintainer, systems architect, and technical analyst. Your sole responsibility is to analyze an incoming GitHub issue, extract its core technical context, and cross-reference it against existing historical context to identify duplicate or overlapping submissions.\n\nINCOMING ISSUE DATA\nThe incoming issue will belong to one of several templates (e.g., Bug, Feature, Security, Performance, Refactor, UI/UX, Docs, Test, Good First Issue). The following fields have been parsed from the submission (fields not applicable to this specific issue type will remain empty):\n\n1. Core Problem / Request:\n{{issue.primary_description}}\n\n2. Context & Reproduction:\n{{issue.context_steps}}\n\n3. Proposed Solution / Impact:\n{{issue.expected_outcome}}\n\n4. Technical Metrics & Environment:\n{{issue.technical_metrics}}\n\nHISTORICAL REPOSITORY CONTEXT\nThe following is an array of existing active or resolved issue IDs along with their previously computed summaries to check against for duplicates:\n{{repository.historical_context_log}}\n\nANALYSIS GUIDELINES\n- Determine the Scope:\n  - Bugs & Security: Isolate root causes (e.g., stack traces, bottlenecks, vulnerabilities).\n  - Features & UI: Analyze the architectural impact, DOM manipulations, or accessibility concerns.\n  - Performance & Refactor: Evaluate the proposed system modifications against current benchmarks.\n- Handle Incomplete Templates: Rely strictly on the fields provided. Do not invent missing facts or infer technical metrics if the user omitted them.\n- Trace Structural Links: Classify an issue as a duplicate ONLY if it targets the exact same code-path break, UI component failure, or architectural enhancement as a historical issue.\n\nOUTPUT COMPLIANCE CONTRACT\nYou MUST respond using a single, valid JSON object.\nDo NOT wrap the JSON inside markdown code blocks (such as ```json ... ```).\nDo NOT include any conversational introduction, sign-offs, or explanatory prose outside of the JSON keys.\nEnsure all quotes inside text strings are properly escaped to prevent parsing failures.\n\nYour response must strictly conform to the following schema structure:\n{\n  \"is_duplicate\": true,\n  \"analysis_summary\": \"Provide a thorough technical breakdown explaining why this issue is structurally linked to an existing issue, or if unique, a crisp summary of its core scope.\"\n}\n";
+var Vo = "You are an expert open-source repository maintainer, systems architect, and technical analyst. Your sole responsibility is to analyze an incoming GitHub issue, extract its core technical context, and cross-reference it against existing historical context to identify duplicate or overlapping submissions.\n\nINCOMING ISSUE DATA\nThe incoming issue will belong to one of several templates (e.g., Bug, Feature, Security, Performance, Refactor, UI/UX, Docs, Test, Good First Issue). The following fields have been parsed from the submission (fields not applicable to this specific issue type will remain empty):\n\n1. Core Problem / Request:\n{{issue.primary_description}}\n\n2. Context & Reproduction:\n{{issue.context_steps}}\n\n3. Proposed Solution / Impact:\n{{issue.expected_outcome}}\n\n4. Technical Metrics & Environment:\n{{issue.technical_metrics}}\n\nHISTORICAL REPOSITORY CONTEXT\nThe following is an array of existing active or resolved issue IDs along with their previously computed summaries to check against for duplicates:\n{{repository.historical_context_log}}\n\nANALYSIS GUIDELINES\n- Determine the Scope:\n  - Bugs & Security: Isolate root causes (e.g., stack traces, bottlenecks, vulnerabilities).\n  - Features & UI: Analyze the architectural impact, DOM manipulations, or accessibility concerns.\n  - Performance & Refactor: Evaluate the proposed system modifications against current benchmarks.\n- Handle Incomplete Templates: Rely strictly on the fields provided. Do not invent missing facts or infer technical metrics if the user omitted them.\n- Trace Structural Links: Classify an issue as a duplicate ONLY if it targets the exact same code-path break, UI component failure, or architectural enhancement as a historical issue.\n\nOUTPUT COMPLIANCE CONTRACT\nYou MUST respond using a single, valid JSON object.\nDo NOT wrap the JSON inside markdown code blocks (such as ```json ... ```).\nDo NOT include any conversational introduction, sign-offs, or explanatory prose outside of the JSON keys.\nEnsure all quotes inside text strings are properly escaped to prevent parsing failures.\n\nYour response must strictly conform to the following schema structure:\n{\n  \"is_duplicate\": true,\n  \"analysis_summary\": \"Provide a thorough technical breakdown explaining why this issue is structurally linked to an existing issue, or if unique, a crisp summary of its core scope.\"\n}\n";
 //#endregion
 //#region ../shared/utils/renderPrompt.js
-function Uo(e, t) {
+function Ho(e, t) {
 	return e.replace(/\{\{([^}]+)\}\}/g, (e, n) => {
 		let r = n.trim().split("."), i = t;
 		for (let e of r) {
@@ -8781,7 +8781,7 @@ function Uo(e, t) {
 		return i == null ? "" : String(i);
 	});
 }
-function Wo(e, t) {
+function Uo(e, t) {
 	return {
 		issue: {
 			title: e.title ?? "",
@@ -8795,34 +8795,34 @@ function Wo(e, t) {
 }
 //#endregion
 //#region src/lib/supabase.js
-var Go = {
+var Wo = {
 	getItem: () => null,
 	setItem: () => {},
 	removeItem: () => {}
-}, Ko = "repoOwlConfig", qo = null;
-async function Jo() {
+}, Go = "repoOwlConfig", Ko = null;
+async function qo() {
 	let e = {};
-	return typeof chrome < "u" && chrome.storage?.local && (e = (await chrome.storage.local.get([Ko]))[Ko] || {}), e.supabaseUrl ||= "https://sdgazpgnenkammrlhjel.supabase.co", e.supabaseAnonKey ||= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", e;
+	return typeof chrome < "u" && chrome.storage?.local && (e = (await chrome.storage.local.get([Go]))[Go] || {}), e.supabaseUrl ||= "https://sdgazpgnenkammrlhjel.supabase.co", e.supabaseAnonKey ||= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", e;
 }
-async function Yo() {
-	let e = await Jo();
+async function Jo() {
+	let e = await qo();
 	return !!(e.supabaseUrl && e.supabaseAnonKey);
 }
-async function $() {
-	if (!await Yo()) return null;
-	if (!qo) {
-		let e = await Jo();
-		qo = Ki(e.supabaseUrl, e.supabaseAnonKey, { auth: {
+async function Yo() {
+	if (!await Jo()) return null;
+	if (!Ko) {
+		let e = await qo();
+		Ko = Ki(e.supabaseUrl, e.supabaseAnonKey, { auth: {
 			persistSession: !1,
 			autoRefreshToken: !1,
 			detectSessionInUrl: !1,
-			storage: Go
+			storage: Wo
 		} });
 	}
-	return qo;
+	return Ko;
 }
 async function Xo() {
-	let e = await $();
+	let e = await Yo();
 	if (!e) return { error: "Sandbox Supabase is not configured for RepoOwl." };
 	try {
 		let { data: t, error: n } = await e.auth.getSession();
@@ -8836,143 +8836,15 @@ async function Xo() {
 	}
 }
 //#endregion
-//#region src/prTriage.js
-async function Zo(e, t) {
-	let [n, r] = e.split("/");
-	if (!n || !r) throw Error(`Invalid repository: ${e}`);
-	let i = new URL(`https://api.github.com/repos/${n}/${r}/pulls`);
-	i.searchParams.set("state", "open"), i.searchParams.set("per_page", "100"), i.searchParams.set("direction", "asc");
-	let a = {
-		Accept: "application/vnd.github+json",
-		"X-GitHub-Api-Version": "2022-11-28"
-	};
-	t && (a.Authorization = `Bearer ${t}`);
-	let o = await fetch(i.toString(), { headers: a });
-	if (!o.ok) {
-		let e = await o.text();
-		throw Error(`GitHub API error (${o.status}): ${e}`);
-	}
-	return o.json();
-}
-async function Qo(e, t, n) {
-	let [r, i] = e.split("/"), a = new URL(`https://api.github.com/repos/${r}/${i}/pulls/${t}/files`);
-	a.searchParams.set("per_page", "100");
-	let o = {
-		Accept: "application/vnd.github+json",
-		"X-GitHub-Api-Version": "2022-11-28"
-	};
-	n && (o.Authorization = `Bearer ${n}`);
-	let s = await fetch(a.toString(), { headers: o });
-	if (!s.ok) throw Error(`GitHub API error (${s.status}) fetching diffs`);
-	return (await s.json()).filter((e) => e.status !== "removed" && !e.filename.endsWith(".lock") && !e.filename.endsWith(".svg") && !e.filename.endsWith(".png") && !e.filename.endsWith(".min.js") && e.patch);
-}
-async function $o(e, t, n, r) {
-	if (!n || n.length === 0) return;
-	let [i, a] = e.split("/"), o = `https://api.github.com/repos/${i}/${a}/issues/${t}/labels`, s = {
-		Accept: "application/vnd.github+json",
-		"X-GitHub-Api-Version": "2022-11-28",
-		"Content-Type": "application/json"
-	};
-	r && (s.Authorization = `Bearer ${r}`), await fetch(o, {
-		method: "POST",
-		headers: s,
-		body: JSON.stringify({ labels: n })
-	});
-}
-var es = (e) => new Promise((t) => setTimeout(t, e));
-async function ts(e, t, n = 3) {
-	for (let r = 0; r < n; r++) try {
-		return await e.chat.completions.create(t);
-	} catch (e) {
-		if (e.status === 429 && r < n - 1) {
-			let t = 6e3, n = e.message?.match(/Please try again in ([\d.]+)s/);
-			n && (t = Math.ceil(parseFloat(n[1]) * 1e3) + 500), console.warn(`Rate limit hit. Waiting ${t}ms before retry...`), await es(t);
-		} else throw e;
-	}
-}
-async function ns(e, t, n) {
-	let r = await Qo(e, t.number, n.githubToken), i = new Q({
-		apiKey: n.groqApiKey,
-		dangerouslyAllowBrowser: !0
-	}), a = [];
-	for (let e of r) {
-		let t = `Summarize what this file diff does in 2 sentences max.\nFile: ${e.filename}\nDiff:\n${e.patch}`;
-		try {
-			let n = (await ts(i, {
-				messages: [{
-					role: "user",
-					content: t
-				}],
-				model: "llama-3.3-70b-versatile",
-				temperature: .1
-			})).choices[0]?.message?.content?.trim();
-			a.push(`${e.filename}: ${n}`), await es(1e3);
-		} catch (t) {
-			console.warn(`Failed to map file ${e.filename}`, t);
-		}
-	}
-	let o = "No linked issue context available.", s = t.body?.match(/(?:fixes|resolves|closes)\s+#(\d+)/i);
-	if (s) {
-		let t = parseInt(s[1]), { data: n } = await (await $()).from("issues").select("analysis_summary").eq("repo_name", e).eq("issue_number", t).single();
-		n && n.analysis_summary && (o = `Linked Issue #${t} Goal: ${n.analysis_summary}`);
-	}
-	let c = (await ts(i, {
-		messages: [{
-			role: "user",
-			content: `You are a strict PR reviewer.
-PR Description: ${t.body || "None"}
-Linked Issue Context: ${o}
-
-Code File Summaries:
-${a.join("\n\n")}
-
-Analyze the PR based on the above.
-Respond STRICTLY with this JSON schema:
-{
-  "slop_detection": {
-    "is_accurate": boolean,
-    "confidence_score": number,
-    "warning": "string"
-  },
-  "issue_resolution": {
-    "solves_linked_issue": boolean,
-    "explanation": "string"
-  },
-  "domain_impact": [
-    { "domain": "string", "percentage": number, "files": ["string"] }
-  ],
-  "recommended_labels": ["string"]
-}`
-		}],
-		model: "llama-3.3-70b-versatile",
-		temperature: .1,
-		response_format: { type: "json_object" }
-	})).choices[0]?.message?.content?.trim(), l = JSON.parse(c), { error: u } = await (await $()).from("pull_requests").upsert({
-		repo_name: e,
-		pr_number: t.number,
-		slop_detection: l.slop_detection,
-		issue_resolution: l.issue_resolution,
-		domain_impact: l.domain_impact,
-		recommended_labels: l.recommended_labels
-	});
-	if (u && console.error("Error saving PR analysis", u), l.recommended_labels?.length > 0) try {
-		await $o(e, t.number, l.recommended_labels, n.githubToken);
-	} catch (e) {
-		console.warn("Failed to auto-label PR", e);
-	}
-	return l;
-}
-//#endregion
 //#region src/background.js
-var rs = 2e3, is = (e) => new Promise((t) => setTimeout(t, e));
+var Zo = 2e3, Qo = (e) => new Promise((t) => setTimeout(t, e));
 chrome.runtime.onMessage.addListener((e, t, n) => {
 	if (e.action === "open_settings") chrome.runtime.openOptionsPage();
-	else if (e.action === "force_sync_issues") return bs([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
-	else if (e.action === "force_sync_prs") return xs([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
-	else if (e.action === "add_repo") as(e.repoName).catch((e) => console.error("Error auto-publishing config:", e)), n({ success: !0 });
-	else if (e.action === "check_mediator_status") return cs(e.repoName).then((e) => n(e)).catch((e) => n({ error: e.message })), !0;
+	else if (e.action === "force_sync_issues") ms([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message }));
+	else if (e.action === "add_repo") $o(e.repoName).catch((e) => console.error("Error auto-publishing config:", e)), n({ success: !0 });
+	else if (e.action === "check_mediator_status") return ns(e.repoName).then((e) => n(e)).catch((e) => n({ error: e.message })), !0;
 });
-async function as(e) {
+async function $o(e) {
 	let t = (await chrome.storage.local.get(["repoOwlConfig"])).repoOwlConfig || {};
 	if (!(!t.githubToken || !t.supabaseUrl || !t.supabaseAnonKey)) try {
 		let n = await fetch(`https://api.github.com/repos/${e}`, { headers: {
@@ -8982,12 +8854,12 @@ async function as(e) {
 		} });
 		if (!n.ok) return;
 		let r = await n.json();
-		(r.permissions?.push === !0 || r.permissions?.admin === !0) && (await os(e, t), await ss(e, t));
+		(r.permissions?.push === !0 || r.permissions?.admin === !0) && (await es(e, t), await ts(e, t));
 	} catch (t) {
 		console.error(`[${e}] Error verifying permissions for auto-publish:`, t);
 	}
 }
-async function os(e, t) {
+async function es(e, t) {
 	let n = {
 		supabaseUrl: t.supabaseUrl,
 		supabaseAnonKey: t.supabaseAnonKey
@@ -9018,7 +8890,7 @@ async function os(e, t) {
 		})
 	});
 }
-async function ss(e, t, n = console.log) {
+async function ts(e, t, n = console.log) {
 	let [r, i] = e.split("/"), a = Ki("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } });
 	try {
 		let { data: o, error: s } = await a.functions.invoke("registry", { body: {
@@ -9033,7 +8905,7 @@ async function ss(e, t, n = console.log) {
 		n(`[${e}] Mediator registration exception: ${t.message}`);
 	}
 }
-async function cs(e) {
+async function ns(e) {
 	let [t, n] = e.split("/");
 	try {
 		let { data: e, error: r } = await Ki("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } }).from("registry").select("created_at").eq("owner", t).eq("repo", n).single();
@@ -9053,7 +8925,7 @@ chrome.runtime.onInstalled.addListener(() => {
 }), chrome.alarms.onAlarm.addListener(async (e) => {
 	e.name === "repoOwlHourlySync" && (console.log("Waking up for hourly sync..."), await executeSyncQueue());
 });
-async function ls(e, t) {
+async function rs(e, t) {
 	let [n, r] = e.split("/");
 	if (!n || !r) throw Error(`Invalid repository: ${e}`);
 	let i = new URL(`https://api.github.com/repos/${n}/${r}/issues`);
@@ -9070,11 +8942,11 @@ async function ls(e, t) {
 	}
 	return (await o.json()).filter((e) => !e.pull_request);
 }
-async function us(e, t) {
-	let { data: n, error: r } = await (await $()).from("issues").select("issue_number, analysis_summary").eq("repo_name", e).eq("status", "open").order("created_at", { ascending: !1 }).limit(50);
+async function is(e, t) {
+	let { data: n, error: r } = await (await Yo()).from("issues").select("issue_number, analysis_summary").eq("repo_name", e).eq("status", "open").order("created_at", { ascending: !1 }).limit(50);
 	return r ? (console.error("Error fetching history:", r), []) : n || [];
 }
-function ds(e) {
+function as(e) {
 	if (!e) return {};
 	let t = {}, n = /###\s+(.+?)(?:\r?\n)+([\s\S]*?)(?=###\s+|$)/g, r;
 	for (; (r = n.exec(e)) !== null;) {
@@ -9123,27 +8995,27 @@ function ds(e) {
 		])
 	};
 }
-async function fs(e, t, n = 3) {
+async function os(e, t, n = 3) {
 	for (let r = 0; r < n; r++) try {
 		return await e.chat.completions.create(t);
 	} catch (e) {
 		if (e.status === 429 && r < n - 1) {
 			let t = 6e3, n = e.message?.match(/Please try again in ([\d.]+)s/);
-			n && (t = Math.ceil(parseFloat(n[1]) * 1e3) + 500), console.warn(`Rate limit hit. Waiting ${t}ms before retry...`), await is(t);
+			n && (t = Math.ceil(parseFloat(n[1]) * 1e3) + 500), console.warn(`Rate limit hit. Waiting ${t}ms before retry...`), await Qo(t);
 		} else throw e;
 	}
 }
-async function ps(e, t, n) {
-	let r = new Q({
+async function ss(e, t, n) {
+	let r = new $({
 		apiKey: n,
 		dangerouslyAllowBrowser: !0
-	}), i = t.map((e) => `[Issue ID: #${e.issue_number}]\nTitle: ${e.title || "Unknown Title"}\nTechnical Summary: ${e.analysis_summary}`).join("\n\n---\n\n"), a = ds(e.body || ""), o = (await fs(r, {
+	}), i = t.map((e) => `[Issue ID: #${e.issue_number}]\nTitle: ${e.title || "Unknown Title"}\nTechnical Summary: ${e.analysis_summary}`).join("\n\n---\n\n"), a = as(e.body || ""), o = (await os(r, {
 		messages: [{
 			role: "system",
 			content: "You are an expert GitHub triage AI.\nThe user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\nDo not assume any issues have been resolved, because they are all actively open.\nYour job is to determine if the user's draft is a DUPLICATE of one of these specific OPEN issues.\nIf they are reporting a bug that already exists in this open list, flag it as a duplicate.\nYou must respond in valid JSON format matching this schema:\n{ \"is_duplicate\": boolean, \"analysis_summary\": \"string\" }\nEnsure the JSON is well-formed."
 		}, {
 			role: "user",
-			content: Uo(Ho, Wo({
+			content: Ho(Vo, Uo({
 				issue_number: e.number,
 				title: e.title,
 				primary_description: a.primary_description || e.body || "No description provided.",
@@ -9159,8 +9031,8 @@ async function ps(e, t, n) {
 	if (!o) throw Error("Groq API returned an empty response.");
 	return JSON.parse(o);
 }
-async function ms(e, t, n, r) {
-	let { error: i } = await (await $()).from("issues").insert({
+async function cs(e, t, n, r) {
+	let { error: i } = await (await Yo()).from("issues").insert({
 		repo_name: e,
 		issue_number: t.number,
 		is_duplicate: n.is_duplicate,
@@ -9172,8 +9044,8 @@ async function ms(e, t, n, r) {
 		throw console.error("Supabase insert error details:", e), Error(`Supabase insert failed: ${e}`);
 	}
 }
-async function hs(e, t, n, r) {
-	let { error: i } = await (await $()).from("public_ecosystem_registry").upsert({
+async function ls(e, t, n, r) {
+	let { error: i } = await (await Yo()).from("public_ecosystem_registry").upsert({
 		repo_name: e,
 		total_issues_analyzed: t,
 		duplicates_found: n,
@@ -9184,7 +9056,7 @@ async function hs(e, t, n, r) {
 		throw console.error("Supabase registry update error details:", e), Error(`Registry update failed: ${e}`);
 	}
 }
-async function gs(e, t, n) {
+async function us(e, t, n) {
 	let { data: r, error: i } = await t.from("issues").select("issue_number").eq("repo_name", e).eq("status", "open");
 	if (i || !r) return;
 	let a = new Set(n.map((e) => e.number)), o = r.map((e) => e.issue_number).filter((e) => !a.has(e));
@@ -9194,14 +9066,14 @@ async function gs(e, t, n) {
 		n && console.error("Error closing issues in Supabase:", n);
 	}
 }
-async function _s(e) {
+async function ds(e) {
 	let t = await chrome.storage.local.get(["repoOwlConfig", "trackedRepositories"]), n = t.repoOwlConfig || {}, r = e || t.trackedRepositories || [];
 	return n.groqApiKey, n.supabaseUrl ||= "https://sdgazpgnenkammrlhjel.supabase.co", n.supabaseAnonKey ||= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", {
 		keys: n,
 		repos: r
 	};
 }
-function vs(e) {
+function fs(e) {
 	return (t) => {
 		typeof chrome < "u" && chrome.runtime && chrome.runtime.sendMessage({
 			action: "sync_progress",
@@ -9210,7 +9082,7 @@ function vs(e) {
 		}).catch(() => {}), console.log(`[${e}] ${t}`);
 	};
 }
-async function ys(e, t, n) {
+async function ps(e, t, n) {
 	let r = !1, i = null, a = await fetch(`https://api.github.com/repos/${e}`, { headers: {
 		Accept: "application/vnd.github+json",
 		"X-GitHub-Api-Version": "2022-11-28",
@@ -9233,8 +9105,8 @@ async function ys(e, t, n) {
 		currentUserLogin: i
 	};
 }
-async function bs(e = null) {
-	let { keys: t, repos: n } = await _s(e), r = vs("issue");
+async function ms(e = null) {
+	let { keys: t, repos: n } = await ds(e), r = fs("issue");
 	if (!t.groqApiKey || !t.supabaseUrl) {
 		r("RepoOwl: API Keys not configured. Skipping sync.");
 		return;
@@ -9244,17 +9116,17 @@ async function bs(e = null) {
 		r(`RepoOwl: Could not authenticate with Supabase: ${i.error}`);
 		return;
 	}
-	let a = await $();
+	let a = await Yo();
 	for (let e of n) {
 		r(`\n[${e}] Starting issue sync...`);
 		let n = !1, i = null;
 		try {
-			let a = await ys(e, t, r);
+			let a = await ps(e, t, r);
 			if (!a) continue;
 			if (n = a.isMaintainer, i = a.currentUserLogin, n) {
 				r(`[${e}] Confirmed Maintainer. Fetching issues...`);
 				try {
-					await os(e, t), await ss(e, t, r);
+					await es(e, t), await ts(e, t, r);
 				} catch (t) {
 					r(`[${e}] Warning: Failed to auto-publish Hub config: ${t.message}`);
 				}
@@ -9292,23 +9164,23 @@ async function bs(e = null) {
 		try {
 			let { data: n, error: r } = await a.from("issues").select("issue_number, is_duplicate").eq("repo_name", e);
 			if (r) throw Error(`Failed to fetch processed issues: ${r.message || JSON.stringify(r)}`);
-			s = new Set((n || []).map((e) => e.issue_number)), c = s.size, l = (n || []).filter((e) => e.is_duplicate).length, o = await ls(e, t.githubToken);
+			s = new Set((n || []).map((e) => e.issue_number)), c = s.size, l = (n || []).filter((e) => e.is_duplicate).length, o = await rs(e, t.githubToken);
 		} catch (t) {
 			r(`[${e}] Error during issue fetching: ${t.message}`);
 			continue;
 		}
-		n && await gs(e, a, o);
+		n && await us(e, a, o);
 		let u = o.filter((e) => !s.has(e.number));
 		n ? r(`[${e}] ${s.size} already processed. ${u.length} issues need processing.`) : i ? (u = u.filter((e) => e.user && e.user.login === i), r(`[${e}] Found ${u.length} unprocessed issues authored by you.`)) : (r(`[${e}] Could not determine your GitHub username, skipping sandbox processing.`), u = []);
 		for (let n of u) try {
 			r(`[${e}] Processing issue #${n.number}...`);
-			let i = await us(e, t);
+			let i = await is(e, t);
 			i.forEach((e) => {
 				let t = o.find((t) => t.number === e.issue_number);
 				t && (e.title = t.title);
 			});
-			let a = await ps(n, i, t.groqApiKey);
-			await ms(e, n, a, t), c++, a.is_duplicate && l++, await is(rs);
+			let a = await ss(n, i, t.groqApiKey);
+			await cs(e, n, a, t), c++, a.is_duplicate && l++, await Qo(Zo);
 		} catch (t) {
 			let i = t.message || String(t);
 			r(`[${e}] Error processing issue #${n.number}: ${i}`);
@@ -9325,53 +9197,7 @@ async function bs(e = null) {
 			let t = (await chrome.storage.local.get([`hub_cache_${e}`]))[`hub_cache_${e}`] || [], n = new Set(t.map((e) => e.issue_number));
 			s.forEach((e) => n.add(e)), d = n.size, f = l + t.filter((e) => e.is_duplicate).length;
 		}
-		await hs(e, d, f, t), r(`[${e}] Issue Sync complete. Total Analyzed: ${d}, Duplicates: ${f}`);
-	}
-}
-async function xs(e = null) {
-	let { keys: t, repos: n } = await _s(e), r = vs("pr");
-	if (!t.groqApiKey || !t.supabaseUrl) {
-		r("RepoOwl: API Keys not configured. Skipping sync.");
-		return;
-	}
-	let i = await Xo();
-	if (i.error) {
-		r(`RepoOwl: Could not authenticate with Supabase: ${i.error}`);
-		return;
-	}
-	let a = await $();
-	for (let e of n) {
-		r(`\n[${e}] Starting PR sync...`);
-		let n = !1, i = null;
-		try {
-			let a = await ys(e, t, r);
-			if (!a) continue;
-			n = a.isMaintainer, i = a.currentUserLogin;
-		} catch (t) {
-			r(`[${e}] Error checking permissions: ${t.message}`);
-			continue;
-		}
-		let o = /* @__PURE__ */ new Set(), s = [];
-		try {
-			let { data: c, error: l } = await a.from("pull_requests").select("pr_number").eq("repo_name", e);
-			if (l) throw Error(`Failed to fetch processed PRs: ${l.message || JSON.stringify(l)}`);
-			o = new Set((c || []).map((e) => e.pr_number)), s = (await Zo(e, t.githubToken)).filter((e) => !o.has(e.number)), !n && i ? s = s.filter((e) => e.user && e.user.login === i) : n || (s = []), r(`[${e}] ${o.size} PRs already analyzed. ${s.length} PRs need processing.`);
-		} catch (t) {
-			r(`[${e}] Error fetching PRs: ${t.message}`);
-			continue;
-		}
-		for (let n of s) try {
-			r(`[${e}] Analyzing PR #${n.number} (Slop Detection)...`), await ns(e, n, t), await is(rs);
-		} catch (t) {
-			r(`[${e}] Error processing PR #${n.number}: ${t.message}`);
-		}
-		try {
-			let { data: t } = await a.from("pull_requests").select("id, pr_number, slop_detection, issue_resolution, domain_impact, recommended_labels").eq("repo_name", e);
-			t && await chrome.storage.local.set({ [`pr_hub_cache_${e}`]: t });
-		} catch (e) {
-			console.error(e);
-		}
-		r(`[${e}] PR Sync complete.`);
+		await ls(e, d, f, t), r(`[${e}] Issue Sync complete. Total Analyzed: ${d}, Duplicates: ${f}`);
 	}
 }
 //#endregion

@@ -152,26 +152,7 @@ export function TrackedRepos() {
     }
   };
   
-  const handleForceSyncPRs = (repo) => {
-    setSyncingPRs(repo);
-    setStatus({ type: '', message: '' });
-    setSyncLogsPRs([`--- Initiated PR Sync for ${repo} ---`]);
-    
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
-      chrome.runtime.sendMessage({ action: 'force_sync_prs', repoName: repo }, (response) => {
-        setSyncingPRs(null);
-        if (response && response.success) {
-          setStatus({ type: 'success', message: `Successfully synced PRs for ${repo}.` });
-        } else {
-          setStatus({ type: 'error', message: `PR Sync failed for ${repo}: ${response?.error || 'Unknown error'}` });
-        }
-        fetchStatus(repo);
-      });
-    } else {
-      setSyncingPRs(null);
-      setStatus({ type: 'error', message: 'Not in extension environment.' });
-    }
-  };
+
 
   return (
     <>
@@ -247,14 +228,7 @@ export function TrackedRepos() {
                 >
                   {syncingIssues === repo ? 'Syncing Issues...' : 'Sync Issues'}
                 </button>
-                <button
-                  type="button"
-                  className="ro-btn ro-btn--secondary"
-                  onClick={() => handleForceSyncPRs(repo)}
-                  disabled={syncingPRs === repo}
-                >
-                  {syncingPRs === repo ? 'Syncing PRs...' : 'Sync PRs'}
-                </button>
+
                 {repo !== DEFAULT_REPO && (
                   <button
                     type="button"
@@ -271,7 +245,7 @@ export function TrackedRepos() {
         </div>
       </div>
 
-      {(syncLogsIssues.length > 0 || syncLogsPRs.length > 0) && (
+      {syncLogsIssues.length > 0 && (
         <div className="ro-section" style={{ marginTop: '20px' }}>
           <h2 className="ro-section-title">Live Sync Logs</h2>
           <div style={{ display: 'flex', gap: '16px' }}>
@@ -296,28 +270,7 @@ export function TrackedRepos() {
                 </div>
               </div>
             )}
-            
-            {syncLogsPRs.length > 0 && (
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: '13px', marginBottom: '8px', color: '#57606a' }}>Pull Request Sync</h3>
-                <div style={{
-                  background: '#1f2328',
-                  color: '#e6edf3',
-                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
-                  fontSize: '11px',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  whiteSpace: 'pre-wrap',
-                  lineHeight: '1.5'
-                }}>
-                  {syncLogsPRs.map((log, index) => (
-                    <div key={index} style={{ marginBottom: '4px' }}>{log}</div>
-                  ))}
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
       )}
