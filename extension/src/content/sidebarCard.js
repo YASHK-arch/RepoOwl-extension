@@ -191,7 +191,21 @@ async function fetchStats(repoFullName, keys) {
 
 /* ─── DOM Injection ──────────────────────────────────────────────────── */
 function findSidebarTarget() {
-  // GitHub's new Primer React layout (2024+)
+  // Strategy 1: Find "About" header and use its container
+  const h2s = Array.from(document.querySelectorAll('h2'));
+  const aboutH2 = h2s.find(h => h?.textContent?.trim() === 'About');
+  if (aboutH2) {
+    const row = aboutH2.closest('.BorderGrid-row');
+    if (row && row.parentElement) {
+      return { grid: row.parentElement, firstRow: row };
+    }
+    // If BorderGrid-row isn't used, just use the parent element of About
+    if (aboutH2.parentElement && aboutH2.parentElement.parentElement) {
+      return { grid: aboutH2.parentElement.parentElement, firstRow: aboutH2.parentElement };
+    }
+  }
+
+  // Strategy 2: GitHub's new Primer React layout (2024+)
   const pane = document.querySelector('[data-component="PageLayout.Pane"]');
   if (pane) {
     const grid = pane.querySelector('.BorderGrid');
@@ -200,7 +214,7 @@ function findSidebarTarget() {
     }
   }
 
-  // Fallback: old Layout-sidebar
+  // Strategy 3: Fallback old Layout-sidebar
   const legacySidebar = document.querySelector('.Layout-sidebar .BorderGrid');
   if (legacySidebar && legacySidebar.firstElementChild) {
     return { grid: legacySidebar, firstRow: legacySidebar.firstElementChild };
