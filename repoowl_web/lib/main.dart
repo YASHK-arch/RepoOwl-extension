@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'ascii_art.dart';
+import 'ascii_art_background.dart';
 
 // --------------- Constants ---------------
 
@@ -29,7 +30,8 @@ class AppColors {
 }
 
 class AppLinks {
-  static const githubRepo = 'https://github.com/YASHK-arch/RepoOwl-extension.git';
+  static const githubRepo =
+      'https://github.com/YASHK-arch/RepoOwl-extension.git';
   static const downloadZip =
       'https://github.com/YASHK-arch/RepoOwl-extension/releases/download/v0.1.1-client-side-overhaul/RepoOwl_v0.1.1.zip';
   static const license =
@@ -124,38 +126,55 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Entrance
     _enter = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800));
-    _enterScale = Tween<double>(begin: 0.55, end: 1.0).animate(
-        CurvedAnimation(parent: _enter, curve: Curves.elasticOut));
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _enterScale = Tween<double>(
+      begin: 0.55,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _enter, curve: Curves.elasticOut));
     _enterFade = Tween<double>(begin: 0, end: 1).animate(
-        CurvedAnimation(
-            parent: _enter, curve: const Interval(0, 0.5, curve: Curves.easeIn)));
+      CurvedAnimation(
+        parent: _enter,
+        curve: const Interval(0, 0.5, curve: Curves.easeIn),
+      ),
+    );
 
     // Pulse glow
     _pulse = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1800))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
     _pulseAnim = CurvedAnimation(parent: _pulse, curve: Curves.easeInOut);
 
     // Radar
     _scan = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 2000))
-      ..repeat();
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat();
     _scanAngle = Tween<double>(begin: 0, end: 1).animate(_scan);
 
     // Typewriter
     _text = AnimationController(
-        vsync: this,
-        duration: Duration(
-            milliseconds: (_statusMsg.length * 55).clamp(800, 2000)));
-    _textChars = IntTween(begin: 0, end: _statusMsg.length).animate(
-        CurvedAnimation(parent: _text, curve: Curves.easeOut));
+      vsync: this,
+      duration: Duration(
+        milliseconds: (_statusMsg.length * 55).clamp(800, 2000),
+      ),
+    );
+    _textChars = IntTween(
+      begin: 0,
+      end: _statusMsg.length,
+    ).animate(CurvedAnimation(parent: _text, curve: Curves.easeOut));
 
     // Exit
     _exit = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
-    _exitFade = Tween<double>(begin: 1, end: 0).animate(
-        CurvedAnimation(parent: _exit, curve: Curves.easeIn));
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _exitFade = Tween<double>(
+      begin: 1,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _exit, curve: Curves.easeIn));
 
     // Sequence
     _enter.forward().then((_) {
@@ -302,10 +321,12 @@ class _SplashScreenState extends State<SplashScreen>
                       child: LinearProgressIndicator(
                         value: _text.value,
                         minHeight: 2,
-                        backgroundColor:
-                            AppColors.border.withValues(alpha: 0.5),
+                        backgroundColor: AppColors.border.withValues(
+                          alpha: 0.5,
+                        ),
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppColors.accent),
+                          AppColors.accent,
+                        ),
                       ),
                     ),
                   ),
@@ -369,8 +390,7 @@ class _OwlRingPainter extends CustomPainter {
           AppColors.accent.withValues(alpha: 0.55),
           AppColors.accent.withValues(alpha: 0.0),
         ],
-      ).createShader(Rect.fromCircle(
-          center: Offset(cx, cy), radius: radius))
+      ).createShader(Rect.fromCircle(center: Offset(cx, cy), radius: radius))
       ..style = PaintingStyle.fill;
     canvas.drawArc(
       Rect.fromCircle(center: Offset(cx, cy), radius: radius - 2),
@@ -405,8 +425,7 @@ class _OwlRingPainter extends CustomPainter {
   double _sin(double a) => math.sin(a);
 
   @override
-  bool shouldRepaint(_OwlRingPainter o) =>
-      o.pulse != pulse || o.scan != scan;
+  bool shouldRepaint(_OwlRingPainter o) => o.pulse != pulse || o.scan != scan;
 }
 
 // ── Inline blinking cursor for the typewriter
@@ -422,8 +441,9 @@ class _InlineCursorState extends State<_InlineCursor>
   void initState() {
     super.initState();
     _c = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 530))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 530),
+    )..repeat(reverse: true);
   }
 
   @override
@@ -434,17 +454,17 @@ class _InlineCursorState extends State<_InlineCursor>
 
   @override
   Widget build(BuildContext context) => FadeTransition(
-        opacity: _c,
-        child: Container(
-          width: 8,
-          height: 14,
-          margin: const EdgeInsets.only(left: 3),
-          decoration: BoxDecoration(
-            color: AppColors.accent,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-      );
+    opacity: _c,
+    child: Container(
+      width: 8,
+      height: 14,
+      margin: const EdgeInsets.only(left: 3),
+      decoration: BoxDecoration(
+        color: AppColors.accent,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    ),
+  );
 }
 
 // ================================================================
@@ -457,7 +477,8 @@ class LandingPage extends StatefulWidget {
   State<LandingPage> createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin {
+class _LandingPageState extends State<LandingPage>
+    with TickerProviderStateMixin {
   final _scroll = ScrollController();
   late final AnimationController _glow;
   late final AnimationController _hero;
@@ -469,21 +490,34 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
   void initState() {
     super.initState();
     _glow = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 2800))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 2800),
+    )..repeat(reverse: true);
     _hero = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1200));
-    _fade = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-        parent: _hero, curve: const Interval(0, 0.65, curve: Curves.easeOut)));
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _fade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _hero,
+        curve: const Interval(0, 0.65, curve: Curves.easeOut),
+      ),
+    );
     _textSlide = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
-        .animate(CurvedAnimation(
+        .animate(
+          CurvedAnimation(
             parent: _hero,
-            curve: const Interval(0, 0.65, curve: Curves.easeOut)));
+            curve: const Interval(0, 0.65, curve: Curves.easeOut),
+          ),
+        );
     _ideSlide = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
-        .animate(CurvedAnimation(
+        .animate(
+          CurvedAnimation(
             parent: _hero,
-            curve: const Interval(0.2, 1, curve: Curves.easeOut)));
-    
+            curve: const Interval(0.2, 1, curve: Curves.easeOut),
+          ),
+        );
+
     // Delay Hero entrance to synchronize with the web loader exit ripples
     Future.delayed(const Duration(milliseconds: 4500), () {
       if (mounted) _hero.forward();
@@ -510,10 +544,11 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
               children: [
                 const SizedBox(height: 64),
                 HeroSection(
-                    fade: _fade,
-                    textSlide: _textSlide,
-                    ideSlide: _ideSlide,
-                    glow: _glow),
+                  fade: _fade,
+                  textSlide: _textSlide,
+                  ideSlide: _ideSlide,
+                  glow: _glow,
+                ),
                 const MetricBanner(),
                 const BentoSection(),
                 const CtaFooter(),
@@ -586,9 +621,10 @@ class _NavBarState extends State<NavBar> {
                   const SizedBox(width: 28),
                 ],
                 _CtaBtn(
-                    label: 'Download .zip',
-                    icon: Icons.download_rounded,
-                    onTap: () => launch(AppLinks.downloadZip)),
+                  label: 'Download .zip',
+                  icon: Icons.download_rounded,
+                  onTap: () => launch(AppLinks.downloadZip),
+                ),
               ],
             ),
           ),
@@ -602,30 +638,39 @@ class OwlLogo extends StatelessWidget {
   const OwlLogo({super.key});
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: AppColors.accent,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-                color: AppColors.accent.withOpacity(0.4), blurRadius: 12)
-          ],
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.accent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.accent.withOpacity(0.4),
+                blurRadius: 12,
+              ),
+            ],
+          ),
+          child: Center(
+            child: SvgPicture.asset('assets/OWL.svg', width: 22, height: 22),
+          ),
         ),
-        child:
-            Center(child: SvgPicture.asset('assets/OWL.svg', width: 22, height: 22)),
-      ),
-      const SizedBox(width: 10),
-      const Text('RepoOwl',
+        const SizedBox(width: 10),
+        const Text(
+          'RepoOwl',
           style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
-              letterSpacing: -0.3)),
-    ]);
+            fontFamily: 'Inter',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+            letterSpacing: -0.3,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -691,8 +736,9 @@ class _CtaBtnState extends State<_CtaBtn> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           padding: EdgeInsets.symmetric(
-              horizontal: widget.fontSize > 14 ? 24 : 18,
-              vertical: widget.fontSize > 14 ? 14 : 9),
+            horizontal: widget.fontSize > 14 ? 24 : 18,
+            vertical: widget.fontSize > 14 ? 14 : 9,
+          ),
           decoration: BoxDecoration(
             color: widget.outlined
                 ? (_h ? AppColors.surface : Colors.transparent)
@@ -704,26 +750,33 @@ class _CtaBtnState extends State<_CtaBtn> {
             boxShadow: (!widget.outlined && _h)
                 ? [
                     BoxShadow(
-                        color: AppColors.accent.withOpacity(0.45),
-                        blurRadius: 20,
-                        spreadRadius: 2)
+                      color: AppColors.accent.withOpacity(0.45),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                    ),
                   ]
                 : [],
           ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(widget.icon,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                widget.icon,
                 size: widget.fontSize + 2,
-                color: widget.outlined ? AppColors.textPrimary : Colors.white),
-            const SizedBox(width: 8),
-            Text(widget.label,
+                color: widget.outlined ? AppColors.textPrimary : Colors.white,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.label,
                 style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: widget.fontSize,
-                    fontWeight: FontWeight.w600,
-                    color: widget.outlined
-                        ? AppColors.textPrimary
-                        : Colors.white)),
-          ]),
+                  fontFamily: 'Inter',
+                  fontSize: widget.fontSize,
+                  fontWeight: FontWeight.w600,
+                  color: widget.outlined ? AppColors.textPrimary : Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -739,12 +792,13 @@ class HeroSection extends StatelessWidget {
   final Animation<Offset> textSlide;
   final Animation<Offset> ideSlide;
   final AnimationController glow;
-  const HeroSection(
-      {super.key,
-      required this.fade,
-      required this.textSlide,
-      required this.ideSlide,
-      required this.glow});
+  const HeroSection({
+    super.key,
+    required this.fade,
+    required this.textSlide,
+    required this.ideSlide,
+    required this.glow,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -755,25 +809,31 @@ class HeroSection extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(
-              horizontal: mob ? 20 : 48, vertical: mob ? 56 : 80),
+            horizontal: mob ? 20 : 48,
+            vertical: mob ? 56 : 80,
+          ),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(children: [
-                FadeTransition(
-                  opacity: fade,
-                  child:
-                      SlideTransition(position: textSlide, child: _HeroText()),
-                ),
-                SizedBox(height: mob ? 48 : 64),
-                FadeTransition(
-                  opacity: fade,
-                  child: SlideTransition(
-                    position: ideSlide,
-                    child: IdeMockup(glow: glow),
+              child: Column(
+                children: [
+                  FadeTransition(
+                    opacity: fade,
+                    child: SlideTransition(
+                      position: textSlide,
+                      child: _HeroText(),
+                    ),
                   ),
-                ),
-              ]),
+                  SizedBox(height: mob ? 48 : 64),
+                  FadeTransition(
+                    opacity: fade,
+                    child: SlideTransition(
+                      position: ideSlide,
+                      child: IdeMockup(glow: glow),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -786,78 +846,91 @@ class _HeroText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mob = R.mobile(context);
-    return Column(children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-        decoration: BoxDecoration(
-          color: AppColors.accent.withOpacity(0.1),
-          border: Border.all(color: AppColors.accent.withOpacity(0.35)),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-              width: 6,
-              height: 6,
-              decoration: const BoxDecoration(
-                  color: AppColors.accent, shape: BoxShape.circle)),
-          const SizedBox(width: 7),
-          const Text('Now with LLaMA 3.3 Support',
-              style: TextStyle(
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          decoration: BoxDecoration(
+            color: AppColors.accent.withOpacity(0.1),
+            border: Border.all(color: AppColors.accent.withOpacity(0.35)),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: AppColors.accent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 7),
+              const Text(
+                'Now with LLaMA 3.3 Support',
+                style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.accent)),
-        ]),
-      ),
-      const SizedBox(height: 24),
-      Text(
-        mob
-            ? 'Cut GitHub issue\ntriage time in half,\nInstantly.'
-            : 'Cut GitHub issue triage\ntime in half, Instantly.',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontFamily: 'Inter',
-          fontSize: mob ? 36 : 62,
-          fontWeight: FontWeight.w800,
-          color: AppColors.textPrimary,
-          height: 1.12,
-          letterSpacing: -1.5,
+                  color: AppColors.accent,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      const SizedBox(height: 20),
-      ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
-        child: Text(
-          'AI-powered, client-side duplicate detection directly in your browser. Zero server costs. Absolute data privacy.',
+        const SizedBox(height: 24),
+        Text(
+          mob
+              ? 'Cut GitHub issue\ntriage time in half,\nInstantly.'
+              : 'Cut GitHub issue triage\ntime in half, Instantly.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: 'Inter',
-            fontSize: mob ? 15 : 17,
-            color: AppColors.textSecondary,
-            height: 1.65,
+            fontSize: mob ? 36 : 62,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+            height: 1.12,
+            letterSpacing: -1.5,
           ),
         ),
-      ),
-      const SizedBox(height: 36),
-      Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 12,
-        runSpacing: 12,
-        children: [
-          _CtaBtn(
+        const SizedBox(height: 20),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Text(
+            'AI-powered, client-side duplicate detection directly in your browser. Zero server costs. Absolute data privacy.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: mob ? 15 : 17,
+              color: AppColors.textSecondary,
+              height: 1.65,
+            ),
+          ),
+        ),
+        const SizedBox(height: 36),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            _CtaBtn(
               label: 'Download Extension',
               icon: Icons.download_rounded,
               onTap: () => launch(AppLinks.downloadZip),
-              fontSize: 15),
-          _CtaBtn(
+              fontSize: 15,
+            ),
+            _CtaBtn(
               label: 'View Source on GitHub',
               icon: Icons.code_rounded,
               onTap: () => launch(AppLinks.githubRepo),
               outlined: true,
-              fontSize: 15),
-        ],
-      ),
-    ]);
+              fontSize: 15,
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -874,17 +947,20 @@ class _IdeMockupState extends State<IdeMockup>
     with SingleTickerProviderStateMixin {
   late final AnimationController _type;
   late final Animation<int> _chars;
-  static const _text =
-      'App crashes on login when\noffline mode is enabled...';
+  static const _text = 'App crashes on login when\noffline mode is enabled...';
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _type = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 2400));
-    _chars = IntTween(begin: 0, end: _text.length)
-        .animate(CurvedAnimation(parent: _type, curve: Curves.easeInOut));
+      vsync: this,
+      duration: const Duration(milliseconds: 2400),
+    );
+    _chars = IntTween(
+      begin: 0,
+      end: _text.length,
+    ).animate(CurvedAnimation(parent: _type, curve: Curves.easeInOut));
     _type.forward().then((_) => _restart());
   }
 
@@ -917,12 +993,14 @@ class _IdeMockupState extends State<IdeMockup>
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                  color: AppColors.accent.withOpacity(op),
-                  blurRadius: blur,
-                  spreadRadius: 1),
+                color: AppColors.accent.withOpacity(op),
+                blurRadius: blur,
+                spreadRadius: 1,
+              ),
               BoxShadow(
-                  color: AppColors.accentBlue.withOpacity(op * 0.5),
-                  blurRadius: blur * 1.4),
+                color: AppColors.accentBlue.withOpacity(op * 0.5),
+                blurRadius: blur * 1.4,
+              ),
             ],
           ),
           child: ClipRRect(
@@ -933,32 +1011,46 @@ class _IdeMockupState extends State<IdeMockup>
                 border: Border.all(color: AppColors.border),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                _IdeTitleBar(),
-                const Divider(height: 1, thickness: 1, color: AppColors.border),
-                mob
-                    ? Column(children: [
-                        _IdeLeft(chars: _chars),
-                        const Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: AppColors.border),
-                        _IdeRight(glow: widget.glow),
-                      ])
-                    : IntrinsicHeight(
-                        child: Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _IdeTitleBar(),
+                  const Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: AppColors.border,
+                  ),
+                  mob
+                      ? Column(
+                          children: [
+                            _IdeLeft(chars: _chars),
+                            const Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: AppColors.border,
+                            ),
+                            _IdeRight(glow: widget.glow),
+                          ],
+                        )
+                      : IntrinsicHeight(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Expanded(flex: 5, child: _IdeLeft(chars: _chars)),
                               const VerticalDivider(
-                                  width: 1,
-                                  thickness: 1,
-                                  color: AppColors.border),
+                                width: 1,
+                                thickness: 1,
+                                color: AppColors.border,
+                              ),
                               Expanded(
-                                  flex: 5, child: _IdeRight(glow: widget.glow)),
-                            ]),
-                      ),
-              ]),
+                                flex: 5,
+                                child: _IdeRight(glow: widget.glow),
+                              ),
+                            ],
+                          ),
+                        ),
+                ],
+              ),
             ),
           ),
         );
@@ -974,34 +1066,45 @@ class _IdeTitleBar extends StatelessWidget {
       height: 40,
       color: const Color(0xFF161B22),
       padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: Row(children: [
-        _Dot(AppColors.terminalRed),
-        const SizedBox(width: 7),
-        _Dot(AppColors.terminalYellow),
-        const SizedBox(width: 7),
-        _Dot(AppColors.terminalGreen),
-        const SizedBox(width: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: const Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.folder_outlined,
-                size: 12, color: AppColors.textSecondary),
-            SizedBox(width: 5),
-            Text('repoowl / triage.ts',
-                style: TextStyle(
+      child: Row(
+        children: [
+          _Dot(AppColors.terminalRed),
+          const SizedBox(width: 7),
+          _Dot(AppColors.terminalYellow),
+          const SizedBox(width: 7),
+          _Dot(AppColors.terminalGreen),
+          const SizedBox(width: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.folder_outlined,
+                  size: 12,
+                  color: AppColors.textSecondary,
+                ),
+                SizedBox(width: 5),
+                Text(
+                  'repoowl / triage.ts',
+                  style: TextStyle(
                     fontFamily: 'JetBrains Mono',
                     fontSize: 11,
-                    color: AppColors.textSecondary)),
-          ]),
-        ),
-        const Spacer(),
-        const Icon(Icons.circle, size: 8, color: AppColors.accent),
-      ]),
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+          const Icon(Icons.circle, size: 8, color: AppColors.accent),
+        ],
+      ),
     );
   }
 }
@@ -1011,9 +1114,10 @@ class _Dot extends StatelessWidget {
   const _Dot(this.color);
   @override
   Widget build(BuildContext context) => Container(
-      width: 12,
-      height: 12,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle));
+    width: 12,
+    height: 12,
+    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+  );
 }
 
 class _IdeLeft extends StatelessWidget {
@@ -1024,75 +1128,96 @@ class _IdeLeft extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Icon(Icons.bug_report_outlined,
-              size: 14, color: AppColors.accentBlue),
-          const SizedBox(width: 6),
-          const Text('New Issue',
-              style: TextStyle(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.bug_report_outlined,
+                size: 14,
+                color: AppColors.accentBlue,
+              ),
+              const SizedBox(width: 6),
+              const Text(
+                'New Issue',
+                style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.accentBlue)),
-        ]),
-        const SizedBox(height: 14),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: AppColors.border),
+                  color: AppColors.accentBlue,
+                ),
+              ),
+            ],
           ),
-          child: const Text('App crashes on login',
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: const Text(
+              'App crashes on login',
               style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary)),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(minHeight: 80),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(6),
-            border:
-                Border.all(color: AppColors.accentBlue.withOpacity(0.5)),
+                fontFamily: 'Inter',
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
           ),
-          child: AnimatedBuilder(
-            animation: chars,
-            builder: (_, __) {
-              final txt =
-                  'App crashes on login when\noffline mode is enabled...'
-                      .substring(0, chars.value);
-              return Text.rich(TextSpan(children: [
-                TextSpan(
-                    text: txt,
-                    style: const TextStyle(
-                        fontFamily: 'JetBrains Mono',
-                        fontSize: 12,
-                        color: AppColors.textPrimary,
-                        height: 1.6)),
-                WidgetSpan(child: _Cursor()),
-              ]));
-            },
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 80),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: AppColors.accentBlue.withOpacity(0.5)),
+            ),
+            child: AnimatedBuilder(
+              animation: chars,
+              builder: (_, __) {
+                final txt =
+                    'App crashes on login when\noffline mode is enabled...'
+                        .substring(0, chars.value);
+                return Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: txt,
+                        style: const TextStyle(
+                          fontFamily: 'JetBrains Mono',
+                          fontSize: 12,
+                          color: AppColors.textPrimary,
+                          height: 1.6,
+                        ),
+                      ),
+                      WidgetSpan(child: _Cursor()),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 14),
-        Row(children: [
-          _Tag('bug', AppColors.terminalRed),
-          const SizedBox(width: 6),
-          _Tag('mobile', AppColors.purple),
-          const SizedBox(width: 6),
-          _Tag('auth', AppColors.terminalYellow),
-        ]),
-        const SizedBox(height: 16),
-        _ProgressBar(),
-      ]),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              _Tag('bug', AppColors.terminalRed),
+              const SizedBox(width: 6),
+              _Tag('mobile', AppColors.purple),
+              const SizedBox(width: 6),
+              _Tag('auth', AppColors.terminalYellow),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _ProgressBar(),
+        ],
+      ),
     );
   }
 }
@@ -1108,8 +1233,9 @@ class _CursorState extends State<_Cursor> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _c = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 530))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 530),
+    )..repeat(reverse: true);
   }
 
   @override
@@ -1120,14 +1246,12 @@ class _CursorState extends State<_Cursor> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) => FadeTransition(
-        opacity: _c,
-        child: Transform.translate(
-            offset: const Offset(0, 2),
-            child: Container(
-                width: 1.5,
-                height: 14,
-                color: AppColors.accentBlue)),
-      );
+    opacity: _c,
+    child: Transform.translate(
+      offset: const Offset(0, 2),
+      child: Container(width: 1.5, height: 14, color: AppColors.accentBlue),
+    ),
+  );
 }
 
 class _Tag extends StatelessWidget {
@@ -1136,19 +1260,22 @@ class _Tag extends StatelessWidget {
   const _Tag(this.label, this.color);
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
-          border: Border.all(color: color.withOpacity(0.35)),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(label,
-            style: TextStyle(
-                fontFamily: 'JetBrains Mono',
-                fontSize: 10,
-                color: color,
-                fontWeight: FontWeight.w600)),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.12),
+      border: Border.all(color: color.withOpacity(0.35)),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(
+        fontFamily: 'JetBrains Mono',
+        fontSize: 10,
+        color: color,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  );
 }
 
 class _ProgressBar extends StatefulWidget {
@@ -1164,7 +1291,9 @@ class _ProgressBarState extends State<_ProgressBar>
   void initState() {
     super.initState();
     _c = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 2600));
+      vsync: this,
+      duration: const Duration(milliseconds: 2600),
+    );
     _a = CurvedAnimation(parent: _c, curve: Curves.easeInOut);
     Future.delayed(const Duration(milliseconds: 800), () {
       if (mounted) _c.forward();
@@ -1179,32 +1308,37 @@ class _ProgressBarState extends State<_ProgressBar>
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        animation: _a,
-        builder: (_, __) =>
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
+    animation: _a,
+    builder: (_, __) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
             const Icon(Icons.auto_awesome, size: 12, color: AppColors.accent),
             const SizedBox(width: 5),
             Text(
-                'Analyzing with RepoOwl\u2026 ${(_a.value * 100).toInt()}%',
-                style: const TextStyle(
-                    fontFamily: 'JetBrains Mono',
-                    fontSize: 10,
-                    color: AppColors.textSecondary)),
-          ]),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: _a.value,
-              minHeight: 3,
-              backgroundColor: AppColors.border,
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppColors.accent),
+              'Analyzing with RepoOwl\u2026 ${(_a.value * 100).toInt()}%',
+              style: const TextStyle(
+                fontFamily: 'JetBrains Mono',
+                fontSize: 10,
+                color: AppColors.textSecondary,
+              ),
             ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(3),
+          child: LinearProgressIndicator(
+            value: _a.value,
+            minHeight: 3,
+            backgroundColor: AppColors.border,
+            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accent),
           ),
-        ]),
-      );
+        ),
+      ],
+    ),
+  );
 }
 
 class _IdeRight extends StatelessWidget {
@@ -1216,48 +1350,60 @@ class _IdeRight extends StatelessWidget {
     return Container(
       color: const Color(0xFF0D1117),
       padding: const EdgeInsets.all(20),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          AnimatedBuilder(
-            animation: glow,
-            builder: (_, __) => Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.accent,
-                boxShadow: [
-                  BoxShadow(
-                      color: AppColors.accent
-                          .withOpacity(0.4 + glow.value * 0.4),
-                      blurRadius: 6 + glow.value * 8)
-                ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              AnimatedBuilder(
+                animation: glow,
+                builder: (_, __) => Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.accent,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.accent.withOpacity(
+                          0.4 + glow.value * 0.4,
+                        ),
+                        blurRadius: 6 + glow.value * 8,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Text('RepoOwl Insight',
-              style: TextStyle(
+              const SizedBox(width: 8),
+              const Text(
+                'RepoOwl Insight',
+                style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.accent)),
-        ]),
-        const SizedBox(height: 14),
-        _AlertCard(glow: glow),
-        const SizedBox(height: 14),
-        _SimBar('Semantic similarity', 0.92),
-        const SizedBox(height: 8),
-        _SimBar('Title match', 0.78),
-        const SizedBox(height: 8),
-        _SimBar('Label overlap', 0.67),
-        const SizedBox(height: 16),
-        Row(children: [
-          _Chip('Mark Duplicate', AppColors.accent),
-          const SizedBox(width: 8),
-          _Chip('View #42', AppColors.accentBlue),
-        ]),
-      ]),
+                  color: AppColors.accent,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          _AlertCard(glow: glow),
+          const SizedBox(height: 14),
+          _SimBar('Semantic similarity', 0.92),
+          const SizedBox(height: 8),
+          _SimBar('Title match', 0.78),
+          const SizedBox(height: 8),
+          _SimBar('Label overlap', 0.67),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _Chip('Mark Duplicate', AppColors.accent),
+              const SizedBox(width: 8),
+              _Chip('View #42', AppColors.accentBlue),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1267,74 +1413,95 @@ class _AlertCard extends StatelessWidget {
   const _AlertCard({required this.glow});
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        animation: glow,
-        builder: (_, __) => Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: AppColors.accent.withOpacity(0.07),
-            border: Border.all(
-                color: AppColors.accent
-                    .withOpacity(0.3 + glow.value * 0.25)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
+    animation: glow,
+    builder: (_, __) => Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.accent.withOpacity(0.07),
+        border: Border.all(
+          color: AppColors.accent.withOpacity(0.3 + glow.value * 0.25),
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
               const Text('\u26a0\ufe0f', style: TextStyle(fontSize: 14)),
               const SizedBox(width: 7),
-              const Text('Duplicate Detected',
-                  style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.accent)),
+              const Text(
+                'Duplicate Detected',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.accent,
+                ),
+              ),
               const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                    color: AppColors.accent.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(4)),
-                child: const Text('92%',
-                    style: TextStyle(
-                        fontFamily: 'JetBrains Mono',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.accent)),
+                  color: AppColors.accent.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  '92%',
+                  style: TextStyle(
+                    fontFamily: 'JetBrains Mono',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.accent,
+                  ),
+                ),
               ),
-            ]),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(9),
-              decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(5)),
-              child: const Text.rich(TextSpan(children: [
-                TextSpan(
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: const Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
                     text: 'Matches Issue ',
                     style: TextStyle(
-                        fontFamily: 'JetBrains Mono',
-                        fontSize: 11,
-                        color: AppColors.textSecondary)),
-                TextSpan(
+                      fontFamily: 'JetBrains Mono',
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  TextSpan(
                     text: '#42',
                     style: TextStyle(
-                        fontFamily: 'JetBrains Mono',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.accentBlue)),
-                TextSpan(
+                      fontFamily: 'JetBrains Mono',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.accentBlue,
+                    ),
+                  ),
+                  TextSpan(
                     text: '\n"Login fatal error on offline mode"',
                     style: TextStyle(
-                        fontFamily: 'JetBrains Mono',
-                        fontSize: 11,
-                        color: AppColors.textPrimary)),
-              ])),
+                      fontFamily: 'JetBrains Mono',
+                      fontSize: 11,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ]),
-        ),
-      );
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _SimBar extends StatelessWidget {
@@ -1342,32 +1509,44 @@ class _SimBar extends StatelessWidget {
   final double value;
   const _SimBar(this.label, this.value);
   @override
-  Widget build(BuildContext context) =>
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(label,
-              style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 10,
-                  color: AppColors.textSecondary)),
-          Text('${(value * 100).toInt()}%',
-              style: const TextStyle(
-                  fontFamily: 'JetBrains Mono',
-                  fontSize: 10,
-                  color: AppColors.terminalGreen)),
-        ]),
-        const SizedBox(height: 4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(2),
-          child: LinearProgressIndicator(
-            value: value,
-            minHeight: 3,
-            backgroundColor: AppColors.border,
-            valueColor: AlwaysStoppedAnimation<Color>(
-                value > 0.85 ? AppColors.accent : AppColors.terminalGreen),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 10,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          Text(
+            '${(value * 100).toInt()}%',
+            style: const TextStyle(
+              fontFamily: 'JetBrains Mono',
+              fontSize: 10,
+              color: AppColors.terminalGreen,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 4),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(2),
+        child: LinearProgressIndicator(
+          value: value,
+          minHeight: 3,
+          backgroundColor: AppColors.border,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            value > 0.85 ? AppColors.accent : AppColors.terminalGreen,
           ),
         ),
-      ]);
+      ),
+    ],
+  );
 }
 
 class _Chip extends StatefulWidget {
@@ -1382,26 +1561,28 @@ class _ChipState extends State<_Chip> {
   bool _h = false;
   @override
   Widget build(BuildContext context) => MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _h = true),
-        onExit: (_) => setState(() => _h = false),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: widget.color.withOpacity(_h ? 0.2 : 0.1),
-            border: Border.all(color: widget.color.withOpacity(0.4)),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Text(widget.label,
-              style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: widget.color)),
+    cursor: SystemMouseCursors.click,
+    onEnter: (_) => setState(() => _h = true),
+    onExit: (_) => setState(() => _h = false),
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: widget.color.withOpacity(_h ? 0.2 : 0.1),
+        border: Border.all(color: widget.color.withOpacity(0.4)),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        widget.label,
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: widget.color,
         ),
-      );
+      ),
+    ),
+  );
 }
 
 // ================================================================
@@ -1424,10 +1605,13 @@ class MetricBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-          vertical: mob ? 36 : 48, horizontal: mob ? 20 : 48),
+        vertical: mob ? 36 : 48,
+        horizontal: mob ? 20 : 48,
+      ),
       decoration: const BoxDecoration(
         border: Border.symmetric(
-            horizontal: BorderSide(color: AppColors.border)),
+          horizontal: BorderSide(color: AppColors.border),
+        ),
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
@@ -1444,10 +1628,14 @@ class MetricBanner extends StatelessWidget {
           child: mob
               ? Column(
                   children: _items
-                      .map((i) => Padding(
+                      .map(
+                        (i) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: _MetricItem(i.$1, i.$2)))
-                      .toList())
+                          child: _MetricItem(i.$1, i.$2),
+                        ),
+                      )
+                      .toList(),
+                )
               : Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -1455,7 +1643,10 @@ class MetricBanner extends StatelessWidget {
                       _MetricItem(_items[i].$1, _items[i].$2),
                       if (i < _items.length - 1)
                         Container(
-                            height: 40, width: 1, color: AppColors.border),
+                          height: 40,
+                          width: 1,
+                          color: AppColors.border,
+                        ),
                     ],
                   ],
                 ),
@@ -1470,21 +1661,29 @@ class _MetricItem extends StatelessWidget {
   final String label;
   const _MetricItem(this.value, this.label);
   @override
-  Widget build(BuildContext context) => Column(children: [
-        Text(value,
-            style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-                letterSpacing: -0.5)),
-        const SizedBox(height: 4),
-        Text(label,
-            style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 13,
-                color: AppColors.textSecondary)),
-      ]);
+  Widget build(BuildContext context) => Column(
+    children: [
+      Text(
+        value,
+        style: const TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 28,
+          fontWeight: FontWeight.w800,
+          color: AppColors.textPrimary,
+          letterSpacing: -0.5,
+        ),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        label,
+        style: const TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 13,
+          color: AppColors.textSecondary,
+        ),
+      ),
+    ],
+  );
 }
 
 // ================================================================
@@ -1498,83 +1697,52 @@ class BentoSection extends StatefulWidget {
   State<BentoSection> createState() => _BentoSectionState();
 }
 
-class _BentoSectionState extends State<BentoSection> with SingleTickerProviderStateMixin {
-  Offset? _mousePos;
-  late AnimationController _flapController;
-
-  @override
-  void initState() {
-    super.initState();
-    _flapController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 180))
-      ..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _flapController.dispose();
-    super.dispose();
-  }
-
+class _BentoSectionState extends State<BentoSection> {
   @override
   Widget build(BuildContext context) {
     final mob = R.mobile(context);
     final tab = R.tablet(context);
-    return MouseRegion(
-      cursor: SystemMouseCursors.none,
-      onHover: (e) => setState(() => _mousePos = e.localPosition),
-      onExit: (e) => setState(() => _mousePos = null),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final bentoCenter = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
-          return Stack(
-            children: [
-              // ASCII Art Background
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.5,
-                  child: Center(
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: Text(
-                        owlAsciiArt,
-                        softWrap: false,
-                        style: const TextStyle(
-                          fontFamily: 'Courier', // monospace for ASCII art
-                          height: 1.0, // tight line height
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            // ASCII Art Background — rendered via HtmlElementView
+            const Positioned.fill(
+              child: AsciiArtBackground(),
+            ),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: mob ? 20 : 48,
+                vertical: mob ? 56 : 80,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _Label('Features'),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Faster triage + better code',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: mob ? 28 : 40,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                          letterSpacing: -1,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Everything you need to ship better software, faster.',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 15,
                           color: AppColors.textSecondary,
                         ),
                       ),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(
-
-                    horizontal: mob ? 20 : 48, vertical: mob ? 56 : 80),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
-                    child:
-                        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      _Label('Features'),
-                      const SizedBox(height: 12),
-                      Text('Faster triage + better code',
-                          style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: mob ? 28 : 40,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
-                              letterSpacing: -1)),
-                      const SizedBox(height: 8),
-                      const Text(
-                          'Everything you need to ship better software, faster.',
-                          style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 15,
-                              color: AppColors.textSecondary)),
                       const SizedBox(height: 48),
                       if (mob) ...[
                         _BYOKCard(),
@@ -1585,43 +1753,115 @@ class _BentoSectionState extends State<BentoSection> with SingleTickerProviderSt
                         const SizedBox(height: 16),
                         _OmniPromptCard(),
                       ] else if (tab) ...[
-                        Row(children: [
-                          Expanded(child: _BYOKCard()),
-                          const SizedBox(width: 16),
-                          Expanded(child: _DualLayerCard())
-                        ]),
+                        Row(
+                          children: [
+                            Expanded(child: _BYOKCard()),
+                            const SizedBox(width: 16),
+                            Expanded(child: _DualLayerCard()),
+                          ],
+                        ),
                         const SizedBox(height: 16),
-                        Row(children: [
-                          Expanded(child: _SupabaseCard()),
-                          const SizedBox(width: 16),
-                          Expanded(child: _OmniPromptCard())
-                        ]),
+                        Row(
+                          children: [
+                            Expanded(child: _SupabaseCard()),
+                            const SizedBox(width: 16),
+                            Expanded(child: _OmniPromptCard()),
+                          ],
+                        ),
                       ] else ...[
                         IntrinsicHeight(
                           child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(flex: 6, child: _BYOKCard()),
-                                const SizedBox(width: 16),
-                                Expanded(flex: 4, child: _DualLayerCard()),
-                              ]),
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(flex: 6, child: _BYOKCard()),
+                              const SizedBox(width: 16),
+                              Expanded(flex: 4, child: _DualLayerCard()),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 16),
                         IntrinsicHeight(
                           child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(flex: 4, child: _SupabaseCard()),
-                                const SizedBox(width: 16),
-                                Expanded(flex: 6, child: _OmniPromptCard()),
-                              ]),
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(flex: 4, child: _SupabaseCard()),
+                              const SizedBox(width: 16),
+                              Expanded(flex: 6, child: _OmniPromptCard()),
+                            ],
+                          ),
                         ),
                       ],
-                    ]),
+                    ],
                   ),
                 ),
               ),
-              if (_mousePos != null && !mob)
+            ),
+            // Owl cursor overlay — isolated widget so only IT rebuilds on hover,
+            // not the entire bento section.
+            if (!mob) const Positioned.fill(child: _OwlCursorOverlay()),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  Owl cursor overlay — self-contained StatefulWidget
+//  Only this widget rebuilds on mouse movement; the rest of BentoSection
+//  stays completely still, keeping scroll perfectly smooth.
+// ---------------------------------------------------------------------------
+class _OwlCursorOverlay extends StatefulWidget {
+  const _OwlCursorOverlay();
+
+  @override
+  State<_OwlCursorOverlay> createState() => _OwlCursorOverlayState();
+}
+
+class _OwlCursorOverlayState extends State<_OwlCursorOverlay>
+    with SingleTickerProviderStateMixin {
+  Offset? _mousePos;
+  late AnimationController _flapController;
+
+  @override
+  void initState() {
+    super.initState();
+    _flapController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 180),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _flapController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bentoCenter = Offset(
+          constraints.maxWidth / 2,
+          constraints.maxHeight / 2,
+        );
+        return MouseRegion(
+          hitTestBehavior: HitTestBehavior.translucent,
+          // Hide the system cursor so the owl sprite IS the cursor,
+          // not a hand pointer shown on top of it.
+          // Safe to use .none here because it's scoped to the isolated
+          // _OwlCursorOverlay widget — won't cause the whole section to rebuild.
+          cursor: SystemMouseCursors.none,
+          onHover: (e) {
+            if (_mousePos != e.localPosition) {
+              setState(() => _mousePos = e.localPosition);
+            }
+          },
+          onExit: (_) => setState(() => _mousePos = null),
+          child: Stack(
+            children: [
+              if (_mousePos != null)
                 Positioned(
                   left: _mousePos!.dx,
                   top: _mousePos!.dy,
@@ -1629,16 +1869,20 @@ class _BentoSectionState extends State<BentoSection> with SingleTickerProviderSt
                     child: AnimatedBuilder(
                       animation: _flapController,
                       builder: (context, _) => CustomPaint(
-                        size: const Size(0, 0),
-                        painter: _OwlCursorPainter(_flapController.value, _mousePos!, bentoCenter),
+                        size: Size.zero,
+                        painter: _OwlCursorPainter(
+                          _flapController.value,
+                          _mousePos!,
+                          bentoCenter,
+                        ),
                       ),
                     ),
                   ),
                 ),
             ],
-          );
-        }
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -1650,29 +1894,29 @@ class _OwlCursorPainter extends CustomPainter {
   _OwlCursorPainter(this.flapProgress, this.mousePos, this.bentoCenter);
 
   static const List<List<int>> _owlBody = [
-    [0,1,1,1,1,0],
-    [1,1,1,1,1,1],
-    [1,2,2,1,2,2],
-    [1,2,2,1,2,2],
-    [1,1,4,4,1,1],
-    [1,1,1,1,1,1],
-    [1,1,1,1,1,1],
-    [0,1,0,0,1,0],
+    [0, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 1, 1],
+    [1, 2, 2, 1, 2, 2],
+    [1, 2, 2, 1, 2, 2],
+    [1, 1, 4, 4, 1, 1],
+    [1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1],
+    [0, 1, 0, 0, 1, 0],
   ];
 
   @override
   void paint(Canvas canvas, Size size) {
     const double px = 3.0; // pixel size scale
     final paint = Paint()..style = PaintingStyle.fill;
-    
+
     // Determine look direction
     final dx = bentoCenter.dx - mousePos.dx;
     final dy = bentoCenter.dy - mousePos.dy;
-    
+
     final c1 = const Color(0xFFFF5722); // brand orange
-    final c2 = Colors.white;            // eye bg
-    final c3 = Colors.black;            // pupil
-    final c4 = Colors.orangeAccent;     // beak
+    final c2 = Colors.white; // eye bg
+    final c3 = Colors.black; // pupil
+    final c4 = Colors.orangeAccent; // beak
 
     canvas.save();
     canvas.translate(-_owlBody[0].length * px / 2, -_owlBody.length * px / 2);
@@ -1685,26 +1929,44 @@ class _OwlCursorPainter extends CustomPainter {
         canvas.drawRect(Rect.fromLTWH(x * px, y * px, px, px), paint);
       }
     }
-    
+
     // Pupils
     paint.color = c3;
     // Look right if center is to our right, Look down if center is below us
-    double pxOffset = dx > 0 ? 1 : 0; 
-    double pyOffset = dy > 0 ? 1 : 0; 
+    double pxOffset = dx > 0 ? 1 : 0;
+    double pyOffset = dy > 0 ? 1 : 0;
     // Left eye
-    canvas.drawRect(Rect.fromLTWH((1 + pxOffset) * px, (2 + pyOffset) * px, px, px), paint);
+    canvas.drawRect(
+      Rect.fromLTWH((1 + pxOffset) * px, (2 + pyOffset) * px, px, px),
+      paint,
+    );
     // Right eye
-    canvas.drawRect(Rect.fromLTWH((4 + pxOffset) * px, (2 + pyOffset) * px, px, px), paint);
+    canvas.drawRect(
+      Rect.fromLTWH((4 + pxOffset) * px, (2 + pyOffset) * px, px, px),
+      paint,
+    );
 
     // Wings
     final wingDown = flapProgress > 0.5;
     paint.color = c1;
     if (wingDown) {
-      canvas.drawRect(Rect.fromLTWH(-1 * px, 3 * px, px, 3 * px), paint); // left folded down
-      canvas.drawRect(Rect.fromLTWH(6 * px, 3 * px, px, 3 * px), paint);  // right folded down
+      canvas.drawRect(
+        Rect.fromLTWH(-1 * px, 3 * px, px, 3 * px),
+        paint,
+      ); // left folded down
+      canvas.drawRect(
+        Rect.fromLTWH(6 * px, 3 * px, px, 3 * px),
+        paint,
+      ); // right folded down
     } else {
-      canvas.drawRect(Rect.fromLTWH(-2 * px, 2 * px, 2 * px, px), paint); // left flap up
-      canvas.drawRect(Rect.fromLTWH(6 * px, 2 * px, 2 * px, px), paint);  // right flap up
+      canvas.drawRect(
+        Rect.fromLTWH(-2 * px, 2 * px, 2 * px, px),
+        paint,
+      ); // left flap up
+      canvas.drawRect(
+        Rect.fromLTWH(6 * px, 2 * px, 2 * px, px),
+        paint,
+      ); // right flap up
     }
 
     canvas.restore();
@@ -1712,7 +1974,8 @@ class _OwlCursorPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_OwlCursorPainter oldDelegate) =>
-      oldDelegate.flapProgress != flapProgress || oldDelegate.mousePos != mousePos;
+      oldDelegate.flapProgress != flapProgress ||
+      oldDelegate.mousePos != mousePos;
 }
 
 class _Label extends StatelessWidget {
@@ -1720,21 +1983,23 @@ class _Label extends StatelessWidget {
   const _Label(this.text);
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppColors.accentBlue.withOpacity(0.1),
-          border:
-              Border.all(color: AppColors.accentBlue.withOpacity(0.3)),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(text.toUpperCase(),
-            style: const TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppColors.accentBlue,
-                letterSpacing: 1.2)),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(
+      color: AppColors.accentBlue.withOpacity(0.1),
+      border: Border.all(color: AppColors.accentBlue.withOpacity(0.3)),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Text(
+      text.toUpperCase(),
+      style: const TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        color: AppColors.accentBlue,
+        letterSpacing: 1.2,
+      ),
+    ),
+  );
 }
 
 class _Card extends StatefulWidget {
@@ -1750,40 +2015,46 @@ class _CardState extends State<_Card> {
   bool _h = false;
   @override
   Widget build(BuildContext context) => MouseRegion(
-        onEnter: (_) => setState(() => _h = true),
-        onExit: (_) => setState(() => _h = false),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          constraints: BoxConstraints(minHeight: widget.minH),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: (_h ? const Color(0xFF1A2030) : AppColors.surface).withOpacity(0.9),
-            border: Border.all(
-                color: _h
-                    ? widget.accent.withOpacity(0.45)
-                    : AppColors.border),
-            borderRadius: BorderRadius.circular(14),
-            gradient: _h
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color.alphaBlend(widget.accent.withOpacity(0.05), const Color(0xFF1A2030).withOpacity(0.9)),
-                      const Color(0xFF1A2030).withOpacity(0.9)
-                    ])
-                : null,
-            boxShadow: _h
-                ? [
-                    BoxShadow(
-                        color: widget.accent.withOpacity(0.12),
-                        blurRadius: 20,
-                        spreadRadius: 1)
-                  ]
-                : [],
-          ),
-          child: widget.child,
+    onEnter: (_) => setState(() => _h = true),
+    onExit: (_) => setState(() => _h = false),
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      constraints: BoxConstraints(minHeight: widget.minH),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: (_h ? const Color(0xFF1A2030) : AppColors.surface).withOpacity(
+          0.9,
         ),
-      );
+        border: Border.all(
+          color: _h ? widget.accent.withOpacity(0.45) : AppColors.border,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        gradient: _h
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.alphaBlend(
+                    widget.accent.withOpacity(0.05),
+                    const Color(0xFF1A2030).withOpacity(0.9),
+                  ),
+                  const Color(0xFF1A2030).withOpacity(0.9),
+                ],
+              )
+            : null,
+        boxShadow: _h
+            ? [
+                BoxShadow(
+                  color: widget.accent.withOpacity(0.12),
+                  blurRadius: 20,
+                  spreadRadius: 1,
+                ),
+              ]
+            : [],
+      ),
+      child: widget.child,
+    ),
+  );
 }
 
 class _CardIcon extends StatelessWidget {
@@ -1792,66 +2063,84 @@ class _CardIcon extends StatelessWidget {
   const _CardIcon(this.icon, this.color);
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(9),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
-          border: Border.all(color: color.withOpacity(0.3)),
-          borderRadius: BorderRadius.circular(9),
-        ),
-        child: Icon(icon, color: color, size: 20),
-      );
+    padding: const EdgeInsets.all(9),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.12),
+      border: Border.all(color: color.withOpacity(0.3)),
+      borderRadius: BorderRadius.circular(9),
+    ),
+    child: Icon(icon, color: color, size: 20),
+  );
 }
 
 class _BYOKCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Card(
-        accent: AppColors.accent,
-        minH: 230,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
+    accent: AppColors.accent,
+    minH: 230,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
             _CardIcon(Icons.key_rounded, AppColors.accent),
             const SizedBox(width: 12),
-            const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('BYOK Architecture',
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'BYOK Architecture',
                   style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary)),
-              Text('Bring Your Own Key',
+                    fontFamily: 'Inter',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  'Bring Your Own Key',
                   style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      color: AppColors.textSecondary)),
-            ]),
-          ]),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.border)),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _DNode('Your Key', '\ud83d\udd11', AppColors.accent),
-                  const _Arrow(),
-                  _DNode('Browser', '\ud83c\udf10', AppColors.accentBlue),
-                  const _Arrow(),
-                  _DNode('LLM API', '\ud83e\udd16', AppColors.terminalGreen),
-                ]),
+                    fontFamily: 'Inter',
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.border),
           ),
-          const SizedBox(height: 16),
-          const Text(
-              'Your API keys never leave your machine. All AI inference happens directly in the browser sandbox — zero telemetry, zero risk.',
-              style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                  height: 1.6)),
-        ]),
-      );
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _DNode('Your Key', '\ud83d\udd11', AppColors.accent),
+              const _Arrow(),
+              _DNode('Browser', '\ud83c\udf10', AppColors.accentBlue),
+              const _Arrow(),
+              _DNode('LLM API', '\ud83e\udd16', AppColors.terminalGreen),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Your API keys never leave your machine. All AI inference happens directly in the browser sandbox — zero telemetry, zero risk.',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 13,
+            color: AppColors.textSecondary,
+            height: 1.6,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _DNode extends StatelessWidget {
@@ -1859,71 +2148,99 @@ class _DNode extends StatelessWidget {
   final Color color;
   const _DNode(this.label, this.emoji, this.color);
   @override
-  Widget build(BuildContext context) => Column(children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            border: Border.all(color: color.withOpacity(0.35)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(child: Text(emoji, style: const TextStyle(fontSize: 18))),
+  Widget build(BuildContext context) => Column(
+    children: [
+      Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          border: Border.all(color: color.withOpacity(0.35)),
+          borderRadius: BorderRadius.circular(8),
         ),
-        const SizedBox(height: 5),
-        Text(label,
-            style: const TextStyle(
-                fontFamily: 'JetBrains Mono',
-                fontSize: 9,
-                color: AppColors.textSecondary)),
-      ]);
+        child: Center(child: Text(emoji, style: const TextStyle(fontSize: 18))),
+      ),
+      const SizedBox(height: 5),
+      Text(
+        label,
+        style: const TextStyle(
+          fontFamily: 'JetBrains Mono',
+          fontSize: 9,
+          color: AppColors.textSecondary,
+        ),
+      ),
+    ],
+  );
 }
 
 class _Arrow extends StatelessWidget {
   const _Arrow();
   @override
-  Widget build(BuildContext context) => const Row(children: [
-        SizedBox(
-            width: 12, child: Divider(color: AppColors.border, thickness: 1)),
-        Icon(Icons.arrow_forward_ios_rounded,
-            size: 10, color: AppColors.border),
-      ]);
+  Widget build(BuildContext context) => const Row(
+    children: [
+      SizedBox(
+        width: 12,
+        child: Divider(color: AppColors.border, thickness: 1),
+      ),
+      Icon(Icons.arrow_forward_ios_rounded, size: 10, color: AppColors.border),
+    ],
+  );
 }
 
 class _DualLayerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Card(
-        accent: AppColors.accentBlue,
-        minH: 230,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          _CardIcon(Icons.layers_rounded, AppColors.accentBlue),
-          const SizedBox(height: 14),
-          const Text('Dual-Layer Sync',
-              style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary)),
-          const SizedBox(height: 6),
-          const Text(
-              'Issues indexed in your Hub, analyzed in the Sandbox.',
-              style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  height: 1.5)),
-          const SizedBox(height: 16),
-          _FlowBox('Hub (IndexedDB)', 'Persistent issue store',
-              AppColors.accentBlue, Icons.storage_rounded),
-          const SizedBox(height: 6),
-          const Center(
-              child: Icon(Icons.arrow_downward_rounded,
-                  size: 14, color: AppColors.border)),
-          const SizedBox(height: 6),
-          _FlowBox('Sandbox (Worker)', 'Isolated AI runtime',
-              AppColors.terminalGreen, Icons.science_rounded),
-        ]),
-      );
+    accent: AppColors.accentBlue,
+    minH: 230,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _CardIcon(Icons.layers_rounded, AppColors.accentBlue),
+        const SizedBox(height: 14),
+        const Text(
+          'Dual-Layer Sync',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Issues indexed in your Hub, analyzed in the Sandbox.',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 12,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _FlowBox(
+          'Hub (IndexedDB)',
+          'Persistent issue store',
+          AppColors.accentBlue,
+          Icons.storage_rounded,
+        ),
+        const SizedBox(height: 6),
+        const Center(
+          child: Icon(
+            Icons.arrow_downward_rounded,
+            size: 14,
+            color: AppColors.border,
+          ),
+        ),
+        const SizedBox(height: 6),
+        _FlowBox(
+          'Sandbox (Worker)',
+          'Isolated AI runtime',
+          AppColors.terminalGreen,
+          Icons.science_rounded,
+        ),
+      ],
+    ),
+  );
 }
 
 class _FlowBox extends StatelessWidget {
@@ -1933,110 +2250,146 @@ class _FlowBox extends StatelessWidget {
   const _FlowBox(this.label, this.sub, this.color, this.icon);
   @override
   Widget build(BuildContext context) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.07),
-          border: Border.all(color: color.withOpacity(0.3)),
-          borderRadius: BorderRadius.circular(7),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.07),
+      border: Border.all(color: color.withOpacity(0.3)),
+      borderRadius: BorderRadius.circular(7),
+    ),
+    child: Row(
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 9),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'JetBrains Mono',
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+            Text(
+              sub,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 9,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
         ),
-        child: Row(children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 9),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label,
-                style: TextStyle(
-                    fontFamily: 'JetBrains Mono',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: color)),
-            Text(sub,
-                style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 9,
-                    color: AppColors.textSecondary)),
-          ]),
-        ]),
-      );
+      ],
+    ),
+  );
 }
 
 class _SupabaseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Card(
-        accent: AppColors.terminalGreen,
-        minH: 230,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
+    accent: AppColors.terminalGreen,
+    minH: 230,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
             _CardIcon(Icons.bolt_rounded, AppColors.terminalGreen),
             const SizedBox(width: 12),
-            const Text('Supabase Native',
-                style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary)),
-          ]),
-          const SizedBox(height: 14),
-          const Text(
-              'Serverless RLS policies and real-time sync — no backend code to maintain.',
+            const Text(
+              'Supabase Native',
               style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  height: 1.55)),
-          const SizedBox(height: 16),
-          _Code([
-            ('-- Row Level Security', AppColors.textSecondary),
-            ('CREATE POLICY "user_owns_data"', AppColors.textPrimary),
-            ('  ON issues FOR ALL', AppColors.textPrimary),
-            ('  USING (auth.uid() = user_id);', AppColors.terminalGreen),
-          ]),
+                fontFamily: 'Inter',
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        const Text(
+          'Serverless RLS policies and real-time sync — no backend code to maintain.',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 12,
+            color: AppColors.textSecondary,
+            height: 1.55,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _Code([
+          ('-- Row Level Security', AppColors.textSecondary),
+          ('CREATE POLICY "user_owns_data"', AppColors.textPrimary),
+          ('  ON issues FOR ALL', AppColors.textPrimary),
+          ('  USING (auth.uid() = user_id);', AppColors.terminalGreen),
         ]),
-      );
+      ],
+    ),
+  );
 }
 
 class _OmniPromptCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Card(
-        accent: AppColors.purple,
-        minH: 230,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
+    accent: AppColors.purple,
+    minH: 230,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
             _CardIcon(Icons.psychology_rounded, AppColors.purple),
             const SizedBox(width: 12),
-            const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Omni-Prompt Engine',
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Omni-Prompt Engine',
                   style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary)),
-              Text('Structured JSON schema',
+                    fontFamily: 'Inter',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  'Structured JSON schema',
                   style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      color: AppColors.textSecondary)),
-            ]),
-          ]),
-          const SizedBox(height: 16),
-          _Code([
-            ('{', AppColors.border),
-            ('  "model": "llama3.3",', AppColors.textPrimary),
-            ('  "task": "duplicate_detect",', AppColors.textPrimary),
-            ('  "threshold": 0.85,', AppColors.accent),
-            ('  "privacy_mode": true', AppColors.terminalGreen),
-            ('}', AppColors.border),
-          ]),
-          const SizedBox(height: 14),
-          const Text(
-              "Plug in any OpenAI-compatible API. The prompt schema adapts automatically to your model's context window.",
-              style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  height: 1.55)),
+                    fontFamily: 'Inter',
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _Code([
+          ('{', AppColors.border),
+          ('  "model": "llama3.3",', AppColors.textPrimary),
+          ('  "task": "duplicate_detect",', AppColors.textPrimary),
+          ('  "threshold": 0.85,', AppColors.accent),
+          ('  "privacy_mode": true', AppColors.terminalGreen),
+          ('}', AppColors.border),
         ]),
-      );
+        const SizedBox(height: 14),
+        const Text(
+          "Plug in any OpenAI-compatible API. The prompt schema adapts automatically to your model's context window.",
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 12,
+            color: AppColors.textSecondary,
+            height: 1.55,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _Code extends StatelessWidget {
@@ -2044,24 +2397,30 @@ class _Code extends StatelessWidget {
   const _Code(this.lines);
   @override
   Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(7),
-            border: Border.all(color: AppColors.border)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: lines
-              .map((l) => Text(l.$1,
-                  style: TextStyle(
-                      fontFamily: 'JetBrains Mono',
-                      fontSize: 11,
-                      color: l.$2,
-                      height: 1.65)))
-              .toList(),
-        ),
-      );
+    width: double.infinity,
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: AppColors.background,
+      borderRadius: BorderRadius.circular(7),
+      border: Border.all(color: AppColors.border),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: lines
+          .map(
+            (l) => Text(
+              l.$1,
+              style: TextStyle(
+                fontFamily: 'JetBrains Mono',
+                fontSize: 11,
+                color: l.$2,
+                height: 1.65,
+              ),
+            ),
+          )
+          .toList(),
+    ),
+  );
 }
 
 // ================================================================
@@ -2084,51 +2443,58 @@ class _CtaSection extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppColors.border))),
+        border: Border(top: BorderSide(color: AppColors.border)),
+      ),
       child: Stack(
         children: [
           Positioned.fill(
-            child: Opacity(
-              opacity: 0.15,
-              child: Center(
-                child: _AsciiDonut(),
-              ),
-            ),
+            child: Opacity(opacity: 0.15, child: Center(child: _AsciiDonut())),
           ),
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: mob ? 20 : 48, vertical: mob ? 72 : 100),
+              horizontal: mob ? 20 : 48,
+              vertical: mob ? 72 : 100,
+            ),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 700),
-          child: Column(children: [
-            Text('Get started in 2 clicks.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: mob ? 32 : 52,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
-                    letterSpacing: -1.2)),
-            const SizedBox(height: 16),
-            const Text(
-                'No account. No server. No data collection.\nJust drop it in Chrome and triage smarter.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 16,
-                    color: AppColors.textSecondary,
-                    height: 1.6)),
-            const SizedBox(height: 44),
-            _PulseBtn(),
-            const SizedBox(height: 20),
-            Text(
-                'Free forever  \u00b7  Apache 2.0 Licensed  \u00b7  Open Source',
-                style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 12,
-                    color: AppColors.textSecondary.withOpacity(0.65))),
-          ]),
+                child: Column(
+                  children: [
+                    Text(
+                      'Get started in 2 clicks.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: mob ? 32 : 52,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                        letterSpacing: -1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No account. No server. No data collection.\nJust drop it in Chrome and triage smarter.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 16,
+                        color: AppColors.textSecondary,
+                        height: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 44),
+                    _PulseBtn(),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Free forever  \u00b7  Apache 2.0 Licensed  \u00b7  Open Source',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 12,
+                        color: AppColors.textSecondary.withOpacity(0.65),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -2153,8 +2519,9 @@ class _PulseBtnState extends State<_PulseBtn>
   void initState() {
     super.initState();
     _c = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1600))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
     _p = CurvedAnimation(parent: _c, curve: Curves.easeInOut);
   }
 
@@ -2177,35 +2544,45 @@ class _PulseBtnState extends State<_PulseBtn>
           animation: _p,
           builder: (_, __) => Container(
             padding: EdgeInsets.symmetric(
-                horizontal: mob ? 28 : 40, vertical: mob ? 16 : 20),
+              horizontal: mob ? 28 : 40,
+              vertical: mob ? 16 : 20,
+            ),
             decoration: BoxDecoration(
-              color: _h
-                  ? AppColors.accent.withOpacity(0.9)
-                  : AppColors.accent,
+              color: _h ? AppColors.accent.withOpacity(0.9) : AppColors.accent,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                    color: AppColors.accent
-                        .withOpacity(0.35 + _p.value * 0.3),
-                    blurRadius: 24 + _p.value * 20,
-                    spreadRadius: _p.value * 4),
+                  color: AppColors.accent.withOpacity(0.35 + _p.value * 0.3),
+                  blurRadius: 24 + _p.value * 20,
+                  spreadRadius: _p.value * 4,
+                ),
                 BoxShadow(
-                    color: AppColors.accent.withOpacity(0.15),
-                    blurRadius: 60),
+                  color: AppColors.accent.withOpacity(0.15),
+                  blurRadius: 60,
+                ),
               ],
             ),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.download_rounded,
-                  color: Colors.white, size: 22),
-              const SizedBox(width: 12),
-              Text('Download RepoOwl.zip',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.download_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Download RepoOwl.zip',
                   style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: mob ? 16 : 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: -0.2)),
-            ]),
+                    fontFamily: 'Inter',
+                    fontSize: mob ? 16 : 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -2219,32 +2596,44 @@ class _Footer extends StatelessWidget {
     final mob = R.mobile(context);
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-          horizontal: mob ? 20 : 48, vertical: 32),
+      padding: EdgeInsets.symmetric(horizontal: mob ? 20 : 48, vertical: 32),
       decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppColors.border))),
-      child: Stack(alignment: Alignment.center, children: [
-        Text('REPOOWL',
+        border: Border(top: BorderSide(color: AppColors.border)),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(
+            'REPOOWL',
             style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: mob ? 56 : 120,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary.withOpacity(0.028),
-                letterSpacing: 12)),
-        Column(children: [
-          mob
-              ? Column(children: _links(mob))
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _links(mob)),
-          const SizedBox(height: 16),
-          const Text('\u00a9 2026 RepoOwl. All rights reserved.',
-              style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: mob ? 56 : 120,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimary.withOpacity(0.028),
+              letterSpacing: 12,
+            ),
+          ),
+          Column(
+            children: [
+              mob
+                  ? Column(children: _links(mob))
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _links(mob),
+                    ),
+              const SizedBox(height: 16),
+              const Text(
+                '\u00a9 2026 RepoOwl. All rights reserved.',
+                style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12,
-                  color: AppColors.textSecondary)),
-        ]),
-      ]),
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -2253,8 +2642,11 @@ class _Footer extends StatelessWidget {
         ? const SizedBox(height: 8)
         : const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Text('\u00b7',
-                style: TextStyle(color: AppColors.textSecondary)));
+            child: Text(
+              '\u00b7',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          );
     return [
       _FLink('GitHub', AppLinks.githubRepo),
       sep(),
@@ -2277,23 +2669,22 @@ class _FLinkState extends State<_FLink> {
   bool _h = false;
   @override
   Widget build(BuildContext context) => MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _h = true),
-        onExit: (_) => setState(() => _h = false),
-        child: GestureDetector(
-          onTap: () => launch(widget.url),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 150),
-            style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 13,
-                color: _h
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary),
-            child: Text(widget.label),
-          ),
+    cursor: SystemMouseCursors.click,
+    onEnter: (_) => setState(() => _h = true),
+    onExit: (_) => setState(() => _h = false),
+    child: GestureDetector(
+      onTap: () => launch(widget.url),
+      child: AnimatedDefaultTextStyle(
+        duration: const Duration(milliseconds: 150),
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 13,
+          color: _h ? AppColors.textPrimary : AppColors.textSecondary,
         ),
-      );
+        child: Text(widget.label),
+      ),
+    ),
+  );
 }
 
 // ================================================================
@@ -2327,8 +2718,10 @@ class _Ship {
     required this.team,
     this.isPlayer = false,
     this.isBoss = false,
-  })  : maxHp = hp,
-        shootCooldown = (isPlayer || isBoss) ? 0 : math.Random().nextDouble() * 1.5;
+  }) : maxHp = hp,
+       shootCooldown = (isPlayer || isBoss)
+           ? 0
+           : math.Random().nextDouble() * 1.5;
 
   void update(double dt, Size size) {
     pos = Offset(pos.dx + vel.dx * dt, pos.dy + vel.dy * dt);
@@ -2345,65 +2738,213 @@ class _Ship {
   // Player ship — pointed arrowhead
   static const List<List<int>> _playerPx = [
     [0, -4],
-    [-1, -3], [0, -3], [1, -3],
-    [-2, -2], [0, -2], [2, -2],
-    [-3, -1], [-1, -1], [1, -1], [3, -1],
-    [-3, 0], [-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [3, 0],
-    [-3, 1], [3, 1],
-    [-3, 2], [3, 2],
+    [-1, -3],
+    [0, -3],
+    [1, -3],
+    [-2, -2],
+    [0, -2],
+    [2, -2],
+    [-3, -1],
+    [-1, -1],
+    [1, -1],
+    [3, -1],
+    [-3, 0],
+    [-2, 0],
+    [-1, 0],
+    [0, 0],
+    [1, 0],
+    [2, 0],
+    [3, 0],
+    [-3, 1],
+    [3, 1],
+    [-3, 2],
+    [3, 2],
   ];
 
   // Rebel X-wing style (allies)
   static const List<List<int>> _allyPx = [
     [0, -4],
     [0, -3],
-    [-1, -2], [0, -2], [1, -2],
-    [-2, -1], [0, -1], [2, -1],
-    [-3, 0], [-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [3, 0],
-    [-3, 1], [-2, 1], [0, 1], [2, 1], [3, 1],
-    [-3, 2], [3, 2],
-    [-3, 3], [3, 3],
+    [-1, -2],
+    [0, -2],
+    [1, -2],
+    [-2, -1],
+    [0, -1],
+    [2, -1],
+    [-3, 0],
+    [-2, 0],
+    [-1, 0],
+    [0, 0],
+    [1, 0],
+    [2, 0],
+    [3, 0],
+    [-3, 1],
+    [-2, 1],
+    [0, 1],
+    [2, 1],
+    [3, 1],
+    [-3, 2],
+    [3, 2],
+    [-3, 3],
+    [3, 3],
   ];
 
   // Star Destroyer style (boss)
   static const List<List<int>> _bossPx = [
     [0, -8],
-    [-1, -7], [0, -7], [1, -7],
-    [-1, -6], [0, -6], [1, -6],
-    [-2, -5], [-1, -5], [0, -5], [1, -5], [2, -5],
-    [-2, -4], [0, -4], [2, -4],
-    [-3, -3], [-2, -3], [-1, -3], [0, -3], [1, -3], [2, -3], [3, -3],
-    [-3, -2], [-1, -2], [1, -2], [3, -2],
-    [-4, -1], [-3, -1], [-2, -1], [-1, -1], [0, -1], [1, -1], [2, -1], [3, -1], [4, -1],
-    [-4, 0], [-1, 0], [0, 0], [1, 0], [4, 0],
-    [-5, 1], [-4, 1], [-3, 1], [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1],
-    [-5, 2], [-2, 2], [2, 2], [5, 2],
-    [-6, 3], [-5, 3], [-4, 3], [-3, 3], [-2, 3], [-1, 3], [0, 3], [1, 3], [2, 3], [3, 3], [4, 3], [5, 3], [6, 3],
-    [-6, 4], [-4, 4], [-2, 4], [2, 4], [4, 4], [6, 4],
-    [-6, 5], [-5, 5], [-4, 5], [-3, 5], [-2, 5], [-1, 5], [0, 5], [1, 5], [2, 5], [3, 5], [4, 5], [5, 5], [6, 5],
-    [-5, 6], [-4, 6], [-2, 6], [-1, 6], [1, 6], [2, 6], [4, 6], [5, 6],
-    [-4, 7], [-3, 7], [-1, 7], [0, 7], [1, 7], [3, 7], [4, 7],
+    [-1, -7],
+    [0, -7],
+    [1, -7],
+    [-1, -6],
+    [0, -6],
+    [1, -6],
+    [-2, -5],
+    [-1, -5],
+    [0, -5],
+    [1, -5],
+    [2, -5],
+    [-2, -4],
+    [0, -4],
+    [2, -4],
+    [-3, -3],
+    [-2, -3],
+    [-1, -3],
+    [0, -3],
+    [1, -3],
+    [2, -3],
+    [3, -3],
+    [-3, -2],
+    [-1, -2],
+    [1, -2],
+    [3, -2],
+    [-4, -1],
+    [-3, -1],
+    [-2, -1],
+    [-1, -1],
+    [0, -1],
+    [1, -1],
+    [2, -1],
+    [3, -1],
+    [4, -1],
+    [-4, 0],
+    [-1, 0],
+    [0, 0],
+    [1, 0],
+    [4, 0],
+    [-5, 1],
+    [-4, 1],
+    [-3, 1],
+    [-2, 1],
+    [-1, 1],
+    [0, 1],
+    [1, 1],
+    [2, 1],
+    [3, 1],
+    [4, 1],
+    [5, 1],
+    [-5, 2],
+    [-2, 2],
+    [2, 2],
+    [5, 2],
+    [-6, 3],
+    [-5, 3],
+    [-4, 3],
+    [-3, 3],
+    [-2, 3],
+    [-1, 3],
+    [0, 3],
+    [1, 3],
+    [2, 3],
+    [3, 3],
+    [4, 3],
+    [5, 3],
+    [6, 3],
+    [-6, 4],
+    [-4, 4],
+    [-2, 4],
+    [2, 4],
+    [4, 4],
+    [6, 4],
+    [-6, 5],
+    [-5, 5],
+    [-4, 5],
+    [-3, 5],
+    [-2, 5],
+    [-1, 5],
+    [0, 5],
+    [1, 5],
+    [2, 5],
+    [3, 5],
+    [4, 5],
+    [5, 5],
+    [6, 5],
+    [-5, 6],
+    [-4, 6],
+    [-2, 6],
+    [-1, 6],
+    [1, 6],
+    [2, 6],
+    [4, 6],
+    [5, 6],
+    [-4, 7],
+    [-3, 7],
+    [-1, 7],
+    [0, 7],
+    [1, 7],
+    [3, 7],
+    [4, 7],
   ];
 
   // Advanced Enemy Warship
   static const List<List<int>> _enemyPx = [
     [0, -4],
-    [-1, -3], [0, -3], [1, -3],
-    [-2, -2], [-1, -2], [0, -2], [1, -2], [2, -2],
-    [-3, -1], [-2, -1], [2, -1], [3, -1],
-    [-4, 0], [-3, 0], [-1, 0], [0, 0], [1, 0], [3, 0], [4, 0],
-    [-4, 1], [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1], [4, 1],
-    [-3, 2], [-2, 2], [2, 2], [3, 2],
-    [-2, 3], [-1, 3], [1, 3], [2, 3],
-    [-1, 4], [1, 4],
+    [-1, -3],
+    [0, -3],
+    [1, -3],
+    [-2, -2],
+    [-1, -2],
+    [0, -2],
+    [1, -2],
+    [2, -2],
+    [-3, -1],
+    [-2, -1],
+    [2, -1],
+    [3, -1],
+    [-4, 0],
+    [-3, 0],
+    [-1, 0],
+    [0, 0],
+    [1, 0],
+    [3, 0],
+    [4, 0],
+    [-4, 1],
+    [-2, 1],
+    [-1, 1],
+    [0, 1],
+    [1, 1],
+    [2, 1],
+    [4, 1],
+    [-3, 2],
+    [-2, 2],
+    [2, 2],
+    [3, 2],
+    [-2, 3],
+    [-1, 3],
+    [1, 3],
+    [2, 3],
+    [-1, 4],
+    [1, 4],
   ];
 
   void draw(Canvas canvas, {double opacity = 1.0}) {
     List<List<int>> pixels = _enemyPx;
-    if (isPlayer) pixels = _playerPx;
-    else if (team == 0) pixels = _allyPx;
-    else if (isBoss) pixels = _bossPx;
-    
+    if (isPlayer)
+      pixels = _playerPx;
+    else if (team == 0)
+      pixels = _allyPx;
+    else if (isBoss)
+      pixels = _bossPx;
+
     final brightness = (hp / maxHp).clamp(0.0, 1.0);
     final paint = Paint()
       ..style = PaintingStyle.fill
@@ -2436,8 +2977,12 @@ class _Bullet {
   final bool isPill;
   double life;
 
-  _Bullet({required this.pos, required this.vel, required this.color, this.isPill = false})
-      : life = 2.5;
+  _Bullet({
+    required this.pos,
+    required this.vel,
+    required this.color,
+    this.isPill = false,
+  }) : life = 2.5;
 
   bool update(double dt, Size size) {
     pos = Offset(pos.dx + vel.dx * dt, pos.dy + vel.dy * dt);
@@ -2445,7 +2990,8 @@ class _Bullet {
     if (pos.dx < -20 ||
         pos.dx > size.width + 20 ||
         pos.dy < -20 ||
-        pos.dy > size.height + 20) return false;
+        pos.dy > size.height + 20)
+      return false;
     return life > 0;
   }
 
@@ -2453,26 +2999,36 @@ class _Bullet {
     canvas.save();
     canvas.translate(pos.dx, pos.dy);
     canvas.rotate(math.atan2(vel.dy, vel.dx));
-    
+
     if (isPill) {
       final pillGlow = Paint()
         ..color = color.withOpacity(0.6)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
       final pillSolid = Paint()..color = color;
       final rect = Rect.fromCenter(center: Offset.zero, width: 14, height: 6);
-      canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(3)), pillGlow);
-      canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(3)), pillSolid);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(3)),
+        pillGlow,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(3)),
+        pillSolid,
+      );
     } else {
       final glow = Paint()
         ..color = color.withOpacity(0.45)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
       final solid = Paint()..color = color;
       canvas.drawRect(
-          Rect.fromCenter(center: Offset.zero, width: 10, height: 3), glow);
+        Rect.fromCenter(center: Offset.zero, width: 10, height: 3),
+        glow,
+      );
       canvas.drawRect(
-          Rect.fromCenter(center: Offset.zero, width: 7, height: 2), solid);
+        Rect.fromCenter(center: Offset.zero, width: 7, height: 2),
+        solid,
+      );
     }
-    
+
     canvas.restore();
   }
 }
@@ -2485,15 +3041,14 @@ class _Explosion {
   final List<Offset> dirs;
 
   _Explosion({required this.pos, required this.color})
-      : life = 0.7,
-        maxLife = 0.7,
-        dirs = List.generate(14, (i) {
-          final rng = math.Random();
-          final a =
-              (i / 14.0) * 2 * math.pi + rng.nextDouble() * 0.4;
-          final spd = 50 + rng.nextDouble() * 90;
-          return Offset(math.cos(a) * spd, math.sin(a) * spd);
-        });
+    : life = 0.7,
+      maxLife = 0.7,
+      dirs = List.generate(14, (i) {
+        final rng = math.Random();
+        final a = (i / 14.0) * 2 * math.pi + rng.nextDouble() * 0.4;
+        final spd = 50 + rng.nextDouble() * 90;
+        return Offset(math.cos(a) * spd, math.sin(a) * spd);
+      });
 
   bool update(double dt) {
     life -= dt;
@@ -2505,11 +3060,11 @@ class _Explosion {
     for (final d in dirs) {
       final pPos = pos + d * (1 - t);
       canvas.drawRect(
-          Rect.fromCenter(center: pPos, width: 3.5, height: 3.5),
-          Paint()
-            ..color = color.withOpacity(t * 0.85)
-            ..maskFilter =
-                MaskFilter.blur(BlurStyle.normal, 2 + (1 - t) * 5));
+        Rect.fromCenter(center: pPos, width: 3.5, height: 3.5),
+        Paint()
+          ..color = color.withOpacity(t * 0.85)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2 + (1 - t) * 5),
+      );
     }
   }
 }
@@ -2551,7 +3106,9 @@ class _OrbitWarsGame {
   }
 
   void _spawnShip({required int team, bool isBoss = false}) {
-    final color = team == 0 ? _companionColor : (isBoss ? _bossColor : _enemyColor);
+    final color = team == 0
+        ? _companionColor
+        : (isBoss ? _bossColor : _enemyColor);
     Offset pos;
     double angle;
     if (isBoss) {
@@ -2559,26 +3116,39 @@ class _OrbitWarsGame {
       angle = math.pi;
     } else {
       final edge = _rng.nextInt(4);
-      if (edge == 0) pos = Offset(_rng.nextDouble() * size.width, -40);
-      else if (edge == 1) pos = Offset(size.width + 40, _rng.nextDouble() * size.height);
-      else if (edge == 2) pos = Offset(_rng.nextDouble() * size.width, size.height + 40);
-      else pos = Offset(-40, _rng.nextDouble() * size.height);
-      
+      if (edge == 0)
+        pos = Offset(_rng.nextDouble() * size.width, -40);
+      else if (edge == 1)
+        pos = Offset(size.width + 40, _rng.nextDouble() * size.height);
+      else if (edge == 2)
+        pos = Offset(_rng.nextDouble() * size.width, size.height + 40);
+      else
+        pos = Offset(-40, _rng.nextDouble() * size.height);
+
       final center = Offset(size.width / 2, size.height / 2);
       final toCenter = center - pos;
-      angle = math.atan2(toCenter.dy, toCenter.dx) + (_rng.nextDouble() - 0.5) * 1.5;
+      angle =
+          math.atan2(toCenter.dy, toCenter.dx) +
+          (_rng.nextDouble() - 0.5) * 1.5;
     }
-    
-    final speed = isBoss ? 20.0 : (team == 0 ? 35 + _rng.nextDouble() * 30 : 28 + _rng.nextDouble() * 45);
+
+    final speed = isBoss
+        ? 20.0
+        : (team == 0
+              ? 35 + _rng.nextDouble() * 30
+              : 28 + _rng.nextDouble() * 45);
     final hp = isBoss ? 60.0 : (team == 0 ? 5.0 : 4.0);
-    ships.add(_Ship(
+    ships.add(
+      _Ship(
         pos: pos,
         vel: Offset(math.cos(angle) * speed, math.sin(angle) * speed),
         angle: angle,
         hp: hp,
         color: color,
         team: team,
-        isBoss: isBoss));
+        isBoss: isBoss,
+      ),
+    );
   }
 
   _Ship? _nearestEnemy(_Ship s) {
@@ -2608,20 +3178,20 @@ class _OrbitWarsGame {
     if (cursorPos != null) {
       if (player == null) {
         player = _Ship(
-            pos: cursorPos!,
-            vel: Offset.zero,
-            angle: -math.pi / 2,
-            hp: 15,
-            color: _playerColor,
-            team: 0,
-            isPlayer: true);
+          pos: cursorPos!,
+          vel: Offset.zero,
+          angle: -math.pi / 2,
+          hp: 15,
+          color: _playerColor,
+          team: 0,
+          isPlayer: true,
+        );
         ships.add(player);
       } else {
         final diff = cursorPos! - player.pos;
         final dist = diff.distance;
         if (dist > 2) {
-          player.pos =
-              player.pos + diff * (dt * 9).clamp(0.0, 1.0);
+          player.pos = player.pos + diff * (dt * 9).clamp(0.0, 1.0);
           player.angle = math.atan2(diff.dy, diff.dx) + math.pi / 2;
         }
         if (player.shootCooldown <= 0) {
@@ -2631,8 +3201,7 @@ class _OrbitWarsGame {
             player.shootCooldown = 0.5;
           } else {
             final enemy = _nearestEnemy(player);
-            if (enemy != null &&
-                (enemy.pos - player.pos).distance < 280) {
+            if (enemy != null && (enemy.pos - player.pos).distance < 280) {
               _shoot(player);
               player.shootCooldown = 0.32;
             }
@@ -2654,9 +3223,9 @@ class _OrbitWarsGame {
           ship.vel = const Offset(15, 0); // horizontal
           ship.angle = 0; // rotate 90 deg (broadside)
         }
-        
+
         if (ship.phase == 0) {
-          ship.angle = math.pi; 
+          ship.angle = math.pi;
           ship.vel = const Offset(0, 30);
           ship.shootCooldown -= dt;
           if (ship.shootCooldown <= 0) {
@@ -2679,18 +3248,15 @@ class _OrbitWarsGame {
       final target = _nearestEnemy(ship);
       if (target != null && ship._rotateCooldown <= 0) {
         final toTarget = target.pos - ship.pos;
-        final targetAngle =
-            math.atan2(toTarget.dy, toTarget.dx) + math.pi / 2;
+        final targetAngle = math.atan2(toTarget.dy, toTarget.dx) + math.pi / 2;
         double da = targetAngle - ship.angle;
         while (da > math.pi) da -= 2 * math.pi;
         while (da < -math.pi) da += 2 * math.pi;
         ship.angle += da.clamp(-3.0, 3.0) * dt;
 
-        final speed =
-            ship.vel.distance.clamp(25.0, 75.0);
+        final speed = ship.vel.distance.clamp(25.0, 75.0);
         final facing = ship.angle - math.pi / 2;
-        ship.vel =
-            Offset(math.cos(facing) * speed, math.sin(facing) * speed);
+        ship.vel = Offset(math.cos(facing) * speed, math.sin(facing) * speed);
 
         if (ship.shootCooldown <= 0 && da.abs() < 0.45) {
           _shoot(ship);
@@ -2717,14 +3283,21 @@ class _OrbitWarsGame {
         if (b.color == _companionColor && s.team == 0) continue;
         if (b.color == _playerColor && s.team == 0) continue;
         if (b.isPill && s.team == 0) continue;
-        if ((b.color == _enemyColor || b.color == _bossColor) && s.team == 1) continue;
+        if ((b.color == _enemyColor || b.color == _bossColor) && s.team == 1)
+          continue;
         final hitDist = s.isBoss ? 45.0 : 18.0;
         if ((b.pos - s.pos).distance < hitDist) {
           if (b.isPill) {
             s.hp -= 5;
-            explosions.add(_Explosion(pos: b.pos, color: const Color(0xFF00FFFF)));
-            explosions.add(_Explosion(pos: b.pos + const Offset(15, -15), color: s.color));
-            explosions.add(_Explosion(pos: b.pos + const Offset(-15, 15), color: s.color));
+            explosions.add(
+              _Explosion(pos: b.pos, color: const Color(0xFF00FFFF)),
+            );
+            explosions.add(
+              _Explosion(pos: b.pos + const Offset(15, -15), color: s.color),
+            );
+            explosions.add(
+              _Explosion(pos: b.pos + const Offset(-15, 15), color: s.color),
+            );
           } else {
             s.hp -= 1;
             explosions.add(_Explosion(pos: b.pos, color: s.color));
@@ -2750,17 +3323,17 @@ class _OrbitWarsGame {
       spawnTimer = 0;
       final enemyCount = ships.where((s) => s.team == 1 && !s.isBoss).length;
       final allyCount = ships.where((s) => s.team == 0 && !s.isPlayer).length;
-      
+
       if (enemyCount < _maxEnemies) _spawnShip(team: 1);
       if (allyCount < _maxAllies && _rng.nextBool()) _spawnShip(team: 0);
     }
 
     bossSpawnTimer -= dt;
     if (bossSpawnTimer <= 0) {
-       bossSpawnTimer = 45.0 + _rng.nextDouble() * 20.0; // every 45–65 s
-       if (ships.where((s) => s.isBoss).isEmpty) {
-         _spawnShip(team: 1, isBoss: true);
-       }
+      bossSpawnTimer = 45.0 + _rng.nextDouble() * 20.0; // every 45–65 s
+      if (ships.where((s) => s.isBoss).isEmpty) {
+        _spawnShip(team: 1, isBoss: true);
+      }
     }
   }
 
@@ -2782,13 +3355,13 @@ class _OrbitWarsGame {
       dir = Offset(math.cos(facing), math.sin(facing));
     }
     const speed = 320.0;
-    
+
     if (dual) {
       // Spread dual shots perpendicular to travel direction
       final perp = Offset(-dir.dy, dir.dx);
       final left = ship.pos + dir * 20 + perp * 14;
       final right = ship.pos + dir * 20 - perp * 14;
-      bullets.add(_Bullet(pos: left,  vel: dir * speed, color: ship.color));
+      bullets.add(_Bullet(pos: left, vel: dir * speed, color: ship.color));
       bullets.add(_Bullet(pos: right, vel: dir * speed, color: ship.color));
     } else {
       final tip = ship.pos + dir * 22;
@@ -2800,14 +3373,25 @@ class _OrbitWarsGame {
   void _shootBossBroadside(_Ship boss) {
     final player = ships.where((s) => s.isPlayer).firstOrNull;
     if (player == null) return;
-    
+
     final toPlayer = player.pos - boss.pos;
     final targetAngle = math.atan2(toPlayer.dy, toPlayer.dx);
     final speed = 250.0;
-    final vel = Offset(math.cos(targetAngle) * speed, math.sin(targetAngle) * speed);
-    
-    bullets.add(_Bullet(pos: boss.pos + const Offset(-40, 0), vel: vel, color: boss.color));
-    bullets.add(_Bullet(pos: boss.pos + const Offset(40, 0), vel: vel, color: boss.color));
+    final vel = Offset(
+      math.cos(targetAngle) * speed,
+      math.sin(targetAngle) * speed,
+    );
+
+    bullets.add(
+      _Bullet(
+        pos: boss.pos + const Offset(-40, 0),
+        vel: vel,
+        color: boss.color,
+      ),
+    );
+    bullets.add(
+      _Bullet(pos: boss.pos + const Offset(40, 0), vel: vel, color: boss.color),
+    );
   }
 
   // Player shoots a powerful pill bullet at the boss
@@ -2815,8 +3399,18 @@ class _OrbitWarsGame {
     final toTarget = target.pos - player.pos;
     final targetAngle = math.atan2(toTarget.dy, toTarget.dx);
     final speed = 350.0;
-    final vel = Offset(math.cos(targetAngle) * speed, math.sin(targetAngle) * speed);
-    bullets.add(_Bullet(pos: player.pos, vel: vel, color: const Color(0xFF00FFFF), isPill: true));
+    final vel = Offset(
+      math.cos(targetAngle) * speed,
+      math.sin(targetAngle) * speed,
+    );
+    bullets.add(
+      _Bullet(
+        pos: player.pos,
+        vel: vel,
+        color: const Color(0xFF00FFFF),
+        isPill: true,
+      ),
+    );
   }
 }
 
@@ -2825,8 +3419,7 @@ class _OrbitWarsGame {
 class OrbitWarsBackground extends StatefulWidget {
   const OrbitWarsBackground({super.key});
   @override
-  State<OrbitWarsBackground> createState() =>
-      _OrbitWarsBackgroundState();
+  State<OrbitWarsBackground> createState() => _OrbitWarsBackgroundState();
 }
 
 class _OrbitWarsBackgroundState extends State<OrbitWarsBackground>
@@ -2840,8 +3433,9 @@ class _OrbitWarsBackgroundState extends State<OrbitWarsBackground>
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-        vsync: this, duration: const Duration(hours: 99))
-      ..forward();
+      vsync: this,
+      duration: const Duration(hours: 99),
+    )..forward();
     _ctrl.addListener(_tick);
   }
 
@@ -2866,18 +3460,20 @@ class _OrbitWarsBackgroundState extends State<OrbitWarsBackground>
       cursor: SystemMouseCursors.none,
       onExit: (_) => setState(() => _game.cursorPos = null),
       onHover: (e) => _game.cursorPos = e.localPosition,
-      child: LayoutBuilder(builder: (context, c) {
-        final sz = Size(c.maxWidth, c.maxHeight);
-        if (sz != _size && sz.width > 0 && sz.height > 0) {
-          _size = sz;
-          _game.size = sz;
-          if (_game.ships.isEmpty) _game.init(sz);
-        }
-        return CustomPaint(
-          size: sz,
-          painter: _OrbitWarsPainter(game: _game, size: sz),
-        );
-      }),
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final sz = Size(c.maxWidth, c.maxHeight);
+          if (sz != _size && sz.width > 0 && sz.height > 0) {
+            _size = sz;
+            _game.size = sz;
+            if (_game.ships.isEmpty) _game.init(sz);
+          }
+          return CustomPaint(
+            size: sz,
+            painter: _OrbitWarsPainter(game: _game, size: sz),
+          );
+        },
+      ),
     );
   }
 }
@@ -2894,8 +3490,7 @@ class _OrbitWarsPainter extends CustomPainter {
     final linePaint = Paint()
       ..color = const Color(0xFF2F81F7).withOpacity(0.065)
       ..strokeWidth = 0.5;
-    final dotPaint = Paint()
-      ..color = const Color(0xFF2F81F7).withOpacity(0.2);
+    final dotPaint = Paint()..color = const Color(0xFF2F81F7).withOpacity(0.2);
 
     for (double x = 0; x <= size.width; x += g) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), linePaint);
@@ -2921,8 +3516,7 @@ class _OrbitWarsPainter extends CustomPainter {
         ],
         stops: const [0.0, 0.5, 1.0],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawRect(
-        Rect.fromLTWH(0, 0, size.width, size.height), shimmer);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), shimmer);
   }
 
   @override
@@ -2955,14 +3549,19 @@ class _OrbitWarsPainter extends CustomPainter {
       final ratio = (s.hp / s.maxHp).clamp(0.0, 1.0);
       final barOpacity = inTextZone ? 0.35 : 1.0;
       canvas.drawRRect(
-          RRect.fromRectAndRadius(
-              Rect.fromLTWH(bx, by, bw, bh), const Radius.circular(2)),
-          Paint()..color = Colors.white.withOpacity(0.1 * barOpacity));
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(bx, by, bw, bh),
+          const Radius.circular(2),
+        ),
+        Paint()..color = Colors.white.withOpacity(0.1 * barOpacity),
+      );
       canvas.drawRRect(
-          RRect.fromRectAndRadius(
-              Rect.fromLTWH(bx, by, bw * ratio, bh),
-              const Radius.circular(2)),
-          Paint()..color = s.color.withOpacity(0.8 * barOpacity));
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(bx, by, bw * ratio, bh),
+          const Radius.circular(2),
+        ),
+        Paint()..color = s.color.withOpacity(0.8 * barOpacity),
+      );
     }
 
     // Cursor reticle
@@ -2976,13 +3575,25 @@ class _OrbitWarsPainter extends CustomPainter {
       const gap = 6.0;
       const arm = 12.0;
       canvas.drawLine(
-          Offset(cp.dx - gap - arm, cp.dy), Offset(cp.dx - gap, cp.dy), rPaint);
+        Offset(cp.dx - gap - arm, cp.dy),
+        Offset(cp.dx - gap, cp.dy),
+        rPaint,
+      );
       canvas.drawLine(
-          Offset(cp.dx + gap, cp.dy), Offset(cp.dx + gap + arm, cp.dy), rPaint);
+        Offset(cp.dx + gap, cp.dy),
+        Offset(cp.dx + gap + arm, cp.dy),
+        rPaint,
+      );
       canvas.drawLine(
-          Offset(cp.dx, cp.dy - gap - arm), Offset(cp.dx, cp.dy - gap), rPaint);
+        Offset(cp.dx, cp.dy - gap - arm),
+        Offset(cp.dx, cp.dy - gap),
+        rPaint,
+      );
       canvas.drawLine(
-          Offset(cp.dx, cp.dy + gap), Offset(cp.dx, cp.dy + gap + arm), rPaint);
+        Offset(cp.dx, cp.dy + gap),
+        Offset(cp.dx, cp.dy + gap + arm),
+        rPaint,
+      );
     }
   }
 
@@ -2995,7 +3606,8 @@ class _AsciiDonut extends StatefulWidget {
   State<_AsciiDonut> createState() => _AsciiDonutState();
 }
 
-class _AsciiDonutState extends State<_AsciiDonut> with SingleTickerProviderStateMixin {
+class _AsciiDonutState extends State<_AsciiDonut>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
   double A = 0;
   double B = 0;
@@ -3004,9 +3616,10 @@ class _AsciiDonutState extends State<_AsciiDonut> with SingleTickerProviderState
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(seconds: 1))
-      ..addListener(_updateFrame)
-      ..repeat();
+    _ctrl =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1))
+          ..addListener(_updateFrame)
+          ..repeat();
   }
 
   void _updateFrame() {
@@ -3028,14 +3641,20 @@ class _AsciiDonutState extends State<_AsciiDonut> with SingleTickerProviderState
         final x = (40 + 30 * D * (cp * h * cosB - t * sinB)).toInt();
         final y = (12 + 15 * D * (cp * h * sinB + t * cosB)).toInt();
         final o = x + 80 * y;
-        final N = (8 * ((st * sinA - sp * ct * cosA) * cosB - sp * ct * sinA - st * cosA - cp * ct * sinB)).toInt();
+        final N =
+            (8 *
+                    ((st * sinA - sp * ct * cosA) * cosB -
+                        sp * ct * sinA -
+                        st * cosA -
+                        cp * ct * sinB))
+                .toInt();
         if (y > 0 && y < 22 && x > 0 && x < 80 && D > z[o]) {
           z[o] = D;
           b[o] = ".,-~:;=!*#\$@"[math.max(N, 0)];
         }
       }
     }
-    
+
     final StringBuffer sb = StringBuffer();
     for (int k = 0; k < 1760; k++) {
       sb.write(k % 80 != 0 ? b[k] : '\n');
