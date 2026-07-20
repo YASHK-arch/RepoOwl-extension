@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
