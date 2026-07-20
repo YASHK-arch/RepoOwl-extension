@@ -7,8 +7,13 @@ export function TrackedRepos() {
   const [repos, setRepos] = useState([]);
   const [newRepo, setNewRepo] = useState('');
   const [status, setStatus] = useState({ type: '', message: '' });
-  const [syncing, setSyncing] = useState(null);
-  const [syncLogs, setSyncLogs] = useState([]);
+  
+  const [syncingIssues, setSyncingIssues] = useState(null);
+  const [syncingPRs, setSyncingPRs] = useState(null);
+  
+  const [syncLogsIssues, setSyncLogsIssues] = useState([]);
+  const [syncLogsPRs, setSyncLogsPRs] = useState([]);
+  
   const [mediatorStatus, setMediatorStatus] = useState({});
 
   const fetchStatus = (repo) => {
@@ -50,11 +55,23 @@ export function TrackedRepos() {
   useEffect(() => {
     const logListener = (msg) => {
       if (msg.action === 'sync_progress' && msg.message) {
-        setSyncLogs(prev => {
-          const newLogs = [...prev, msg.message];
-          // Keep the last 50 logs to prevent memory issues
-          return newLogs.length > 50 ? newLogs.slice(newLogs.length - 50) : newLogs;
-        });
+        if (msg.log_type === 'issue') {
+          setSyncLogsIssues(prev => {
+            const newLogs = [...prev, msg.message];
+            return newLogs.length > 50 ? newLogs.slice(newLogs.length - 50) : newLogs;
+          });
+        } else if (msg.log_type === 'pr') {
+          setSyncLogsPRs(prev => {
+            const newLogs = [...prev, msg.message];
+            return newLogs.length > 50 ? newLogs.slice(newLogs.length - 50) : newLogs;
+          });
+        } else {
+          // Fallback if log_type is missing
+          setSyncLogsIssues(prev => {
+            const newLogs = [...prev, msg.message];
+            return newLogs.length > 50 ? newLogs.slice(newLogs.length - 50) : newLogs;
+          });
+        }
       }
     };
     
@@ -84,7 +101,6 @@ export function TrackedRepos() {
     const repo = newRepo.trim();
     if (!repo) return;
     
-    // Basic validation for owner/repo
     if (!repo.includes('/') || repo.split('/').length !== 2) {
       setStatus({ type: 'error', message: 'Repository must be in owner/repo format.' });
       return;
@@ -115,23 +131,44 @@ export function TrackedRepos() {
     setStatus({ type: 'success', message: `Removed ${repo}.` });
   };
 
-  const handleForceSync = (repo) => {
-    setSyncing(repo);
+  const handleForceSyncIssues = (repo) => {
+    setSyncingIssues(repo);
     setStatus({ type: '', message: '' });
-    setSyncLogs([`--- Initiated Force Sync for ${repo} ---`]);
+    setSyncLogsIssues([`--- Initiated Issue Sync for ${repo} ---`]);
     
     if (typeof chrome !== 'undefined' && chrome.runtime) {
-      chrome.runtime.sendMessage({ action: 'force_sync', repoName: repo }, (response) => {
-        setSyncing(null);
+      chrome.runtime.sendMessage({ action: 'force_sync_issues', repoName: repo }, (response) => {
+        setSyncingIssues(null);
         if (response && response.success) {
-          setStatus({ type: 'success', message: `Successfully synced ${repo}.` });
+          setStatus({ type: 'success', message: `Successfully synced issues for ${repo}.` });
         } else {
-          setStatus({ type: 'error', message: `Sync failed for ${repo}: ${response?.error || 'Unknown error'}` });
+          setStatus({ type: 'error', message: `Issue Sync failed for ${repo}: ${response?.error || 'Unknown error'}` });
         }
         fetchStatus(repo);
       });
     } else {
-      setSyncing(null);
+      setSyncingIssues(null);
+      setStatus({ type: 'error', message: 'Not in extension environment.' });
+    }
+  };
+  
+  const handleForceSyncPRs = (repo) => {
+    setSyncingPRs(repo);
+    setStatus({ type: '', message: '' });
+    setSyncLogsPRs([`--- Initiated PR Sync for ${repo} ---`]);
+    
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      chrome.runtime.sendMessage({ action: 'force_sync_prs', repoName: repo }, (response) => {
+        setSyncingPRs(null);
+        if (response && response.success) {
+          setStatus({ type: 'success', message: `Successfully synced PRs for ${repo}.` });
+        } else {
+          setStatus({ type: 'error', message: `PR Sync failed for ${repo}: ${response?.error || 'Unknown error'}` });
+        }
+        fetchStatus(repo);
+      });
+    } else {
+      setSyncingPRs(null);
       setStatus({ type: 'error', message: 'Not in extension environment.' });
     }
   };
@@ -205,10 +242,18 @@ export function TrackedRepos() {
                 <button
                   type="button"
                   className="ro-btn ro-btn--secondary"
-                  onClick={() => handleForceSync(repo)}
-                  disabled={syncing === repo}
+                  onClick={() => handleForceSyncIssues(repo)}
+                  disabled={syncingIssues === repo}
                 >
-                  {syncing === repo ? 'Syncing...' : 'Force Sync'}
+                  {syncingIssues === repo ? 'Syncing Issues...' : 'Sync Issues'}
+                </button>
+                <button
+                  type="button"
+                  className="ro-btn ro-btn--secondary"
+                  onClick={() => handleForceSyncPRs(repo)}
+                  disabled={syncingPRs === repo}
+                >
+                  {syncingPRs === repo ? 'Syncing PRs...' : 'Sync PRs'}
                 </button>
                 {repo !== DEFAULT_REPO && (
                   <button
@@ -226,24 +271,53 @@ export function TrackedRepos() {
         </div>
       </div>
 
-      {syncLogs.length > 0 && (
+      {(syncLogsIssues.length > 0 || syncLogsPRs.length > 0) && (
         <div className="ro-section" style={{ marginTop: '20px' }}>
           <h2 className="ro-section-title">Live Sync Logs</h2>
-          <div style={{
-            background: '#1f2328',
-            color: '#e6edf3',
-            fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
-            fontSize: '11px',
-            padding: '12px',
-            borderRadius: '6px',
-            maxHeight: '200px',
-            overflowY: 'auto',
-            whiteSpace: 'pre-wrap',
-            lineHeight: '1.5'
-          }}>
-            {syncLogs.map((log, index) => (
-              <div key={index} style={{ marginBottom: '4px' }}>{log}</div>
-            ))}
+          <div style={{ display: 'flex', gap: '16px' }}>
+            {syncLogsIssues.length > 0 && (
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '13px', marginBottom: '8px', color: '#57606a' }}>Issue Sync</h3>
+                <div style={{
+                  background: '#1f2328',
+                  color: '#e6edf3',
+                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+                  fontSize: '11px',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.5'
+                }}>
+                  {syncLogsIssues.map((log, index) => (
+                    <div key={index} style={{ marginBottom: '4px' }}>{log}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {syncLogsPRs.length > 0 && (
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '13px', marginBottom: '8px', color: '#57606a' }}>Pull Request Sync</h3>
+                <div style={{
+                  background: '#1f2328',
+                  color: '#e6edf3',
+                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+                  fontSize: '11px',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.5'
+                }}>
+                  {syncLogsPRs.map((log, index) => (
+                    <div key={index} style={{ marginBottom: '4px' }}>{log}</div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

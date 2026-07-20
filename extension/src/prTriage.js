@@ -74,6 +74,28 @@ export async function autoLabelPullRequest(repo, prNumber, labels, token) {
   });
 }
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function callGroqWithRetry(groq, options, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await groq.chat.completions.create(options);
+    } catch (e) {
+      if (e.status === 429 && i < retries - 1) {
+        let waitTime = 6000;
+        const match = e.message?.match(/Please try again in ([\d.]+)s/);
+        if (match) {
+          waitTime = Math.ceil(parseFloat(match[1]) * 1000) + 500;
+        }
+        console.warn(`Rate limit hit. Waiting ${waitTime}ms before retry...`);
+        await delay(waitTime);
+      } else {
+        throw e;
+      }
+    }
+  }
+}
+
 export async function processPullRequestMapReduce(repo, pr, keys) {
   const diffFiles = await fetchPRDiffFromGitHub(repo, pr.number, keys.githubToken);
   
@@ -84,13 +106,14 @@ export async function processPullRequestMapReduce(repo, pr, keys) {
   for (const file of diffFiles) {
     const prompt = `Summarize what this file diff does in 2 sentences max.\nFile: ${file.filename}\nDiff:\n${file.patch}`;
     try {
-      const res = await groq.chat.completions.create({
+      const res = await callGroqWithRetry(groq, {
         messages: [{ role: 'user', content: prompt }],
         model: 'llama-3.3-70b-versatile',
         temperature: 0.1
       });
       const summary = res.choices[0]?.message?.content?.trim();
       fileSummaries.push(`${file.filename}: ${summary}`);
+      await delay(1000); // 1s delay between map calls to pace tokens
     } catch (e) {
       console.warn(`Failed to map file ${file.filename}`, e);
     }
@@ -134,7 +157,7 @@ Respond STRICTLY with this JSON schema:
   "recommended_labels": ["string"]
 }`;
 
-  const res = await groq.chat.completions.create({
+  const res = await callGroqWithRetry(groq, {
     messages: [{ role: 'user', content: reducePrompt }],
     model: 'llama-3.3-70b-versatile',
     temperature: 0.1,
