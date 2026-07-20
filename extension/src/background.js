@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import Groq from 'groq-sdk';
 import { DEFAULT_PROMPT_TEMPLATE, buildPromptVariables, formatHistoricalContext, renderPrompt } from '@repoowl/shared';
 import { getSandboxClient, ensureAuthenticatedSession } from './lib/supabase.js';
+import { fetchPullRequestsFromGitHub, processPullRequestMapReduce } from './prTriage.js';
 
 const DELAY_MS = 2000;
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -578,6 +579,39 @@ async function executeSyncQueue(forceRepos = null) {
         const errStr = error.message || String(error);
         broadcast(`[${repo}] Error processing issue #${issue.number}: ${errStr}`);
         continue;
+      }
+    }
+
+    // Process Pull Requests
+    const { data: processedPRs } = await supabase
+      .from('pull_requests')
+      .select('pr_number')
+      .eq('repo_name', repo);
+    const processedPRSet = new Set((processedPRs || []).map(r => r.pr_number));
+    
+    let pendingPRs = [];
+    try {
+      const allPRs = await fetchPullRequestsFromGitHub(repo, keys.githubToken);
+      pendingPRs = allPRs.filter(pr => !processedPRSet.has(pr.number));
+      
+      if (!isMaintainer && currentUserLogin) {
+        pendingPRs = pendingPRs.filter(pr => pr.user && pr.user.login === currentUserLogin);
+      } else if (!isMaintainer) {
+        pendingPRs = [];
+      }
+      
+      broadcast(`[${repo}] ${processedPRSet.size} PRs already analyzed. ${pendingPRs.length} PRs need processing.`);
+    } catch (err) {
+      broadcast(`[${repo}] Error fetching PRs: ${err.message}`);
+    }
+
+    for (const pr of pendingPRs) {
+      try {
+        broadcast(`[${repo}] Analyzing PR #${pr.number} (Slop Detection)...`);
+        await processPullRequestMapReduce(repo, pr, keys);
+        await delay(DELAY_MS);
+      } catch (err) {
+        broadcast(`[${repo}] Error processing PR #${pr.number}: ${err.message}`);
       }
     }
 

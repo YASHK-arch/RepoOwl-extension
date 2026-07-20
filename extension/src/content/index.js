@@ -1,5 +1,6 @@
 import { observeIssueList } from './badgeInjector.js';
 import { observeIssueDetail } from './issueDetailInjector.js';
+import { injectPRAnalysis } from './prDetailInjector.js';
 import { fetchRepositoryInsights } from './fetchIssueInsights.js';
 import { parseGitHubIssuesPage } from '../lib/githubContext.js';
 import { openInsightsOverlay } from '../overlay/OverlayRoot.jsx';
@@ -240,6 +241,30 @@ async function bootstrap() {
   if (page.type === 'new') {
     await enableContributorDraftChecker(page.repository.fullName, localGroqKey);
     return;
+  }
+
+  if (page.type === 'pr_detail') {
+    try {
+      const sandboxClient = await getSandboxClient();
+      if (sandboxClient) {
+        const { data } = await sandboxClient
+          .from('pull_requests')
+          .select('*')
+          .eq('repo_name', page.repository.fullName)
+          .eq('pr_number', page.issueNumber)
+          .single();
+        if (data) {
+          injectPRAnalysis(data);
+        }
+      }
+    } catch (e) {
+      console.warn('[RepoOwl] Failed to fetch PR analysis:', e);
+    }
+    return;
+  }
+  
+  if (page.type === 'pr_list') {
+    return; // Optionally implement PR list badges in the future
   }
 
   // State 3: Two-phase rendering

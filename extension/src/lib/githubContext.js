@@ -1,6 +1,8 @@
 const ISSUE_LIST_PATH = /^\/([^/]+)\/([^/]+)\/issues\/?$/;
 const ISSUE_DETAIL_PATH = /^\/([^/]+)\/([^/]+)\/issues\/(\d+)\/?$/;
 const ISSUE_NEW_PATH = /^\/([^/]+)\/([^/]+)\/issues\/new\/?/;
+const PR_LIST_PATH = /^\/([^/]+)\/([^/]+)\/pulls\/?$/;
+const PR_DETAIL_PATH = /^\/([^/]+)\/([^/]+)\/pull\/(\d+)(?:\/.*)?$/;
 const ISSUE_LINK_PATH = ISSUE_DETAIL_PATH;
 
 function buildRepository(owner, repo) {
@@ -12,6 +14,23 @@ function buildRepository(owner, repo) {
 }
 
 export function parseGitHubIssuesPage(url = window.location) {
+  const prDetailMatch = url.pathname.match(PR_DETAIL_PATH);
+  if (prDetailMatch) {
+    return {
+      type: 'pr_detail',
+      repository: buildRepository(prDetailMatch[1], prDetailMatch[2]),
+      issueNumber: Number(prDetailMatch[3]), // Using issueNumber for compatibility
+    };
+  }
+
+  const prListMatch = url.pathname.match(PR_LIST_PATH);
+  if (prListMatch) {
+    return {
+      type: 'pr_list',
+      repository: buildRepository(prListMatch[1], prListMatch[2]),
+    };
+  }
+
   const detailMatch = url.pathname.match(ISSUE_DETAIL_PATH);
   if (detailMatch) {
     return {
