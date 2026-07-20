@@ -202,12 +202,12 @@ export function injectBadge(row, issueNumber, insight, onBadgeClick) {
 
 /* ─── Scanner ───────────────────────────────────────────────────────── */
 export function scanIssueLinks(repositoryFullName, insightsCache, onBadgeClick) {
-  // Primary: new GitHub data-testid
+  // Primary: new GitHub data-testid — works for both issues AND pull requests
   const titleLinks = document.querySelectorAll('a[data-testid="issue-pr-title-link"]');
 
-  // Fallback: old hovercard or href pattern
+  // Fallback: old hovercard or href pattern (issues only)
   const fallbackLinks = document.querySelectorAll(
-    'a[data-hovercard-type="issue"], a[href*="/issues/"]'
+    'a[data-hovercard-type="issue"], a[data-hovercard-type="pull_request"]'
   );
 
   const allLinks = titleLinks.length > 0 ? titleLinks : fallbackLinks;
@@ -222,6 +222,7 @@ export function scanIssueLinks(repositoryFullName, insightsCache, onBadgeClick) 
     const row = findRowFromLink(link);
     if (!row) continue;
 
+    // issueNumber holds either an issue number or a PR number (parseIssueLink returns it the same way)
     const insight = insightsCache.byNumber.get(parsed.issueNumber) ?? null;
     injectBadge(row, parsed.issueNumber, insight, onBadgeClick);
   }
