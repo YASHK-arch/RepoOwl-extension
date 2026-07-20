@@ -152,6 +152,32 @@ export function TrackedRepos() {
     }
   };
   
+  const handleInitPRs = (repo) => {
+    const pat = window.prompt(`To auto-install RepoOwl GitHub Actions in ${repo}, please enter your GitHub Personal Access Token (PAT) with 'repo' and 'workflow' scopes:`);
+    if (!pat) return;
+
+    // Fetch GROQ API key from storage to pass to background
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.get(['repoOwlConfig'], (result) => {
+        const keys = result.repoOwlConfig || {};
+        if (!keys.groqApiKey && !import.meta.env.VITE_GROQ_API_KEY) {
+          setStatus({ type: 'error', message: 'GROQ_API_KEY is not set in Model Configuration.' });
+          return;
+        }
+        
+        const groqApiKey = keys.groqApiKey || import.meta.env.VITE_GROQ_API_KEY;
+
+        setStatus({ type: '', message: `Initializing PR Analyzer for ${repo}...` });
+        chrome.runtime.sendMessage({ action: 'initialize_repoowl_pr', repoName: repo, githubPat: pat, groqApiKey: groqApiKey }, (response) => {
+          if (response && response.success) {
+            setStatus({ type: 'success', message: `Successfully installed RepoOwl PR Analyzer in ${repo}!` });
+          } else {
+            setStatus({ type: 'error', message: `Failed to install PR Analyzer: ${response?.error || 'Unknown error'}` });
+          }
+        });
+      });
+    }
+  };
 
 
   return (
@@ -227,6 +253,14 @@ export function TrackedRepos() {
                   disabled={syncingIssues === repo}
                 >
                   {syncingIssues === repo ? 'Syncing Issues...' : 'Sync Issues'}
+                </button>
+                
+                <button
+                  type="button"
+                  className="ro-btn ro-btn--primary"
+                  onClick={() => handleInitPRs(repo)}
+                >
+                  🚀 Initialize PR Analyzer
                 </button>
 
                 {repo !== DEFAULT_REPO && (
