@@ -8840,7 +8840,7 @@ async function Xo() {
 var Zo = 2e3, Qo = (e) => new Promise((t) => setTimeout(t, e));
 chrome.runtime.onMessage.addListener((e, t, n) => {
 	if (e.action === "open_settings") chrome.runtime.openOptionsPage();
-	else if (e.action === "force_sync") return us([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
+	else if (e.action === "force_sync_issues") ms([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message }));
 	else if (e.action === "add_repo") $o(e.repoName).catch((e) => console.error("Error auto-publishing config:", e)), n({ success: !0 });
 	else if (e.action === "check_mediator_status") return ns(e.repoName).then((e) => n(e)).catch((e) => n({ error: e.message })), !0;
 });
@@ -8923,7 +8923,7 @@ async function ns(e) {
 chrome.runtime.onInstalled.addListener(() => {
 	chrome.alarms.create("repoOwlHourlySync", { periodInMinutes: 60 });
 }), chrome.alarms.onAlarm.addListener(async (e) => {
-	e.name === "repoOwlHourlySync" && (console.log("Waking up for hourly sync..."), await us());
+	e.name === "repoOwlHourlySync" && (console.log("Waking up for hourly sync..."), await executeSyncQueue());
 });
 async function rs(e, t) {
 	let [n, r] = e.split("/");
@@ -8995,33 +8995,43 @@ function as(e) {
 		])
 	};
 }
-async function os(e, t, n) {
+async function os(e, t, n = 3) {
+	for (let r = 0; r < n; r++) try {
+		return await e.chat.completions.create(t);
+	} catch (e) {
+		if (e.status === 429 && r < n - 1) {
+			let t = 6e3, n = e.message?.match(/Please try again in ([\d.]+)s/);
+			n && (t = Math.ceil(parseFloat(n[1]) * 1e3) + 500), console.warn(`Rate limit hit. Waiting ${t}ms before retry...`), await Qo(t);
+		} else throw e;
+	}
+}
+async function ss(e, t, n) {
 	let r = new $({
 		apiKey: n,
 		dangerouslyAllowBrowser: !0
-	}), i = t.map((e) => `[Issue ID: #${e.issue_number}]\nTitle: ${e.title || "Unknown Title"}\nTechnical Summary: ${e.analysis_summary}`).join("\n\n---\n\n"), a = as(e.body || ""), o = Ho(Vo, Uo({
-		issue_number: e.number,
-		title: e.title,
-		primary_description: a.primary_description || e.body || "No description provided.",
-		context_steps: a.context_steps,
-		expected_outcome: a.expected_outcome,
-		technical_metrics: a.technical_metrics
-	}, i)), s = (await r.chat.completions.create({
+	}), i = t.map((e) => `[Issue ID: #${e.issue_number}]\nTitle: ${e.title || "Unknown Title"}\nTechnical Summary: ${e.analysis_summary}`).join("\n\n---\n\n"), a = as(e.body || ""), o = (await os(r, {
 		messages: [{
 			role: "system",
 			content: "You are an expert GitHub triage AI.\nThe user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\nDo not assume any issues have been resolved, because they are all actively open.\nYour job is to determine if the user's draft is a DUPLICATE of one of these specific OPEN issues.\nIf they are reporting a bug that already exists in this open list, flag it as a duplicate.\nYou must respond in valid JSON format matching this schema:\n{ \"is_duplicate\": boolean, \"analysis_summary\": \"string\" }\nEnsure the JSON is well-formed."
 		}, {
 			role: "user",
-			content: o
+			content: Ho(Vo, Uo({
+				issue_number: e.number,
+				title: e.title,
+				primary_description: a.primary_description || e.body || "No description provided.",
+				context_steps: a.context_steps,
+				expected_outcome: a.expected_outcome,
+				technical_metrics: a.technical_metrics
+			}, i))
 		}],
 		model: "llama-3.3-70b-versatile",
 		temperature: .1,
 		response_format: { type: "json_object" }
 	})).choices[0]?.message?.content?.trim();
-	if (!s) throw Error("Groq API returned an empty response.");
-	return JSON.parse(s);
+	if (!o) throw Error("Groq API returned an empty response.");
+	return JSON.parse(o);
 }
-async function ss(e, t, n, r) {
+async function cs(e, t, n, r) {
 	let { error: i } = await (await Yo()).from("issues").insert({
 		repo_name: e,
 		issue_number: t.number,
@@ -9034,7 +9044,7 @@ async function ss(e, t, n, r) {
 		throw console.error("Supabase insert error details:", e), Error(`Supabase insert failed: ${e}`);
 	}
 }
-async function cs(e, t, n, r) {
+async function ls(e, t, n, r) {
 	let { error: i } = await (await Yo()).from("public_ecosystem_registry").upsert({
 		repo_name: e,
 		total_issues_analyzed: t,
@@ -9046,7 +9056,7 @@ async function cs(e, t, n, r) {
 		throw console.error("Supabase registry update error details:", e), Error(`Registry update failed: ${e}`);
 	}
 }
-async function ls(e, t, n) {
+async function us(e, t, n) {
 	let { data: r, error: i } = await t.from("issues").select("issue_number").eq("repo_name", e).eq("status", "open");
 	if (i || !r) return;
 	let a = new Set(n.map((e) => e.number)), o = r.map((e) => e.issue_number).filter((e) => !a.has(e));
@@ -9056,110 +9066,138 @@ async function ls(e, t, n) {
 		n && console.error("Error closing issues in Supabase:", n);
 	}
 }
-async function us(e = null) {
+async function ds(e) {
 	let t = await chrome.storage.local.get(["repoOwlConfig", "trackedRepositories"]), n = t.repoOwlConfig || {}, r = e || t.trackedRepositories || [];
-	n.groqApiKey, n.supabaseUrl ||= "https://sdgazpgnenkammrlhjel.supabase.co", n.supabaseAnonKey ||= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I";
-	let i = (e) => {
+	return n.groqApiKey, n.supabaseUrl ||= "https://sdgazpgnenkammrlhjel.supabase.co", n.supabaseAnonKey ||= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", {
+		keys: n,
+		repos: r
+	};
+}
+function fs(e) {
+	return (t) => {
 		typeof chrome < "u" && chrome.runtime && chrome.runtime.sendMessage({
 			action: "sync_progress",
-			message: e
-		}).catch(() => {}), console.log(e);
+			message: t,
+			log_type: e
+		}).catch(() => {}), console.log(`[${e}] ${t}`);
 	};
-	if (!n.groqApiKey || !n.supabaseUrl) {
-		i("RepoOwl: API Keys not configured. Skipping sync.");
+}
+async function ps(e, t, n) {
+	let r = !1, i = null, a = await fetch(`https://api.github.com/repos/${e}`, { headers: {
+		Accept: "application/vnd.github+json",
+		"X-GitHub-Api-Version": "2022-11-28",
+		Authorization: `Bearer ${t.githubToken}`
+	} });
+	if (!a.ok) return n(`[${e}] Failed to fetch repo meta. Check token/permissions.`), null;
+	let o = await a.json();
+	if (r = o.permissions?.push === !0 || o.permissions?.admin === !0, !r) try {
+		let e = await fetch("https://api.github.com/user", { headers: {
+			Accept: "application/vnd.github+json",
+			"X-GitHub-Api-Version": "2022-11-28",
+			Authorization: `Bearer ${t.githubToken}`
+		} });
+		e.ok && (i = (await e.json()).login);
+	} catch (t) {
+		n(`[${e}] Error fetching your GitHub username: ${t.message}`);
+	}
+	return {
+		isMaintainer: r,
+		currentUserLogin: i
+	};
+}
+async function ms(e = null) {
+	let { keys: t, repos: n } = await ds(e), r = fs("issue");
+	if (!t.groqApiKey || !t.supabaseUrl) {
+		r("RepoOwl: API Keys not configured. Skipping sync.");
 		return;
 	}
-	let a = await Xo();
-	if (a.error) {
-		i(`RepoOwl: Could not authenticate with Supabase: ${a.error}`);
+	let i = await Xo();
+	if (i.error) {
+		r(`RepoOwl: Could not authenticate with Supabase: ${i.error}`);
 		return;
 	}
-	let o = await Yo();
-	for (let e of r) {
-		i(`\n[${e}] Starting sync...`);
-		let t = !1, r = null;
+	let a = await Yo();
+	for (let e of n) {
+		r(`\n[${e}] Starting issue sync...`);
+		let n = !1, i = null;
 		try {
-			let a = await fetch(`https://api.github.com/repos/${e}`, { headers: {
-				Accept: "application/vnd.github+json",
-				"X-GitHub-Api-Version": "2022-11-28",
-				Authorization: `Bearer ${n.githubToken}`
-			} });
-			if (!a.ok) {
-				i(`[${e}] Failed to fetch repo meta. Check token/permissions.`);
-				continue;
-			}
-			let o = await a.json();
-			if (t = o.permissions?.push === !0 || o.permissions?.admin === !0, t) {
-				i(`[${e}] Confirmed Maintainer. Fetching issues...`);
+			let a = await ps(e, t, r);
+			if (!a) continue;
+			if (n = a.isMaintainer, i = a.currentUserLogin, n) {
+				r(`[${e}] Confirmed Maintainer. Fetching issues...`);
 				try {
-					await es(e, n), await ts(e, n, i);
+					await es(e, t), await ts(e, t, r);
 				} catch (t) {
-					i(`[${e}] Warning: Failed to auto-publish Hub config: ${t.message}`);
+					r(`[${e}] Warning: Failed to auto-publish Hub config: ${t.message}`);
 				}
 			} else {
-				i(`[${e}] Contributor detected. Starting Sandbox sync...`);
+				r(`[${e}] Contributor detected. Starting Sandbox sync...`);
 				try {
-					let e = await fetch("https://api.github.com/user", { headers: {
-						Accept: "application/vnd.github+json",
-						"X-GitHub-Api-Version": "2022-11-28",
-						Authorization: `Bearer ${n.githubToken}`
-					} });
-					e.ok && (r = (await e.json()).login);
-				} catch (t) {
-					i(`[${e}] Error fetching your GitHub username: ${t.message}`);
-				}
-				try {
-					let [t, n] = e.split("/"), r = null;
-					r = Ki("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } });
+					let [t, n] = e.split("/"), i = null;
+					i = Ki("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } });
 					let a = null;
-					if (r) {
-						let { data: o, error: s } = await r.from("registry").select("supabase_url, supabase_anon_key").eq("owner", t).eq("repo", n).single();
+					if (i) {
+						let { data: o, error: s } = await i.from("registry").select("supabase_url, supabase_anon_key").eq("owner", t).eq("repo", n).single();
 						!s && o && (a = {
 							supabaseUrl: o.supabase_url,
 							supabaseAnonKey: o.supabase_anon_key
-						}, i(`[${e}] Discovered Hub config from Central Mediator.`));
+						}, r(`[${e}] Discovered Hub config from Central Mediator.`));
 					}
 					if (!a) {
-						i(`[${e}] Central Mediator returned no config. Falling back to repoowl.json...`);
+						r(`[${e}] Central Mediator returned no config. Falling back to repoowl.json...`);
 						let t = await fetch(`https://raw.githubusercontent.com/${e}/main/repoowl.json`);
-						t.ok && (a = await t.json(), i(`[${e}] Discovered Hub config from repoowl.json.`));
+						t.ok && (a = await t.json(), r(`[${e}] Discovered Hub config from repoowl.json.`));
 					}
 					if (a) {
 						let { data: t, error: n } = await Ki(a.supabaseUrl, a.supabaseAnonKey, { auth: { persistSession: !1 } }).from("issues").select("id, issue_number, is_duplicate, analysis_summary").eq("repo_name", e).eq("status", "open");
-						!n && t && (await chrome.storage.local.set({ [`hub_cache_${e}`]: t }), i(`[${e}] Hydrated UI with ${t.length} issues from Maintainer's Hub.`));
-					} else i(`[${e}] No public Hub found for this repository.`);
+						!n && t && (await chrome.storage.local.set({ [`hub_cache_${e}`]: t }), r(`[${e}] Hydrated UI with ${t.length} issues from Maintainer's Hub.`));
+					} else r(`[${e}] No public Hub found for this repository.`);
 				} catch (t) {
-					i(`[${e}] Error hydrating Hub data: ${t.message}`);
+					r(`[${e}] Error hydrating Hub data: ${t.message}`);
 				}
 			}
 		} catch (t) {
-			i(`[${e}] Error checking permissions: ${t.message}`);
+			r(`[${e}] Error checking permissions: ${t.message}`);
 			continue;
 		}
-		let { data: a } = await o.from("issues").select("issue_number, is_duplicate").eq("repo_name", e), s = new Set((a || []).map((e) => e.issue_number)), c = s.size, l = (a || []).filter((e) => e.is_duplicate).length, u = await rs(e, n.githubToken);
-		t && await ls(e, o, u);
-		let d = u.filter((e) => !s.has(e.number));
-		t ? i(`[${e}] ${s.size} already processed. ${d.length} issues need processing.`) : r ? (d = d.filter((e) => e.user && e.user.login === r), i(`[${e}] Found ${d.length} unprocessed issues authored by you.`)) : (i(`[${e}] Could not determine your GitHub username, skipping sandbox processing.`), d = []);
-		for (let t of d) try {
-			i(`[${e}] Processing issue #${t.number}...`);
-			let r = await is(e, n);
-			r.forEach((e) => {
-				let t = u.find((t) => t.number === e.issue_number);
+		let o, s, c, l;
+		try {
+			let { data: n, error: r } = await a.from("issues").select("issue_number, is_duplicate").eq("repo_name", e);
+			if (r) throw Error(`Failed to fetch processed issues: ${r.message || JSON.stringify(r)}`);
+			s = new Set((n || []).map((e) => e.issue_number)), c = s.size, l = (n || []).filter((e) => e.is_duplicate).length, o = await rs(e, t.githubToken);
+		} catch (t) {
+			r(`[${e}] Error during issue fetching: ${t.message}`);
+			continue;
+		}
+		n && await us(e, a, o);
+		let u = o.filter((e) => !s.has(e.number));
+		n ? r(`[${e}] ${s.size} already processed. ${u.length} issues need processing.`) : i ? (u = u.filter((e) => e.user && e.user.login === i), r(`[${e}] Found ${u.length} unprocessed issues authored by you.`)) : (r(`[${e}] Could not determine your GitHub username, skipping sandbox processing.`), u = []);
+		for (let n of u) try {
+			r(`[${e}] Processing issue #${n.number}...`);
+			let i = await is(e, t);
+			i.forEach((e) => {
+				let t = o.find((t) => t.number === e.issue_number);
 				t && (e.title = t.title);
 			});
-			let a = await os(t, r, n.groqApiKey);
-			await ss(e, t, a, n), c++, a.is_duplicate && l++, await Qo(Zo);
-		} catch (n) {
-			let r = n.message || String(n);
-			i(`[${e}] Error processing issue #${t.number}: ${r}`);
+			let a = await ss(n, i, t.groqApiKey);
+			await cs(e, n, a, t), c++, a.is_duplicate && l++, await Qo(Zo);
+		} catch (t) {
+			let i = t.message || String(t);
+			r(`[${e}] Error processing issue #${n.number}: ${i}`);
 			continue;
 		}
-		let f = c, p = l;
-		if (!t) {
-			let t = (await chrome.storage.local.get([`hub_cache_${e}`]))[`hub_cache_${e}`] || [], n = new Set(t.map((e) => e.issue_number));
-			s.forEach((e) => n.add(e)), f = n.size, p = l + t.filter((e) => e.is_duplicate).length;
+		let d = c, f = l;
+		if (n) try {
+			let { data: t } = await a.from("issues").select("id, issue_number, is_duplicate, analysis_summary").eq("repo_name", e).eq("status", "open");
+			t && await chrome.storage.local.set({ [`hub_cache_${e}`]: t });
+		} catch (e) {
+			console.error(e);
 		}
-		await cs(e, f, p, n), i(`[${e}] Sync complete. Total Analyzed: ${f}, Duplicates: ${p}`);
+		else {
+			let t = (await chrome.storage.local.get([`hub_cache_${e}`]))[`hub_cache_${e}`] || [], n = new Set(t.map((e) => e.issue_number));
+			s.forEach((e) => n.add(e)), d = n.size, f = l + t.filter((e) => e.is_duplicate).length;
+		}
+		await ls(e, d, f, t), r(`[${e}] Issue Sync complete. Total Analyzed: ${d}, Duplicates: ${f}`);
 	}
 }
 //#endregion

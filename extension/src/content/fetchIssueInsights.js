@@ -103,3 +103,64 @@ export async function fetchIssueInsight(repositoryFullName, issueNumber) {
 
   return { data: finalData ? { ...finalData, is_processed: true } : null, error: null };
 }
+
+async function fetchPRsFromClient(client, repositoryFullName) {
+  if (!client) return [];
+  try {
+    const { data, error } = await client
+      .from('pull_requests')
+      .select('id, pr_number, slop_detection, issue_resolution, domain_impact, recommended_labels')
+      .eq('repo_name', repositoryFullName);
+
+    if (error) {
+      console.error("[RepoOwl] Supabase Fetch Error:", error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (err) {
+    console.error("[RepoOwl] Unexpected Fetch Error:", err);
+    return [];
+  }
+}
+
+export async function fetchPullRequestInsights(repositoryFullName) {
+  const sandboxClient = await getSandboxClient();
+  const hubClient = await getHubClient();
+
+  if (!sandboxClient && !hubClient) {
+    return {
+      byNumber: new Map(),
+      byId: new Map(),
+      error: 'RepoOwl is not configured.',
+    };
+  }
+
+  // Dual-Layer fetch
+  const [sandboxData, hubData] = await Promise.all([
+    fetchPRsFromClient(sandboxClient, repositoryFullName),
+    fetchPRsFromClient(hubClient, repositoryFullName)
+  ]);
+
+  const sandboxMap = sandboxData.reduce((acc, pr) => {
+    acc[pr.pr_number] = pr;
+    return acc;
+  }, {});
+
+  const hubMap = hubData.reduce((acc, pr) => {
+    acc[pr.pr_number] = pr;
+    return acc;
+  }, {});
+
+  // The Cascade Merge: Hub overwrites Sandbox
+  const finalMergedData = { ...sandboxMap, ...hubMap };
+
+  const byNumber = new Map();
+  const byId = new Map();
+
+  for (const row of Object.values(finalMergedData)) {
+    byNumber.set(row.pr_number, { ...row, is_processed: true, type: 'pr' });
+    byId.set(row.id, { ...row, is_processed: true, type: 'pr' });
+  }
+
+  return { byNumber, byId, error: null };
+}

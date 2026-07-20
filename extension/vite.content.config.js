@@ -18,6 +18,9 @@ export default defineConfig({
     }
   },
   define: {
-    'process.env': {}
+    'process.env': JSON.stringify({}),
+    'process.env.NODE_ENV': JSON.stringify('production'),
+    'process': { env: {} }
   }
 });
+

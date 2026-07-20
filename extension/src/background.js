@@ -1,18 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 import Groq from 'groq-sdk';
 import { DEFAULT_PROMPT_TEMPLATE, buildPromptVariables, formatHistoricalContext, renderPrompt } from '@repoowl/shared';
-import { getSandboxClient, ensureAuthenticatedSession } from './lib/supabase.js';
-
-const DELAY_MS = 2000;
+import { getSandboxClient, ensureAuthenticatedSession } from './lib/supabase.js';const DELAY_MS = 2000;
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Existing message listener for options page
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'open_settings') {
     chrome.runtime.openOptionsPage();
-  } else if (message.action === 'force_sync') {
-    executeSyncQueue([message.repoName]).then(() => sendResponse({ success: true })).catch(err => sendResponse({ error: err.message }));
-    return true; // Keep message channel open for async
+  } else if (message.action === 'force_sync_issues') {
+    executeIssueSyncQueue([message.repoName]).then(() => sendResponse({ success: true })).catch(err => sendResponse({ error: err.message }));
   } else if (message.action === 'add_repo') {
     handleNewRepoAdded(message.repoName).catch(err => console.error("Error auto-publishing config:", err));
     sendResponse({ success: true });
@@ -249,6 +246,26 @@ function parseIssueTemplateFields(body) {
   };
 }
 
+async function callGroqWithRetry(groq, options, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await groq.chat.completions.create(options);
+    } catch (e) {
+      if (e.status === 429 && i < retries - 1) {
+        let waitTime = 6000;
+        const match = e.message?.match(/Please try again in ([\d.]+)s/);
+        if (match) {
+          waitTime = Math.ceil(parseFloat(match[1]) * 1000) + 500;
+        }
+        console.warn(`Rate limit hit. Waiting ${waitTime}ms before retry...`);
+        await delay(waitTime);
+      } else {
+        throw e;
+      }
+    }
+  }
+}
+
 async function callGroqAPI(issue, history, apiKey) {
   const groq = new Groq({ apiKey: apiKey, dangerouslyAllowBrowser: true });
   
@@ -270,7 +287,7 @@ async function callGroqAPI(issue, history, apiKey) {
   const variables = buildPromptVariables(mappedIssue, historicalContextLog);
   const prompt = renderPrompt(DEFAULT_PROMPT_TEMPLATE, variables);
 
-  const response = await groq.chat.completions.create({
+  const response = await callGroqWithRetry(groq, {
     messages: [
       {
         role: 'system',
@@ -370,7 +387,8 @@ async function closeMissingOpenIssues(repo, supabase, newGithubOpenIssues) {
   }
 }
 
-async function executeSyncQueue(forceRepos = null) {
+
+async function initSyncEnv(forceRepos) {
   const storage = await chrome.storage.local.get(['repoOwlConfig', 'trackedRepositories']);
   let keys = storage.repoOwlConfig || {};
   const repos = forceRepos || storage.trackedRepositories || [];
@@ -385,19 +403,67 @@ async function executeSyncQueue(forceRepos = null) {
     keys.supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   }
 
-  const broadcast = (msg) => {
+  return { keys, repos };
+}
+
+function createBroadcast(type) {
+  return (msg) => {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
-      chrome.runtime.sendMessage({ action: 'sync_progress', message: msg }).catch(() => {});
+      chrome.runtime.sendMessage({ action: 'sync_progress', message: msg, log_type: type }).catch(() => {});
     }
-    console.log(msg);
+    console.log(`[${type}] ${msg}`);
   };
+}
+
+async function getRepoMetaAndUser(repo, keys, broadcast) {
+  let isMaintainer = false;
+  let currentUserLogin = null;
+  const repoMetaResponse = await fetch(`https://api.github.com/repos/${repo}`, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Authorization': `Bearer ${keys.githubToken}`
+    }
+  });
+  
+  if (!repoMetaResponse.ok) {
+    broadcast(`[${repo}] Failed to fetch repo meta. Check token/permissions.`);
+    return null;
+  }
+  
+  const repoMeta = await repoMetaResponse.json();
+  isMaintainer = repoMeta.permissions?.push === true || repoMeta.permissions?.admin === true;
+
+  if (!isMaintainer) {
+    try {
+      const userResponse = await fetch('https://api.github.com/user', {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Authorization': `Bearer ${keys.githubToken}`
+        }
+      });
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        currentUserLogin = userData.login;
+      }
+    } catch (e) {
+      broadcast(`[${repo}] Error fetching your GitHub username: ${e.message}`);
+    }
+  }
+
+  return { isMaintainer, currentUserLogin };
+}
+
+async function executeIssueSyncQueue(forceRepos = null) {
+  const { keys, repos } = await initSyncEnv(forceRepos);
+  const broadcast = createBroadcast('issue');
 
   if (!keys.groqApiKey || !keys.supabaseUrl) {
     broadcast("RepoOwl: API Keys not configured. Skipping sync.");
     return;
   }
 
-  // Pre-fetch all processed issues to avoid re-processing
   const authResult = await ensureAuthenticatedSession();
   if (authResult.error) {
     broadcast(`RepoOwl: Could not authenticate with Supabase: ${authResult.error}`);
@@ -406,47 +472,19 @@ async function executeSyncQueue(forceRepos = null) {
   const supabase = await getSandboxClient();
 
   for (const repo of repos) {
-    broadcast(`\n[${repo}] Starting sync...`);
+    broadcast(`\n[${repo}] Starting issue sync...`);
     
     let isMaintainer = false;
     let currentUserLogin = null;
 
     try {
-      const repoMetaResponse = await fetch(`https://api.github.com/repos/${repo}`, {
-        headers: {
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-          'Authorization': `Bearer ${keys.githubToken}`
-        }
-      });
-      
-      if (!repoMetaResponse.ok) {
-        broadcast(`[${repo}] Failed to fetch repo meta. Check token/permissions.`);
-        continue;
-      }
-      
-      const repoMeta = await repoMetaResponse.json();
-      isMaintainer = repoMeta.permissions?.push === true || repoMeta.permissions?.admin === true;
+      const meta = await getRepoMetaAndUser(repo, keys, broadcast);
+      if (!meta) continue;
+      isMaintainer = meta.isMaintainer;
+      currentUserLogin = meta.currentUserLogin;
 
       if (!isMaintainer) {
         broadcast(`[${repo}] Contributor detected. Starting Sandbox sync...`);
-        
-        try {
-          const userResponse = await fetch('https://api.github.com/user', {
-            headers: {
-              Accept: 'application/vnd.github+json',
-              'X-GitHub-Api-Version': '2022-11-28',
-              'Authorization': `Bearer ${keys.githubToken}`
-            }
-          });
-          if (userResponse.ok) {
-            const userData = await userResponse.json();
-            currentUserLogin = userData.login;
-          }
-        } catch (e) {
-          broadcast(`[${repo}] Error fetching your GitHub username: ${e.message}`);
-        }
-
         // Phase 1: Hub Hydration
         try {
           const [owner, name] = repo.split('/');
@@ -523,17 +561,31 @@ async function executeSyncQueue(forceRepos = null) {
       continue;
     }
 
-    // Check which issues are already processed
-    const { data: processedIssues } = await supabase
-      .from('issues')
-      .select('issue_number, is_duplicate')
-      .eq('repo_name', repo);
-      
-    const processedSet = new Set((processedIssues || []).map(r => r.issue_number));
-    let currentAnalyzed = processedSet.size;
-    let currentDuplicates = (processedIssues || []).filter(r => r.is_duplicate).length;
+    let newIssues;
+    let processedSet;
+    let currentAnalyzed;
+    let currentDuplicates;
+    
+    try {
+      // Check which issues are already processed
+      const { data: processedIssues, error: fetchError } = await supabase
+        .from('issues')
+        .select('issue_number, is_duplicate')
+        .eq('repo_name', repo);
+        
+      if (fetchError) {
+        throw new Error(`Failed to fetch processed issues: ${fetchError.message || JSON.stringify(fetchError)}`);
+      }
+        
+      processedSet = new Set((processedIssues || []).map(r => r.issue_number));
+      currentAnalyzed = processedSet.size;
+      currentDuplicates = (processedIssues || []).filter(r => r.is_duplicate).length;
 
-    const newIssues = await fetchFromGitHub(repo, keys.githubToken);
+      newIssues = await fetchFromGitHub(repo, keys.githubToken);
+    } catch (err) {
+      broadcast(`[${repo}] Error during issue fetching: ${err.message}`);
+      continue;
+    }
     
     // Only close missing issues if we are a maintainer processing the whole repo
     if (isMaintainer) {
@@ -592,13 +644,19 @@ async function executeSyncQueue(forceRepos = null) {
         processedSet.forEach(num => hubSet.add(num));
         totalHubAndSandbox = hubSet.size;
         totalDuplicates = currentDuplicates + hubIssues.filter(i => i.is_duplicate).length;
+    } else {
+        // Maintainers are the Hub: refresh the cache for instant UI loads
+        try {
+            const { data: updatedIssues } = await supabase.from('issues').select('id, issue_number, is_duplicate, analysis_summary').eq('repo_name', repo).eq('status', 'open');
+            if (updatedIssues) await chrome.storage.local.set({ [`hub_cache_${repo}`]: updatedIssues });
+        } catch (e) {
+            console.error(e);
+        }
     }
     
     // 3. Broadcast updated stats to the Global Registry
     await updateGlobalRegistry(repo, totalHubAndSandbox, totalDuplicates, keys);
     
-    broadcast(`[${repo}] Sync complete. Total Analyzed: ${totalHubAndSandbox}, Duplicates: ${totalDuplicates}`);
+    broadcast(`[${repo}] Issue Sync complete. Total Analyzed: ${totalHubAndSandbox}, Duplicates: ${totalDuplicates}`);
   }
 }
-
-
