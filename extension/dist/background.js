@@ -9262,7 +9262,7 @@ async function bs(e = null) {
 				r(`[${e}] Contributor detected. Starting Sandbox sync...`);
 				try {
 					let [t, n] = e.split("/"), i = null;
-					fromClient = !0, i = Ki("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } });
+					i = Ki("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } });
 					let a = null;
 					if (i) {
 						let { data: o, error: s } = await i.from("registry").select("supabase_url, supabase_anon_key").eq("owner", t).eq("repo", n).single();
@@ -9288,15 +9288,23 @@ async function bs(e = null) {
 			r(`[${e}] Error checking permissions: ${t.message}`);
 			continue;
 		}
-		let { data: o } = await a.from("issues").select("issue_number, is_duplicate").eq("repo_name", e), s = new Set((o || []).map((e) => e.issue_number)), c = s.size, l = (o || []).filter((e) => e.is_duplicate).length, u = await ls(e, t.githubToken);
-		n && await gs(e, a, u);
-		let d = u.filter((e) => !s.has(e.number));
-		n ? r(`[${e}] ${s.size} already processed. ${d.length} issues need processing.`) : i ? (d = d.filter((e) => e.user && e.user.login === i), r(`[${e}] Found ${d.length} unprocessed issues authored by you.`)) : (r(`[${e}] Could not determine your GitHub username, skipping sandbox processing.`), d = []);
-		for (let n of d) try {
+		let o, s, c, l;
+		try {
+			let { data: n, error: r } = await a.from("issues").select("issue_number, is_duplicate").eq("repo_name", e);
+			if (r) throw Error(`Failed to fetch processed issues: ${r.message || JSON.stringify(r)}`);
+			s = new Set((n || []).map((e) => e.issue_number)), c = s.size, l = (n || []).filter((e) => e.is_duplicate).length, o = await ls(e, t.githubToken);
+		} catch (t) {
+			r(`[${e}] Error during issue fetching: ${t.message}`);
+			continue;
+		}
+		n && await gs(e, a, o);
+		let u = o.filter((e) => !s.has(e.number));
+		n ? r(`[${e}] ${s.size} already processed. ${u.length} issues need processing.`) : i ? (u = u.filter((e) => e.user && e.user.login === i), r(`[${e}] Found ${u.length} unprocessed issues authored by you.`)) : (r(`[${e}] Could not determine your GitHub username, skipping sandbox processing.`), u = []);
+		for (let n of u) try {
 			r(`[${e}] Processing issue #${n.number}...`);
 			let i = await us(e, t);
 			i.forEach((e) => {
-				let t = u.find((t) => t.number === e.issue_number);
+				let t = o.find((t) => t.number === e.issue_number);
 				t && (e.title = t.title);
 			});
 			let a = await ps(n, i, t.groqApiKey);
@@ -9306,12 +9314,18 @@ async function bs(e = null) {
 			r(`[${e}] Error processing issue #${n.number}: ${i}`);
 			continue;
 		}
-		let f = c, p = l;
-		if (!n) {
-			let t = (await chrome.storage.local.get([`hub_cache_${e}`]))[`hub_cache_${e}`] || [], n = new Set(t.map((e) => e.issue_number));
-			s.forEach((e) => n.add(e)), f = n.size, p = l + t.filter((e) => e.is_duplicate).length;
+		let d = c, f = l;
+		if (n) try {
+			let { data: t } = await a.from("issues").select("id, issue_number, is_duplicate, analysis_summary").eq("repo_name", e).eq("status", "open");
+			t && await chrome.storage.local.set({ [`hub_cache_${e}`]: t });
+		} catch (e) {
+			console.error(e);
 		}
-		await hs(e, f, p, t), r(`[${e}] Issue Sync complete. Total Analyzed: ${f}, Duplicates: ${p}`);
+		else {
+			let t = (await chrome.storage.local.get([`hub_cache_${e}`]))[`hub_cache_${e}`] || [], n = new Set(t.map((e) => e.issue_number));
+			s.forEach((e) => n.add(e)), d = n.size, f = l + t.filter((e) => e.is_duplicate).length;
+		}
+		await hs(e, d, f, t), r(`[${e}] Issue Sync complete. Total Analyzed: ${d}, Duplicates: ${f}`);
 	}
 }
 async function xs(e = null) {
@@ -9337,16 +9351,25 @@ async function xs(e = null) {
 			r(`[${e}] Error checking permissions: ${t.message}`);
 			continue;
 		}
-		let { data: o } = await a.from("pull_requests").select("pr_number").eq("repo_name", e), s = new Set((o || []).map((e) => e.pr_number)), c = [];
+		let o = /* @__PURE__ */ new Set(), s = [];
 		try {
-			c = (await Zo(e, t.githubToken)).filter((e) => !s.has(e.number)), !n && i ? c = c.filter((e) => e.user && e.user.login === i) : n || (c = []), r(`[${e}] ${s.size} PRs already analyzed. ${c.length} PRs need processing.`);
+			let { data: c, error: l } = await a.from("pull_requests").select("pr_number").eq("repo_name", e);
+			if (l) throw Error(`Failed to fetch processed PRs: ${l.message || JSON.stringify(l)}`);
+			o = new Set((c || []).map((e) => e.pr_number)), s = (await Zo(e, t.githubToken)).filter((e) => !o.has(e.number)), !n && i ? s = s.filter((e) => e.user && e.user.login === i) : n || (s = []), r(`[${e}] ${o.size} PRs already analyzed. ${s.length} PRs need processing.`);
 		} catch (t) {
 			r(`[${e}] Error fetching PRs: ${t.message}`);
+			continue;
 		}
-		for (let n of c) try {
+		for (let n of s) try {
 			r(`[${e}] Analyzing PR #${n.number} (Slop Detection)...`), await ns(e, n, t), await is(rs);
 		} catch (t) {
 			r(`[${e}] Error processing PR #${n.number}: ${t.message}`);
+		}
+		try {
+			let { data: t } = await a.from("pull_requests").select("id, pr_number, slop_detection, issue_resolution, domain_impact, recommended_labels").eq("repo_name", e);
+			t && await chrome.storage.local.set({ [`pr_hub_cache_${e}`]: t });
+		} catch (e) {
+			console.error(e);
 		}
 		r(`[${e}] PR Sync complete.`);
 	}

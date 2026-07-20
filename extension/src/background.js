@@ -500,8 +500,6 @@ async function executeIssueSyncQueue(forceRepos = null) {
           const centralKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
           let centralSupabase = null;
           if (centralUrl && centralKey) {
-            fromClient = true;
-            // Hack to make sure createClient works, since it's imported at top
             centralSupabase = createClient(centralUrl, centralKey, { auth: { persistSession: false } });
           }
 
@@ -570,17 +568,31 @@ async function executeIssueSyncQueue(forceRepos = null) {
       continue;
     }
 
-    // Check which issues are already processed
-    const { data: processedIssues } = await supabase
-      .from('issues')
-      .select('issue_number, is_duplicate')
-      .eq('repo_name', repo);
-      
-    const processedSet = new Set((processedIssues || []).map(r => r.issue_number));
-    let currentAnalyzed = processedSet.size;
-    let currentDuplicates = (processedIssues || []).filter(r => r.is_duplicate).length;
+    let newIssues;
+    let processedSet;
+    let currentAnalyzed;
+    let currentDuplicates;
+    
+    try {
+      // Check which issues are already processed
+      const { data: processedIssues, error: fetchError } = await supabase
+        .from('issues')
+        .select('issue_number, is_duplicate')
+        .eq('repo_name', repo);
+        
+      if (fetchError) {
+        throw new Error(`Failed to fetch processed issues: ${fetchError.message || JSON.stringify(fetchError)}`);
+      }
+        
+      processedSet = new Set((processedIssues || []).map(r => r.issue_number));
+      currentAnalyzed = processedSet.size;
+      currentDuplicates = (processedIssues || []).filter(r => r.is_duplicate).length;
 
-    const newIssues = await fetchFromGitHub(repo, keys.githubToken);
+      newIssues = await fetchFromGitHub(repo, keys.githubToken);
+    } catch (err) {
+      broadcast(`[${repo}] Error during issue fetching: ${err.message}`);
+      continue;
+    }
     
     // Only close missing issues if we are a maintainer processing the whole repo
     if (isMaintainer) {
@@ -639,6 +651,14 @@ async function executeIssueSyncQueue(forceRepos = null) {
         processedSet.forEach(num => hubSet.add(num));
         totalHubAndSandbox = hubSet.size;
         totalDuplicates = currentDuplicates + hubIssues.filter(i => i.is_duplicate).length;
+    } else {
+        // Maintainers are the Hub: refresh the cache for instant UI loads
+        try {
+            const { data: updatedIssues } = await supabase.from('issues').select('id, issue_number, is_duplicate, analysis_summary').eq('repo_name', repo).eq('status', 'open');
+            if (updatedIssues) await chrome.storage.local.set({ [`hub_cache_${repo}`]: updatedIssues });
+        } catch (e) {
+            console.error(e);
+        }
     }
     
     // 3. Broadcast updated stats to the Global Registry
@@ -680,15 +700,20 @@ async function executePRSyncQueue(forceRepos = null) {
       continue;
     }
 
-    // Process Pull Requests
-    const { data: processedPRs } = await supabase
-      .from('pull_requests')
-      .select('pr_number')
-      .eq('repo_name', repo);
-    const processedPRSet = new Set((processedPRs || []).map(r => r.pr_number));
-    
+    let processedPRSet = new Set();
     let pendingPRs = [];
+    
     try {
+      const { data: processedPRs, error: fetchError } = await supabase
+        .from('pull_requests')
+        .select('pr_number')
+        .eq('repo_name', repo);
+        
+      if (fetchError) {
+        throw new Error(`Failed to fetch processed PRs: ${fetchError.message || JSON.stringify(fetchError)}`);
+      }
+      
+      processedPRSet = new Set((processedPRs || []).map(r => r.pr_number));
       const allPRs = await fetchPullRequestsFromGitHub(repo, keys.githubToken);
       pendingPRs = allPRs.filter(pr => !processedPRSet.has(pr.number));
       
@@ -701,6 +726,7 @@ async function executePRSyncQueue(forceRepos = null) {
       broadcast(`[${repo}] ${processedPRSet.size} PRs already analyzed. ${pendingPRs.length} PRs need processing.`);
     } catch (err) {
       broadcast(`[${repo}] Error fetching PRs: ${err.message}`);
+      continue;
     }
 
     for (const pr of pendingPRs) {
@@ -711,6 +737,14 @@ async function executePRSyncQueue(forceRepos = null) {
       } catch (err) {
         broadcast(`[${repo}] Error processing PR #${pr.number}: ${err.message}`);
       }
+    }
+    
+    // Refresh PR cache for instant UI loads
+    try {
+        const { data: updatedPRs } = await supabase.from('pull_requests').select('id, pr_number, slop_detection, issue_resolution, domain_impact, recommended_labels').eq('repo_name', repo);
+        if (updatedPRs) await chrome.storage.local.set({ [`pr_hub_cache_${repo}`]: updatedPRs });
+    } catch (e) {
+        console.error(e);
     }
     
     broadcast(`[${repo}] PR Sync complete.`);

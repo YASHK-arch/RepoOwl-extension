@@ -88,17 +88,29 @@ export function parseIssueLink(href) {
     }
   }
 
-  const match = pathname.match(ISSUE_LINK_PATH);
-  if (!match) {
-    return null;
+  const issueMatch = pathname.match(ISSUE_DETAIL_PATH);
+  if (issueMatch) {
+    return {
+      owner: issueMatch[1],
+      repo: issueMatch[2],
+      issueNumber: Number(issueMatch[3]),
+      fullName: `${issueMatch[1]}/${issueMatch[2]}`,
+      type: 'issue'
+    };
   }
 
-  return {
-    owner: match[1],
-    repo: match[2],
-    issueNumber: Number(match[3]),
-    fullName: `${match[1]}/${match[2]}`,
-  };
+  const prMatch = pathname.match(PR_DETAIL_PATH);
+  if (prMatch) {
+    return {
+      owner: prMatch[1],
+      repo: prMatch[2],
+      issueNumber: Number(prMatch[3]),
+      fullName: `${prMatch[1]}/${prMatch[2]}`,
+      type: 'pr'
+    };
+  }
+
+  return null;
 }
 
 export function isIssueListPage(url = window.location) {
