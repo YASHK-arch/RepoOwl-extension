@@ -1,6 +1,7 @@
 import { observeIssueList } from './badgeInjector.js';
 import { observeIssueDetail } from './issueDetailInjector.js';
-import { fetchRepositoryInsights } from './fetchIssueInsights.js';
+import { injectPRBadges } from './prDetailInjector.js';
+import { fetchRepositoryInsights, fetchPullRequestInsights } from './fetchIssueInsights.js';
 import { parseGitHubIssuesPage } from '../lib/githubContext.js';
 import { openInsightsOverlay } from '../overlay/OverlayRoot.jsx';
 import Groq from 'groq-sdk';
@@ -242,17 +243,26 @@ async function bootstrap() {
     return;
   }
 
+  if (page.type === 'pr_detail') {
+    injectPRBadges();
+    return;
+  }
+
+  // pr_list falls through to the same badge rendering path below
+
   // State 3: Two-phase rendering
   // Phase 1 (INSTANT): Paint badges immediately from the local hub_cache written by background.js.
   // This makes badges appear in <50ms instead of waiting for the Supabase round-trip.
   let cachedInsights = { byNumber: new Map(), byId: new Map(), error: null };
   try {
-    const cacheKey = `hub_cache_${page.repository.fullName}`;
+    const cacheKey = page.type === 'pr_list' ? `pr_hub_cache_${page.repository.fullName}` : `hub_cache_${page.repository.fullName}`;
     const cacheResult = await chrome.storage.local.get([cacheKey]);
     const cachedRows = cacheResult[cacheKey] || [];
     if (cachedRows.length > 0) {
       for (const row of cachedRows) {
-        cachedInsights.byNumber.set(row.issue_number, { ...row, is_processed: true });
+        // PR cache rows use pr_number, issue cache rows use issue_number
+        const num = row.pr_number ?? row.issue_number;
+        cachedInsights.byNumber.set(num, { ...row, is_processed: true });
         if (row.id) cachedInsights.byId.set(row.id, { ...row, is_processed: true });
       }
     }
@@ -274,12 +284,13 @@ async function bootstrap() {
   };
 
   // State 4: Paint immediately with cached data
-  if (page.type === 'list') {
+  if (page.type === 'list' || page.type === 'pr_list') {
+    const fetchFunc = page.type === 'pr_list' ? fetchPullRequestInsights : fetchRepositoryInsights;
     const observer = observeIssueList(page.repository.fullName, cachedInsights, handleBadgeClick);
 
     // Phase 2 (ASYNC): Fetch fresh data from Supabase in the background.
     // When it arrives, update badges in-place without any blocking.
-    fetchRepositoryInsights(page.repository.fullName).then((freshInsights) => {
+    fetchFunc(page.repository.fullName).then((freshInsights) => {
       if (freshInsights.error) {
         console.warn('[RepoOwl]', freshInsights.error);
         return;

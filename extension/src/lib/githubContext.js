@@ -1,6 +1,8 @@
 const ISSUE_LIST_PATH = /^\/([^/]+)\/([^/]+)\/issues\/?$/;
 const ISSUE_DETAIL_PATH = /^\/([^/]+)\/([^/]+)\/issues\/(\d+)\/?$/;
 const ISSUE_NEW_PATH = /^\/([^/]+)\/([^/]+)\/issues\/new\/?/;
+const PR_LIST_PATH = /^\/([^/]+)\/([^/]+)\/pulls\/?$/;
+const PR_DETAIL_PATH = /^\/([^/]+)\/([^/]+)\/pull\/(\d+)(?:\/.*)?$/;
 const ISSUE_LINK_PATH = ISSUE_DETAIL_PATH;
 
 function buildRepository(owner, repo) {
@@ -12,6 +14,23 @@ function buildRepository(owner, repo) {
 }
 
 export function parseGitHubIssuesPage(url = window.location) {
+  const prDetailMatch = url.pathname.match(PR_DETAIL_PATH);
+  if (prDetailMatch) {
+    return {
+      type: 'pr_detail',
+      repository: buildRepository(prDetailMatch[1], prDetailMatch[2]),
+      issueNumber: Number(prDetailMatch[3]), // Using issueNumber for compatibility
+    };
+  }
+
+  const prListMatch = url.pathname.match(PR_LIST_PATH);
+  if (prListMatch) {
+    return {
+      type: 'pr_list',
+      repository: buildRepository(prListMatch[1], prListMatch[2]),
+    };
+  }
+
   const detailMatch = url.pathname.match(ISSUE_DETAIL_PATH);
   if (detailMatch) {
     return {
@@ -69,17 +88,29 @@ export function parseIssueLink(href) {
     }
   }
 
-  const match = pathname.match(ISSUE_LINK_PATH);
-  if (!match) {
-    return null;
+  const issueMatch = pathname.match(ISSUE_DETAIL_PATH);
+  if (issueMatch) {
+    return {
+      owner: issueMatch[1],
+      repo: issueMatch[2],
+      issueNumber: Number(issueMatch[3]),
+      fullName: `${issueMatch[1]}/${issueMatch[2]}`,
+      type: 'issue'
+    };
   }
 
-  return {
-    owner: match[1],
-    repo: match[2],
-    issueNumber: Number(match[3]),
-    fullName: `${match[1]}/${match[2]}`,
-  };
+  const prMatch = pathname.match(PR_DETAIL_PATH);
+  if (prMatch) {
+    return {
+      owner: prMatch[1],
+      repo: prMatch[2],
+      issueNumber: Number(prMatch[3]),
+      fullName: `${prMatch[1]}/${prMatch[2]}`,
+      type: 'pr'
+    };
+  }
+
+  return null;
 }
 
 export function isIssueListPage(url = window.location) {
