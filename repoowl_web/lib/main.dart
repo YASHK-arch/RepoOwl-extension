@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  RepoOwl Landing Page — lib/main.dart
 //  Self-contained. Does NOT touch any other folder of the ext.
 // ============================================================
@@ -10,7 +10,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'ascii_art.dart';
 import 'ascii_art_background.dart';
 
 // --------------- Constants ---------------
@@ -1707,9 +1706,7 @@ class _BentoSectionState extends State<BentoSection> {
         return Stack(
           children: [
             // ASCII Art Background — rendered via HtmlElementView
-            const Positioned.fill(
-              child: AsciiArtBackground(),
-            ),
+            const Positioned.fill(child: AsciiArtBackground()),
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(
@@ -3246,7 +3243,7 @@ class _OrbitWarsGame {
       }
 
       final target = _nearestEnemy(ship);
-      
+
       // Calculate repulsion from ALL ships to prevent overlapping
       Offset repulsion = Offset.zero;
       for (final other in ships) {
@@ -3269,7 +3266,8 @@ class _OrbitWarsGame {
         // If stuck in a close orbit (dogfight swirl), sometimes break away randomly
         if (targetDist < 70 && _rng.nextDouble() < 0.02) {
           ship._rotateCooldown = 1.0 + _rng.nextDouble() * 1.0;
-          ship.angle += (_rng.nextBool() ? 1 : -1) * (math.pi / 1.5 + _rng.nextDouble());
+          ship.angle +=
+              (_rng.nextBool() ? 1 : -1) * (math.pi / 1.5 + _rng.nextDouble());
         } else {
           ship.angle += da.clamp(-3.0, 3.0) * dt;
         }
@@ -3279,37 +3277,54 @@ class _OrbitWarsGame {
           double daUp = 0.0 - ship.angle;
           while (daUp > math.pi) daUp -= 2 * math.pi;
           while (daUp < -math.pi) daUp += 2 * math.pi;
-          final pull = ((ship.pos.dy - size.height * 0.55) / (size.height * 0.4)).clamp(0.0, 1.0);
+          final pull =
+              ((ship.pos.dy - size.height * 0.55) / (size.height * 0.4)).clamp(
+                0.0,
+                1.0,
+              );
           ship.angle += daUp * 2.0 * pull * dt;
         }
 
         final speed = ship.vel.distance.clamp(25.0, 75.0);
         final facing = ship.angle - math.pi / 2;
-        final baseVel = Offset(math.cos(facing) * speed, math.sin(facing) * speed);
+        final baseVel = Offset(
+          math.cos(facing) * speed,
+          math.sin(facing) * speed,
+        );
         ship.vel = baseVel + repulsion * dt;
 
         // Increase angle tolerance for more frequent shots
-        if (ship.shootCooldown <= 0 && da.abs() < 0.7 && ship._rotateCooldown <= 0) {
+        if (ship.shootCooldown <= 0 &&
+            da.abs() < 0.7 &&
+            ship._rotateCooldown <= 0) {
           _shoot(ship);
           ship.shootCooldown = ship.team == 0
-              ? 0.35 + _rng.nextDouble() * 0.35 // Companion rate: fast
-              : 0.7 + _rng.nextDouble() * 0.9;  // Enemy rate: normal
+              ? 0.35 +
+                    _rng.nextDouble() *
+                        0.35 // Companion rate: fast
+              : 0.7 + _rng.nextDouble() * 0.9; // Enemy rate: normal
         }
       } else {
         // No target or currently breaking away (cooldown active)
-        
+
         // Steer upwards if too low and not breaking away
         if (ship.pos.dy > size.height * 0.55 && ship._rotateCooldown <= 0) {
           double daUp = 0.0 - ship.angle;
           while (daUp > math.pi) daUp -= 2 * math.pi;
           while (daUp < -math.pi) daUp += 2 * math.pi;
-          final pull = ((ship.pos.dy - size.height * 0.55) / (size.height * 0.4)).clamp(0.0, 1.0);
+          final pull =
+              ((ship.pos.dy - size.height * 0.55) / (size.height * 0.4)).clamp(
+                0.0,
+                1.0,
+              );
           ship.angle += daUp * 2.5 * pull * dt;
         }
 
         final speed = ship.vel.distance.clamp(25.0, 75.0);
         final facing = ship.angle - math.pi / 2;
-        ship.vel = Offset(math.cos(facing) * speed, math.sin(facing) * speed) + repulsion * dt;
+        ship.vel =
+            Offset(math.cos(facing) * speed, math.sin(facing) * speed) +
+            repulsion * dt;
       }
     }
 
