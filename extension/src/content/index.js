@@ -13,6 +13,9 @@ import contentCss from './content.css?inline';
 const STORAGE_KEY = 'trackedRepositories';
 const DEFAULT_REPO = 'YASHK-arch/RepoOwl-extension';
 
+// Keep track of the active observer to disconnect it on turbo navigations
+let currentObserver = null;
+
 function injectContentStyles() {
   if (document.getElementById('repoowl-content-styles')) return;
   const style = document.createElement('style');
@@ -197,6 +200,11 @@ async function autoAnalyzeAndSaveToSandbox(repoName, issueNumber, localGroqKey, 
 }
 
 async function bootstrap() {
+  if (currentObserver) {
+    currentObserver.disconnect();
+    currentObserver = null;
+  }
+
   const page = parseGitHubIssuesPage();
   if (!page) return;
 
@@ -248,11 +256,6 @@ async function bootstrap() {
     return;
   }
 
-  // pr_list doesn't support list-view badges since PR triage is now done server-side via Actions
-  if (page.type === 'pr_list') {
-    return;
-  }
-
   // State 3: Two-phase rendering
   // Phase 1 (INSTANT): Paint badges immediately from the local hub_cache written by background.js.
   // This makes badges appear in <50ms instead of waiting for the Supabase round-trip.
@@ -289,7 +292,7 @@ async function bootstrap() {
   // State 4: Paint immediately with cached data
   if (page.type === 'list' || page.type === 'pr_list') {
     const fetchFunc = page.type === 'pr_list' ? fetchPullRequestInsights : fetchRepositoryInsights;
-    const observer = observeIssueList(page.repository.fullName, cachedInsights, handleBadgeClick);
+    currentObserver = observeIssueList(page.repository.fullName, cachedInsights, handleBadgeClick);
 
     // Phase 2 (ASYNC): Fetch fresh data from Supabase in the background.
     // When it arrives, update badges in-place without any blocking.
@@ -312,7 +315,7 @@ async function bootstrap() {
   }
 
   // Detail page: also use two-phase approach
-  observeIssueDetail(
+  currentObserver = observeIssueDetail(
     page.repository.fullName,
     page.issueNumber,
     cachedInsights,

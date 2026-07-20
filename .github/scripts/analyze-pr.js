@@ -119,17 +119,30 @@ async function run() {
 
   const analysisOutput = await askGroq(reducePrompt);
 
-  // 6. Post the Comment back to GitHub
-  console.log("Posting comment to GitHub...");
+  // 6. Post the Review back to GitHub
+  console.log("Posting Review to GitHub...");
   const commentBody = `### 🦉 RepoOwl PR Analysis\n\n${analysisOutput}\n\n*Analyzed automatically via GitHub Actions*`;
+  
+  const isApproved = analysisOutput.includes("Code Matches Description");
+  const reviewEvent = isApproved ? "APPROVE" : "REQUEST_CHANGES";
 
-  await fetch(`https://api.github.com/repos/${REPOSITORY}/issues/${PR_NUMBER}/comments`, {
+  await fetch(`https://api.github.com/repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${GITHUB_TOKEN}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ body: commentBody })
+    body: JSON.stringify({ body: commentBody, event: reviewEvent })
+  });
+
+  console.log("Adding label to PR...");
+  await fetch(`https://api.github.com/repos/${REPOSITORY}/issues/${PR_NUMBER}/labels`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${GITHUB_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ labels: ['repoowl-analyzed'] })
   });
 
   console.log("Analysis posted successfully!");
