@@ -3246,22 +3246,70 @@ class _OrbitWarsGame {
       }
 
       final target = _nearestEnemy(ship);
+      
+      // Calculate repulsion from ALL ships to prevent overlapping
+      Offset repulsion = Offset.zero;
+      for (final other in ships) {
+        if (identical(other, ship)) continue;
+        final diff = ship.pos - other.pos;
+        final dist = diff.distance;
+        if (dist > 0 && dist < 45) {
+          repulsion += diff / (dist * dist) * 2000;
+        }
+      }
+
       if (target != null && ship._rotateCooldown <= 0) {
         final toTarget = target.pos - ship.pos;
+        final targetDist = toTarget.distance;
         final targetAngle = math.atan2(toTarget.dy, toTarget.dx) + math.pi / 2;
         double da = targetAngle - ship.angle;
         while (da > math.pi) da -= 2 * math.pi;
         while (da < -math.pi) da += 2 * math.pi;
-        ship.angle += da.clamp(-3.0, 3.0) * dt;
+
+        // If stuck in a close orbit (dogfight swirl), sometimes break away randomly
+        if (targetDist < 70 && _rng.nextDouble() < 0.02) {
+          ship._rotateCooldown = 1.0 + _rng.nextDouble() * 1.0;
+          ship.angle += (_rng.nextBool() ? 1 : -1) * (math.pi / 1.5 + _rng.nextDouble());
+        } else {
+          ship.angle += da.clamp(-3.0, 3.0) * dt;
+        }
+
+        // Steer upwards if too low (below IDE mockup)
+        if (ship.pos.dy > size.height * 0.55 && ship._rotateCooldown <= 0) {
+          double daUp = 0.0 - ship.angle;
+          while (daUp > math.pi) daUp -= 2 * math.pi;
+          while (daUp < -math.pi) daUp += 2 * math.pi;
+          final pull = ((ship.pos.dy - size.height * 0.55) / (size.height * 0.4)).clamp(0.0, 1.0);
+          ship.angle += daUp * 2.0 * pull * dt;
+        }
 
         final speed = ship.vel.distance.clamp(25.0, 75.0);
         final facing = ship.angle - math.pi / 2;
-        ship.vel = Offset(math.cos(facing) * speed, math.sin(facing) * speed);
+        final baseVel = Offset(math.cos(facing) * speed, math.sin(facing) * speed);
+        ship.vel = baseVel + repulsion * dt;
 
-        if (ship.shootCooldown <= 0 && da.abs() < 0.45) {
+        // Increase angle tolerance for more frequent shots
+        if (ship.shootCooldown <= 0 && da.abs() < 0.7 && ship._rotateCooldown <= 0) {
           _shoot(ship);
-          ship.shootCooldown = 0.7 + _rng.nextDouble() * 0.9;
+          ship.shootCooldown = ship.team == 0
+              ? 0.35 + _rng.nextDouble() * 0.35 // Companion rate: fast
+              : 0.7 + _rng.nextDouble() * 0.9;  // Enemy rate: normal
         }
+      } else {
+        // No target or currently breaking away (cooldown active)
+        
+        // Steer upwards if too low and not breaking away
+        if (ship.pos.dy > size.height * 0.55 && ship._rotateCooldown <= 0) {
+          double daUp = 0.0 - ship.angle;
+          while (daUp > math.pi) daUp -= 2 * math.pi;
+          while (daUp < -math.pi) daUp += 2 * math.pi;
+          final pull = ((ship.pos.dy - size.height * 0.55) / (size.height * 0.4)).clamp(0.0, 1.0);
+          ship.angle += daUp * 2.5 * pull * dt;
+        }
+
+        final speed = ship.vel.distance.clamp(25.0, 75.0);
+        final facing = ship.angle - math.pi / 2;
+        ship.vel = Offset(math.cos(facing) * speed, math.sin(facing) * speed) + repulsion * dt;
       }
     }
 
@@ -3354,7 +3402,7 @@ class _OrbitWarsGame {
       final facing = ship.angle - math.pi / 2;
       dir = Offset(math.cos(facing), math.sin(facing));
     }
-    const speed = 320.0;
+    const speed = 600.0; // Increased bullet speed for better accuracy
 
     if (dual) {
       // Spread dual shots perpendicular to travel direction
