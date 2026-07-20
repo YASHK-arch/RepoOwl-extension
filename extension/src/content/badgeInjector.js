@@ -136,6 +136,42 @@ function findRightTarget(row) {
 export function injectBadge(row, issueNumber, insight, onBadgeClick) {
   if (row.querySelector(`[${BADGE_ATTR}="${issueNumber}"]`)) return;
 
+  const isPullRequestList = window.location.pathname.includes('/pulls');
+  if (isPullRequestList) {
+    const repoowlLabel = row.querySelector('a[data-name="repoowl-analyzed"]');
+    if (repoowlLabel) {
+      repoowlLabel.style.display = 'none'; // hide it natively
+      
+      const badge = document.createElement('span');
+      badge.setAttribute(BADGE_ATTR, String(issueNumber));
+      badge.className = 'repoowl-badge repoowl-badge--pr-review';
+      badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;color:#2da44e;font-weight:600;padding:2px 8px;border:1px solid #2da44e;border-radius:20px;background-color:transparent;font-size:12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="14" height="14">
+          <rect width="500" height="500" fill="#ffffff" rx="100" />
+          <g stroke="#000000" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 60 280 L 70 110 L 210 200 L 250 230 L 290 200 L 430 110 L 440 280" fill="none" stroke-width="32" />
+            <circle cx="150" cy="300" r="90" fill="#ffffff" stroke-width="32" />
+            <circle cx="350" cy="300" r="90" fill="#ffffff" stroke-width="32" />
+            <path d="M 170 255 L 120 300 L 170 345" fill="none" stroke-width="32" />
+            <path d="M 330 255 L 380 300 L 330 345" fill="none" stroke-width="32" />
+            <path d="M 215 320 L 285 320 L 250 385 Z" fill="#000000" stroke-width="16" />
+            <line x1="275" y1="415" x2="225" y2="465" stroke-width="32" />
+          </g>
+        </svg> Reviewed by RepoOwl
+      </span>`;
+      
+      const rightTarget = findRightTarget(row);
+      if (rightTarget) {
+        if (rightTarget.mode === 'before') {
+          rightTarget.container.insertBefore(badge, rightTarget.beforeNode);
+        } else {
+          rightTarget.container.appendChild(badge);
+        }
+      }
+    }
+    return; // Never show pending/ready badges for PRs, we strictly rely on labels.
+  }
+
   const isDuplicate = insight?.is_processed === true && insight?.is_duplicate === true;
 
   const isReady = insight?.is_processed === true && !isDuplicate;

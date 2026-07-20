@@ -256,11 +256,6 @@ async function bootstrap() {
     return;
   }
 
-  // pr_list doesn't support list-view badges since PR triage is now done server-side via Actions
-  if (page.type === 'pr_list') {
-    return;
-  }
-
   // State 3: Two-phase rendering
   // Phase 1 (INSTANT): Paint badges immediately from the local hub_cache written by background.js.
   // This makes badges appear in <50ms instead of waiting for the Supabase round-trip.
