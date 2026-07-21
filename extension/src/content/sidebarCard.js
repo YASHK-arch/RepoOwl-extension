@@ -224,10 +224,6 @@ function findSidebarTarget() {
 }
 
 function buildCard(stats, repoFullName, keys) {
-  const settingsUrl = typeof chrome !== 'undefined' && chrome.runtime
-    ? chrome.runtime.getURL('src/options/index.html')
-    : '#';
-
   const configured = !!(keys.supabaseUrl && keys.supabaseAnonKey);
 
   let statsHtml;
@@ -277,13 +273,21 @@ function buildCard(stats, repoFullName, keys) {
       ${badge}
     </div>
     ${statsHtml}
-    <a href="${settingsUrl}" target="_blank" rel="noreferrer" class="ro-sc-link">
+    <a href="#" class="ro-sc-link ro-sc-settings-btn">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
         <path d="M7.429 1.525a6.593 6.593 0 0 1 1.142 0c.036.003.108.036.137.146l.289 1.105c.147.56.55.967.997 1.189.174.086.341.18.502.28.433.268.97.268 1.392.008l.938-.538c.098-.056.171-.06.207-.038a6.673 6.673 0 0 1 .57.498c.02.017.168.14.068.278l-.642.87a1.576 1.576 0 0 0-.173 1.463c.13.414.13.866 0 1.28a1.576 1.576 0 0 0 .173 1.463l.642.87c.1.138-.048.26-.068.278a6.662 6.662 0 0 1-.57.498.207.207 0 0 1-.207-.038l-.938-.538c-.422-.26-.959-.26-1.392.008a5.073 5.073 0 0 1-.502.28c-.447.222-.85.629-.997 1.189l-.289 1.105c-.029.11-.101.143-.137.146a6.593 6.593 0 0 1-1.142 0c-.036-.003-.108-.036-.137-.146l-.289-1.105c-.147-.56-.55-.967-.997-1.189a5.082 5.082 0 0 1-.502-.28c-.433-.268-.97-.268-1.392-.008l-.938.538a.207.207 0 0 1-.207.038 6.679 6.679 0 0 1-.57-.498c-.02-.018-.168-.14-.068-.278l.642-.87a1.576 1.576 0 0 0 .173-1.463 4.575 4.575 0 0 1 0-1.28 1.576 1.576 0 0 0-.173-1.463l-.642-.87c-.1-.138.048-.26.068-.278.185-.163.374-.315.57-.498a.207.207 0 0 1 .207.038l.938.538c.422.26.959.26 1.392-.008.161-.1.328-.194.502-.28.447-.222.85-.629.997-1.189l.289-1.105c.029-.11.101-.143.137-.146zM8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/>
       </svg>
-      Settings &amp; Insights →
+      Settings &amp; Insights &rarr;
     </a>
   `;
+
+  const btn = wrapper.querySelector('.ro-sc-settings-btn');
+  if (btn && typeof chrome !== 'undefined' && chrome.runtime) {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      chrome.runtime.sendMessage({ action: 'open_settings' });
+    });
+  }
 
   return wrapper;
 }
