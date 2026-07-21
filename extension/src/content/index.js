@@ -68,6 +68,28 @@ function isValidSupabaseUrl(url) {
 }
 
 async function fetchPublicRepoConfig(repoName) {
+  const centralUrl = import.meta.env.VITE_SUPABASE_URL;
+  const centralKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  if (centralUrl && centralKey) {
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const centralSupabase = createClient(centralUrl, centralKey, { auth: { persistSession: false } });
+      const [owner, name] = repoName.split('/');
+      const { data, error } = await centralSupabase
+        .from('registry')
+        .select('supabase_url, supabase_anon_key')
+        .eq('owner', owner)
+        .eq('repo', name)
+        .single();
+      
+      if (!error && data) {
+        return { supabaseUrl: data.supabase_url, supabaseAnonKey: data.supabase_anon_key };
+      }
+    } catch (e) {
+      console.warn('RepoOwl: Central Mediator check failed:', e);
+    }
+  }
+
   try {
     const response = await fetch(`https://raw.githubusercontent.com/${repoName}/main/repoowl.json`);
     return response.ok ? await response.json() : null;
