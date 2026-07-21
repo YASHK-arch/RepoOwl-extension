@@ -222,7 +222,7 @@ class _SplashScreenState extends State<SplashScreen>
                     height: 160,
                     child: AnimatedBuilder(
                       animation: Listenable.merge([_pulseAnim, _scanAngle]),
-                      builder: (_, __) {
+                      builder: (_, _) {
                         return CustomPaint(
                           painter: _OwlRingPainter(
                             pulse: _pulseAnim.value,
@@ -273,7 +273,7 @@ class _SplashScreenState extends State<SplashScreen>
               // ── Typewriter status
               AnimatedBuilder(
                 animation: _textChars,
-                builder: (_, __) {
+                builder: (_, _) {
                   final shown = _statusMsg.substring(0, _textChars.value);
                   return Row(
                     mainAxisSize: MainAxisSize.min,
@@ -315,7 +315,7 @@ class _SplashScreenState extends State<SplashScreen>
                   width: 200,
                   child: AnimatedBuilder(
                     animation: _text,
-                    builder: (_, __) => ClipRRect(
+                    builder: (_, _) => ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: _text.value,
@@ -598,13 +598,13 @@ class _NavBarState extends State<NavBar> {
             height: 64,
             decoration: BoxDecoration(
               color: _scrolled
-                  ? AppColors.background.withOpacity(0.88)
-                  : AppColors.background.withOpacity(0.55),
+                  ? AppColors.background.withValues(alpha: 0.88)
+                  : AppColors.background.withValues(alpha: 0.55),
               border: Border(
                 bottom: BorderSide(
                   color: _scrolled
                       ? AppColors.border
-                      : AppColors.border.withOpacity(0),
+                      : AppColors.border.withValues(alpha: 0),
                 ),
               ),
             ),
@@ -648,7 +648,7 @@ class OwlLogo extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: AppColors.accent.withOpacity(0.4),
+                color: AppColors.accent.withValues(alpha: 0.4),
                 blurRadius: 12,
               ),
             ],
@@ -741,7 +741,9 @@ class _CtaBtnState extends State<_CtaBtn> {
           decoration: BoxDecoration(
             color: widget.outlined
                 ? (_h ? AppColors.surface : Colors.transparent)
-                : (_h ? AppColors.accent.withOpacity(0.85) : AppColors.accent),
+                : (_h
+                      ? AppColors.accent.withValues(alpha: 0.85)
+                      : AppColors.accent),
             border: Border.all(
               color: widget.outlined ? AppColors.border : Colors.transparent,
             ),
@@ -749,7 +751,7 @@ class _CtaBtnState extends State<_CtaBtn> {
             boxShadow: (!widget.outlined && _h)
                 ? [
                     BoxShadow(
-                      color: AppColors.accent.withOpacity(0.45),
+                      color: AppColors.accent.withValues(alpha: 0.45),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
@@ -850,8 +852,8 @@ class _HeroText extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
-            color: AppColors.accent.withOpacity(0.1),
-            border: Border.all(color: AppColors.accent.withOpacity(0.35)),
+            color: AppColors.accent.withValues(alpha: 0.1),
+            border: Border.all(color: AppColors.accent.withValues(alpha: 0.35)),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
@@ -984,7 +986,7 @@ class _IdeMockupState extends State<IdeMockup>
     final mob = R.mobile(context);
     return AnimatedBuilder(
       animation: widget.glow,
-      builder: (_, __) {
+      builder: (_, _) {
         final blur = 20 + widget.glow.value * 28.0;
         final op = 0.25 + widget.glow.value * 0.3;
         return Container(
@@ -992,12 +994,12 @@ class _IdeMockupState extends State<IdeMockup>
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: AppColors.accent.withOpacity(op),
+                color: AppColors.accent.withValues(alpha: op),
                 blurRadius: blur,
                 spreadRadius: 1,
               ),
               BoxShadow(
-                color: AppColors.accentBlue.withOpacity(op * 0.5),
+                color: AppColors.accentBlue.withValues(alpha: op * 0.5),
                 blurRadius: blur * 1.4,
               ),
             ],
@@ -1176,11 +1178,13 @@ class _IdeLeft extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.background,
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.accentBlue.withOpacity(0.5)),
+              border: Border.all(
+                color: AppColors.accentBlue.withValues(alpha: 0.5),
+              ),
             ),
             child: AnimatedBuilder(
               animation: chars,
-              builder: (_, __) {
+              builder: (_, _) {
                 final txt =
                     'App crashes on login when\noffline mode is enabled...'
                         .substring(0, chars.value);
@@ -1261,8 +1265,8 @@ class _Tag extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
-      border: Border.all(color: color.withOpacity(0.35)),
+      color: color.withValues(alpha: 0.12),
+      border: Border.all(color: color.withValues(alpha: 0.35)),
       borderRadius: BorderRadius.circular(4),
     ),
     child: Text(
@@ -1308,7 +1312,7 @@ class _ProgressBarState extends State<_ProgressBar>
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: _a,
-    builder: (_, __) => Column(
+    builder: (_, _) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -1356,7 +1360,7 @@ class _IdeRight extends StatelessWidget {
             children: [
               AnimatedBuilder(
                 animation: glow,
-                builder: (_, __) => Container(
+                builder: (_, _) => Container(
                   width: 8,
                   height: 8,
                   decoration: BoxDecoration(
@@ -1364,8 +1368,8 @@ class _IdeRight extends StatelessWidget {
                     color: AppColors.accent,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.accent.withOpacity(
-                          0.4 + glow.value * 0.4,
+                        color: AppColors.accent.withValues(
+                          alpha: 0.4 + glow.value * 0.4,
                         ),
                         blurRadius: 6 + glow.value * 8,
                       ),
@@ -1413,13 +1417,13 @@ class _AlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: glow,
-    builder: (_, __) => Container(
+    builder: (_, _) => Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.accent.withOpacity(0.07),
+        color: AppColors.accent.withValues(alpha: 0.07),
         border: Border.all(
-          color: AppColors.accent.withOpacity(0.3 + glow.value * 0.25),
+          color: AppColors.accent.withValues(alpha: 0.3 + glow.value * 0.25),
         ),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -1443,7 +1447,7 @@ class _AlertCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.15),
+                  color: AppColors.accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
@@ -1567,8 +1571,8 @@ class _ChipState extends State<_Chip> {
       duration: const Duration(milliseconds: 150),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: widget.color.withOpacity(_h ? 0.2 : 0.1),
-        border: Border.all(color: widget.color.withOpacity(0.4)),
+        color: widget.color.withValues(alpha: _h ? 0.2 : 0.1),
+        border: Border.all(color: widget.color.withValues(alpha: 0.4)),
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
@@ -1982,8 +1986,8 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
     decoration: BoxDecoration(
-      color: AppColors.accentBlue.withOpacity(0.1),
-      border: Border.all(color: AppColors.accentBlue.withOpacity(0.3)),
+      color: AppColors.accentBlue.withValues(alpha: 0.1),
+      border: Border.all(color: AppColors.accentBlue.withValues(alpha: 0.3)),
       borderRadius: BorderRadius.circular(4),
     ),
     child: Text(
@@ -2019,11 +2023,11 @@ class _CardState extends State<_Card> {
       constraints: BoxConstraints(minHeight: widget.minH),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: (_h ? const Color(0xFF1A2030) : AppColors.surface).withOpacity(
-          0.9,
+        color: (_h ? const Color(0xFF1A2030) : AppColors.surface).withValues(
+          alpha: 0.9,
         ),
         border: Border.all(
-          color: _h ? widget.accent.withOpacity(0.45) : AppColors.border,
+          color: _h ? widget.accent.withValues(alpha: 0.45) : AppColors.border,
         ),
         borderRadius: BorderRadius.circular(14),
         gradient: _h
@@ -2032,17 +2036,17 @@ class _CardState extends State<_Card> {
                 end: Alignment.bottomRight,
                 colors: [
                   Color.alphaBlend(
-                    widget.accent.withOpacity(0.05),
-                    const Color(0xFF1A2030).withOpacity(0.9),
+                    widget.accent.withValues(alpha: 0.05),
+                    const Color(0xFF1A2030).withValues(alpha: 0.9),
                   ),
-                  const Color(0xFF1A2030).withOpacity(0.9),
+                  const Color(0xFF1A2030).withValues(alpha: 0.9),
                 ],
               )
             : null,
         boxShadow: _h
             ? [
                 BoxShadow(
-                  color: widget.accent.withOpacity(0.12),
+                  color: widget.accent.withValues(alpha: 0.12),
                   blurRadius: 20,
                   spreadRadius: 1,
                 ),
@@ -2062,8 +2066,8 @@ class _CardIcon extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(9),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
-      border: Border.all(color: color.withOpacity(0.3)),
+      color: color.withValues(alpha: 0.12),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
       borderRadius: BorderRadius.circular(9),
     ),
     child: Icon(icon, color: color, size: 20),
@@ -2151,8 +2155,8 @@ class _DNode extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          border: Border.all(color: color.withOpacity(0.35)),
+          color: color.withValues(alpha: 0.1),
+          border: Border.all(color: color.withValues(alpha: 0.35)),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(child: Text(emoji, style: const TextStyle(fontSize: 18))),
@@ -2249,8 +2253,8 @@ class _FlowBox extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.07),
-      border: Border.all(color: color.withOpacity(0.3)),
+      color: color.withValues(alpha: 0.07),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
       borderRadius: BorderRadius.circular(7),
     ),
     child: Row(
@@ -2487,7 +2491,7 @@ class _CtaSection extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 12,
-                        color: AppColors.textSecondary.withOpacity(0.65),
+                        color: AppColors.textSecondary.withValues(alpha: 0.65),
                       ),
                     ),
                   ],
@@ -2539,22 +2543,26 @@ class _PulseBtnState extends State<_PulseBtn>
         onTap: () => launch(AppLinks.downloadZip),
         child: AnimatedBuilder(
           animation: _p,
-          builder: (_, __) => Container(
+          builder: (_, _) => Container(
             padding: EdgeInsets.symmetric(
               horizontal: mob ? 28 : 40,
               vertical: mob ? 16 : 20,
             ),
             decoration: BoxDecoration(
-              color: _h ? AppColors.accent.withOpacity(0.9) : AppColors.accent,
+              color: _h
+                  ? AppColors.accent.withValues(alpha: 0.9)
+                  : AppColors.accent,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.accent.withOpacity(0.35 + _p.value * 0.3),
+                  color: AppColors.accent.withValues(
+                    alpha: 0.35 + _p.value * 0.3,
+                  ),
                   blurRadius: 24 + _p.value * 20,
                   spreadRadius: _p.value * 4,
                 ),
                 BoxShadow(
-                  color: AppColors.accent.withOpacity(0.15),
+                  color: AppColors.accent.withValues(alpha: 0.15),
                   blurRadius: 60,
                 ),
               ],
@@ -2606,7 +2614,7 @@ class _Footer extends StatelessWidget {
               fontFamily: 'Inter',
               fontSize: mob ? 56 : 120,
               fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary.withOpacity(0.028),
+              color: AppColors.textPrimary.withValues(alpha: 0.028),
               letterSpacing: 12,
             ),
           ),
@@ -2935,9 +2943,9 @@ class _Ship {
 
   void draw(Canvas canvas, {double opacity = 1.0}) {
     List<List<int>> pixels = _enemyPx;
-    if (isPlayer)
+    if (isPlayer) {
       pixels = _playerPx;
-    else if (team == 0)
+    } else if (team == 0)
       pixels = _allyPx;
     else if (isBoss)
       pixels = _bossPx;
@@ -2945,10 +2953,10 @@ class _Ship {
     final brightness = (hp / maxHp).clamp(0.0, 1.0);
     final paint = Paint()
       ..style = PaintingStyle.fill
-      ..color = color.withOpacity((0.55 + 0.45 * brightness) * opacity);
+      ..color = color.withValues(alpha: (0.55 + 0.45 * brightness) * opacity);
     final glowPaint = Paint()
       ..style = PaintingStyle.fill
-      ..color = color.withOpacity(0.2 * brightness * opacity)
+      ..color = color.withValues(alpha: 0.2 * brightness * opacity)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
 
     canvas.save();
@@ -2987,8 +2995,9 @@ class _Bullet {
     if (pos.dx < -20 ||
         pos.dx > size.width + 20 ||
         pos.dy < -20 ||
-        pos.dy > size.height + 20)
+        pos.dy > size.height + 20) {
       return false;
+    }
     return life > 0;
   }
 
@@ -2999,7 +3008,7 @@ class _Bullet {
 
     if (isPill) {
       final pillGlow = Paint()
-        ..color = color.withOpacity(0.6)
+        ..color = color.withValues(alpha: 0.6)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
       final pillSolid = Paint()..color = color;
       final rect = Rect.fromCenter(center: Offset.zero, width: 14, height: 6);
@@ -3013,7 +3022,7 @@ class _Bullet {
       );
     } else {
       final glow = Paint()
-        ..color = color.withOpacity(0.45)
+        ..color = color.withValues(alpha: 0.45)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
       final solid = Paint()..color = color;
       canvas.drawRect(
@@ -3059,7 +3068,7 @@ class _Explosion {
       canvas.drawRect(
         Rect.fromCenter(center: pPos, width: 3.5, height: 3.5),
         Paint()
-          ..color = color.withOpacity(t * 0.85)
+          ..color = color.withValues(alpha: t * 0.85)
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2 + (1 - t) * 5),
       );
     }
@@ -3113,9 +3122,9 @@ class _OrbitWarsGame {
       angle = math.pi;
     } else {
       final edge = _rng.nextInt(4);
-      if (edge == 0)
+      if (edge == 0) {
         pos = Offset(_rng.nextDouble() * size.width, -40);
-      else if (edge == 1)
+      } else if (edge == 1)
         pos = Offset(size.width + 40, _rng.nextDouble() * size.height);
       else if (edge == 2)
         pos = Offset(_rng.nextDouble() * size.width, size.height + 40);
@@ -3260,8 +3269,12 @@ class _OrbitWarsGame {
         final targetDist = toTarget.distance;
         final targetAngle = math.atan2(toTarget.dy, toTarget.dx) + math.pi / 2;
         double da = targetAngle - ship.angle;
-        while (da > math.pi) da -= 2 * math.pi;
-        while (da < -math.pi) da += 2 * math.pi;
+        while (da > math.pi) {
+          da -= 2 * math.pi;
+        }
+        while (da < -math.pi) {
+          da += 2 * math.pi;
+        }
 
         // If stuck in a close orbit (dogfight swirl), sometimes break away randomly
         if (targetDist < 70 && _rng.nextDouble() < 0.02) {
@@ -3275,8 +3288,12 @@ class _OrbitWarsGame {
         // Steer upwards if too low (below IDE mockup)
         if (ship.pos.dy > size.height * 0.55 && ship._rotateCooldown <= 0) {
           double daUp = 0.0 - ship.angle;
-          while (daUp > math.pi) daUp -= 2 * math.pi;
-          while (daUp < -math.pi) daUp += 2 * math.pi;
+          while (daUp > math.pi) {
+            daUp -= 2 * math.pi;
+          }
+          while (daUp < -math.pi) {
+            daUp += 2 * math.pi;
+          }
           final pull =
               ((ship.pos.dy - size.height * 0.55) / (size.height * 0.4)).clamp(
                 0.0,
@@ -3310,8 +3327,12 @@ class _OrbitWarsGame {
         // Steer upwards if too low and not breaking away
         if (ship.pos.dy > size.height * 0.55 && ship._rotateCooldown <= 0) {
           double daUp = 0.0 - ship.angle;
-          while (daUp > math.pi) daUp -= 2 * math.pi;
-          while (daUp < -math.pi) daUp += 2 * math.pi;
+          while (daUp > math.pi) {
+            daUp -= 2 * math.pi;
+          }
+          while (daUp < -math.pi) {
+            daUp += 2 * math.pi;
+          }
           final pull =
               ((ship.pos.dy - size.height * 0.55) / (size.height * 0.4)).clamp(
                 0.0,
@@ -3346,8 +3367,9 @@ class _OrbitWarsGame {
         if (b.color == _companionColor && s.team == 0) continue;
         if (b.color == _playerColor && s.team == 0) continue;
         if (b.isPill && s.team == 0) continue;
-        if ((b.color == _enemyColor || b.color == _bossColor) && s.team == 1)
+        if ((b.color == _enemyColor || b.color == _bossColor) && s.team == 1) {
           continue;
+        }
         final hitDist = s.isBoss ? 45.0 : 18.0;
         if ((b.pos - s.pos).distance < hitDist) {
           if (b.isPill) {
@@ -3551,9 +3573,10 @@ class _OrbitWarsPainter extends CustomPainter {
   void _drawGrid(Canvas canvas) {
     const g = _OrbitWarsGame.gridStep;
     final linePaint = Paint()
-      ..color = const Color(0xFF2F81F7).withOpacity(0.065)
+      ..color = const Color(0xFF2F81F7).withValues(alpha: 0.065)
       ..strokeWidth = 0.5;
-    final dotPaint = Paint()..color = const Color(0xFF2F81F7).withOpacity(0.2);
+    final dotPaint = Paint()
+      ..color = const Color(0xFF2F81F7).withValues(alpha: 0.2);
 
     for (double x = 0; x <= size.width; x += g) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), linePaint);
@@ -3573,9 +3596,9 @@ class _OrbitWarsPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          const Color(0xFF2F81F7).withOpacity(0.0),
-          const Color(0xFF2F81F7).withOpacity(0.04),
-          const Color(0xFF2F81F7).withOpacity(0.0),
+          const Color(0xFF2F81F7).withValues(alpha: 0.0),
+          const Color(0xFF2F81F7).withValues(alpha: 0.04),
+          const Color(0xFF2F81F7).withValues(alpha: 0.0),
         ],
         stops: const [0.0, 0.5, 1.0],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
@@ -3616,14 +3639,14 @@ class _OrbitWarsPainter extends CustomPainter {
           Rect.fromLTWH(bx, by, bw, bh),
           const Radius.circular(2),
         ),
-        Paint()..color = Colors.white.withOpacity(0.1 * barOpacity),
+        Paint()..color = Colors.white.withValues(alpha: 0.1 * barOpacity),
       );
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(bx, by, bw * ratio, bh),
           const Radius.circular(2),
         ),
-        Paint()..color = s.color.withOpacity(0.8 * barOpacity),
+        Paint()..color = s.color.withValues(alpha: 0.8 * barOpacity),
       );
     }
 
@@ -3631,7 +3654,7 @@ class _OrbitWarsPainter extends CustomPainter {
     if (game.cursorPos != null) {
       final cp = game.cursorPos!;
       final rPaint = Paint()
-        ..color = _OrbitWarsGame._playerColor.withOpacity(0.75)
+        ..color = _OrbitWarsGame._playerColor.withValues(alpha: 0.75)
         ..strokeWidth = 1.0
         ..style = PaintingStyle.stroke;
       canvas.drawCircle(cp, 11, rPaint);
