@@ -3,6 +3,9 @@
   "name": "RepoOwl",
   "version": "0.1.0",
   "description": "AI-powered issue insights and duplicate detection for GitHub repositories.",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
   "permissions": [
     "storage",
     "activeTab",
