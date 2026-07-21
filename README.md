@@ -88,12 +88,17 @@ We welcome contributions! Please see our [CONTRIBUTING.md](https://www.google.co
 
 ---
 
-## 🌟 Contributors
+## Contributors
 
-A massive thank you to our incredible contributors! Your help makes RepoOwl better for everyone.
+Thanks to everyone who has helped build RepoOwl. Want to see your avatar here? Pick a [good first issue](https://github.com/YASHK-arch/RepoOwl-extension/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and join in.
 
-<a href="https://github.com/leela-arya"><img src="https://avatars.githubusercontent.com/u/70858067?v=4" width="50" alt="leela-arya" style="border-radius: 50%; margin: 5px;"/></a>
-<a href="https://github.com/Tom-Halland"><img src="https://avatars.githubusercontent.com/u/301429391?v=4" width="50" alt="Tom-Halland" style="border-radius: 50%; margin: 5px;"/></a>
+<div align="center">
+
+<a href="https://github.com/YASHK-arch/RepoOwl-extension/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=YASHK-arch/RepoOwl-extension" alt="RepoOwl contributors" />
+</a>
+
+</div>
 
 ---
 
