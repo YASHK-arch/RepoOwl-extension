@@ -12725,7 +12725,7 @@ async function bf(e, t, n) {
 var xf = 2e3, Sf = (e) => new Promise((t) => setTimeout(t, e));
 chrome.runtime.onMessage.addListener((e, t, n) => {
 	if (e.action === "open_settings") chrome.runtime.openOptionsPage();
-	else if (e.action === "force_sync_issues") Rf([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message }));
+	else if (e.action === "force_sync_issues") return Rf([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
 	else if (e.action === "add_repo") Cf(e.repoName).catch((e) => console.error("Error auto-publishing config:", e)), n({ success: !0 });
 	else if (e.action === "check_mediator_status") return Ef(e.repoName).then((e) => n(e)).catch((e) => n({ error: e.message })), !0;
 	else if (e.action === "initialize_repoowl_pr") return bf(e.repoName, e.githubPat, e.groqApiKey).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;

@@ -13,6 +13,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     chrome.runtime.openOptionsPage();
   } else if (message.action === 'force_sync_issues') {
     executeIssueSyncQueue([message.repoName]).then(() => sendResponse({ success: true })).catch(err => sendResponse({ error: err.message }));
+    return true;
   } else if (message.action === 'add_repo') {
     handleNewRepoAdded(message.repoName).catch(err => console.error("Error auto-publishing config:", err));
     sendResponse({ success: true });
