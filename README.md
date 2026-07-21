@@ -88,6 +88,15 @@ We welcome contributions! Please see our [CONTRIBUTING.md](https://www.google.co
 
 ---
 
+## 🌟 Contributors
+
+A massive thank you to our incredible contributors! Your help makes RepoOwl better for everyone.
+
+<a href="https://github.com/leela-arya"><img src="https://avatars.githubusercontent.com/u/70858067?v=4" width="50" alt="leela-arya" style="border-radius: 50%; margin: 5px;"/></a>
+<a href="https://github.com/Tom-Halland"><img src="https://avatars.githubusercontent.com/u/301429391?v=4" width="50" alt="Tom-Halland" style="border-radius: 50%; margin: 5px;"/></a>
+
+---
+
 ## 📜 License
 
 Distributed under the Apache-2.0 License. See `LICENSE` for more information.
