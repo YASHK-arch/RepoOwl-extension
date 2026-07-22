@@ -6,7 +6,7 @@ import { parseGitHubIssuesPage } from '../lib/githubContext.js';
 import { openInsightsOverlay } from '../overlay/OverlayRoot.jsx';
 import Groq from 'groq-sdk';
 import { DEFAULT_PROMPT_TEMPLATE, buildPromptVariables, renderPrompt } from '@repoowl/shared';
-import { getSandboxClient } from '../lib/supabase.js';
+import { getSandboxClient, setPublicGatewayConfig } from '../lib/supabase.js';
 
 import contentCss from './content.css?inline';
 
@@ -257,7 +257,6 @@ async function bootstrap() {
     publicConfig.supabaseAnonKey &&
     !publicConfig.supabaseAnonKey.startsWith('your-')
   ) {
-    const { setPublicGatewayConfig } = await import('../lib/supabase.js');
     setPublicGatewayConfig(publicConfig.supabaseUrl, publicConfig.supabaseAnonKey);
     isTracked = true;
   }
@@ -323,9 +322,15 @@ async function bootstrap() {
         console.warn('[RepoOwl]', freshInsights.error);
         return;
       }
-      // Update the existing cache reference so the observer uses fresh data
-      liveInsights.byNumber = freshInsights.byNumber;
-      liveInsights.byId = freshInsights.byId;
+      // Merge cached insights with fresh insights to prevent flickering or data loss on fallback
+      const mergedByNumber = new Map(cachedInsights.byNumber);
+      for (const [k, v] of freshInsights.byNumber) mergedByNumber.set(k, v);
+      
+      const mergedById = new Map(cachedInsights.byId);
+      for (const [k, v] of freshInsights.byId) mergedById.set(k, v);
+
+      liveInsights.byNumber = mergedByNumber;
+      liveInsights.byId = mergedById;
       liveInsights.error = freshInsights.error;
       
       // Remove old badges so the observer re-paints them with fresh data
@@ -347,9 +352,15 @@ async function bootstrap() {
   // Fetch live data and update if the badge changes state
   fetchRepositoryInsights(page.repository.fullName).then((freshInsights) => {
     if (!freshInsights.error) {
-      // Update the existing cache reference so the observer uses fresh data
-      liveInsights.byNumber = freshInsights.byNumber;
-      liveInsights.byId = freshInsights.byId;
+      // Merge cached insights with fresh insights to prevent flickering or data loss on fallback
+      const mergedByNumber = new Map(cachedInsights.byNumber);
+      for (const [k, v] of freshInsights.byNumber) mergedByNumber.set(k, v);
+      
+      const mergedById = new Map(cachedInsights.byId);
+      for (const [k, v] of freshInsights.byId) mergedById.set(k, v);
+
+      liveInsights.byNumber = mergedByNumber;
+      liveInsights.byId = mergedById;
       liveInsights.error = freshInsights.error;
       
       // Remove old badges so the observer re-paints them with fresh data
