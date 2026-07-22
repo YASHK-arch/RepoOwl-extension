@@ -126,7 +126,7 @@ async function run() {
   const isApproved = analysisOutput.includes("Code Matches Description");
   const reviewEvent = isApproved ? "APPROVE" : "REQUEST_CHANGES";
 
-  await fetch(`https://api.github.com/repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews`, {
+  const reviewRes = await fetch(`https://api.github.com/repos/${REPOSITORY}/pulls/${PR_NUMBER}/reviews`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${GITHUB_TOKEN}`,
@@ -135,8 +135,23 @@ async function run() {
     body: JSON.stringify({ body: commentBody, event: reviewEvent })
   });
 
+  if (!reviewRes.ok) {
+    const errorText = await reviewRes.text();
+    console.error("Failed to post review:", reviewRes.status, errorText);
+    console.log("Falling back to posting a regular comment...");
+    // Fallback to regular comment
+    await fetch(`https://api.github.com/repos/${REPOSITORY}/issues/${PR_NUMBER}/comments`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ body: commentBody })
+    });
+  }
+
   console.log("Adding label to PR...");
-  await fetch(`https://api.github.com/repos/${REPOSITORY}/issues/${PR_NUMBER}/labels`, {
+  const labelRes = await fetch(`https://api.github.com/repos/${REPOSITORY}/issues/${PR_NUMBER}/labels`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${GITHUB_TOKEN}`,
@@ -145,7 +160,11 @@ async function run() {
     body: JSON.stringify({ labels: ['repoowl-analyzed'] })
   });
 
-  console.log("Analysis posted successfully!");
+  if (!labelRes.ok) {
+    console.error("Failed to add label:", await labelRes.text());
+  }
+
+  console.log("Analysis completed!");
 }
 
 run().catch(err => {
