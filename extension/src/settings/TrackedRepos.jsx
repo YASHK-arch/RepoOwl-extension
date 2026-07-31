@@ -153,28 +153,56 @@ export function TrackedRepos() {
   };
   
   const handleInitPRs = (repo) => {
-    const pat = window.prompt(`To auto-install RepoOwl GitHub Actions in ${repo}, please enter your GitHub Personal Access Token (PAT) with 'repo' and 'workflow' scopes:`);
-    if (!pat) return;
-
-    // Fetch GROQ API key from storage to pass to background
+    // Fetch configuration from storage first
     if (typeof chrome !== 'undefined' && chrome.storage) {
       chrome.storage.local.get(['repoOwlConfig'], (result) => {
         const keys = result.repoOwlConfig || {};
+        
+        let pat = keys.githubToken;
+        if (!pat) {
+          pat = window.prompt(`To auto-install RepoOwl GitHub Actions in ${repo}, please enter your GitHub Personal Access Token (PAT) with 'repo' and 'workflow' scopes:`);
+          if (!pat) return;
+        }
+
         if (!keys.groqApiKey && !import.meta.env.VITE_GROQ_API_KEY) {
           setStatus({ type: 'error', message: 'GROQ_API_KEY is not set in Model Configuration.' });
           return;
         }
         
         const groqApiKey = keys.groqApiKey || import.meta.env.VITE_GROQ_API_KEY;
-
-        setStatus({ type: '', message: `Initializing PR Analyzer for ${repo}...` });
-        chrome.runtime.sendMessage({ action: 'initialize_repoowl_pr', repoName: repo, githubPat: pat, groqApiKey: groqApiKey }, (response) => {
-          if (response && response.success) {
-            setStatus({ type: 'success', message: `Successfully installed RepoOwl PR Analyzer in ${repo}!` });
-          } else {
-            setStatus({ type: 'error', message: `Failed to install PR Analyzer: ${response?.error || 'Unknown error'}` });
-          }
-        });
+        try {
+          setStatus({ type: '', message: `Initializing PR Analyzer for ${repo}...` });
+          setSyncLogsPRs([`--- Initiated PR Analyzer Setup for ${repo} ---`]);
+          
+          chrome.runtime.sendMessage({ action: 'initialize_repoowl_pr', repoName: repo, githubPat: pat, groqApiKey: groqApiKey }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError);
+              setStatus({ type: 'error', message: `Connection error: ${chrome.runtime.lastError.message}. Try refreshing the page.` });
+              return;
+            }
+            if (response && response.success) {
+              setStatus({ type: 'success', message: `Successfully installed RepoOwl PR Analyzer in ${repo}!` });
+              if (response.logs) {
+                setSyncLogsPRs(prev => {
+                  const newLogs = [...prev];
+                  response.logs.forEach(l => { if (!newLogs.includes(l)) newLogs.push(l); });
+                  return newLogs;
+                });
+              }
+            } else {
+              setStatus({ type: 'error', message: `Failed to install PR Analyzer: ${response?.error || 'Unknown error'}` });
+              if (response?.logs) {
+                setSyncLogsPRs(prev => {
+                  const newLogs = [...prev];
+                  response.logs.forEach(l => { if (!newLogs.includes(l)) newLogs.push(l); });
+                  return newLogs;
+                });
+              }
+            }
+          });
+        } catch (err) {
+          setStatus({ type: 'error', message: `Extension error: ${err.message}. Please refresh this page.` });
+        }
       });
     }
   };
@@ -279,7 +307,7 @@ export function TrackedRepos() {
         </div>
       </div>
 
-      {syncLogsIssues.length > 0 && (
+      {(syncLogsIssues.length > 0 || syncLogsPRs.length > 0) && (
         <div className="ro-section" style={{ marginTop: '20px' }}>
           <h2 className="ro-section-title">Live Sync Logs</h2>
           <div style={{ display: 'flex', gap: '16px' }}>
@@ -305,6 +333,27 @@ export function TrackedRepos() {
               </div>
             )}
 
+            {syncLogsPRs.length > 0 && (
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '13px', marginBottom: '8px', color: '#57606a' }}>PR Analyzer Setup</h3>
+                <div style={{
+                  background: '#1f2328',
+                  color: '#e6edf3',
+                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
+                  fontSize: '11px',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.5'
+                }}>
+                  {syncLogsPRs.map((log, index) => (
+                    <div key={index} style={{ marginBottom: '4px' }}>{log}</div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
