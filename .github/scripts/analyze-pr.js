@@ -30,7 +30,7 @@ async function askGroq(prompt) {
 
 async function run() {
   if (!GROQ_API_KEY || !GITHUB_TOKEN) {
-    console.warn("⚠️  Skipping RepoOwl PR Analysis: Missing GROQ_API_KEY or GITHUB_TOKEN secret. Please configure these in your repository secrets.");
+    console.warn("â ï¸  Skipping RepoOwl PR Analysis: Missing GROQ_API_KEY or GITHUB_TOKEN secret. Please configure these in your repository secrets.");
     process.exit(0);
   }
 
@@ -109,7 +109,7 @@ async function run() {
     Analyze the PR and output your response in Markdown format. Your response MUST include the following structured sections:
     
     1. **Slop Badge**: Output exactly one of these two phrases at the very beginning based on if the code genuinely matches the PR description:
-       "🟢 [Code Matches Description]" or "🔴 [⚠️ AI Slop Detected]"
+       "ð¢ [Code Matches Description]" or "ð´ [â ï¸ AI Slop Detected]"
     2. **AI Slop Detection**: Explain your reasoning for the badge. Is the description hallucinated/inaccurate?
     3. **Issue Resolution**: Does the code actually solve the linked issue?
     4. **Domain Impact**: A brief bulleted list of which components/domains were touched (e.g., Frontend, Database).
@@ -121,7 +121,7 @@ async function run() {
 
   // 6. Post the Review as a Comment back to GitHub
   console.log("Posting Analysis Comment to GitHub...");
-  const commentBody = `### 🦉 RepoOwl PR Analysis\n\n${analysisOutput}\n\n*Analyzed automatically via GitHub Actions*`;
+  const commentBody = `### ð¦ RepoOwl PR Analysis\n\n${analysisOutput}\n\n*Analyzed automatically via GitHub Actions*`;
   
   const commentRes = await fetch(`https://api.github.com/repos/${REPOSITORY}/issues/${PR_NUMBER}/comments`, {
     method: 'POST',
