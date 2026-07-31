@@ -30,8 +30,8 @@ async function askGroq(prompt) {
 
 async function run() {
   if (!GROQ_API_KEY || !GITHUB_TOKEN) {
-    console.error("Missing GROQ_API_KEY or GITHUB_TOKEN secret.");
-    process.exit(1);
+    console.warn("⚠️  Skipping RepoOwl PR Analysis: Missing GROQ_API_KEY or GITHUB_TOKEN secret. Please configure these in your repository secrets.");
+    process.exit(0);
   }
 
   console.log(`Starting RepoOwl Map-Reduce Analysis for PR #${PR_NUMBER} in ${REPOSITORY}...`);
