@@ -35,11 +35,16 @@ function showUntrackedWarning() {
   warningDiv.id = 'repoowl-untracked-warning';
   warningDiv.className = 'repoowl-untracked-warning';
   warningDiv.innerHTML = `
-    <div style="padding: 16px; margin: 16px 0; background-color: #fff8c5; border: 1px solid #d4a72c; border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
-      <div>
+    <div style="padding: 16px; margin: 16px; background-color: var(--color-attention-subtle, #fff8c5); border: 1px solid var(--color-attention-muted, rgba(212,167,44,0.4)); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; color: var(--color-fg-default, #24292f); position: relative;">
+      <button class="repoowl-close-btn" style="position: absolute; top: 8px; left: 8px; background: none; border: none; cursor: pointer; color: var(--color-fg-muted, #57606a); padding: 4px; display: flex; align-items: center; justify-content: center;" aria-label="Close" title="Close">
+        <svg aria-hidden="true" height="14" viewBox="0 0 16 16" version="1.1" width="14" data-view-component="true" fill="currentColor">
+            <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"></path>
+        </svg>
+      </button>
+      <div style="margin-left: 20px;">
         <strong>RepoOwl:</strong> This repository is not tracked. We won't analyze issues here.
       </div>
-      <button class="repoowl-settings-btn" style="background-color: #2da44e; color: white; border: none; padding: 5px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+      <button class="repoowl-settings-btn" style="background-color: var(--color-success-emphasis, #2da44e); color: var(--color-fg-on-emphasis, #ffffff); border: none; padding: 5px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">
         Configure Repository
       </button>
     </div>
@@ -48,6 +53,11 @@ function showUntrackedWarning() {
   const btn = warningDiv.querySelector('.repoowl-settings-btn');
   btn.addEventListener('click', () => {
     chrome.runtime.sendMessage({ action: 'open_settings' });
+  });
+
+  const closeBtn = warningDiv.querySelector('.repoowl-close-btn');
+  closeBtn.addEventListener('click', () => {
+    warningDiv.remove();
   });
 
   container.insertBefore(warningDiv, container.firstChild);
