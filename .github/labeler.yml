@@ -1,17 +1,21 @@
 frontend:
-  - '**/*.js'
-  - '**/*.jsx'
-  - '**/*.css'
-  - '**/*.html'
+  - any:
+    - '**/*.js'
+    - '**/*.jsx'
+    - '**/*.css'
+    - '**/*.html'
 
 backend:
-  - '**/*.py'
-  - '**/*.go'
-  - '**/*.ts'
+  - any:
+    - '**/*.py'
+    - '**/*.go'
+    - '**/*.ts'
 
 documentation:
-  - '**/*.md'
+  - any:
+    - '**/*.md'
 
 tests:
-  - '**/*.test.js'
-  - '**/*.spec.js'
+  - any:
+    - '**/*.test.js'
+    - '**/*.spec.js'
