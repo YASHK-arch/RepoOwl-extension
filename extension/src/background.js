@@ -21,9 +21,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     checkMediatorStatus(message.repoName).then(res => sendResponse(res)).catch(err => sendResponse({ error: err.message }));
     return true;
   } else if (message.action === 'initialize_repoowl_pr') {
-    initializeRepoOwl(message.repoName, message.githubPat, message.groqApiKey)
-      .then(() => sendResponse({ success: true }))
-      .catch(err => sendResponse({ error: err.message }));
+    const logs = [];
+    const broadcast = (msg) => {
+      logs.push(msg);
+      createBroadcast('pr')(msg);
+    };
+    initializeRepoOwl(message.repoName, message.githubPat, message.groqApiKey, broadcast)
+      .then(() => sendResponse({ success: true, logs }))
+      .catch(err => sendResponse({ error: err.message, logs }));
     return true;
   }
 });
@@ -417,8 +422,15 @@ async function initSyncEnv(forceRepos) {
 
 function createBroadcast(type) {
   return (msg) => {
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
-      chrome.runtime.sendMessage({ action: 'sync_progress', message: msg, log_type: type }).catch(() => {});
+    try {
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        const res = chrome.runtime.sendMessage({ action: 'sync_progress', message: msg, log_type: type });
+        if (res && typeof res.catch === 'function') {
+          res.catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.error("Broadcast error:", e);
     }
     console.log(`[${type}] ${msg}`);
   };
