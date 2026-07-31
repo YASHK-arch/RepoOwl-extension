@@ -13,7 +13,7 @@ Before you begin, ensure you have the following ready:
 - **Google Chrome** (for the browser extension)
 - A **[Supabase](https://supabase.com/)** account
 - A **[Groq](https://console.groq.com/)** account (for fast LLM inference)
-- A **GitHub Personal Access Token** (Classic or Fine-grained) with access to read repository issues.
+- A **GitHub Personal Access Token** (Classic) with `repo` and `workflow` scopes.
 
 ---
 
@@ -38,18 +38,33 @@ You must apply the database schema so your Sandbox can save your analysis, track
 
 ---
 
-## 3. Load the Extension & Configure Keys
+## 3. GitHub Token Configuration (Crucial for Maintainers)
+
+To utilize RepoOwl's automated PR Analyzer and Issue Sync features, you need a Personal Access Token (PAT) with specific permissions.
+
+### 3.1 Generate a GitHub Token
+1. Go to your **[GitHub Developer Settings](https://github.com/settings/tokens)**.
+2. Click **Generate new token (classic)**.
+3. Give your token a descriptive note (e.g., "RepoOwl Extension").
+4. **Crucial Step:** Under "Select scopes", you **MUST** check both the **`repo`** and **`workflow`** checkboxes. 
+   > [!IMPORTANT]
+   > The `workflow` scope is strictly required for the extension to automatically install the PR Analyzer GitHub Action into your repository. Without it, you will see a "Resource not accessible by personal access token" error.
+5. Click **Generate token** at the bottom of the page and copy your new token immediately (you won't be able to see it again).
+
+---
+
+## 4. Load the Extension & Configure Keys
 
 1. Open Google Chrome and navigate to `chrome://extensions/`.
 2. Toggle **Developer mode** ON (in the top right corner).
 3. Click the **Load unpacked** button.
 4. Select the `extension/dist/` folder inside the `RepoOwl-extension` directory (or the folder containing `manifest.json`).
 5. The RepoOwl icon should now appear in your browser toolbar! 
-6. **Important:** Click the RepoOwl icon to open the popup, go to the Settings tab, and paste your **Supabase URL**, **Supabase Anon Key**, **Groq API Key**, and **GitHub Token**.
+6. **Important:** Click the RepoOwl icon to open the popup, go to the Settings tab, and paste your **Supabase URL**, **Supabase Anon Key**, **Groq API Key**, and the **GitHub Token** you just generated.
 
 ---
 
-## 4. Usage Guide: Role-Based Workflows
+## 5. Usage Guide: Role-Based Workflows
 
 RepoOwl behaves intelligently depending on your role in a repository. All sync logic runs directly inside the browser extension!
 
