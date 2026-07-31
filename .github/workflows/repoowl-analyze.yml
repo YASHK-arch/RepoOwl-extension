@@ -1,7 +1,7 @@
 name: RepoOwl PR Analyzer
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, ready_for_review]
   issue_comment:
     types: [created]
@@ -15,7 +15,7 @@ jobs:
   analyze-pr:
     # Only run if it's a PR creation OR if the comment contains exactly "/analyze" (or "/analyse")
     if: >
-      github.event_name == 'pull_request' ||
+      github.event_name == 'pull_request_target' ||
       (github.event.issue.pull_request && (contains(github.event.comment.body, '/analyze') || contains(github.event.comment.body, '/analyse')))
 
     runs-on: ubuntu-latest
