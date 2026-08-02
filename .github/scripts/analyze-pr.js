@@ -54,7 +54,7 @@ function parseTriageJSON(rawOutput) {
       recommended_action: 'NEEDS_TRIAGE',
       suggested_labels: ['needs-triage'],
       summary_reason: 'Could not parse structured output from analyzer. Manual review required.',
-      markdown_review: rawOutput
+      markdown_review: "```\n" + rawOutput + "\n```"
     };
   }
 }
@@ -414,13 +414,19 @@ The JSON object MUST have exactly these fields:
   - Use "APPROVE" otherwise (valid contribution).
 - "suggested_labels": array of GitHub label strings (e.g., ["verified", "frontend"]).
 - "summary_reason": string. One-sentence explanation of your decision.
-- "markdown_review": string. A full Markdown-formatted PR review with these sections:
-    1. Slop Badge: "🟢 [Code Matches Description]" or "🔴 [⚠️ AI Slop Detected]"
-    2. AI Slop Detection: Reasoning for the badge.
-    3. Issue Resolution: Does the code actually solve the linked issue?
-    4. Domain Impact: Bulleted list of components/domains touched.
-    5. Breaking Changes: Are there any?
-    6. Final Verdict: Approve or Request Changes.
+- "markdown_review": string. A full Markdown-formatted PR review. You MUST use this EXACT formatting with bolds and blockquotes:
+    > **Slop Badge:** 🟢 [Code Matches Description] (or 🔴 [⚠️ AI Slop Detected])
+    >
+    > **AI Slop Detection:** [Reasoning for the badge]
+
+    **Issue Resolution:** [Does the code actually solve the linked issue?]
+
+    **Domain Impact:**
+    - [Bulleted list of components/domains touched]
+
+    **Breaking Changes:** [Are there any?]
+
+    **Final Verdict:** [Approve or Request Changes.]
 `;
 
   const rawAnalysis = await askGroq(reducePrompt);
