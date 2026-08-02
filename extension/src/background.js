@@ -137,7 +137,7 @@ async function savePathLabels(repo, pathLabelsArray) {
   let fileSha;
   try {
     const checkRes = await fetch(
-      `https://api.github.com/repos/${repo}/contents/repoowl.json?ref=main`,
+      `https://api.github.com/repos/${repo}/contents/repoowl.json?ref=main&t=${Date.now()}`,
       {
         headers: {
           'Accept': 'application/vnd.github+json',
@@ -156,7 +156,7 @@ async function savePathLabels(repo, pathLabelsArray) {
   }
 
   // 2. Merge path_labels, preserving all other existing fields
-  const path_labels = Object.fromEntries(pathLabelsArray.map(r => [r.path, r.label]));
+  const path_labels = Object.fromEntries(pathLabelsArray.map(r => [r.path, { label: r.label, color: r.color || '#0969da' }]));
   const updated = { ...existingContent, path_labels };
   const encodedContent = btoa(JSON.stringify(updated, null, 2));
 
@@ -203,7 +203,7 @@ async function saveTriageConfig(repo, triageConfig) {
   let fileSha;
   try {
     const checkRes = await fetch(
-      `https://api.github.com/repos/${repo}/contents/repoowl.json?ref=main`,
+      `https://api.github.com/repos/${repo}/contents/repoowl.json?ref=main&t=${Date.now()}`,
       {
         headers: {
           'Accept': 'application/vnd.github+json',

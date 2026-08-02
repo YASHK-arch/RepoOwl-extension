@@ -82,7 +82,7 @@ function detectPromptInjection(text) {
  * Execute the triage action: post comment, apply labels, optionally close PR.
  * Uses raw fetch (no Octokit) to match the rest of the script's style.
  */
-async function executeTriageAction(owner, repo, pullNumber, analysis, labelsToAdd, triageConfig) {
+async function executeTriageAction(owner, repo, pullNumber, analysis, labelsToAdd, triageConfig, labelColorsToEnforce = {}) {
   const {
     recommended_action,
     suggested_labels,
@@ -202,6 +202,36 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, labelsToAd
     console.error('Failed to post triage comment:', await commentRes.text());
   }
 
+  // ── Enforce Label Colors ──────────────────────────────────────────────────
+  if (Object.keys(labelColorsToEnforce).length > 0) {
+    console.log('Enforcing custom label colors...');
+    for (const [labelName, colorHex] of Object.entries(labelColorsToEnforce)) {
+      try {
+        const getLabelRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/labels/${encodeURIComponent(labelName)}`, { headers: ghHeaders });
+        if (getLabelRes.status === 404) {
+          console.log(`  Creating label '${labelName}' with color #${colorHex}`);
+          await fetch(`https://api.github.com/repos/${owner}/${repo}/labels`, {
+            method: 'POST',
+            headers: ghHeaders,
+            body: JSON.stringify({ name: labelName, color: colorHex })
+          });
+        } else if (getLabelRes.ok) {
+          const labelData = await getLabelRes.json();
+          if (labelData.color !== colorHex) {
+            console.log(`  Updating label '${labelName}' to color #${colorHex}`);
+            await fetch(`https://api.github.com/repos/${owner}/${repo}/labels/${encodeURIComponent(labelName)}`, {
+              method: 'PATCH',
+              headers: ghHeaders,
+              body: JSON.stringify({ color: colorHex })
+            });
+          }
+        }
+      } catch (err) {
+        console.warn(`  Failed to enforce color for label '${labelName}':`, err.message);
+      }
+    }
+  }
+
   // ── Apply labels ──────────────────────────────────────────────────────────
   console.log(`Applying labels: [${labelsToAdd.join(', ')}]`);
   const labelRes = await fetch(`${issuesBase}/${pullNumber}/labels`, {
@@ -252,6 +282,7 @@ async function run() {
 
   // 2b. Load repoowl.json — get path_labels AND triage_config
   const labelsToAdd = ['repoowl-analyzed'];
+  let labelColorsToEnforce = {};
   let triageConfig = {};
   let repoContext = '';
 
@@ -270,10 +301,16 @@ async function run() {
       if (ruleEntries.length > 0) {
         console.log(`Found ${ruleEntries.length} path-label rule(s) in repoowl.json.`);
         for (const file of filesData) {
-          for (const [rulePath, ruleLabel] of ruleEntries) {
-            if (file.filename.startsWith(rulePath) && !labelsToAdd.includes(ruleLabel)) {
-              console.log(`  Matched: '${file.filename}' → label '${ruleLabel}'`);
-              labelsToAdd.push(ruleLabel);
+          for (const [rulePath, ruleValue] of ruleEntries) {
+            let labelName = typeof ruleValue === 'string' ? ruleValue : ruleValue.label;
+            let labelColor = typeof ruleValue === 'string' ? null : ruleValue.color;
+            if (file.filename.startsWith(rulePath) && !labelsToAdd.includes(labelName)) {
+              console.log(`  Matched: '${file.filename}' → label '${labelName}'`);
+              labelsToAdd.push(labelName);
+              if (labelColor) {
+                // Ensure no '#' in color for GitHub API
+                labelColorsToEnforce[labelName] = labelColor.replace('#', '');
+              }
             }
           }
         }
@@ -392,7 +429,7 @@ The JSON object MUST have exactly these fields:
   console.log(`Triage result: recommended_action=${analysis.recommended_action}, slop_score=${analysis.slop_score}, is_spam=${analysis.is_spam}, is_prompt_injection=${analysis.is_prompt_injection}`);
 
   // 6. Execute triage action (comment + labels + optional close)
-  await executeTriageAction(owner, repo, PR_NUMBER, analysis, labelsToAdd, triageConfig);
+  await executeTriageAction(owner, repo, PR_NUMBER, analysis, labelsToAdd, triageConfig, labelColorsToEnforce);
 
   console.log('Analysis completed!');
 }

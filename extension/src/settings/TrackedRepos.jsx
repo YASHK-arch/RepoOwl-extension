@@ -16,18 +16,6 @@ export function TrackedRepos() {
   
   const [mediatorStatus, setMediatorStatus] = useState({});
 
-  // --- Label Routing Rules state ---
-  // pathLabels: { [repo]: [{ path, label }] }
-  const [pathLabels, setPathLabels] = useState({});
-  // Which repo cards have the rules section expanded
-  const [expandedRules, setExpandedRules] = useState({});
-  // Loading state while saving
-  const [savingLabels, setSavingLabels] = useState(null);
-  // Save status per repo: { [repo]: { type: 'success'|'error', message: string } }
-  const [labelSaveStatus, setLabelSaveStatus] = useState({});
-  // New-rule draft inputs: { [repo]: { path: '', label: '' } }
-  const [newRuleDraft, setNewRuleDraft] = useState({});
-
   const fetchStatus = (repo) => {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
       chrome.runtime.sendMessage({ action: 'check_mediator_status', repoName: repo }, (response) => {
@@ -40,37 +28,8 @@ export function TrackedRepos() {
     }
   };
 
-  /**
-   * Fetches the existing path_labels from the repo's repoowl.json on GitHub
-   * and populates local state. Requires a stored GitHub PAT.
-   */
-  const fetchPathLabels = useCallback(async (repo) => {
-    if (typeof chrome === 'undefined' || !chrome.storage) return;
-    const storage = await new Promise(res => chrome.storage.local.get(['repoOwlConfig'], res));
-    const pat = storage.repoOwlConfig?.githubToken;
-    if (!pat) return;
-
-    try {
-      const res = await fetch(
-        `https://api.github.com/repos/${repo}/contents/repoowl.json?ref=main`,
-        { headers: { 'Authorization': `Bearer ${pat}`, 'Accept': 'application/vnd.github+json' } }
-      );
-      if (!res.ok) return;
-      const fileData = await res.json();
-      const config = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
-      const rules = config.path_labels
-        ? Object.entries(config.path_labels).map(([path, label]) => ({ path, label }))
-        : [];
-      setPathLabels(prev => ({ ...prev, [repo]: rules }));
-    } catch (e) {
-      // repoowl.json may not exist yet — that's fine, start with empty rules
-      setPathLabels(prev => ({ ...prev, [repo]: prev[repo] ?? [] }));
-    }
-  }, []);
-
   useEffect(() => {
     repos.forEach(fetchStatus);
-    repos.forEach(fetchPathLabels);
   }, [repos]);
 
 
@@ -248,46 +207,6 @@ export function TrackedRepos() {
     }
   };
 
-  // --- Label Routing Rule Handlers ---
-
-  const handleAddRule = (repo) => {
-    const draft = newRuleDraft[repo] || { path: '', label: '' };
-    if (!draft.path.trim() || !draft.label.trim()) return;
-    setPathLabels(prev => ({
-      ...prev,
-      [repo]: [...(prev[repo] || []), { path: draft.path.trim(), label: draft.label.trim() }]
-    }));
-    setNewRuleDraft(prev => ({ ...prev, [repo]: { path: '', label: '' } }));
-  };
-
-  const handleRemoveRule = (repo, index) => {
-    setPathLabels(prev => ({
-      ...prev,
-      [repo]: (prev[repo] || []).filter((_, i) => i !== index)
-    }));
-  };
-
-  const handleSaveRules = (repo) => {
-    setSavingLabels(repo);
-    setLabelSaveStatus(prev => ({ ...prev, [repo]: null }));
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
-      chrome.runtime.sendMessage(
-        { action: 'save_path_labels', repoName: repo, pathLabels: pathLabels[repo] || [] },
-        (response) => {
-          setSavingLabels(null);
-          if (response && response.success) {
-            setLabelSaveStatus(prev => ({ ...prev, [repo]: { type: 'success', message: 'Rules saved to repoowl.json ✓' } }));
-          } else {
-            setLabelSaveStatus(prev => ({ ...prev, [repo]: { type: 'error', message: response?.error || 'Failed to save rules.' } }));
-          }
-        }
-      );
-    } else {
-      setSavingLabels(null);
-      setLabelSaveStatus(prev => ({ ...prev, [repo]: { type: 'error', message: 'Not in extension environment.' } }));
-    }
-  };
-
 
   return (
     <>
@@ -325,10 +244,6 @@ export function TrackedRepos() {
         <h2 className="ro-section-title">Tracked Repositories List</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {repos.map((repo) => {
-            const rules = pathLabels[repo] || [];
-            const draft = newRuleDraft[repo] || { path: '', label: '' };
-            const isExpanded = !!expandedRules[repo];
-            const saveStatus = labelSaveStatus[repo];
 
             return (
               <div key={repo} style={{
@@ -382,139 +297,8 @@ export function TrackedRepos() {
                       🚀 Initialize PR Analyzer
                     </button>
 
-                    <button
-                      type="button"
-                      className="ro-btn ro-btn--secondary"
-                      title="Configure path-based label routing rules"
-                      onClick={() => setExpandedRules(prev => ({ ...prev, [repo]: !prev[repo] }))}
-                      style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-                    >
-                      🏷️ Label Rules
-                      <span style={{ fontSize: '10px', lineHeight: 1 }}>{isExpanded ? '▲' : '▼'}</span>
-                    </button>
-
-                    {repo !== DEFAULT_REPO && (
-                      <button
-                        type="button"
-                        className="ro-btn ro-btn--secondary"
-                        onClick={() => handleDelete(repo)}
-                        style={{ color: '#cf222e' }}
-                      >
-                        Delete
-                      </button>
-                    )}
                   </div>
                 </div>
-
-                {/* --- Collapsible Label Routing Rules panel --- */}
-                {isExpanded && (
-                  <div style={{
-                    borderTop: '1px solid #d0d7de',
-                    padding: '12px',
-                    backgroundColor: '#f6f8fa'
-                  }}>
-                    <p style={{ fontSize: '12px', color: '#57606a', margin: '0 0 10px 0' }}>
-                      Map folder paths to GitHub labels. When a PR touches a matching file, the label is applied automatically.
-                    </p>
-
-                    {/* Existing rules list */}
-                    {rules.length > 0 ? (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '10px' }}>
-                        {rules.map((rule, i) => (
-                          <div key={i} style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '6px 8px',
-                            background: '#ffffff',
-                            border: '1px solid #d0d7de',
-                            borderRadius: '4px',
-                            fontSize: '12px'
-                          }}>
-                            <code style={{ flex: 1, color: '#0969da', fontFamily: 'ui-monospace, monospace' }}>{rule.path}</code>
-                            <span style={{ color: '#57606a' }}>→</span>
-                            <span style={{
-                              background: '#ddf4ff',
-                              color: '#0969da',
-                              border: '1px solid #54aeff',
-                              borderRadius: '2em',
-                              padding: '0 8px',
-                              fontSize: '11px',
-                              fontWeight: 500
-                            }}>{rule.label}</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveRule(repo, i)}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                color: '#cf222e',
-                                fontSize: '14px',
-                                lineHeight: 1,
-                                padding: '0 2px'
-                              }}
-                              title="Remove rule"
-                            >×</button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p style={{ fontSize: '12px', color: '#8c959f', marginBottom: '10px', fontStyle: 'italic' }}>
-                        No rules defined yet.
-                      </p>
-                    )}
-
-                    {/* Add-rule form */}
-                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <input
-                        type="text"
-                        className="ro-input"
-                        placeholder="Folder path (e.g. src/database/)"
-                        value={draft.path}
-                        onChange={e => setNewRuleDraft(prev => ({ ...prev, [repo]: { ...draft, path: e.target.value } }))}
-                        spellCheck={false}
-                        style={{ flex: '1 1 160px', fontSize: '12px', padding: '5px 8px' }}
-                      />
-                      <input
-                        type="text"
-                        className="ro-input"
-                        placeholder="GitHub label (e.g. database)"
-                        value={draft.label}
-                        onChange={e => setNewRuleDraft(prev => ({ ...prev, [repo]: { ...draft, label: e.target.value } }))}
-                        spellCheck={false}
-                        style={{ flex: '1 1 140px', fontSize: '12px', padding: '5px 8px' }}
-                        onKeyDown={e => e.key === 'Enter' && handleAddRule(repo)}
-                      />
-                      <button
-                        type="button"
-                        className="ro-btn ro-btn--secondary"
-                        onClick={() => handleAddRule(repo)}
-                        style={{ fontSize: '12px', padding: '5px 10px' }}
-                      >
-                        + Add Rule
-                      </button>
-                    </div>
-
-                    {/* Save + status */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
-                      <button
-                        type="button"
-                        className="ro-btn ro-btn--primary"
-                        onClick={() => handleSaveRules(repo)}
-                        disabled={savingLabels === repo}
-                        style={{ fontSize: '12px', padding: '5px 12px' }}
-                      >
-                        {savingLabels === repo ? 'Saving...' : '💾 Save Rules'}
-                      </button>
-                      {saveStatus && (
-                        <span style={{ fontSize: '12px', color: saveStatus.type === 'success' ? '#2da44e' : '#cf222e' }}>
-                          {saveStatus.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             );
           })}

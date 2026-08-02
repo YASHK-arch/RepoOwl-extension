@@ -683,25 +683,25 @@ var oe = class e {
 			return !1;
 		}
 	}
-}, ce = "realtime-js/2.110.3", le = "1.0.0", ue = "2.0.0", de = ue, fe = 1e4, S = {
+}, ce = "realtime-js/2.110.7", le = "1.0.0", ue = "2.0.0", de = ue, fe = 1e4, pe = {
 	closed: "closed",
 	errored: "errored",
 	joined: "joined",
 	joining: "joining",
 	leaving: "leaving"
-}, pe = {
+}, me = {
 	close: "phx_close",
 	error: "phx_error",
 	join: "phx_join",
 	reply: "phx_reply",
 	leave: "phx_leave",
 	access_token: "access_token"
-}, me = {
+}, he = {
 	connecting: "connecting",
 	open: "open",
 	closing: "closing",
 	closed: "closed"
-}, he = class {
+}, ge = class {
 	constructor(e) {
 		this.HEADER_LENGTH = 1, this.USER_BROADCAST_PUSH_META_LENGTH = 6, this.KINDS = {
 			userBroadcastPush: 3,
@@ -731,16 +731,16 @@ var oe = class e {
 		return this._encodeUserBroadcastPush(e, this.JSON_ENCODING, n);
 	}
 	_encodeUserBroadcastPush(e, t, n) {
-		let r = e.topic, i = e.ref ?? "", a = e.join_ref ?? "", o = e.payload.event, s = this.allowedMetadataKeys ? this._pick(e.payload, this.allowedMetadataKeys) : {}, c = Object.keys(s).length === 0 ? "" : JSON.stringify(s);
-		if (a.length > 255) throw Error(`joinRef length ${a.length} exceeds maximum of 255`);
-		if (i.length > 255) throw Error(`ref length ${i.length} exceeds maximum of 255`);
-		if (r.length > 255) throw Error(`topic length ${r.length} exceeds maximum of 255`);
-		if (o.length > 255) throw Error(`userEvent length ${o.length} exceeds maximum of 255`);
-		if (c.length > 255) throw Error(`metadata length ${c.length} exceeds maximum of 255`);
-		let l = this.USER_BROADCAST_PUSH_META_LENGTH + a.length + i.length + r.length + o.length + c.length, u = new ArrayBuffer(this.HEADER_LENGTH + l), d = new DataView(u), f = 0;
-		d.setUint8(f++, this.KINDS.userBroadcastPush), d.setUint8(f++, a.length), d.setUint8(f++, i.length), d.setUint8(f++, r.length), d.setUint8(f++, o.length), d.setUint8(f++, c.length), d.setUint8(f++, t), Array.from(a, (e) => d.setUint8(f++, e.charCodeAt(0))), Array.from(i, (e) => d.setUint8(f++, e.charCodeAt(0))), Array.from(r, (e) => d.setUint8(f++, e.charCodeAt(0))), Array.from(o, (e) => d.setUint8(f++, e.charCodeAt(0))), Array.from(c, (e) => d.setUint8(f++, e.charCodeAt(0)));
-		var p = new Uint8Array(u.byteLength + n.byteLength);
-		return p.set(new Uint8Array(u), 0), p.set(new Uint8Array(n), u.byteLength), p.buffer;
+		let r = new TextEncoder(), i = r.encode(e.topic), a = r.encode(e.ref ?? ""), o = r.encode(e.join_ref ?? ""), s = r.encode(e.payload.event), c = this.allowedMetadataKeys ? this._pick(e.payload, this.allowedMetadataKeys) : {}, l = r.encode(Object.keys(c).length === 0 ? "" : JSON.stringify(c));
+		if (o.length > 255) throw Error(`joinRef length ${o.length} exceeds maximum of 255`);
+		if (a.length > 255) throw Error(`ref length ${a.length} exceeds maximum of 255`);
+		if (i.length > 255) throw Error(`topic length ${i.length} exceeds maximum of 255`);
+		if (s.length > 255) throw Error(`userEvent length ${s.length} exceeds maximum of 255`);
+		if (l.length > 255) throw Error(`metadata length ${l.length} exceeds maximum of 255`);
+		let u = this.USER_BROADCAST_PUSH_META_LENGTH + o.length + a.length + i.length + s.length + l.length, d = new ArrayBuffer(this.HEADER_LENGTH + u), f = new DataView(d), p = new Uint8Array(d), m = 0;
+		f.setUint8(m++, this.KINDS.userBroadcastPush), f.setUint8(m++, o.length), f.setUint8(m++, a.length), f.setUint8(m++, i.length), f.setUint8(m++, s.length), f.setUint8(m++, l.length), f.setUint8(m++, t), p.set(o, m), m += o.length, p.set(a, m), m += a.length, p.set(i, m), m += i.length, p.set(s, m), m += s.length, p.set(l, m), m += l.length;
+		var h = new Uint8Array(d.byteLength + n.byteLength);
+		return h.set(new Uint8Array(d), 0), h.set(new Uint8Array(n), d.byteLength), h.buffer;
 	}
 	decode(e, t) {
 		if (this._isArrayBuffer(e)) return t(this._binaryDecode(e));
@@ -788,65 +788,65 @@ var oe = class e {
 	_pick(e, t) {
 		return !e || typeof e != "object" ? {} : Object.fromEntries(Object.entries(e).filter(([e]) => t.includes(e)));
 	}
-}, C;
+}, S;
 (function(e) {
 	e.abstime = "abstime", e.bool = "bool", e.date = "date", e.daterange = "daterange", e.float4 = "float4", e.float8 = "float8", e.int2 = "int2", e.int4 = "int4", e.int4range = "int4range", e.int8 = "int8", e.int8range = "int8range", e.json = "json", e.jsonb = "jsonb", e.money = "money", e.numeric = "numeric", e.oid = "oid", e.reltime = "reltime", e.text = "text", e.time = "time", e.timestamp = "timestamp", e.timestamptz = "timestamptz", e.timetz = "timetz", e.tsrange = "tsrange", e.tstzrange = "tstzrange";
-})(C ||= {});
-var ge = (e, t, n = {}) => {
+})(S ||= {});
+var _e = (e, t, n = {}) => {
 	let r = n.skipTypes ?? [];
-	return t ? Object.keys(t).reduce((n, i) => (n[i] = _e(i, e, t, r), n), {}) : {};
-}, _e = (e, t, n, r) => {
+	return t ? Object.keys(t).reduce((n, i) => (n[i] = ve(i, e, t, r), n), {}) : {};
+}, ve = (e, t, n, r) => {
 	let i = t.find((t) => t.name === e)?.type, a = n[e];
-	return i && !r.includes(i) ? ve(i, a) : ye(a);
-}, ve = (e, t) => {
-	if (e.charAt(0) === "_") return Ce(t, e.slice(1, e.length));
+	return i && !r.includes(i) ? ye(i, a) : be(a);
+}, ye = (e, t) => {
+	if (e.charAt(0) === "_") return we(t, e.slice(1, e.length));
 	switch (e) {
-		case C.bool: return be(t);
-		case C.float4:
-		case C.float8:
-		case C.int2:
-		case C.int4:
-		case C.int8:
-		case C.numeric:
-		case C.oid: return xe(t);
-		case C.json:
-		case C.jsonb: return Se(t);
-		case C.timestamp: return we(t);
-		case C.abstime:
-		case C.date:
-		case C.daterange:
-		case C.int4range:
-		case C.int8range:
-		case C.money:
-		case C.reltime:
-		case C.text:
-		case C.time:
-		case C.timestamptz:
-		case C.timetz:
-		case C.tsrange:
-		case C.tstzrange: return ye(t);
-		default: return ye(t);
+		case S.bool: return xe(t);
+		case S.float4:
+		case S.float8:
+		case S.int2:
+		case S.int4:
+		case S.int8:
+		case S.numeric:
+		case S.oid: return Se(t);
+		case S.json:
+		case S.jsonb: return Ce(t);
+		case S.timestamp: return Te(t);
+		case S.abstime:
+		case S.date:
+		case S.daterange:
+		case S.int4range:
+		case S.int8range:
+		case S.money:
+		case S.reltime:
+		case S.text:
+		case S.time:
+		case S.timestamptz:
+		case S.timetz:
+		case S.tsrange:
+		case S.tstzrange: return be(t);
+		default: return be(t);
 	}
-}, ye = (e) => e, be = (e) => {
+}, be = (e) => e, xe = (e) => {
 	switch (e) {
 		case "t": return !0;
 		case "f": return !1;
 		default: return e;
 	}
-}, xe = (e) => {
+}, Se = (e) => {
 	if (typeof e == "string") {
 		let t = parseFloat(e);
 		if (!Number.isNaN(t)) return t;
 	}
 	return e;
-}, Se = (e) => {
+}, Ce = (e) => {
 	if (typeof e == "string") try {
 		return JSON.parse(e);
 	} catch {
 		return e;
 	}
 	return e;
-}, Ce = (e, t) => {
+}, we = (e, t) => {
 	if (typeof e != "string") return e;
 	let n = e.length - 1, r = e[n];
 	if (e[0] === "{" && r === "}") {
@@ -856,35 +856,35 @@ var ge = (e, t, n = {}) => {
 		} catch {
 			r = i ? i.split(",") : [];
 		}
-		return r.map((e) => ve(t, e));
+		return r.map((e) => ye(t, e));
 	}
 	return e;
-}, we = (e) => typeof e == "string" ? e.replace(" ", "T") : e, Te = (e) => {
+}, Te = (e) => typeof e == "string" ? e.replace(" ", "T") : e, Ee = (e) => {
 	let t = new URL(e);
 	return t.protocol = t.protocol.replace(/^ws/i, "http"), t.pathname = t.pathname.replace(/\/+$/, "").replace(/\/socket\/websocket$/i, "").replace(/\/socket$/i, "").replace(/\/websocket$/i, ""), t.pathname === "" || t.pathname === "/" ? t.pathname = "/api/broadcast" : t.pathname += "/api/broadcast", t.href;
-}, Ee = (e) => typeof e == "function" ? e : function() {
+}, De = (e) => typeof e == "function" ? e : function() {
 	return e;
-}, De = typeof self < "u" ? self : null, Oe = typeof window < "u" ? window : null, ke = De || Oe || globalThis, Ae = "2.0.0", je = 1e4, Me = 1e3, Ne = {
+}, Oe = typeof self < "u" ? self : null, ke = typeof window < "u" ? window : null, Ae = Oe || ke || globalThis, je = "2.0.0", Me = 1e4, Ne = 1e3, Pe = 100, Fe = {
 	connecting: 0,
 	open: 1,
 	closing: 2,
 	closed: 3
-}, w = {
+}, C = {
 	closed: "closed",
 	errored: "errored",
 	joined: "joined",
 	joining: "joining",
 	leaving: "leaving"
-}, Pe = {
+}, Ie = {
 	close: "phx_close",
 	error: "phx_error",
 	join: "phx_join",
 	reply: "phx_reply",
 	leave: "phx_leave"
-}, Fe = {
+}, Le = {
 	longpoll: "longpoll",
 	websocket: "websocket"
-}, Ie = { complete: 4 }, Le = "base64url.bearer.phx.", Re = class {
+}, Re = { complete: 4 }, ze = "base64url.bearer.phx.", Be = class {
 	constructor(e, t, n, r) {
 		this.channel = e, this.event = t, this.payload = n || function() {
 			return {};
@@ -939,7 +939,7 @@ var ge = (e, t, n = {}) => {
 			response: t
 		});
 	}
-}, ze = class {
+}, Ve = class {
 	constructor(e, t) {
 		this.callback = e, this.timerCalc = t, this.timer = void 0, this.tries = 0;
 	}
@@ -951,23 +951,23 @@ var ge = (e, t, n = {}) => {
 			this.tries += 1, this.callback();
 		}, this.timerCalc(this.tries + 1));
 	}
-}, Be = class {
+}, He = class {
 	constructor(e, t, n) {
-		this.state = w.closed, this.topic = e, this.params = Ee(t || {}), this.socket = n, this.bindings = [], this.bindingRef = 0, this.timeout = this.socket.timeout, this.joinedOnce = !1, this.joinPush = new Re(this, Pe.join, this.params, this.timeout), this.pushBuffer = [], this.stateChangeRefs = [], this.rejoinTimer = new ze(() => {
+		this.state = C.closed, this.topic = e, this.params = De(t || {}), this.socket = n, this.bindings = [], this.bindingRef = 0, this.timeout = this.socket.timeout, this.joinedOnce = !1, this.joinPush = new Be(this, Ie.join, this.params, this.timeout), this.pushBuffer = [], this.stateChangeRefs = [], this.rejoinTimer = new Ve(() => {
 			this.socket.isConnected() && this.rejoin();
 		}, this.socket.rejoinAfterMs), this.stateChangeRefs.push(this.socket.onError(() => this.rejoinTimer.reset())), this.stateChangeRefs.push(this.socket.onOpen(() => {
 			this.rejoinTimer.reset(), this.isErrored() && this.rejoin();
 		})), this.joinPush.receive("ok", () => {
-			this.state = w.joined, this.rejoinTimer.reset(), this.pushBuffer.forEach((e) => e.send()), this.pushBuffer = [];
+			this.state = C.joined, this.rejoinTimer.reset(), this.pushBuffer.forEach((e) => e.send()), this.pushBuffer = [];
 		}), this.joinPush.receive("error", (e) => {
-			this.state = w.errored, this.socket.hasLogger() && this.socket.log("channel", `error ${this.topic}`, e), this.socket.isConnected() && this.rejoinTimer.scheduleTimeout();
+			this.state = C.errored, this.socket.hasLogger() && this.socket.log("channel", `error ${this.topic}`, e), this.socket.isConnected() && this.rejoinTimer.scheduleTimeout();
 		}), this.onClose(() => {
-			this.rejoinTimer.reset(), this.socket.hasLogger() && this.socket.log("channel", `close ${this.topic}`), this.state = w.closed, this.socket.remove(this);
+			this.rejoinTimer.reset(), this.socket.hasLogger() && this.socket.log("channel", `close ${this.topic}`), this.state = C.closed, this.socket.remove(this);
 		}), this.onError((e) => {
-			this.socket.hasLogger() && this.socket.log("channel", `error ${this.topic}`, e), this.isJoining() && this.joinPush.reset(), this.state = w.errored, this.socket.isConnected() && this.rejoinTimer.scheduleTimeout();
+			this.socket.hasLogger() && this.socket.log("channel", `error ${this.topic}`, e), this.isJoining() && this.joinPush.reset(), this.state = C.errored, this.socket.isConnected() && this.rejoinTimer.scheduleTimeout();
 		}), this.joinPush.receive("timeout", () => {
-			this.socket.hasLogger() && this.socket.log("channel", `timeout ${this.topic}`, this.joinPush.timeout), new Re(this, Pe.leave, Ee({}), this.timeout).send(), this.state = w.errored, this.joinPush.reset(), this.socket.isConnected() && this.rejoinTimer.scheduleTimeout();
-		}), this.on(Pe.reply, (e, t) => {
+			this.socket.hasLogger() && this.socket.log("channel", `timeout ${this.topic}`, this.joinPush.timeout), new Be(this, Ie.leave, De({}), this.timeout).send(), this.state = C.errored, this.joinPush.reset(), this.socket.isConnected() && this.rejoinTimer.scheduleTimeout();
+		}), this.on(Ie.reply, (e, t) => {
 			this.trigger(this.replyEventName(t), e);
 		});
 	}
@@ -976,13 +976,13 @@ var ge = (e, t, n = {}) => {
 		return this.timeout = e, this.joinedOnce = !0, this.rejoin(), this.joinPush;
 	}
 	teardown() {
-		this.pushBuffer.forEach((e) => e.destroy()), this.pushBuffer = [], this.rejoinTimer.reset(), this.joinPush.destroy(), this.state = w.closed, this.bindings = [];
+		this.pushBuffer.forEach((e) => e.destroy()), this.pushBuffer = [], this.rejoinTimer.reset(), this.joinPush.destroy(), this.state = C.closed, this.bindings = [];
 	}
 	onClose(e) {
-		this.on(Pe.close, e);
+		this.on(Ie.close, e);
 	}
 	onError(e) {
-		return this.on(Pe.error, (t) => e(t));
+		return this.on(Ie.error, (t) => e(t));
 	}
 	on(e, t) {
 		let n = this.bindingRef++;
@@ -1000,16 +1000,16 @@ var ge = (e, t, n = {}) => {
 	}
 	push(e, t, n = this.timeout) {
 		if (t ||= {}, !this.joinedOnce) throw Error(`tried to push '${e}' to '${this.topic}' before joining. Use channel.join() before pushing events`);
-		let r = new Re(this, e, function() {
+		let r = new Be(this, e, function() {
 			return t;
 		}, n);
 		return this.canPush() ? r.send() : (r.startTimeout(), this.pushBuffer.push(r)), r;
 	}
 	leave(e = this.timeout) {
-		this.rejoinTimer.reset(), this.joinPush.cancelTimeout(), this.state = w.leaving;
+		this.rejoinTimer.reset(), this.joinPush.cancelTimeout(), this.state = C.leaving;
 		let t = () => {
-			this.socket.hasLogger() && this.socket.log("channel", `leave ${this.topic}`), this.trigger(Pe.close, "leave");
-		}, n = new Re(this, Pe.leave, Ee({}), e);
+			this.socket.hasLogger() && this.socket.log("channel", `leave ${this.topic}`), this.trigger(Ie.close, "leave");
+		}, n = new Be(this, Ie.leave, De({}), e);
 		return n.receive("ok", () => t()).receive("timeout", () => t()), n.send(), this.canPush() || n.trigger("ok", {}), n;
 	}
 	onMessage(e, t, n) {
@@ -1030,7 +1030,7 @@ var ge = (e, t, n = {}) => {
 		return this.joinPush.ref;
 	}
 	rejoin(e = this.timeout) {
-		this.isLeaving() || (this.socket.leaveOpenTopic(this.topic), this.state = w.joining, this.joinPush.resend(e));
+		this.isLeaving() || (this.socket.leaveOpenTopic(this.topic), this.state = C.joining, this.joinPush.resend(e));
 	}
 	trigger(e, t, n, r) {
 		let i = this.onMessage(e, t, n, r);
@@ -1042,29 +1042,29 @@ var ge = (e, t, n = {}) => {
 		return `chan_reply_${e}`;
 	}
 	isClosed() {
-		return this.state === w.closed;
+		return this.state === C.closed;
 	}
 	isErrored() {
-		return this.state === w.errored;
+		return this.state === C.errored;
 	}
 	isJoined() {
-		return this.state === w.joined;
+		return this.state === C.joined;
 	}
 	isJoining() {
-		return this.state === w.joining;
+		return this.state === C.joining;
 	}
 	isLeaving() {
-		return this.state === w.leaving;
+		return this.state === C.leaving;
 	}
-}, Ve = class {
+}, Ue = class {
 	static request(e, t, n, r, i, a, o) {
-		if (ke.XDomainRequest) {
-			let n = new ke.XDomainRequest();
+		if (Ae.XDomainRequest) {
+			let n = new Ae.XDomainRequest();
 			return this.xdomainRequest(n, e, t, r, i, a, o);
-		} else if (ke.XMLHttpRequest) {
-			let s = new ke.XMLHttpRequest();
+		} else if (Ae.XMLHttpRequest) {
+			let s = new Ae.XMLHttpRequest();
 			return this.xhrRequest(s, e, t, n, r, i, a, o);
-		} else if (ke.fetch && ke.AbortController) return this.fetchRequest(e, t, n, r, i, a, o);
+		} else if (Ae.fetch && Ae.AbortController) return this.fetchRequest(e, t, n, r, i, a, o);
 		else throw Error("No suitable XMLHttpRequest implementation found");
 	}
 	static fetchRequest(e, t, n, r, i, a, o) {
@@ -1073,7 +1073,7 @@ var ge = (e, t, n = {}) => {
 			headers: n,
 			body: r
 		}, c = null;
-		return i && (c = new AbortController(), setTimeout(() => c.abort(), i), s.signal = c.signal), ke.fetch(t, s).then((e) => e.text()).then((e) => this.parseJSON(e)).then((e) => o && o(e)).catch((e) => {
+		return i && (c = new AbortController(), setTimeout(() => c.abort(), i), s.signal = c.signal), Ae.fetch(t, s).then((e) => e.text()).then((e) => this.parseJSON(e)).then((e) => o && o(e)).catch((e) => {
 			e.name === "AbortError" && a ? a() : o && o(null);
 		}), c;
 	}
@@ -1087,7 +1087,7 @@ var ge = (e, t, n = {}) => {
 		e.open(t, n, !0), e.timeout = a;
 		for (let [t, n] of Object.entries(r)) e.setRequestHeader(t, n);
 		return e.onerror = () => s && s(null), e.onreadystatechange = () => {
-			e.readyState === Ie.complete && s && s(this.parseJSON(e.responseText));
+			e.readyState === Re.complete && s && s(this.parseJSON(e.responseText));
 		}, o && (e.ontimeout = o), e.send(i), e;
 	}
 	static parseJSON(e) {
@@ -1110,28 +1110,28 @@ var ge = (e, t, n = {}) => {
 	static appendParams(e, t) {
 		return Object.keys(t).length === 0 ? e : `${e}${e.match(/\?/) ? "&" : "?"}${this.serialize(t)}`;
 	}
-}, He = (e) => {
+}, We = (e) => {
 	let t = "", n = new Uint8Array(e), r = n.byteLength;
 	for (let e = 0; e < r; e++) t += String.fromCharCode(n[e]);
 	return btoa(t);
-}, Ue = class {
+}, Ge = class {
 	constructor(e, t) {
-		t && t.length === 2 && t[1].startsWith(Le) && (this.authToken = atob(t[1].slice(Le.length))), this.endPoint = null, this.token = null, this.skipHeartbeat = !0, this.reqs = /* @__PURE__ */ new Set(), this.awaitingBatchAck = !1, this.currentBatch = null, this.currentBatchTimer = null, this.batchBuffer = [], this.onopen = function() {}, this.onerror = function() {}, this.onmessage = function() {}, this.onclose = function() {}, this.pollEndpoint = this.normalizeEndpoint(e), this.readyState = Ne.connecting, setTimeout(() => this.poll(), 0);
+		t && t.length === 2 && t[1].startsWith(ze) && (this.authToken = atob(t[1].slice(ze.length))), this.endPoint = null, this.token = null, this.skipHeartbeat = !0, this.reqs = /* @__PURE__ */ new Set(), this.awaitingBatchAck = !1, this.currentBatch = null, this.currentBatchTimer = null, this.batchBuffer = [], this.onopen = function() {}, this.onerror = function() {}, this.onmessage = function() {}, this.onclose = function() {}, this.pollEndpoint = this.normalizeEndpoint(e), this.readyState = Fe.connecting, setTimeout(() => this.poll(), 0);
 	}
 	normalizeEndpoint(e) {
-		return e.replace("ws://", "http://").replace("wss://", "https://").replace(RegExp("(.*)/" + Fe.websocket), "$1/" + Fe.longpoll);
+		return e.replace("ws://", "http://").replace("wss://", "https://").replace(RegExp("(.*)/" + Le.websocket), "$1/" + Le.longpoll);
 	}
 	endpointURL() {
-		return Ve.appendParams(this.pollEndpoint, { token: this.token });
+		return Ue.appendParams(this.pollEndpoint, { token: this.token });
 	}
 	closeAndRetry(e, t, n) {
-		this.close(e, t, n), this.readyState = Ne.connecting;
+		this.close(e, t, n), this.readyState = Fe.connecting;
 	}
 	ontimeout() {
 		this.onerror("timeout"), this.closeAndRetry(1005, "timeout", !1);
 	}
 	isActive() {
-		return this.readyState === Ne.open || this.readyState === Ne.connecting;
+		return this.readyState === Fe.open || this.readyState === Fe.connecting;
 	}
 	poll() {
 		let e = { Accept: "application/json" };
@@ -1154,7 +1154,7 @@ var ge = (e, t, n = {}) => {
 					this.poll();
 					break;
 				case 410:
-					this.readyState = Ne.open, this.onopen({}), this.poll();
+					this.readyState = Fe.open, this.onopen({}), this.poll();
 					break;
 				case 403:
 					this.onerror(403), this.close(1008, "forbidden", !1);
@@ -1168,18 +1168,20 @@ var ge = (e, t, n = {}) => {
 		});
 	}
 	send(e) {
-		typeof e != "string" && (e = He(e)), this.currentBatch ? this.currentBatch.push(e) : this.awaitingBatchAck ? this.batchBuffer.push(e) : (this.currentBatch = [e], this.currentBatchTimer = setTimeout(() => {
+		typeof e != "string" && (e = We(e)), this.currentBatch ? this.currentBatch.push(e) : this.awaitingBatchAck ? this.batchBuffer.push(e) : (this.currentBatch = [e], this.currentBatchTimer = setTimeout(() => {
 			this.batchSend(this.currentBatch), this.currentBatch = null;
 		}, 0));
 	}
-	batchSend(e) {
-		this.awaitingBatchAck = !0, this.ajax("POST", { "Content-Type": "application/x-ndjson" }, e.join("\n"), () => this.onerror("timeout"), (e) => {
-			this.awaitingBatchAck = !1, !e || e.status !== 200 ? (this.onerror(e && e.status), this.closeAndRetry(1011, "internal server error", !1)) : this.batchBuffer.length > 0 && (this.batchSend(this.batchBuffer), this.batchBuffer = []);
+	batchSend(e, t = 0) {
+		this.awaitingBatchAck = !0;
+		let n = t + Pe, r = e.slice(t, n);
+		this.ajax("POST", { "Content-Type": "application/x-ndjson" }, r.join("\n"), () => this.onerror("timeout"), (t) => {
+			!t || t.status !== 200 ? (this.awaitingBatchAck = !1, this.onerror(t && t.status), this.closeAndRetry(1011, "internal server error", !1)) : n < e.length ? this.batchSend(e, n) : this.batchBuffer.length > 0 ? (this.batchSend(this.batchBuffer), this.batchBuffer = []) : this.awaitingBatchAck = !1;
 		});
 	}
 	close(e, t, n) {
 		for (let e of this.reqs) e.abort();
-		this.readyState = Ne.closed;
+		this.readyState = Fe.closed;
 		let r = Object.assign({
 			code: 1e3,
 			reason: void 0,
@@ -1193,19 +1195,19 @@ var ge = (e, t, n = {}) => {
 	}
 	ajax(e, t, n, r, i) {
 		let a;
-		a = Ve.request(e, this.endpointURL(), t, n, this.timeout, () => {
+		a = Ue.request(e, this.endpointURL(), t, n, this.timeout, () => {
 			this.reqs.delete(a), r();
 		}, (e) => {
 			this.reqs.delete(a), this.isActive() && i(e);
 		}), this.reqs.add(a);
 	}
-}, We = class e {
+}, Ke = class e {
 	constructor(t, n = {}) {
 		let r = n.events || {
 			state: "presence_state",
 			diff: "presence_diff"
 		};
-		this.state = {}, this.pendingDiffs = [], this.channel = t, this.joinRef = null, this.caller = {
+		this.state = /* @__PURE__ */ Object.create(null), this.pendingDiffs = [], this.channel = t, this.joinRef = null, this.caller = {
 			onJoin: function() {},
 			onLeave: function() {},
 			onSync: function() {}
@@ -1235,7 +1237,9 @@ var ge = (e, t, n = {}) => {
 		return !this.joinRef || this.joinRef !== this.channel.joinRef();
 	}
 	static syncState(e, t, n, r) {
-		let i = this.clone(e), a = {}, o = {};
+		let i = this.toNullProtoObj(this.clone(e));
+		t = this.toNullProtoObj(t);
+		let a = /* @__PURE__ */ Object.create(null), o = /* @__PURE__ */ Object.create(null);
 		return this.map(i, (e, n) => {
 			t[e] || (o[e] = n);
 		}), this.map(t, (e, t) => {
@@ -1250,6 +1254,7 @@ var ge = (e, t, n = {}) => {
 		}, n, r);
 	}
 	static syncDiff(e, t, n, r) {
+		e = this.toNullProtoObj(e);
 		let { joins: i, leaves: a } = this.clone(t);
 		return n ||= function() {}, r ||= function() {}, this.map(i, (t, r) => {
 			let i = e[t];
@@ -1273,10 +1278,17 @@ var ge = (e, t, n = {}) => {
 	static map(e, t) {
 		return Object.getOwnPropertyNames(e).map((n) => t(n, e[n]));
 	}
+	static toNullProtoObj(e) {
+		if (Object.getPrototypeOf(e) === null) return e;
+		let t = /* @__PURE__ */ Object.create(null);
+		return Object.getOwnPropertyNames(e).forEach((n) => {
+			t[n] = e[n];
+		}), t;
+	}
 	static clone(e) {
 		return JSON.parse(JSON.stringify(e));
 	}
-}, Ge = {
+}, qe = {
 	HEADER_LENGTH: 1,
 	META_LENGTH: 4,
 	KINDS: {
@@ -1311,10 +1323,15 @@ var ge = (e, t, n = {}) => {
 		}
 	},
 	binaryEncode(e) {
-		let { join_ref: t, ref: n, event: r, topic: i, payload: a } = e, o = this.META_LENGTH + t.length + n.length + i.length + r.length, s = new ArrayBuffer(this.HEADER_LENGTH + o), c = new DataView(s), l = 0;
-		c.setUint8(l++, this.KINDS.push), c.setUint8(l++, t.length), c.setUint8(l++, n.length), c.setUint8(l++, i.length), c.setUint8(l++, r.length), Array.from(t, (e) => c.setUint8(l++, e.charCodeAt(0))), Array.from(n, (e) => c.setUint8(l++, e.charCodeAt(0))), Array.from(i, (e) => c.setUint8(l++, e.charCodeAt(0))), Array.from(r, (e) => c.setUint8(l++, e.charCodeAt(0)));
-		var u = new Uint8Array(s.byteLength + a.byteLength);
-		return u.set(new Uint8Array(s), 0), u.set(new Uint8Array(a), s.byteLength), u.buffer;
+		let { join_ref: t, ref: n, event: r, topic: i, payload: a } = e, o = new TextEncoder(), s = o.encode(t), c = o.encode(n), l = o.encode(i), u = o.encode(r);
+		this.assertFieldSize(s.byteLength, "join_ref"), this.assertFieldSize(c.byteLength, "ref"), this.assertFieldSize(l.byteLength, "topic"), this.assertFieldSize(u.byteLength, "event");
+		let d = this.META_LENGTH + s.byteLength + c.byteLength + l.byteLength + u.byteLength, f = new ArrayBuffer(this.HEADER_LENGTH + d), p = new Uint8Array(f), m = new DataView(f), h = 0;
+		m.setUint8(h++, this.KINDS.push), m.setUint8(h++, s.byteLength), m.setUint8(h++, c.byteLength), m.setUint8(h++, l.byteLength), m.setUint8(h++, u.byteLength), p.set(s, h), h += s.byteLength, p.set(c, h), h += c.byteLength, p.set(l, h), h += l.byteLength, p.set(u, h), h += u.byteLength;
+		var g = new Uint8Array(f.byteLength + a.byteLength);
+		return g.set(p, 0), g.set(new Uint8Array(a), f.byteLength), g.buffer;
+	},
+	assertFieldSize(e, t) {
+		if (e > 255) throw Error(`unable to convert ${t} to binary: must be less than or equal to 255 bytes, but is ${e} bytes`);
 	},
 	binaryDecode(e) {
 		let t = new DataView(e), n = t.getUint8(0), r = new TextDecoder();
@@ -1355,7 +1372,7 @@ var ge = (e, t, n = {}) => {
 			join_ref: c,
 			ref: l,
 			topic: u,
-			event: Pe.reply,
+			event: Ie.reply,
 			payload: f
 		};
 	},
@@ -1371,25 +1388,25 @@ var ge = (e, t, n = {}) => {
 			payload: e.slice(a, e.byteLength)
 		};
 	}
-}, Ke = class {
+}, Je = class {
 	constructor(e, t = {}) {
 		this.stateChangeCallbacks = {
 			open: [],
 			close: [],
 			error: [],
 			message: []
-		}, this.channels = [], this.sendBuffer = [], this.ref = 0, this.fallbackRef = null, this.timeout = t.timeout || je, this.transport = t.transport || ke.WebSocket || Ue, this.conn = void 0, this.primaryPassedHealthCheck = !1, this.longPollFallbackMs = t.longPollFallbackMs, this.fallbackTimer = null;
+		}, this.channels = [], this.sendBuffer = [], this.ref = 0, this.fallbackRef = null, this.timeout = t.timeout || Me, this.transport = t.transport || Ae.WebSocket || Ge, this.conn = void 0, this.primaryPassedHealthCheck = !1, this.longPollFallbackMs = t.longPollFallbackMs, this.fallbackTimer = null;
 		let n = null;
 		try {
-			n = ke && ke.sessionStorage;
+			n = Ae && Ae.sessionStorage;
 		} catch {}
-		this.sessionStore = t.sessionStorage || n, this.establishedConnections = 0, this.defaultEncoder = Ge.encode.bind(Ge), this.defaultDecoder = Ge.decode.bind(Ge), this.closeWasClean = !0, this.disconnecting = !1, this.binaryType = t.binaryType || "arraybuffer", this.connectClock = 1, this.pageHidden = !1, this.encode = void 0, this.decode = void 0, this.transport === Ue ? (this.encode = this.defaultEncoder, this.decode = this.defaultDecoder) : (this.encode = t.encode || this.defaultEncoder, this.decode = t.decode || this.defaultDecoder);
+		this.sessionStore = t.sessionStorage || n, this.establishedConnections = 0, this.defaultEncoder = qe.encode.bind(qe), this.defaultDecoder = qe.decode.bind(qe), this.closeWasClean = !0, this.disconnecting = !1, this.binaryType = t.binaryType || "arraybuffer", this.connectClock = 1, this.pageHidden = !1, this.encode = void 0, this.decode = void 0, this.transport === Ge ? (this.encode = this.defaultEncoder, this.decode = this.defaultDecoder) : (this.encode = t.encode || this.defaultEncoder, this.decode = t.decode || this.defaultDecoder);
 		let r = null;
-		Oe && Oe.addEventListener && (Oe.addEventListener("pagehide", (e) => {
+		ke && ke.addEventListener && (ke.addEventListener("pagehide", (e) => {
 			this.conn && (this.disconnect(), r = this.connectClock);
-		}), Oe.addEventListener("pageshow", (e) => {
+		}), ke.addEventListener("pageshow", (e) => {
 			r === this.connectClock && (r = null, this.connect());
-		}), Oe.addEventListener("visibilitychange", () => {
+		}), ke.addEventListener("visibilitychange", () => {
 			document.visibilityState === "hidden" ? this.pageHidden = !0 : (this.pageHidden = !1, !this.isConnected() && !this.closeWasClean && this.teardown(() => this.connect()));
 		})), this.heartbeatIntervalMs = t.heartbeatIntervalMs || 3e4, this.autoSendHeartbeat = t.autoSendHeartbeat ?? !0, this.heartbeatCallback = t.heartbeatCallback ?? (() => {}), this.rejoinAfterMs = (e) => t.rejoinAfterMs ? t.rejoinAfterMs(e) : [
 			1e3,
@@ -1407,7 +1424,7 @@ var ge = (e, t, n = {}) => {
 			2e3
 		][e - 1] || 5e3, this.logger = t.logger || null, !this.logger && t.debug && (this.logger = (e, t, n) => {
 			console.log(`${e}: ${t}`, n);
-		}), this.longpollerTimeout = t.longpollerTimeout || 2e4, this.params = Ee(t.params || {}), this.endPoint = `${e}/${Fe.websocket}`, this.vsn = t.vsn || Ae, this.heartbeatTimeoutTimer = null, this.heartbeatTimer = null, this.heartbeatSentAt = null, this.pendingHeartbeatRef = null, this.reconnectTimer = new ze(() => {
+		}), this.longpollerTimeout = t.longpollerTimeout || 2e4, this.params = De(t.params || {}), this.endPoint = `${e}/${Le.websocket}`, this.vsn = t.vsn || je, this.heartbeatTimeoutTimer = null, this.heartbeatTimer = null, this.heartbeatSentAt = null, this.pendingHeartbeatRef = null, this.reconnectTimer = new Ve(() => {
 			if (this.pageHidden) {
 				this.log("Not reconnecting as page is hidden!"), this.teardown();
 				return;
@@ -1415,10 +1432,10 @@ var ge = (e, t, n = {}) => {
 			this.teardown(async () => {
 				t.beforeReconnect && await t.beforeReconnect(), this.connect();
 			});
-		}, this.reconnectAfterMs), this.authToken = t.authToken;
+		}, this.reconnectAfterMs), this.authToken = t.authToken && De(t.authToken);
 	}
 	getLongPollTransport() {
-		return Ue;
+		return Ge;
 	}
 	replaceTransport(e) {
 		this.connectClock++, this.closeWasClean = !0, clearTimeout(this.fallbackTimer), this.reconnectTimer.reset(), this.conn &&= (this.conn.close(), null), this.transport = e;
@@ -1427,7 +1444,7 @@ var ge = (e, t, n = {}) => {
 		return location.protocol.match(/^https/) ? "wss" : "ws";
 	}
 	endPointURL() {
-		let e = Ve.appendParams(Ve.appendParams(this.endPoint, this.params()), { vsn: this.vsn });
+		let e = Ue.appendParams(Ue.appendParams(this.endPoint, this.params()), { vsn: this.vsn });
 		return e.charAt(0) === "/" ? e.charAt(1) === "/" ? `${this.protocol()}:${e}` : `${this.protocol()}://${location.host}${e}` : e;
 	}
 	disconnect(e, t, n) {
@@ -1436,7 +1453,7 @@ var ge = (e, t, n = {}) => {
 		}, t, n);
 	}
 	connect(e) {
-		e && (console && console.log("passing params to connect is deprecated. Instead pass :params to the Socket constructor"), this.params = Ee(e)), !(this.conn && !this.disconnecting) && (this.longPollFallbackMs && this.transport !== Ue ? this.connectWithFallback(Ue, this.longPollFallbackMs) : this.transportConnect());
+		e && (console && console.log("passing params to connect is deprecated. Instead pass :params to the Socket constructor"), this.params = De(e)), !(this.conn && !this.disconnecting) && (this.longPollFallbackMs && this.transport !== Ge ? this.connectWithFallback(Ge, this.longPollFallbackMs) : this.transportConnect());
 	}
 	log(e, t, n) {
 		this.logger && this.logger(e, t, n);
@@ -1479,14 +1496,14 @@ var ge = (e, t, n = {}) => {
 	}
 	transportName(e) {
 		switch (e) {
-			case Ue: return "LongPoll";
+			case Ge: return "LongPoll";
 			default: return e.name;
 		}
 	}
 	transportConnect() {
 		this.connectClock++, this.closeWasClean = !1;
 		let e;
-		this.authToken && (e = ["phoenix", `${Le}${btoa(this.authToken).replace(/=/g, "")}`]), this.conn = new this.transport(this.endPointURL(), e), this.conn.binaryType = this.binaryType, this.conn.timeout = this.longpollerTimeout, this.conn.onopen = () => this.onConnOpen(), this.conn.onerror = (e) => this.onConnError(e), this.conn.onmessage = (e) => this.onConnMessage(e), this.conn.onclose = (e) => this.onConnClose(e);
+		this.authToken && (e = ["phoenix", `${ze}${btoa(this.authToken()).replace(/=/g, "")}`]), this.conn = new this.transport(this.endPointURL(), e), this.conn.binaryType = this.binaryType, this.conn.timeout = this.longpollerTimeout, this.conn.onopen = () => this.onConnOpen(), this.conn.onerror = (e) => this.onConnError(e), this.conn.onmessage = (e) => this.onConnMessage(e), this.conn.onclose = (e) => this.onConnClose(e);
 	}
 	getSession(e) {
 		return this.sessionStore && this.sessionStore.getItem(e);
@@ -1526,7 +1543,7 @@ var ge = (e, t, n = {}) => {
 			} catch (e) {
 				this.log("error", "error in heartbeat callback", e);
 			}
-			this.triggerChanError(/* @__PURE__ */ Error("heartbeat timeout")), this.closeWasClean = !1, this.teardown(() => this.reconnectTimer.scheduleTimeout(), Me, "heartbeat timeout");
+			this.triggerChanError(/* @__PURE__ */ Error("heartbeat timeout")), this.closeWasClean = !1, this.teardown(() => this.reconnectTimer.scheduleTimeout(), Ne, "heartbeat timeout");
 		}
 	}
 	resetHeartbeat() {
@@ -1551,7 +1568,7 @@ var ge = (e, t, n = {}) => {
 		}, 150 * n);
 	}
 	waitForSocketClosed(e, t, n = 1) {
-		if (n === 5 || e.readyState === Ne.closed) {
+		if (n === 5 || e.readyState === Fe.closed) {
 			t();
 			return;
 		}
@@ -1569,14 +1586,14 @@ var ge = (e, t, n = {}) => {
 	}
 	triggerChanError(e) {
 		this.channels.forEach((t) => {
-			t.isErrored() || t.isLeaving() || t.isClosed() || t.trigger(Pe.error, e);
+			t.isErrored() || t.isLeaving() || t.isClosed() || t.trigger(Ie.error, e);
 		});
 	}
 	connectionState() {
 		switch (this.conn && this.conn.readyState) {
-			case Ne.connecting: return "connecting";
-			case Ne.open: return "open";
-			case Ne.closing: return "closing";
+			case Fe.connecting: return "connecting";
+			case Fe.open: return "open";
+			case Fe.closing: return "closing";
 			default: return "closed";
 		}
 	}
@@ -1590,7 +1607,7 @@ var ge = (e, t, n = {}) => {
 		for (let t in this.stateChangeCallbacks) this.stateChangeCallbacks[t] = this.stateChangeCallbacks[t].filter(([t]) => e.indexOf(t) === -1);
 	}
 	channel(e, t = {}) {
-		let n = new Be(e, t, this);
+		let n = new He(e, t, this);
 		return this.channels.push(n), n;
 	}
 	push(e) {
@@ -1671,10 +1688,10 @@ var ge = (e, t, n = {}) => {
 		let t = this.channels.find((t) => t.topic === e && (t.isJoined() || t.isJoining()));
 		t && (this.hasLogger() && this.log("transport", `leaving duplicate topic "${e}"`), t.leave());
 	}
-}, qe = class e {
+}, Ye = class e {
 	constructor(t, n) {
-		let r = Xe(n);
-		this.presence = new We(t.getChannel(), r), this.presence.onJoin((n, r, i) => {
+		let r = Qe(n);
+		this.presence = new Ke(t.getChannel(), r), this.presence.onJoin((n, r, i) => {
 			let a = e.onJoinPayload(n, r, i);
 			t.getChannel().trigger("presence", a);
 		}), this.presence.onLeave((n, r, i) => {
@@ -1688,57 +1705,57 @@ var ge = (e, t, n = {}) => {
 		return e.transformState(this.presence.state);
 	}
 	static transformState(e) {
-		return e = Ye(e), Object.getOwnPropertyNames(e).reduce((t, n) => {
+		return e = Ze(e), Object.getOwnPropertyNames(e).reduce((t, n) => {
 			let r = e[n];
-			return t[n] = Je(r), t;
+			return t[n] = Xe(r), t;
 		}, {});
 	}
 	static onJoinPayload(e, t, n) {
 		return {
 			event: "join",
 			key: e,
-			currentPresences: Ze(t),
-			newPresences: Je(n)
+			currentPresences: $e(t),
+			newPresences: Xe(n)
 		};
 	}
 	static onLeavePayload(e, t, n) {
 		return {
 			event: "leave",
 			key: e,
-			currentPresences: Ze(t),
-			leftPresences: Je(n)
+			currentPresences: $e(t),
+			leftPresences: Xe(n)
 		};
 	}
 };
-function Je(e) {
+function Xe(e) {
 	return e.metas.map((e) => (e.presence_ref = e.phx_ref, delete e.phx_ref, delete e.phx_ref_prev, e));
 }
-function Ye(e) {
+function Ze(e) {
 	return JSON.parse(JSON.stringify(e));
 }
-function Xe(e) {
+function Qe(e) {
 	return e?.events && { events: e.events };
 }
-function Ze(e) {
-	return e?.metas ? Je(e) : [];
+function $e(e) {
+	return e?.metas ? Xe(e) : [];
 }
 //#endregion
 //#region ../node_modules/@supabase/realtime-js/dist/module/RealtimePresence.js
-var Qe;
+var et;
 (function(e) {
 	e.SYNC = "sync", e.JOIN = "join", e.LEAVE = "leave";
-})(Qe ||= {});
-var $e = class {
+})(et ||= {});
+var tt = class {
 	get state() {
 		return this.presenceAdapter.state;
 	}
 	constructor(e, t) {
-		this.channel = e, this.presenceAdapter = new qe(this.channel.channelAdapter, t);
+		this.channel = e, this.presenceAdapter = new Ye(this.channel.channelAdapter, t);
 	}
 };
 //#endregion
 //#region ../node_modules/@supabase/realtime-js/dist/module/lib/normalizeChannelError.js
-function et(e) {
+function nt(e) {
 	if (e instanceof Error) return e;
 	if (typeof e == "string") return Error(e);
 	if (e && typeof e == "object") {
@@ -1753,9 +1770,9 @@ function et(e) {
 }
 //#endregion
 //#region ../node_modules/@supabase/realtime-js/dist/module/phoenix/channelAdapter.js
-var tt = class {
+var rt = class {
 	constructor(e, t, n) {
-		let r = nt(n);
+		let r = it(n);
 		this.channel = e.getSocket().channel(t, r), this.socket = e;
 	}
 	get state() {
@@ -1812,19 +1829,19 @@ var tt = class {
 		this.channel.joinPush.payload = () => Object.assign(Object.assign({}, t), e);
 	}
 	canPush() {
-		return this.socket.isConnected() && this.state === S.joined;
+		return this.socket.isConnected() && this.state === pe.joined;
 	}
 	isJoined() {
-		return this.state === S.joined;
+		return this.state === pe.joined;
 	}
 	isJoining() {
-		return this.state === S.joining;
+		return this.state === pe.joining;
 	}
 	isClosed() {
-		return this.state === S.closed;
+		return this.state === pe.closed;
 	}
 	isLeaving() {
-		return this.state === S.leaving;
+		return this.state === pe.leaving;
 	}
 	updateFilterBindings(e) {
 		this.channel.filterBindings = e;
@@ -1836,7 +1853,7 @@ var tt = class {
 		return this.channel;
 	}
 };
-function nt(e) {
+function it(e) {
 	return { config: Object.assign({
 		broadcast: {
 			ack: !1,
@@ -1851,23 +1868,23 @@ function nt(e) {
 }
 //#endregion
 //#region ../node_modules/@supabase/realtime-js/dist/module/RealtimePostgresFilterBuilder.js
-var rt = /[,()"\\]/, it = (e) => rt.test(e) || e !== e.trim(), at = (e) => `"${e.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}"`, ot = (e) => {
+var at = /[,()"\\]/, ot = (e) => at.test(e) || e !== e.trim(), st = (e) => `"${e.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}"`, ct = (e) => {
 	let t = e === null ? "null" : String(e);
-	return it(t) ? at(t) : t;
-}, st = (e) => e === null ? "null" : String(e), ct = (e, t) => {
+	return ot(t) ? st(t) : t;
+}, lt = (e) => e === null ? "null" : String(e), ut = (e, t) => {
 	if (e === "in") {
 		let e = Array.isArray(t) ? t : [t];
 		if (e.length === 0) throw Error("Realtime `in` filter requires at least one value.");
-		return `in.(${Array.from(new Set(e)).map((e) => ot(e)).join(",")})`;
+		return `in.(${Array.from(new Set(e)).map((e) => ct(e)).join(",")})`;
 	}
-	return e === "is" ? `is.${st(t)}` : `${e}.${ot(t)}`;
-}, lt = class {
+	return e === "is" ? `is.${lt(t)}` : `${e}.${ct(t)}`;
+}, dt = class {
 	constructor() {
 		this.filters = [];
 	}
 	add(e, t, n, r = !1) {
 		let i = r ? "not." : "";
-		return this.filters.push(`${e}=${i}${ct(t, n)}`), this;
+		return this.filters.push(`${e}=${i}${ut(t, n)}`), this;
 	}
 	eq(e, t) {
 		return this.add(e, "eq", t);
@@ -1917,19 +1934,19 @@ var rt = /[,()"\\]/, it = (e) => rt.test(e) || e !== e.trim(), at = (e) => `"${e
 	toString() {
 		return this.build();
 	}
-}, ut;
+}, ft;
 (function(e) {
 	e.ALL = "*", e.INSERT = "INSERT", e.UPDATE = "UPDATE", e.DELETE = "DELETE";
-})(ut ||= {});
-var dt;
+})(ft ||= {});
+var pt;
 (function(e) {
 	e.BROADCAST = "broadcast", e.PRESENCE = "presence", e.POSTGRES_CHANGES = "postgres_changes", e.SYSTEM = "system";
-})(dt ||= {});
-var ft;
+})(pt ||= {});
+var mt;
 (function(e) {
 	e.SUBSCRIBED = "SUBSCRIBED", e.TIMED_OUT = "TIMED_OUT", e.CLOSED = "CLOSED", e.CHANNEL_ERROR = "CHANNEL_ERROR";
-})(ft ||= {});
-var pt = class e {
+})(mt ||= {});
+var ht = class e {
 	get state() {
 		return this.channelAdapter.state;
 	}
@@ -1959,32 +1976,32 @@ var pt = class e {
 				enabled: !1
 			},
 			private: !1
-		}, t.config), this.channelAdapter = new tt(this.socket.socketAdapter, e, this.params), this.presence = new $e(this), this._onClose(() => {
+		}, t.config), this.channelAdapter = new rt(this.socket.socketAdapter, e, this.params), this.presence = new tt(this), this._onClose(() => {
 			this.socket._remove(this);
-		}), this._updateFilterTransform(), this.broadcastEndpointURL = Te(this.socket.socketAdapter.endPointURL()), this.private = this.params.config.private || !1, !this.private && this.params.config?.broadcast?.replay) throw Error(`tried to use replay on public channel '${this.topic}'. It must be a private channel.`);
+		}), this._updateFilterTransform(), this.broadcastEndpointURL = Ee(this.socket.socketAdapter.endPointURL()), this.private = this.params.config.private || !1, !this.private && this.params.config?.broadcast?.replay) throw Error(`tried to use replay on public channel '${this.topic}'. It must be a private channel.`);
 	}
 	subscribe(e, t = this.timeout) {
 		if (this.socket.isConnected() || this.socket.connect(), this.channelAdapter.isClosed()) {
-			let { config: { broadcast: n, presence: r, private: i } } = this.params, a = this.bindings.postgres_changes?.map((e) => e.filter) ?? [], o = !!this.bindings[dt.PRESENCE] && this.bindings[dt.PRESENCE].length > 0 || this.params.config.presence?.enabled === !0, s = {}, c = {
+			let { config: { broadcast: n, presence: r, private: i } } = this.params, a = this.bindings.postgres_changes?.map((e) => e.filter) ?? [], o = !!this.bindings[pt.PRESENCE] && this.bindings[pt.PRESENCE].length > 0 || this.params.config.presence?.enabled === !0, s = {}, c = {
 				broadcast: n,
 				presence: Object.assign(Object.assign({}, r), { enabled: o }),
 				postgres_changes: a,
 				private: i
 			};
 			this.socket.accessTokenValue && (s.access_token = this.socket.accessTokenValue), this._onError((t) => {
-				e?.(ft.CHANNEL_ERROR, et(t));
-			}), this._onClose(() => e?.(ft.CLOSED)), this.updateJoinPayload(Object.assign({ config: c }, s)), this._updateFilterMessage(), this.channelAdapter.subscribe(t).receive("ok", async ({ postgres_changes: t }) => {
+				e?.(mt.CHANNEL_ERROR, nt(t));
+			}), this._onClose(() => e?.(mt.CLOSED)), this.updateJoinPayload(Object.assign({ config: c }, s)), this._updateFilterMessage(), this.channelAdapter.subscribe(t).receive("ok", async ({ postgres_changes: t }) => {
 				if (this.socket._isManualToken() || this.socket.setAuth(), t === void 0) {
-					e?.(ft.SUBSCRIBED);
+					e?.(mt.SUBSCRIBED);
 					return;
 				}
 				this._updatePostgresBindings(t, e);
 			}).receive("error", (t) => {
-				this.state = S.errored;
+				this.state = pe.errored;
 				let n = Object.values(t).join(", ") || "error";
-				e?.(ft.CHANNEL_ERROR, Error(n, { cause: t }));
+				e?.(mt.CHANNEL_ERROR, Error(n, { cause: t }));
 			}).receive("timeout", () => {
-				e?.(ft.TIMED_OUT);
+				e?.(mt.TIMED_OUT);
 			});
 		}
 		return this;
@@ -1995,11 +2012,11 @@ var pt = class e {
 			let i = r[o], { filter: { event: s, schema: c, table: l, filter: u } } = i, d = t && t[o];
 			if (d && d.event === s && e.isFilterValueEqual(d.schema, c) && e.isFilterValueEqual(d.table, l) && e.isFilterValueEqual(d.filter, u)) a.push(Object.assign(Object.assign({}, i), { id: d.id }));
 			else {
-				this.unsubscribe(), this.state = S.errored, n?.(ft.CHANNEL_ERROR, /* @__PURE__ */ Error("mismatch between server and client bindings for postgres changes"));
+				this.unsubscribe(), this.state = pe.errored, n?.(mt.CHANNEL_ERROR, /* @__PURE__ */ Error("mismatch between server and client bindings for postgres changes"));
 				return;
 			}
 		}
-		this.bindings.postgres_changes = a, this.state != S.errored && n && n(ft.SUBSCRIBED);
+		this.bindings.postgres_changes = a, this.state != pe.errored && n && n(mt.SUBSCRIBED);
 	}
 	presenceState() {
 		return this.presence.state;
@@ -2009,7 +2026,7 @@ var pt = class e {
 			type: "presence",
 			event: "track",
 			payload: e
-		}, t.timeout || this.timeout);
+		}, t);
 	}
 	async untrack(e = {}) {
 		return await this.send({
@@ -2018,7 +2035,7 @@ var pt = class e {
 		}, e);
 	}
 	on(e, t, n) {
-		let r = this.channelAdapter.isJoined() || this.channelAdapter.isJoining(), i = e === dt.PRESENCE || e === dt.POSTGRES_CHANGES;
+		let r = this.channelAdapter.isJoined() || this.channelAdapter.isJoining(), i = e === pt.PRESENCE || e === pt.POSTGRES_CHANGES;
 		if (r && i) throw this.socket.log("channel", `cannot add \`${e}\` callbacks for ${this.topic} after \`subscribe()\`.`), Error(`cannot add \`${e}\` callbacks for ${this.topic} after \`subscribe()\`.`);
 		return this._on(e, t, n);
 	}
@@ -2091,7 +2108,7 @@ var pt = class e {
 	}
 	_on(e, t, n) {
 		let r = e.toLocaleLowerCase(), i = t?.filter;
-		(i instanceof lt || typeof i == "object" && i && typeof i.build == "function") && (t = Object.assign(Object.assign({}, t), { filter: i.build() }));
+		(i instanceof dt || typeof i == "object" && i && typeof i.build == "function") && (t = Object.assign(Object.assign({}, t), { filter: i.build() }));
 		let a = this.channelAdapter.on(e, n), o = {
 			type: r,
 			filter: t,
@@ -2127,7 +2144,7 @@ var pt = class e {
 		});
 	}
 	_notThisChannelEvent(e, t) {
-		let { close: n, error: r, leave: i, join: a } = pe;
+		let { close: n, error: r, leave: i, join: a } = me;
 		return t && [
 			n,
 			r,
@@ -2164,11 +2181,11 @@ var pt = class e {
 			new: {},
 			old: {}
 		};
-		return (e.type === "INSERT" || e.type === "UPDATE") && (t.new = ge(e.columns, e.record)), (e.type === "UPDATE" || e.type === "DELETE") && (t.old = ge(e.columns, e.old_record)), t;
+		return (e.type === "INSERT" || e.type === "UPDATE") && (t.new = _e(e.columns, e.record)), (e.type === "UPDATE" || e.type === "DELETE") && (t.old = _e(e.columns, e.old_record)), t;
 	}
-}, mt = class {
+}, gt = class {
 	constructor(e, t) {
-		this.socket = new Ke(e, t);
+		this.socket = new Je(e, t);
 	}
 	get timeout() {
 		return this.socket.timeout;
@@ -2250,10 +2267,10 @@ var pt = class e {
 		return this.socket.isConnected();
 	}
 	isConnecting() {
-		return this.socket.connectionState() == me.connecting;
+		return this.socket.connectionState() == he.connecting;
 	}
 	isDisconnecting() {
-		return this.socket.connectionState() == me.closing;
+		return this.socket.connectionState() == he.closing;
 	}
 	connectionState() {
 		return this.socket.connectionState();
@@ -2267,17 +2284,17 @@ var pt = class e {
 	getSocket() {
 		return this.socket;
 	}
-}, ht = {
+}, _t = {
 	HEARTBEAT_INTERVAL: 25e3,
 	RECONNECT_DELAY: 10,
 	HEARTBEAT_TIMEOUT_FALLBACK: 100
-}, gt = [
+}, vt = [
 	1e3,
 	2e3,
 	5e3,
 	1e4
-], _t = 1e4;
-function vt() {
+], yt = 1e4;
+function bt() {
 	let e = /* @__PURE__ */ new Map();
 	return {
 		get length() {
@@ -2300,13 +2317,13 @@ function vt() {
 		}
 	};
 }
-function yt() {
+function xt() {
 	try {
 		if (typeof globalThis < "u" && globalThis.sessionStorage) return globalThis.sessionStorage;
 	} catch {}
-	return vt();
+	return bt();
 }
-var bt = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \"start\") {\n      setInterval(() => postMessage({ event: \"keepAlive\" }), e.data.interval);\n    }\n  });", xt = class {
+var St = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \"start\") {\n      setInterval(() => postMessage({ event: \"keepAlive\" }), e.data.interval);\n    }\n  });", Ct = class {
 	get endPoint() {
 		return this.socketAdapter.endPoint;
 	}
@@ -2350,10 +2367,10 @@ var bt = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \
 		return this.socketAdapter.stateChangeCallbacks;
 	}
 	constructor(e, t) {
-		if (this.channels = [], this.accessTokenValue = null, this.accessToken = null, this.apiKey = null, this.httpEndpoint = "", this.headers = {}, this.params = {}, this.ref = 0, this.serializer = new he(), this._manuallySetToken = !1, this._authPromise = null, this._workerHeartbeatTimer = void 0, this._pendingWorkerHeartbeatRef = null, this._pendingDisconnectTimer = null, this._disconnectOnEmptyChannelsAfterMs = 0, this._resolveFetch = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), !t?.params?.apikey) throw Error("API key is required to connect to Realtime");
+		if (this.channels = [], this.accessTokenValue = null, this.accessToken = null, this.apiKey = null, this.httpEndpoint = "", this.headers = {}, this.params = {}, this.ref = 0, this.serializer = new ge(), this._manuallySetToken = !1, this._authPromise = null, this._workerHeartbeatTimer = void 0, this._pendingWorkerHeartbeatRef = null, this._pendingDisconnectTimer = null, this._disconnectOnEmptyChannelsAfterMs = 0, this._resolveFetch = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), !t?.params?.apikey) throw Error("API key is required to connect to Realtime");
 		this.apiKey = t.params.apikey;
 		let n = this._initializeOptions(t);
-		this.socketAdapter = new mt(e, n), this.httpEndpoint = Te(e), this.fetch = this._resolveFetch(t?.fetch);
+		this.socketAdapter = new gt(e, n), this.httpEndpoint = Ee(e), this.fetch = this._resolveFetch(t?.fetch);
 	}
 	connect() {
 		if (!(this.isConnecting() || this.isDisconnecting() || this.isConnected())) {
@@ -2393,7 +2410,7 @@ var bt = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \
 		this.socketAdapter.log(e, t, n);
 	}
 	connectionState() {
-		return this.socketAdapter.connectionState() || me.closed;
+		return this.socketAdapter.connectionState() || he.closed;
 	}
 	isConnected() {
 		return this.socketAdapter.isConnected();
@@ -2408,7 +2425,7 @@ var bt = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \
 		let n = `realtime:${e}`, r = this.getChannels().find((e) => e.topic === n);
 		if (r) return r;
 		{
-			let n = new pt(`realtime:${e}`, t, this);
+			let n = new ht(`realtime:${e}`, t, this);
 			return this._cancelPendingDisconnect(), this.channels.push(n), n;
 		}
 	}
@@ -2464,7 +2481,7 @@ var bt = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \
 				access_token: t,
 				version: ce
 			};
-			t && e.updateJoinPayload(n), e.joinedOnce && e.channelAdapter.isJoined() && e.channelAdapter.push(pe.access_token, { access_token: t });
+			t && e.updateJoinPayload(n), e.joinedOnce && e.channelAdapter.isJoined() && e.channelAdapter.push(me.access_token, { access_token: t });
 		}));
 	}
 	async _waitForAuthIfNeeded() {
@@ -2513,7 +2530,7 @@ var bt = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \
 		let t;
 		if (e) t = e;
 		else {
-			let e = new Blob([bt], { type: "application/javascript" });
+			let e = new Blob([St], { type: "application/javascript" });
 			t = URL.createObjectURL(e);
 		}
 		return t;
@@ -2521,7 +2538,7 @@ var bt = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \
 	_initializeOptions(e) {
 		this.worker = e?.worker ?? !1, this.accessToken = e?.accessToken ?? null;
 		let t = {};
-		t.timeout = e?.timeout ?? fe, t.heartbeatIntervalMs = e?.heartbeatIntervalMs ?? ht.HEARTBEAT_INTERVAL, this._disconnectOnEmptyChannelsAfterMs = e?.disconnectOnEmptyChannelsAfterMs ?? 2 * (e?.heartbeatIntervalMs ?? ht.HEARTBEAT_INTERVAL), t.transport = e?.transport ?? se.getWebSocketConstructor(), t.params = e?.params, t.logger = e?.logger, t.heartbeatCallback = this._wrapHeartbeatCallback(e?.heartbeatCallback), t.sessionStorage = e?.sessionStorage ?? yt(), t.reconnectAfterMs = e?.reconnectAfterMs ?? ((e) => gt[e - 1] || _t);
+		t.timeout = e?.timeout ?? fe, t.heartbeatIntervalMs = e?.heartbeatIntervalMs ?? _t.HEARTBEAT_INTERVAL, this._disconnectOnEmptyChannelsAfterMs = e?.disconnectOnEmptyChannelsAfterMs ?? 2 * (e?.heartbeatIntervalMs ?? _t.HEARTBEAT_INTERVAL), t.transport = e?.transport ?? se.getWebSocketConstructor(), t.params = e?.params, t.logger = e?.logger, t.heartbeatCallback = this._wrapHeartbeatCallback(e?.heartbeatCallback), t.sessionStorage = e?.sessionStorage ?? xt(), t.reconnectAfterMs = e?.reconnectAfterMs ?? ((e) => vt[e - 1] || yt);
 		let n, r, i = e?.vsn ?? de;
 		switch (i) {
 			case le:
@@ -2541,7 +2558,7 @@ var bt = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \
 	async _reconnectAuth() {
 		await this._waitForAuthIfNeeded(), this.isConnected() || this.connect();
 	}
-}, St = class extends Error {
+}, wt = class extends Error {
 	constructor(e, t) {
 		super(e), this.name = "IcebergError", this.status = t.status, this.icebergType = t.icebergType, this.icebergCode = t.icebergCode, this.details = t.details, this.isCommitStateUnknown = t.icebergType === "CommitStateUnknownException" || [
 			500,
@@ -2559,18 +2576,18 @@ var bt = "\n  addEventListener(\"message\", (e) => {\n    if (e.data.event === \
 		return this.status === 419;
 	}
 };
-function Ct(e, t, n) {
+function Tt(e, t, n) {
 	let r = new URL(t, e);
 	if (n) for (let [e, t] of Object.entries(n)) t !== void 0 && r.searchParams.set(e, t);
 	return r.toString();
 }
-async function wt(e) {
+async function Et(e) {
 	return !e || e.type === "none" ? {} : e.type === "bearer" ? { Authorization: `Bearer ${e.token}` } : e.type === "header" ? { [e.name]: e.value } : e.type === "custom" ? await e.getHeaders() : {};
 }
-function Tt(e) {
+function Dt(e) {
 	let t = e.fetchImpl ?? globalThis.fetch;
 	return { async request({ method: n, path: r, query: i, body: a, headers: o }) {
-		let s = Ct(e.baseUrl, r, i), c = await wt(e.auth), l = await t(s, {
+		let s = Tt(e.baseUrl, r, i), c = await Et(e.auth), l = await t(s, {
 			method: n,
 			headers: {
 				...a ? { "Content-Type": "application/json" } : {},
@@ -2581,7 +2598,7 @@ function Tt(e) {
 		}), u = await l.text(), d = (l.headers.get("content-type") || "").includes("application/json"), f = d && u ? JSON.parse(u) : u;
 		if (!l.ok) {
 			let e = d ? f : void 0, t = e?.error;
-			throw new St(t?.message ?? `Request failed with status ${l.status}`, {
+			throw new wt(t?.message ?? `Request failed with status ${l.status}`, {
 				status: l.status,
 				icebergType: t?.type,
 				icebergCode: t?.code,
@@ -2595,15 +2612,15 @@ function Tt(e) {
 		};
 	} };
 }
-function Et(e) {
+function Ot(e) {
 	return e.join("");
 }
-var Dt = class {
+var kt = class {
 	constructor(e, t = "") {
 		this.client = e, this.prefix = t;
 	}
 	async listNamespaces(e) {
-		let t = e ? { parent: Et(e.namespace) } : void 0;
+		let t = e ? { parent: Ot(e.namespace) } : void 0;
 		return (await this.client.request({
 			method: "GET",
 			path: `${this.prefix}/namespaces`,
@@ -2624,23 +2641,23 @@ var Dt = class {
 	async dropNamespace(e) {
 		await this.client.request({
 			method: "DELETE",
-			path: `${this.prefix}/namespaces/${Et(e.namespace)}`
+			path: `${this.prefix}/namespaces/${Ot(e.namespace)}`
 		});
 	}
 	async loadNamespaceMetadata(e) {
 		return { properties: (await this.client.request({
 			method: "GET",
-			path: `${this.prefix}/namespaces/${Et(e.namespace)}`
+			path: `${this.prefix}/namespaces/${Ot(e.namespace)}`
 		})).data.properties };
 	}
 	async namespaceExists(e) {
 		try {
 			return await this.client.request({
 				method: "HEAD",
-				path: `${this.prefix}/namespaces/${Et(e.namespace)}`
+				path: `${this.prefix}/namespaces/${Ot(e.namespace)}`
 			}), !0;
 		} catch (e) {
-			if (e instanceof St && e.status === 404) return !1;
+			if (e instanceof wt && e.status === 404) return !1;
 			throw e;
 		}
 	}
@@ -2648,29 +2665,29 @@ var Dt = class {
 		try {
 			return await this.createNamespace(e, t);
 		} catch (e) {
-			if (e instanceof St && e.status === 409) return;
+			if (e instanceof wt && e.status === 409) return;
 			throw e;
 		}
 	}
 };
-function Ot(e) {
+function At(e) {
 	return e.join("");
 }
-var kt = class {
+var jt = class {
 	constructor(e, t = "", n) {
 		this.client = e, this.prefix = t, this.accessDelegation = n;
 	}
 	async listTables(e) {
 		return (await this.client.request({
 			method: "GET",
-			path: `${this.prefix}/namespaces/${Ot(e.namespace)}/tables`
+			path: `${this.prefix}/namespaces/${At(e.namespace)}/tables`
 		})).data.identifiers;
 	}
 	async createTable(e, t) {
 		let n = {};
 		return this.accessDelegation && (n["X-Iceberg-Access-Delegation"] = this.accessDelegation), (await this.client.request({
 			method: "POST",
-			path: `${this.prefix}/namespaces/${Ot(e.namespace)}/tables`,
+			path: `${this.prefix}/namespaces/${At(e.namespace)}/tables`,
 			body: t,
 			headers: n
 		})).data.metadata;
@@ -2678,7 +2695,7 @@ var kt = class {
 	async updateTable(e, t) {
 		let n = await this.client.request({
 			method: "POST",
-			path: `${this.prefix}/namespaces/${Ot(e.namespace)}/tables/${e.name}`,
+			path: `${this.prefix}/namespaces/${At(e.namespace)}/tables/${e.name}`,
 			body: t
 		});
 		return {
@@ -2689,7 +2706,7 @@ var kt = class {
 	async dropTable(e, t) {
 		await this.client.request({
 			method: "DELETE",
-			path: `${this.prefix}/namespaces/${Ot(e.namespace)}/tables/${e.name}`,
+			path: `${this.prefix}/namespaces/${At(e.namespace)}/tables/${e.name}`,
 			query: { purgeRequested: String(t?.purge ?? !1) }
 		});
 	}
@@ -2697,7 +2714,7 @@ var kt = class {
 		let t = {};
 		return this.accessDelegation && (t["X-Iceberg-Access-Delegation"] = this.accessDelegation), (await this.client.request({
 			method: "GET",
-			path: `${this.prefix}/namespaces/${Ot(e.namespace)}/tables/${e.name}`,
+			path: `${this.prefix}/namespaces/${At(e.namespace)}/tables/${e.name}`,
 			headers: t
 		})).data.metadata;
 	}
@@ -2707,11 +2724,11 @@ var kt = class {
 		try {
 			return await this.client.request({
 				method: "HEAD",
-				path: `${this.prefix}/namespaces/${Ot(e.namespace)}/tables/${e.name}`,
+				path: `${this.prefix}/namespaces/${At(e.namespace)}/tables/${e.name}`,
 				headers: t
 			}), !0;
 		} catch (e) {
-			if (e instanceof St && e.status === 404) return !1;
+			if (e instanceof wt && e.status === 404) return !1;
 			throw e;
 		}
 	}
@@ -2719,23 +2736,23 @@ var kt = class {
 		try {
 			return await this.createTable(e, t);
 		} catch (n) {
-			if (n instanceof St && n.status === 409) return await this.loadTable({
+			if (n instanceof wt && n.status === 409) return await this.loadTable({
 				namespace: e.namespace,
 				name: t.name
 			});
 			throw n;
 		}
 	}
-}, At = class {
+}, Mt = class {
 	constructor(e) {
 		let t = "v1";
 		e.catalogName && (t += `/${e.catalogName}`);
 		let n = e.baseUrl.endsWith("/") ? e.baseUrl : `${e.baseUrl}/`;
-		this.client = Tt({
+		this.client = Dt({
 			baseUrl: n,
 			auth: e.auth,
 			fetchImpl: e.fetch
-		}), this.accessDelegation = e.accessDelegation?.join(","), this.namespaceOps = new Dt(this.client, t), this.tableOps = new kt(this.client, t, this.accessDelegation);
+		}), this.accessDelegation = e.accessDelegation?.join(","), this.namespaceOps = new kt(this.client, t), this.tableOps = new jt(this.client, t, this.accessDelegation);
 	}
 	async listNamespaces(e) {
 		return this.namespaceOps.listNamespaces(e);
@@ -2779,37 +2796,37 @@ var kt = class {
 };
 //#endregion
 //#region ../node_modules/@supabase/storage-js/dist/index.mjs
-function jt(e) {
+function Nt(e) {
 	"@babel/helpers - typeof";
-	return jt = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function(e) {
+	return Nt = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function(e) {
 		return typeof e;
 	} : function(e) {
 		return e && typeof Symbol == "function" && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
-	}, jt(e);
+	}, Nt(e);
 }
-function Mt(e, t) {
-	if (jt(e) != "object" || !e) return e;
+function Pt(e, t) {
+	if (Nt(e) != "object" || !e) return e;
 	var n = e[Symbol.toPrimitive];
 	if (n !== void 0) {
 		var r = n.call(e, t || "default");
-		if (jt(r) != "object") return r;
+		if (Nt(r) != "object") return r;
 		throw TypeError("@@toPrimitive must return a primitive value.");
 	}
 	return (t === "string" ? String : Number)(e);
 }
-function Nt(e) {
-	var t = Mt(e, "string");
-	return jt(t) == "symbol" ? t : t + "";
+function Ft(e) {
+	var t = Pt(e, "string");
+	return Nt(t) == "symbol" ? t : t + "";
 }
-function Pt(e, t, n) {
-	return (t = Nt(t)) in e ? Object.defineProperty(e, t, {
+function It(e, t, n) {
+	return (t = Ft(t)) in e ? Object.defineProperty(e, t, {
 		value: n,
 		enumerable: !0,
 		configurable: !0,
 		writable: !0
 	}) : e[t] = n, e;
 }
-function Ft(e, t) {
+function Lt(e, t) {
 	var n = Object.keys(e);
 	if (Object.getOwnPropertySymbols) {
 		var r = Object.getOwnPropertySymbols(e);
@@ -2819,18 +2836,18 @@ function Ft(e, t) {
 	}
 	return n;
 }
-function T(e) {
+function w(e) {
 	for (var t = 1; t < arguments.length; t++) {
 		var n = arguments[t] == null ? {} : arguments[t];
-		t % 2 ? Ft(Object(n), !0).forEach(function(t) {
-			Pt(e, t, n[t]);
-		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : Ft(Object(n)).forEach(function(t) {
+		t % 2 ? Lt(Object(n), !0).forEach(function(t) {
+			It(e, t, n[t]);
+		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : Lt(Object(n)).forEach(function(t) {
 			Object.defineProperty(e, t, Object.getOwnPropertyDescriptor(n, t));
 		});
 	}
 	return e;
 }
-var It = class extends Error {
+var Rt = class extends Error {
 	constructor(e, t = "storage", n, r) {
 		super(e), this.__isStorageError = !0, this.namespace = t, this.name = t === "vectors" ? "StorageVectorsError" : "StorageError", this.status = n, this.statusCode = r;
 	}
@@ -2843,44 +2860,44 @@ var It = class extends Error {
 		};
 	}
 };
-function Lt(e) {
+function zt(e) {
 	return typeof e == "object" && !!e && "__isStorageError" in e;
 }
-var Rt = class extends It {
+var Bt = class extends Rt {
 	constructor(e, t, n, r = "storage") {
 		super(e, r, t, n), this.name = r === "vectors" ? "StorageVectorsApiError" : "StorageApiError", this.status = t, this.statusCode = n;
 	}
 	toJSON() {
-		return T({}, super.toJSON());
+		return w({}, super.toJSON());
 	}
-}, zt = class extends It {
+}, Vt = class extends Rt {
 	constructor(e, t, n = "storage") {
 		super(e, n), this.name = n === "vectors" ? "StorageVectorsUnknownError" : "StorageUnknownError", this.originalError = t;
 	}
 };
-function Bt(e, t, n) {
-	let r = T({}, e), i = t.toLowerCase();
+function Ht(e, t, n) {
+	let r = w({}, e), i = t.toLowerCase();
 	for (let e of Object.keys(r)) e.toLowerCase() === i && delete r[e];
 	return r[i] = n, r;
 }
-function Vt(e) {
+function Ut(e) {
 	let t = {};
 	for (let [n, r] of Object.entries(e)) t[n.toLowerCase()] = r;
 	return t;
 }
-var Ht = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), Ut = (e) => {
+var Wt = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), Gt = (e) => {
 	if (typeof e != "object" || !e) return !1;
 	let t = Object.getPrototypeOf(e);
 	return (t === null || t === Object.prototype || Object.getPrototypeOf(t) === null) && !(Symbol.toStringTag in e) && !(Symbol.iterator in e);
-}, Wt = (e) => {
-	if (Array.isArray(e)) return e.map((e) => Wt(e));
+}, Kt = (e) => {
+	if (Array.isArray(e)) return e.map((e) => Kt(e));
 	if (typeof e == "function" || e !== Object(e)) return e;
 	let t = {};
 	return Object.entries(e).forEach(([e, n]) => {
 		let r = e.replace(/([-_][a-z])/gi, (e) => e.toUpperCase().replace(/[-_]/g, ""));
-		t[r] = Wt(n);
+		t[r] = Kt(n);
 	}), t;
-}, Gt = (e) => !e || typeof e != "string" || e.length === 0 || e.length > 100 || e.trim() !== e || e.includes("/") || e.includes("\\") ? !1 : /^[\w!.\*'() &$@=;:+,?-]+$/.test(e), Kt = (e) => {
+}, qt = (e) => !e || typeof e != "string" || e.length === 0 || e.length > 100 || e.trim() !== e || e.includes("/") || e.includes("\\") ? !1 : /^[\w!.\*'() &$@=;:+,?-]+$/.test(e), Jt = (e) => {
 	if (typeof e == "object" && e) {
 		let t = e;
 		if (typeof t.msg == "string") return t.msg;
@@ -2893,33 +2910,33 @@ var Ht = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), Ut = (e) => {
 		}
 	}
 	return JSON.stringify(e);
-}, qt = async (e, t, n, r) => {
+}, Yt = async (e, t, n, r) => {
 	if (typeof e == "object" && e && "json" in e && typeof e.json == "function") {
 		let n = e, i = parseInt(String(n.status), 10);
 		Number.isFinite(i) || (i = 500), n.json().then((e) => {
 			let n = e?.statusCode || e?.code || i + "";
-			t(new Rt(Kt(e), i, n, r));
+			t(new Bt(Jt(e), i, n, r));
 		}).catch(() => {
 			let e = i + "";
-			t(new Rt(n.statusText || `HTTP ${i} error`, i, e, r));
+			t(new Bt(n.statusText || `HTTP ${i} error`, i, e, r));
 		});
-	} else t(new zt(Kt(e), e, r));
-}, Jt = (e, t, n, r) => {
+	} else t(new Vt(Jt(e), e, r));
+}, Xt = (e, t, n, r) => {
 	let i = {
 		method: e,
 		headers: t?.headers || {}
 	};
-	if (e === "GET" || e === "HEAD" || !r) return T(T({}, i), n);
-	if (Ut(r)) {
+	if (e === "GET" || e === "HEAD" || !r) return w(w({}, i), n);
+	if (Gt(r)) {
 		let e = t?.headers || {}, n;
 		for (let [t, r] of Object.entries(e)) t.toLowerCase() === "content-type" && (n = r);
-		i.headers = Bt(e, "Content-Type", n ?? "application/json"), i.body = JSON.stringify(r);
+		i.headers = Ht(e, "Content-Type", n ?? "application/json"), i.body = JSON.stringify(r);
 	} else i.body = r;
-	return t?.duplex && (i.duplex = t.duplex), T(T({}, i), n);
+	return t?.duplex && (i.duplex = t.duplex), w(w({}, i), n);
 };
-async function Yt(e, t, n, r, i, a, o) {
+async function Zt(e, t, n, r, i, a, o) {
 	return new Promise((s, c) => {
-		e(n, Jt(t, r, i, a)).then((e) => {
+		e(n, Xt(t, r, i, a)).then((e) => {
 			if (!e.ok) throw e;
 			if (r?.noResolveJson) return e;
 			if (o === "vectors") {
@@ -2927,27 +2944,27 @@ async function Yt(e, t, n, r, i, a, o) {
 				if (e.headers.get("content-length") === "0" || e.status === 204 || !t || !t.includes("application/json")) return {};
 			}
 			return e.json();
-		}).then((e) => s(e)).catch((e) => qt(e, c, r, o));
+		}).then((e) => s(e)).catch((e) => Yt(e, c, r, o));
 	});
 }
-function Xt(e = "storage") {
+function Qt(e = "storage") {
 	return {
-		get: async (t, n, r, i) => Yt(t, "GET", n, r, i, void 0, e),
-		post: async (t, n, r, i, a) => Yt(t, "POST", n, i, a, r, e),
-		put: async (t, n, r, i, a) => Yt(t, "PUT", n, i, a, r, e),
-		head: async (t, n, r, i) => Yt(t, "HEAD", n, T(T({}, r), {}, { noResolveJson: !0 }), i, void 0, e),
-		remove: async (t, n, r, i, a) => Yt(t, "DELETE", n, i, a, r, e)
+		get: async (t, n, r, i) => Zt(t, "GET", n, r, i, void 0, e),
+		post: async (t, n, r, i, a) => Zt(t, "POST", n, i, a, r, e),
+		put: async (t, n, r, i, a) => Zt(t, "PUT", n, i, a, r, e),
+		head: async (t, n, r, i) => Zt(t, "HEAD", n, w(w({}, r), {}, { noResolveJson: !0 }), i, void 0, e),
+		remove: async (t, n, r, i, a) => Zt(t, "DELETE", n, i, a, r, e)
 	};
 }
-var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt("vectors"), tn = class {
+var { get: $t, post: en, put: tn, head: nn, remove: rn } = Qt("storage"), T = Qt("vectors"), an = class {
 	constructor(e, t = {}, n, r = "storage") {
-		this.shouldThrowOnError = !1, this.url = e, this.headers = Vt(t), this.fetch = Ht(n), this.namespace = r;
+		this.shouldThrowOnError = !1, this.url = e, this.headers = Ut(t), this.fetch = Wt(n), this.namespace = r;
 	}
 	throwOnError() {
 		return this.shouldThrowOnError = !0, this;
 	}
 	setHeader(e, t) {
-		return this.headers = Bt(this.headers, e, t), this;
+		return this.headers = Ht(this.headers, e, t), this;
 	}
 	async handleOperation(e) {
 		var t = this;
@@ -2958,16 +2975,16 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 			};
 		} catch (e) {
 			if (t.shouldThrowOnError) throw e;
-			if (Lt(e)) return {
+			if (zt(e)) return {
 				data: null,
 				error: e
 			};
 			throw e;
 		}
 	}
-}, nn = Symbol.toStringTag, rn = class {
+}, on = Symbol.toStringTag, sn = class {
 	constructor(e, t) {
-		this.downloadFn = e, this.shouldThrowOnError = t, this[nn] = "StreamDownloadBuilder", this.promise = null;
+		this.downloadFn = e, this.shouldThrowOnError = t, this[on] = "StreamDownloadBuilder", this.promise = null;
 	}
 	then(e, t) {
 		return this.getPromise().then(e, t);
@@ -2990,19 +3007,19 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 			};
 		} catch (t) {
 			if (e.shouldThrowOnError) throw t;
-			if (Lt(t)) return {
+			if (zt(t)) return {
 				data: null,
 				error: t
 			};
 			throw t;
 		}
 	}
-}, an = Symbol.toStringTag, on = class {
+}, cn = Symbol.toStringTag, ln = class {
 	constructor(e, t) {
-		this.downloadFn = e, this.shouldThrowOnError = t, this[an] = "BlobDownloadBuilder", this.promise = null;
+		this.downloadFn = e, this.shouldThrowOnError = t, this[cn] = "BlobDownloadBuilder", this.promise = null;
 	}
 	asStream() {
-		return new rn(this.downloadFn, this.shouldThrowOnError);
+		return new sn(this.downloadFn, this.shouldThrowOnError);
 	}
 	then(e, t) {
 		return this.getPromise().then(e, t);
@@ -3025,34 +3042,34 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 			};
 		} catch (t) {
 			if (e.shouldThrowOnError) throw t;
-			if (Lt(t)) return {
+			if (zt(t)) return {
 				data: null,
 				error: t
 			};
 			throw t;
 		}
 	}
-}, sn = {
+}, un = {
 	limit: 100,
 	offset: 0,
 	sortBy: {
 		column: "name",
 		order: "asc"
 	}
-}, cn = {
+}, dn = {
 	cacheControl: "3600",
 	contentType: "text/plain;charset=UTF-8",
 	upsert: !1
-}, ln = class extends tn {
+}, fn = class extends an {
 	constructor(e, t = {}, n, r) {
 		super(e, t, r, "storage"), this.bucketId = n;
 	}
 	async uploadOrUpdate(e, t, n, r) {
 		var i = this;
 		return i.handleOperation(async () => {
-			let a, o = T(T({}, cn), r), s = T(T({}, i.headers), e === "POST" && { "x-upsert": String(o.upsert) }), c = o.metadata;
-			if (typeof Blob < "u" && n instanceof Blob ? (a = new FormData(), a.append("cacheControl", o.cacheControl), c && a.append("metadata", i.encodeMetadata(c)), a.append("", n)) : typeof FormData < "u" && n instanceof FormData ? (a = n, a.has("cacheControl") || a.append("cacheControl", o.cacheControl), c && !a.has("metadata") && a.append("metadata", i.encodeMetadata(c))) : (a = n, s["cache-control"] = `max-age=${o.cacheControl}`, s["content-type"] = o.contentType, c && (s["x-metadata"] = i.toBase64(i.encodeMetadata(c))), (typeof ReadableStream < "u" && a instanceof ReadableStream || a && typeof a == "object" && "pipe" in a && typeof a.pipe == "function") && !o.duplex && (o.duplex = "half")), r?.headers) for (let [e, t] of Object.entries(r.headers)) s = Bt(s, e, t);
-			let l = i._removeEmptyFolders(t), u = i._getFinalPath(l), d = await (e == "PUT" ? Qt : E)(i.fetch, `${i.url}/object/${u}`, a, T({ headers: s }, o?.duplex ? { duplex: o.duplex } : {}));
+			let a, o = w(w({}, dn), r), s = w(w({}, i.headers), e === "POST" && { "x-upsert": String(o.upsert) }), c = o.metadata;
+			if (typeof Blob < "u" && n instanceof Blob ? (a = new FormData(), a.append("cacheControl", o.cacheControl), c && a.append("metadata", i.encodeMetadata(c)), a.append("", n)) : typeof FormData < "u" && n instanceof FormData ? (a = n, a.has("cacheControl") || a.append("cacheControl", o.cacheControl), c && !a.has("metadata") && a.append("metadata", i.encodeMetadata(c))) : (a = n, s["cache-control"] = `max-age=${o.cacheControl}`, s["content-type"] = o.contentType, c && (s["x-metadata"] = i.toBase64(i.encodeMetadata(c))), (typeof ReadableStream < "u" && a instanceof ReadableStream || a && typeof a == "object" && "pipe" in a && typeof a.pipe == "function") && !o.duplex && (o.duplex = "half")), r?.headers) for (let [e, t] of Object.entries(r.headers)) s = Ht(s, e, t);
+			let l = i._removeEmptyFolders(t), u = i._getFinalPath(l), d = await (e == "PUT" ? tn : en)(i.fetch, `${i.url}/object/${u}`, a, w({ headers: s }, o?.duplex ? { duplex: o.duplex } : {}));
 			return {
 				path: l,
 				id: d.Id,
@@ -3067,21 +3084,21 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 		var i = this;
 		let a = i._removeEmptyFolders(e), o = i._getFinalPath(a), s = new URL(i.url + `/object/upload/sign/${o}`);
 		return s.searchParams.set("token", t), i.handleOperation(async () => {
-			let e, t = T(T({}, cn), r), o = T(T({}, i.headers), { "x-upsert": String(t.upsert) }), c = t.metadata;
-			if (typeof Blob < "u" && n instanceof Blob ? (e = new FormData(), e.append("cacheControl", t.cacheControl), c && e.append("metadata", i.encodeMetadata(c)), e.append("", n)) : typeof FormData < "u" && n instanceof FormData ? (e = n, e.has("cacheControl") || e.append("cacheControl", t.cacheControl), c && !e.has("metadata") && e.append("metadata", i.encodeMetadata(c))) : (e = n, o["cache-control"] = `max-age=${t.cacheControl}`, o["content-type"] = t.contentType, c && (o["x-metadata"] = i.toBase64(i.encodeMetadata(c))), (typeof ReadableStream < "u" && e instanceof ReadableStream || e && typeof e == "object" && "pipe" in e && typeof e.pipe == "function") && !t.duplex && (t.duplex = "half")), r?.headers) for (let [e, t] of Object.entries(r.headers)) o = Bt(o, e, t);
+			let e, t = w(w({}, dn), r), o = w(w({}, i.headers), { "x-upsert": String(t.upsert) }), c = t.metadata;
+			if (typeof Blob < "u" && n instanceof Blob ? (e = new FormData(), e.append("cacheControl", t.cacheControl), c && e.append("metadata", i.encodeMetadata(c)), e.append("", n)) : typeof FormData < "u" && n instanceof FormData ? (e = n, e.has("cacheControl") || e.append("cacheControl", t.cacheControl), c && !e.has("metadata") && e.append("metadata", i.encodeMetadata(c))) : (e = n, o["cache-control"] = `max-age=${t.cacheControl}`, o["content-type"] = t.contentType, c && (o["x-metadata"] = i.toBase64(i.encodeMetadata(c))), (typeof ReadableStream < "u" && e instanceof ReadableStream || e && typeof e == "object" && "pipe" in e && typeof e.pipe == "function") && !t.duplex && (t.duplex = "half")), r?.headers) for (let [e, t] of Object.entries(r.headers)) o = Ht(o, e, t);
 			return {
 				path: a,
-				fullPath: (await Qt(i.fetch, s.toString(), e, T({ headers: o }, t?.duplex ? { duplex: t.duplex } : {}))).Key
+				fullPath: (await tn(i.fetch, s.toString(), e, w({ headers: o }, t?.duplex ? { duplex: t.duplex } : {}))).Key
 			};
 		});
 	}
 	async createSignedUploadUrl(e, t) {
 		var n = this;
 		return n.handleOperation(async () => {
-			let r = n._getFinalPath(e), i = T({}, n.headers);
+			let r = n._getFinalPath(e), i = w({}, n.headers);
 			t?.upsert && (i["x-upsert"] = "true");
-			let a = await E(n.fetch, `${n.url}/object/upload/sign/${r}`, {}, { headers: i }), o = new URL(n.url + a.url), s = o.searchParams.get("token");
-			if (!s) throw new It("No token returned by API");
+			let a = await en(n.fetch, `${n.url}/object/upload/sign/${r}`, {}, { headers: i }), o = new URL(n.url + a.url), s = o.searchParams.get("token");
+			if (!s) throw new Rt("No token returned by API");
 			return {
 				signedUrl: o.toString(),
 				path: e,
@@ -3094,7 +3111,7 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 	}
 	async move(e, t, n) {
 		var r = this;
-		return r.handleOperation(async () => await E(r.fetch, `${r.url}/object/move`, {
+		return r.handleOperation(async () => await en(r.fetch, `${r.url}/object/move`, {
 			bucketId: r.bucketId,
 			sourceKey: e,
 			destinationKey: t,
@@ -3103,7 +3120,7 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 	}
 	async copy(e, t, n) {
 		var r = this;
-		return r.handleOperation(async () => ({ path: (await E(r.fetch, `${r.url}/object/copy`, {
+		return r.handleOperation(async () => ({ path: (await en(r.fetch, `${r.url}/object/copy`, {
 			bucketId: r.bucketId,
 			sourceKey: e,
 			destinationKey: t,
@@ -3113,7 +3130,7 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 	async createSignedUrl(e, t, n) {
 		var r = this;
 		return r.handleOperation(async () => {
-			let i = r._getFinalPath(e), a = typeof n?.transform == "object" && n.transform !== null && Object.keys(n.transform).length > 0, o = await E(r.fetch, `${r.url}/object/sign/${i}`, T({ expiresIn: t }, a ? { transform: n.transform } : {}), { headers: r.headers }), s = new URLSearchParams();
+			let i = r._getFinalPath(e), a = typeof n?.transform == "object" && n.transform !== null && Object.keys(n.transform).length > 0, o = await en(r.fetch, `${r.url}/object/sign/${i}`, w({ expiresIn: t }, a ? { transform: n.transform } : {}), { headers: r.headers }), s = new URLSearchParams();
 			n?.download && s.set("download", n.download === !0 ? "" : n.download), n?.cacheNonce != null && s.set("cacheNonce", String(n.cacheNonce));
 			let c = s.toString();
 			return { signedUrl: encodeURI(`${r.url}${o.signedURL}${c ? `&${c}` : ""}`) };
@@ -3122,20 +3139,20 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 	async createSignedUrls(e, t, n) {
 		var r = this;
 		return r.handleOperation(async () => {
-			let i = await E(r.fetch, `${r.url}/object/sign/${r.bucketId}`, {
+			let i = await en(r.fetch, `${r.url}/object/sign/${r.bucketId}`, {
 				expiresIn: t,
 				paths: e
 			}, { headers: r.headers }), a = new URLSearchParams();
 			n?.download && a.set("download", n.download === !0 ? "" : n.download), n?.cacheNonce != null && a.set("cacheNonce", String(n.cacheNonce));
 			let o = a.toString();
-			return i.map((e) => T(T({}, e), {}, { signedUrl: e.signedURL ? encodeURI(`${r.url}${e.signedURL}${o ? `&${o}` : ""}`) : null }));
+			return i.map((e) => w(w({}, e), {}, { signedUrl: e.signedURL ? encodeURI(`${r.url}${e.signedURL}${o ? `&${o}` : ""}`) : null }));
 		});
 	}
 	download(e, t, n) {
 		let r = typeof t?.transform == "object" && t.transform !== null && Object.keys(t.transform).length > 0 ? "render/image/authenticated" : "object", i = new URLSearchParams();
 		t?.transform && this.applyTransformOptsToQuery(i, t.transform), t?.cacheNonce != null && i.set("cacheNonce", String(t.cacheNonce));
 		let a = i.toString(), o = this._getFinalPath(e);
-		return new on(() => Zt(this.fetch, `${this.url}/${r}/${o}${a ? `?${a}` : ""}`, {
+		return new ln(() => $t(this.fetch, `${this.url}/${r}/${o}${a ? `?${a}` : ""}`, {
 			headers: this.headers,
 			noResolveJson: !0
 		}, n), this.shouldThrowOnError);
@@ -3143,20 +3160,20 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 	async info(e) {
 		var t = this;
 		let n = t._getFinalPath(e);
-		return t.handleOperation(async () => Wt(await Zt(t.fetch, `${t.url}/object/info/${n}`, { headers: t.headers })));
+		return t.handleOperation(async () => Kt(await $t(t.fetch, `${t.url}/object/info/${n}`, { headers: t.headers })));
 	}
 	async exists(e) {
 		var t = this;
 		let n = t._getFinalPath(e);
 		try {
-			return await $t(t.fetch, `${t.url}/object/${n}`, { headers: t.headers }), {
+			return await nn(t.fetch, `${t.url}/object/${n}`, { headers: t.headers }), {
 				data: !0,
 				error: null
 			};
 		} catch (e) {
 			if (t.shouldThrowOnError) throw e;
-			if (Lt(e)) {
-				let t = e instanceof Rt ? e.status : e instanceof zt ? e.originalError?.status : void 0;
+			if (zt(e)) {
+				let t = e instanceof Bt ? e.status : e instanceof Vt ? e.originalError?.status : void 0;
 				if (t !== void 0 && [400, 404].includes(t)) return {
 					data: !1,
 					error: e
@@ -3173,7 +3190,7 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 	}
 	async remove(e) {
 		var t = this;
-		return t.handleOperation(async () => await en(t.fetch, `${t.url}/object/${t.bucketId}`, { prefixes: e }, { headers: t.headers }));
+		return t.handleOperation(async () => await rn(t.fetch, `${t.url}/object/${t.bucketId}`, { prefixes: e }, { headers: t.headers }));
 	}
 	async purgeCache(e, t, n) {
 		var r = this;
@@ -3181,24 +3198,24 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 			let i = r._getFinalPath(e), a = new URLSearchParams();
 			t?.transformations && a.set("transformations", "true");
 			let o = a.toString();
-			return await en(r.fetch, `${r.url}/cdn/${i}${o ? `?${o}` : ""}`, {}, { headers: r.headers }, n);
+			return await rn(r.fetch, `${r.url}/cdn/${i}${o ? `?${o}` : ""}`, {}, { headers: r.headers }, n);
 		});
 	}
 	async list(e, t, n) {
 		var r = this;
 		return r.handleOperation(async () => {
-			let i = t?.sortBy ? T(T({}, sn.sortBy), t.sortBy) : sn.sortBy, a = T(T(T({}, sn), t), {}, {
+			let i = t?.sortBy ? w(w({}, un.sortBy), t.sortBy) : un.sortBy, a = w(w(w({}, un), t), {}, {
 				sortBy: i,
 				prefix: e || ""
 			});
-			return await E(r.fetch, `${r.url}/object/list/${r.bucketId}`, a, { headers: r.headers }, n);
+			return await en(r.fetch, `${r.url}/object/list/${r.bucketId}`, a, { headers: r.headers }, n);
 		});
 	}
 	async listV2(e, t) {
 		var n = this;
 		return n.handleOperation(async () => {
-			let r = T({}, e);
-			return await E(n.fetch, `${n.url}/object/list-v2/${n.bucketId}`, r, { headers: n.headers }, t);
+			let r = w({}, e);
+			return await en(n.fetch, `${n.url}/object/list-v2/${n.bucketId}`, r, { headers: n.headers }, t);
 		});
 	}
 	encodeMetadata(e) {
@@ -3216,27 +3233,27 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 	applyTransformOptsToQuery(e, t) {
 		return t.width && e.set("width", t.width.toString()), t.height && e.set("height", t.height.toString()), t.resize && e.set("resize", t.resize), t.format && e.set("format", t.format), t.quality && e.set("quality", t.quality.toString()), e;
 	}
-}, un = { "X-Client-Info": "storage-js/2.110.3" }, dn = class extends tn {
+}, pn = { "X-Client-Info": "storage-js/2.110.7" }, mn = class extends an {
 	constructor(e, t = {}, n, r) {
 		let i = new URL(e);
 		r?.useNewHostname && /supabase\.(co|in|red)$/.test(i.hostname) && !i.hostname.includes("storage.supabase.") && (i.hostname = i.hostname.replace("supabase.", "storage.supabase."));
-		let a = i.href.replace(/\/$/, ""), o = T(T({}, un), t);
+		let a = i.href.replace(/\/$/, ""), o = w(w({}, pn), t);
 		super(a, o, n, "storage");
 	}
 	async listBuckets(e) {
 		var t = this;
 		return t.handleOperation(async () => {
 			let n = t.listBucketOptionsToQueryString(e);
-			return await Zt(t.fetch, `${t.url}/bucket${n}`, { headers: t.headers });
+			return await $t(t.fetch, `${t.url}/bucket${n}`, { headers: t.headers });
 		});
 	}
 	async getBucket(e) {
 		var t = this;
-		return t.handleOperation(async () => await Zt(t.fetch, `${t.url}/bucket/${e}`, { headers: t.headers }));
+		return t.handleOperation(async () => await $t(t.fetch, `${t.url}/bucket/${e}`, { headers: t.headers }));
 	}
 	async createBucket(e, t = { public: !1 }) {
 		var n = this;
-		return n.handleOperation(async () => await E(n.fetch, `${n.url}/bucket`, {
+		return n.handleOperation(async () => await en(n.fetch, `${n.url}/bucket`, {
 			id: e,
 			name: e,
 			type: t.type,
@@ -3247,7 +3264,7 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 	}
 	async updateBucket(e, t) {
 		var n = this;
-		return n.handleOperation(async () => await Qt(n.fetch, `${n.url}/bucket/${e}`, {
+		return n.handleOperation(async () => await tn(n.fetch, `${n.url}/bucket/${e}`, {
 			id: e,
 			name: e,
 			public: t.public,
@@ -3257,11 +3274,11 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 	}
 	async emptyBucket(e) {
 		var t = this;
-		return t.handleOperation(async () => await E(t.fetch, `${t.url}/bucket/${e}/empty`, {}, { headers: t.headers }));
+		return t.handleOperation(async () => await en(t.fetch, `${t.url}/bucket/${e}/empty`, {}, { headers: t.headers }));
 	}
 	async deleteBucket(e) {
 		var t = this;
-		return t.handleOperation(async () => await en(t.fetch, `${t.url}/bucket/${e}`, {}, { headers: t.headers }));
+		return t.handleOperation(async () => await rn(t.fetch, `${t.url}/bucket/${e}`, {}, { headers: t.headers }));
 	}
 	async purgeBucketCache(e, t, n) {
 		var r = this;
@@ -3269,21 +3286,21 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 			let i = new URLSearchParams();
 			t?.transformations && i.set("transformations", "true");
 			let a = i.toString();
-			return await en(r.fetch, `${r.url}/cdn/${e}${a ? `?${a}` : ""}`, {}, { headers: r.headers }, n);
+			return await rn(r.fetch, `${r.url}/cdn/${e}${a ? `?${a}` : ""}`, {}, { headers: r.headers }, n);
 		});
 	}
 	listBucketOptionsToQueryString(e) {
 		let t = {};
 		return e && ("limit" in e && (t.limit = String(e.limit)), "offset" in e && (t.offset = String(e.offset)), e.search && (t.search = e.search), e.sortColumn && (t.sortColumn = e.sortColumn), e.sortOrder && (t.sortOrder = e.sortOrder)), Object.keys(t).length > 0 ? "?" + new URLSearchParams(t).toString() : "";
 	}
-}, fn = class extends tn {
+}, hn = class extends an {
 	constructor(e, t = {}, n) {
-		let r = e.replace(/\/$/, ""), i = T(T({}, un), t);
+		let r = e.replace(/\/$/, ""), i = w(w({}, pn), t);
 		super(r, i, n, "storage");
 	}
 	async createBucket(e) {
 		var t = this;
-		return t.handleOperation(async () => await E(t.fetch, `${t.url}/bucket`, { name: e }, { headers: t.headers }));
+		return t.handleOperation(async () => await en(t.fetch, `${t.url}/bucket`, { name: e }, { headers: t.headers }));
 	}
 	async listBuckets(e) {
 		var t = this;
@@ -3291,17 +3308,17 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 			let n = new URLSearchParams();
 			e?.limit !== void 0 && n.set("limit", e.limit.toString()), e?.offset !== void 0 && n.set("offset", e.offset.toString()), e?.sortColumn && n.set("sortColumn", e.sortColumn), e?.sortOrder && n.set("sortOrder", e.sortOrder), e?.search && n.set("search", e.search);
 			let r = n.toString(), i = r ? `${t.url}/bucket?${r}` : `${t.url}/bucket`;
-			return await Zt(t.fetch, i, { headers: t.headers });
+			return await $t(t.fetch, i, { headers: t.headers });
 		});
 	}
 	async deleteBucket(e) {
 		var t = this;
-		return t.handleOperation(async () => await en(t.fetch, `${t.url}/bucket/${e}`, {}, { headers: t.headers }));
+		return t.handleOperation(async () => await rn(t.fetch, `${t.url}/bucket/${e}`, {}, { headers: t.headers }));
 	}
 	from(e) {
 		var t = this;
-		if (!Gt(e)) throw new It("Invalid bucket name: File, folder, and bucket names must follow AWS object key naming guidelines and should avoid the use of any other characters.");
-		let n = new At({
+		if (!qt(e)) throw new Rt("Invalid bucket name: File, folder, and bucket names must follow AWS object key naming guidelines and should avoid the use of any other characters.");
+		let n = new Mt({
 			baseUrl: this.url,
 			catalogName: e,
 			auth: {
@@ -3328,46 +3345,46 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 			} : n;
 		} });
 	}
-}, pn = class extends tn {
+}, gn = class extends an {
 	constructor(e, t = {}, n) {
-		let r = e.replace(/\/$/, ""), i = T(T({}, un), {}, { "Content-Type": "application/json" }, t);
+		let r = e.replace(/\/$/, ""), i = w(w({}, pn), {}, { "Content-Type": "application/json" }, t);
 		super(r, i, n, "vectors");
 	}
 	async createIndex(e) {
 		var t = this;
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/CreateIndex`, e, { headers: t.headers }) || {});
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/CreateIndex`, e, { headers: t.headers }) || {});
 	}
 	async getIndex(e, t) {
 		var n = this;
-		return n.handleOperation(async () => await D.post(n.fetch, `${n.url}/GetIndex`, {
+		return n.handleOperation(async () => await T.post(n.fetch, `${n.url}/GetIndex`, {
 			vectorBucketName: e,
 			indexName: t
 		}, { headers: n.headers }));
 	}
 	async listIndexes(e) {
 		var t = this;
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/ListIndexes`, e, { headers: t.headers }));
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/ListIndexes`, e, { headers: t.headers }));
 	}
 	async deleteIndex(e, t) {
 		var n = this;
-		return n.handleOperation(async () => await D.post(n.fetch, `${n.url}/DeleteIndex`, {
+		return n.handleOperation(async () => await T.post(n.fetch, `${n.url}/DeleteIndex`, {
 			vectorBucketName: e,
 			indexName: t
 		}, { headers: n.headers }) || {});
 	}
-}, mn = class extends tn {
+}, _n = class extends an {
 	constructor(e, t = {}, n) {
-		let r = e.replace(/\/$/, ""), i = T(T({}, un), {}, { "Content-Type": "application/json" }, t);
+		let r = e.replace(/\/$/, ""), i = w(w({}, pn), {}, { "Content-Type": "application/json" }, t);
 		super(r, i, n, "vectors");
 	}
 	async putVectors(e) {
 		var t = this;
 		if (e.vectors.length < 1 || e.vectors.length > 500) throw Error("Vector batch size must be between 1 and 500 items");
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/PutVectors`, e, { headers: t.headers }) || {});
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/PutVectors`, e, { headers: t.headers }) || {});
 	}
 	async getVectors(e) {
 		var t = this;
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/GetVectors`, e, { headers: t.headers }));
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/GetVectors`, e, { headers: t.headers }));
 	}
 	async listVectors(e) {
 		var t = this;
@@ -3375,44 +3392,44 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 			if (e.segmentCount < 1 || e.segmentCount > 16) throw Error("segmentCount must be between 1 and 16");
 			if (e.segmentIndex !== void 0 && (e.segmentIndex < 0 || e.segmentIndex >= e.segmentCount)) throw Error(`segmentIndex must be between 0 and ${e.segmentCount - 1}`);
 		}
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/ListVectors`, e, { headers: t.headers }));
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/ListVectors`, e, { headers: t.headers }));
 	}
 	async queryVectors(e) {
 		var t = this;
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/QueryVectors`, e, { headers: t.headers }));
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/QueryVectors`, e, { headers: t.headers }));
 	}
 	async deleteVectors(e) {
 		var t = this;
 		if (e.keys.length < 1 || e.keys.length > 500) throw Error("Keys batch size must be between 1 and 500 items");
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/DeleteVectors`, e, { headers: t.headers }) || {});
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/DeleteVectors`, e, { headers: t.headers }) || {});
 	}
-}, hn = class extends tn {
+}, vn = class extends an {
 	constructor(e, t = {}, n) {
-		let r = e.replace(/\/$/, ""), i = T(T({}, un), {}, { "Content-Type": "application/json" }, t);
+		let r = e.replace(/\/$/, ""), i = w(w({}, pn), {}, { "Content-Type": "application/json" }, t);
 		super(r, i, n, "vectors");
 	}
 	async createBucket(e) {
 		var t = this;
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/CreateVectorBucket`, { vectorBucketName: e }, { headers: t.headers }) || {});
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/CreateVectorBucket`, { vectorBucketName: e }, { headers: t.headers }) || {});
 	}
 	async getBucket(e) {
 		var t = this;
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/GetVectorBucket`, { vectorBucketName: e }, { headers: t.headers }));
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/GetVectorBucket`, { vectorBucketName: e }, { headers: t.headers }));
 	}
 	async listBuckets(e = {}) {
 		var t = this;
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/ListVectorBuckets`, e, { headers: t.headers }));
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/ListVectorBuckets`, e, { headers: t.headers }));
 	}
 	async deleteBucket(e) {
 		var t = this;
-		return t.handleOperation(async () => await D.post(t.fetch, `${t.url}/DeleteVectorBucket`, { vectorBucketName: e }, { headers: t.headers }) || {});
+		return t.handleOperation(async () => await T.post(t.fetch, `${t.url}/DeleteVectorBucket`, { vectorBucketName: e }, { headers: t.headers }) || {});
 	}
-}, gn = class extends hn {
+}, yn = class extends vn {
 	constructor(e, t = {}) {
 		super(e, t.headers || {}, t.fetch);
 	}
 	from(e) {
-		return new _n(this.url, this.headers, e, this.fetch);
+		return new bn(this.url, this.headers, e, this.fetch);
 	}
 	async createBucket(e) {
 		var t = () => super.createBucket, n = this;
@@ -3430,17 +3447,17 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 		var t = () => super.deleteBucket, n = this;
 		return t().call(n, e);
 	}
-}, _n = class extends pn {
+}, bn = class extends gn {
 	constructor(e, t, n, r) {
 		super(e, t, r), this.vectorBucketName = n;
 	}
 	async createIndex(e) {
 		var t = () => super.createIndex, n = this;
-		return t().call(n, T(T({}, e), {}, { vectorBucketName: n.vectorBucketName }));
+		return t().call(n, w(w({}, e), {}, { vectorBucketName: n.vectorBucketName }));
 	}
 	async listIndexes(e = {}) {
 		var t = () => super.listIndexes, n = this;
-		return t().call(n, T(T({}, e), {}, { vectorBucketName: n.vectorBucketName }));
+		return t().call(n, w(w({}, e), {}, { vectorBucketName: n.vectorBucketName }));
 	}
 	async getIndex(e) {
 		var t = () => super.getIndex, n = this;
@@ -3451,67 +3468,67 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 		return t().call(n, n.vectorBucketName, e);
 	}
 	index(e) {
-		return new vn(this.url, this.headers, this.vectorBucketName, e, this.fetch);
+		return new xn(this.url, this.headers, this.vectorBucketName, e, this.fetch);
 	}
-}, vn = class extends mn {
+}, xn = class extends _n {
 	constructor(e, t, n, r, i) {
 		super(e, t, i), this.vectorBucketName = n, this.indexName = r;
 	}
 	async putVectors(e) {
 		var t = () => super.putVectors, n = this;
-		return t().call(n, T(T({}, e), {}, {
+		return t().call(n, w(w({}, e), {}, {
 			vectorBucketName: n.vectorBucketName,
 			indexName: n.indexName
 		}));
 	}
 	async getVectors(e) {
 		var t = () => super.getVectors, n = this;
-		return t().call(n, T(T({}, e), {}, {
+		return t().call(n, w(w({}, e), {}, {
 			vectorBucketName: n.vectorBucketName,
 			indexName: n.indexName
 		}));
 	}
 	async listVectors(e = {}) {
 		var t = () => super.listVectors, n = this;
-		return t().call(n, T(T({}, e), {}, {
+		return t().call(n, w(w({}, e), {}, {
 			vectorBucketName: n.vectorBucketName,
 			indexName: n.indexName
 		}));
 	}
 	async queryVectors(e) {
 		var t = () => super.queryVectors, n = this;
-		return t().call(n, T(T({}, e), {}, {
+		return t().call(n, w(w({}, e), {}, {
 			vectorBucketName: n.vectorBucketName,
 			indexName: n.indexName
 		}));
 	}
 	async deleteVectors(e) {
 		var t = () => super.deleteVectors, n = this;
-		return t().call(n, T(T({}, e), {}, {
+		return t().call(n, w(w({}, e), {}, {
 			vectorBucketName: n.vectorBucketName,
 			indexName: n.indexName
 		}));
 	}
-}, yn = class extends dn {
+}, Sn = class extends mn {
 	constructor(e, t = {}, n, r) {
 		super(e, t, n, r);
 	}
 	from(e) {
-		return new ln(this.url, this.headers, e, this.fetch);
+		return new fn(this.url, this.headers, e, this.fetch);
 	}
 	get vectors() {
-		return new gn(this.url + "/vector", {
+		return new yn(this.url + "/vector", {
 			headers: this.headers,
 			fetch: this.fetch
 		});
 	}
 	get analytics() {
-		return new fn(this.url + "/iceberg", this.headers, this.fetch);
+		return new hn(this.url + "/iceberg", this.headers, this.fetch);
 	}
-}, bn = "2.110.3", xn = 30 * 1e3, Sn = 3 * xn, Cn = 2 * xn, wn = "http://localhost:9999", Tn = "supabase.auth.token", En = { "X-Client-Info": `gotrue-js/${bn}` }, Dn = "X-Supabase-Api-Version", On = { "2024-01-01": {
+}, Cn = "2.110.7", wn = 30 * 1e3, Tn = 3 * wn, En = 2 * wn, Dn = "http://localhost:9999", On = "supabase.auth.token", kn = { "X-Client-Info": `gotrue-js/${Cn}` }, An = "X-Supabase-Api-Version", jn = { "2024-01-01": {
 	timestamp: Date.parse("2024-01-01T00:00:00.0Z"),
 	name: "2024-01-01"
-} }, kn = /^([a-z0-9_-]{4})*($|[a-z0-9_-]{3}$|[a-z0-9_-]{2}$)$/i, An = class extends Error {
+} }, Mn = /^([a-z0-9_-]{4})*($|[a-z0-9_-]{3}$|[a-z0-9_-]{2}$)$/i, Nn = class extends Error {
 	constructor(e, t, n) {
 		super(e), this.__isAuthError = !0, this.name = "AuthError", this.status = t, this.code = n;
 	}
@@ -3524,42 +3541,42 @@ var { get: Zt, post: E, put: Qt, head: $t, remove: en } = Xt("storage"), D = Xt(
 		};
 	}
 };
-function O(e) {
+function E(e) {
 	return typeof e == "object" && !!e && "__isAuthError" in e;
 }
-var jn = class extends An {
+var Pn = class extends Nn {
 	constructor(e, t, n) {
 		super(e, t, n), this.name = "AuthApiError", this.status = t, this.code = n;
 	}
 };
-function Mn(e) {
-	return O(e) && e.name === "AuthApiError";
+function Fn(e) {
+	return E(e) && e.name === "AuthApiError";
 }
-var Nn = class extends An {
+var In = class extends Nn {
 	constructor(e, t) {
 		super(e), this.name = "AuthUnknownError", this.originalError = t;
 	}
-}, Pn = class extends An {
+}, Ln = class extends Nn {
 	constructor(e, t, n, r) {
 		super(e, n, r), this.name = t, this.status = n;
 	}
-}, k = class extends Pn {
+}, D = class extends Ln {
 	constructor() {
 		super("Auth session missing!", "AuthSessionMissingError", 400, void 0);
 	}
 };
-function Fn(e) {
-	return O(e) && e.name === "AuthSessionMissingError";
+function Rn(e) {
+	return E(e) && e.name === "AuthSessionMissingError";
 }
-var In = class extends Pn {
+var zn = class extends Ln {
 	constructor() {
 		super("Auth session or user missing", "AuthInvalidTokenResponseError", 500, void 0);
 	}
-}, Ln = class extends Pn {
+}, Bn = class extends Ln {
 	constructor(e) {
 		super(e, "AuthInvalidCredentialsError", 400, void 0);
 	}
-}, Rn = class extends Pn {
+}, Vn = class extends Ln {
 	constructor(e, t = null) {
 		super(e, "AuthImplicitGrantRedirectError", 500, void 0), this.details = null, this.details = t;
 	}
@@ -3567,65 +3584,65 @@ var In = class extends Pn {
 		return Object.assign(Object.assign({}, super.toJSON()), { details: this.details });
 	}
 };
-function zn(e) {
-	return O(e) && e.name === "AuthImplicitGrantRedirectError";
+function Hn(e) {
+	return E(e) && e.name === "AuthImplicitGrantRedirectError";
 }
-var Bn = class extends Pn {
+var Un = class extends Ln {
 	constructor(e, t = null) {
 		super(e, "AuthPKCEGrantCodeExchangeError", 500, void 0), this.details = null, this.details = t;
 	}
 	toJSON() {
 		return Object.assign(Object.assign({}, super.toJSON()), { details: this.details });
 	}
-}, Vn = class extends Pn {
+}, Wn = class extends Ln {
 	constructor() {
 		super("PKCE code verifier not found in storage. This can happen if the auth flow was initiated in a different browser or device, or if the storage was cleared. For SSR frameworks (Next.js, SvelteKit, etc.), use @supabase/ssr on both the server and client to store the code verifier in cookies.", "AuthPKCECodeVerifierMissingError", 400, "pkce_code_verifier_not_found");
 	}
-}, Hn = class extends Pn {
+}, Gn = class extends Ln {
 	constructor(e, t) {
 		super(e, "AuthRetryableFetchError", t, void 0);
 	}
 };
-function Un(e) {
-	return O(e) && e.name === "AuthRetryableFetchError";
+function Kn(e) {
+	return E(e) && e.name === "AuthRetryableFetchError";
 }
-var Wn = class extends Pn {
+var qn = class extends Ln {
 	constructor(e = "Refresh result discarded: session state changed mid-flight (e.g., concurrent signOut)") {
 		super(e, "AuthRefreshDiscardedError", 409, void 0);
 	}
 };
-function Gn(e) {
-	return O(e) && e.name === "AuthRefreshDiscardedError";
+function Jn(e) {
+	return E(e) && e.name === "AuthRefreshDiscardedError";
 }
-var Kn = class extends Pn {
+var Yn = class extends Ln {
 	constructor(e, t, n) {
 		super(e, "AuthWeakPasswordError", t, "weak_password"), this.reasons = n;
 	}
 	toJSON() {
 		return Object.assign(Object.assign({}, super.toJSON()), { reasons: this.reasons });
 	}
-}, qn = class extends Pn {
+}, Xn = class extends Ln {
 	constructor(e) {
 		super(e, "AuthInvalidJwtError", 400, "invalid_jwt");
 	}
-}, Jn = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".split(""), Yn = " 	\n\r=".split(""), Xn = (() => {
+}, Zn = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".split(""), Qn = " 	\n\r=".split(""), $n = (() => {
 	let e = Array(128);
 	for (let t = 0; t < e.length; t += 1) e[t] = -1;
-	for (let t = 0; t < Yn.length; t += 1) e[Yn[t].charCodeAt(0)] = -2;
-	for (let t = 0; t < Jn.length; t += 1) e[Jn[t].charCodeAt(0)] = t;
+	for (let t = 0; t < Qn.length; t += 1) e[Qn[t].charCodeAt(0)] = -2;
+	for (let t = 0; t < Zn.length; t += 1) e[Zn[t].charCodeAt(0)] = t;
 	return e;
 })();
-function Zn(e, t, n) {
-	if (e !== null) for (t.queue = t.queue << 8 | e, t.queuedBits += 8; t.queuedBits >= 6;) n(Jn[t.queue >> t.queuedBits - 6 & 63]), t.queuedBits -= 6;
-	else if (t.queuedBits > 0) for (t.queue <<= 6 - t.queuedBits, t.queuedBits = 6; t.queuedBits >= 6;) n(Jn[t.queue >> t.queuedBits - 6 & 63]), t.queuedBits -= 6;
+function er(e, t, n) {
+	if (e !== null) for (t.queue = t.queue << 8 | e, t.queuedBits += 8; t.queuedBits >= 6;) n(Zn[t.queue >> t.queuedBits - 6 & 63]), t.queuedBits -= 6;
+	else if (t.queuedBits > 0) for (t.queue <<= 6 - t.queuedBits, t.queuedBits = 6; t.queuedBits >= 6;) n(Zn[t.queue >> t.queuedBits - 6 & 63]), t.queuedBits -= 6;
 }
-function Qn(e, t, n) {
-	let r = Xn[e];
+function tr(e, t, n) {
+	let r = $n[e];
 	if (r > -1) for (t.queue = t.queue << 6 | r, t.queuedBits += 6; t.queuedBits >= 8;) n(t.queue >> t.queuedBits - 8 & 255), t.queuedBits -= 8;
 	else if (r === -2) return;
 	else throw Error(`Invalid Base64-URL character "${String.fromCharCode(e)}"`);
 }
-function $n(e) {
+function nr(e) {
 	let t = [], n = (e) => {
 		t.push(String.fromCodePoint(e));
 	}, r = {
@@ -3635,12 +3652,12 @@ function $n(e) {
 		queue: 0,
 		queuedBits: 0
 	}, a = (e) => {
-		nr(e, r, n);
+		ar(e, r, n);
 	};
-	for (let t = 0; t < e.length; t += 1) Qn(e.charCodeAt(t), i, a);
+	for (let t = 0; t < e.length; t += 1) tr(e.charCodeAt(t), i, a);
 	return t.join("");
 }
-function er(e, t) {
+function rr(e, t) {
 	if (e <= 127) {
 		t(e);
 		return;
@@ -3656,17 +3673,17 @@ function er(e, t) {
 	}
 	throw Error(`Unrecognized Unicode codepoint: ${e.toString(16)}`);
 }
-function tr(e, t) {
+function ir(e, t) {
 	for (let n = 0; n < e.length; n += 1) {
 		let r = e.charCodeAt(n);
 		if (r > 55295 && r <= 56319) {
 			let t = (r - 55296) * 1024 & 65535;
 			r = (e.charCodeAt(n + 1) - 56320 & 65535 | t) + 65536, n += 1;
 		}
-		er(r, t);
+		rr(r, t);
 	}
 }
-function nr(e, t, n) {
+function ar(e, t, n) {
 	if (t.utf8seq === 0) {
 		if (e <= 127) {
 			n(e);
@@ -3686,57 +3703,57 @@ function nr(e, t, n) {
 		t.codepoint = t.codepoint << 6 | e & 63, --t.utf8seq, t.utf8seq === 0 && n(t.codepoint);
 	}
 }
-function rr(e) {
+function or(e) {
 	let t = [], n = {
 		queue: 0,
 		queuedBits: 0
 	}, r = (e) => {
 		t.push(e);
 	};
-	for (let t = 0; t < e.length; t += 1) Qn(e.charCodeAt(t), n, r);
+	for (let t = 0; t < e.length; t += 1) tr(e.charCodeAt(t), n, r);
 	return new Uint8Array(t);
 }
-function ir(e) {
+function sr(e) {
 	let t = [];
-	return tr(e, (e) => t.push(e)), new Uint8Array(t);
+	return ir(e, (e) => t.push(e)), new Uint8Array(t);
 }
-function ar(e) {
+function cr(e) {
 	let t = [], n = {
 		queue: 0,
 		queuedBits: 0
 	}, r = (e) => {
 		t.push(e);
 	};
-	return e.forEach((e) => Zn(e, n, r)), Zn(null, n, r), t.join("");
+	return e.forEach((e) => er(e, n, r)), er(null, n, r), t.join("");
 }
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/lib/helpers.js
-function or(e) {
+function lr(e) {
 	return Math.round(Date.now() / 1e3) + e;
 }
-function sr() {
+function ur() {
 	return Symbol("auth-callback");
 }
-var A = () => typeof window < "u" && typeof document < "u", cr = {
+var O = () => typeof window < "u" && typeof document < "u", dr = {
 	tested: !1,
 	writable: !1
-}, lr = () => {
-	if (!A()) return !1;
+}, fr = () => {
+	if (!O()) return !1;
 	try {
 		if (typeof globalThis.localStorage != "object") return !1;
 	} catch {
 		return !1;
 	}
-	if (cr.tested) return cr.writable;
+	if (dr.tested) return dr.writable;
 	let e = `lswt-${Math.random()}${Math.random()}`;
 	try {
-		globalThis.localStorage.setItem(e, e), globalThis.localStorage.removeItem(e), cr.tested = !0, cr.writable = !0;
+		globalThis.localStorage.setItem(e, e), globalThis.localStorage.removeItem(e), dr.tested = !0, dr.writable = !0;
 	} catch {
-		cr.tested = !0, cr.writable = !1;
+		dr.tested = !0, dr.writable = !1;
 	}
-	return cr.writable;
+	return dr.writable;
 };
-function ur(e) {
+function pr(e) {
 	let t = {}, n = new URL(e);
 	if (n.hash && n.hash[0] === "#") try {
 		new URLSearchParams(n.hash.substring(1)).forEach((e, n) => {
@@ -3747,9 +3764,9 @@ function ur(e) {
 		t[n] = e;
 	}), t;
 }
-var dr = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), fr = (e) => typeof e == "object" && !!e && "status" in e && "ok" in e && "json" in e && typeof e.json == "function", pr = async (e, t, n) => {
+var mr = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), hr = (e) => typeof e == "object" && !!e && "status" in e && "ok" in e && "json" in e && typeof e.json == "function", gr = async (e, t, n) => {
 	await e.setItem(t, JSON.stringify(n));
-}, mr = async (e, t) => {
+}, k = async (e, t) => {
 	let n = await e.getItem(t);
 	if (!n) return null;
 	try {
@@ -3757,36 +3774,36 @@ var dr = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), fr = (e) => typeo
 	} catch {
 		return null;
 	}
-}, j = async (e, t) => {
+}, A = async (e, t) => {
 	await e.removeItem(t);
-}, hr = class e {
+}, _r = class e {
 	constructor() {
 		this.promise = new e.promiseConstructor((e, t) => {
 			this.resolve = e, this.reject = t;
 		});
 	}
 };
-hr.promiseConstructor = Promise;
-function gr(e) {
+_r.promiseConstructor = Promise;
+function vr(e) {
 	let t = e.split(".");
-	if (t.length !== 3) throw new qn("Invalid JWT structure");
-	for (let e = 0; e < t.length; e++) if (!kn.test(t[e])) throw new qn("JWT not in base64url format");
+	if (t.length !== 3) throw new Xn("Invalid JWT structure");
+	for (let e = 0; e < t.length; e++) if (!Mn.test(t[e])) throw new Xn("JWT not in base64url format");
 	return {
-		header: JSON.parse($n(t[0])),
-		payload: JSON.parse($n(t[1])),
-		signature: rr(t[2]),
+		header: JSON.parse(nr(t[0])),
+		payload: JSON.parse(nr(t[1])),
+		signature: or(t[2]),
 		raw: {
 			header: t[0],
 			payload: t[1]
 		}
 	};
 }
-async function _r(e) {
+async function yr(e) {
 	return await new Promise((t) => {
 		setTimeout(() => t(null), e);
 	});
 }
-function vr(e, t) {
+function br(e, t) {
 	return new Promise((n, r) => {
 		(async () => {
 			for (let i = 0; i < Infinity; i++) try {
@@ -3804,48 +3821,48 @@ function vr(e, t) {
 		})();
 	});
 }
-function yr(e) {
+function xr(e) {
 	return ("0" + e.toString(16)).substr(-2);
 }
-function br() {
+function Sr() {
 	let e = /* @__PURE__ */ new Uint32Array(56);
 	if (typeof crypto > "u") {
 		let e = "";
 		for (let t = 0; t < 56; t++) e += "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~".charAt(Math.floor(Math.random() * 66));
 		return e;
 	}
-	return crypto.getRandomValues(e), Array.from(e, yr).join("");
+	return crypto.getRandomValues(e), Array.from(e, xr).join("");
 }
-async function xr(e) {
+async function Cr(e) {
 	let t = new TextEncoder().encode(e), n = await crypto.subtle.digest("SHA-256", t), r = new Uint8Array(n);
 	return Array.from(r).map((e) => String.fromCharCode(e)).join("");
 }
-async function Sr(e) {
+async function wr(e) {
 	if (!(typeof crypto < "u" && crypto.subtle !== void 0 && typeof TextEncoder < "u")) return console.warn("WebCrypto API is not supported. Code challenge method will default to use plain instead of sha256."), e;
-	let t = await xr(e);
+	let t = await Cr(e);
 	return btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
-async function Cr(e, t, n = !1) {
-	let r = br(), i = r;
-	n && (i += "/recovery"), await pr(e, `${t}-code-verifier`, i);
-	let a = await Sr(r);
+async function Tr(e, t, n = !1) {
+	let r = Sr(), i = r;
+	n && (i += "/recovery"), await gr(e, `${t}-code-verifier`, i);
+	let a = await wr(r);
 	return [a, r === a ? "plain" : "s256"];
 }
-var wr = /^2[0-9]{3}-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$/i;
-function Tr(e) {
-	let t = e.headers.get(Dn);
-	if (!t || !t.match(wr)) return null;
+var Er = /^2[0-9]{3}-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$/i;
+function Dr(e) {
+	let t = e.headers.get(An);
+	if (!t || !t.match(Er)) return null;
 	try {
 		return /* @__PURE__ */ new Date(`${t}T00:00:00.0Z`);
 	} catch {
 		return null;
 	}
 }
-function Er(e) {
+function Or(e) {
 	if (!e) throw Error("Missing exp claim");
 	if (e <= Math.floor(Date.now() / 1e3)) throw Error("JWT has expired");
 }
-function Dr(e) {
+function kr(e) {
 	switch (e) {
 		case "RS256": return {
 			name: "RSASSA-PKCS1-v1_5",
@@ -3859,14 +3876,14 @@ function Dr(e) {
 		default: throw Error("Invalid alg claim");
 	}
 }
-var Or = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-function kr(e) {
-	if (!Or.test(e)) throw Error("@supabase/auth-js: Expected parameter to be UUID but is not");
+var Ar = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+function jr(e) {
+	if (!Ar.test(e)) throw Error("@supabase/auth-js: Expected parameter to be UUID but is not");
 }
-function Ar(e) {
+function Mr(e) {
 	if (!e.passkey) throw Error("@supabase/auth-js: the passkey API is experimental and disabled by default. Enable it by passing `auth: { experimental: { passkey: true } }` to createClient (or to the GoTrueClient constructor).");
 }
-function jr() {
+function Nr() {
 	return new Proxy({}, {
 		get: (e, t) => {
 			if (t === "__isUserNotAvailableProxy") return !0;
@@ -3884,7 +3901,7 @@ function jr() {
 		}
 	});
 }
-function Mr(e, t) {
+function Pr(e, t) {
 	return new Proxy(e, { get: (e, n, r) => {
 		if (n === "__isInsecureUserWarningProxy") return !0;
 		if (typeof n == "symbol") {
@@ -3894,12 +3911,12 @@ function Mr(e, t) {
 		return !t.value && typeof n == "string" && (console.warn("Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server."), t.value = !0), Reflect.get(e, n, r);
 	} });
 }
-function Nr(e) {
+function Fr(e) {
 	return JSON.parse(JSON.stringify(e));
 }
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/lib/fetch.js
-var Pr = (e) => {
+var Ir = (e) => {
 	if (typeof e == "object" && e) {
 		let t = e;
 		if (typeof t.msg == "string") return t.msg;
@@ -3908,7 +3925,7 @@ var Pr = (e) => {
 		if (typeof t.error == "string") return t.error;
 	}
 	return JSON.stringify(e);
-}, Fr = [
+}, Lr = [
 	500,
 	501,
 	502,
@@ -3926,35 +3943,35 @@ var Pr = (e) => {
 	529,
 	530
 ];
-async function Ir(e) {
-	if (!fr(e)) throw new Hn(Pr(e), 0);
-	if (Fr.includes(e.status)) throw new Hn(Pr(e), e.status);
+async function Rr(e) {
+	if (!hr(e)) throw new Gn(Ir(e), 0);
+	if (Lr.includes(e.status)) throw new Gn(Ir(e), e.status);
 	let t;
 	try {
 		t = await e.json();
 	} catch (e) {
-		throw new Nn(Pr(e), e);
+		throw new In(Ir(e), e);
 	}
-	let n, r = Tr(e);
-	if (r && r.getTime() >= On["2024-01-01"].timestamp && typeof t == "object" && t && typeof t.code == "string" ? n = t.code : typeof t == "object" && t && typeof t.error_code == "string" && (n = t.error_code), !n) {
-		if (typeof t == "object" && t && typeof t.weak_password == "object" && t.weak_password && Array.isArray(t.weak_password.reasons) && t.weak_password.reasons.length && t.weak_password.reasons.reduce((e, t) => e && typeof t == "string", !0)) throw new Kn(Pr(t), e.status, t.weak_password.reasons);
-	} else if (n === "weak_password") throw new Kn(Pr(t), e.status, t.weak_password?.reasons || []);
-	else if (n === "session_not_found") throw new k();
-	throw new jn(Pr(t), e.status || 500, n);
+	let n, r = Dr(e);
+	if (r && r.getTime() >= jn["2024-01-01"].timestamp && typeof t == "object" && t && typeof t.code == "string" ? n = t.code : typeof t == "object" && t && typeof t.error_code == "string" && (n = t.error_code), !n) {
+		if (typeof t == "object" && t && typeof t.weak_password == "object" && t.weak_password && Array.isArray(t.weak_password.reasons) && t.weak_password.reasons.length && t.weak_password.reasons.reduce((e, t) => e && typeof t == "string", !0)) throw new Yn(Ir(t), e.status, t.weak_password.reasons);
+	} else if (n === "weak_password") throw new Yn(Ir(t), e.status, t.weak_password?.reasons || []);
+	else if (n === "session_not_found") throw new D();
+	throw new Pn(Ir(t), e.status || 500, n);
 }
-var Lr = (e, t, n, r) => {
+var zr = (e, t, n, r) => {
 	let i = {
 		method: e,
 		headers: t?.headers || {}
 	};
 	return e === "GET" ? i : (i.headers = Object.assign({ "Content-Type": "application/json;charset=UTF-8" }, t?.headers), i.body = JSON.stringify(r), Object.assign(Object.assign({}, i), n));
 };
-async function M(e, t, n, r) {
+async function j(e, t, n, r) {
 	let i = Object.assign({}, r?.headers);
-	i["X-Supabase-Api-Version"] || (i[Dn] = On["2024-01-01"].name), r?.jwt && (i.Authorization = `Bearer ${r.jwt}`);
+	i["X-Supabase-Api-Version"] || (i[An] = jn["2024-01-01"].name), r?.jwt && (i.Authorization = `Bearer ${r.jwt}`);
 	let a = r?.query ?? {};
 	r?.redirectTo && (a.redirect_to = r.redirectTo);
-	let o = await Rr(e, t, n + (Object.keys(a).length ? "?" + new URLSearchParams(a).toString() : ""), {
+	let o = await Br(e, t, n + (Object.keys(a).length ? "?" + new URLSearchParams(a).toString() : ""), {
 		headers: i,
 		noResolveJson: r?.noResolveJson
 	}, {}, r?.body);
@@ -3963,23 +3980,23 @@ async function M(e, t, n, r) {
 		error: null
 	};
 }
-async function Rr(e, t, n, r, i, a) {
-	let o = Lr(t, r, i, a), s;
+async function Br(e, t, n, r, i, a) {
+	let o = zr(t, r, i, a), s;
 	try {
 		s = await e(n, Object.assign({}, o));
 	} catch (e) {
-		throw console.error(e), new Hn(Pr(e), 0);
+		throw console.error(e), new Gn(Ir(e), 0);
 	}
-	if (s.ok || await Ir(s), r?.noResolveJson) return s;
+	if (s.ok || await Rr(s), r?.noResolveJson) return s;
 	try {
 		return await s.json();
 	} catch (e) {
-		await Ir(e);
+		await Rr(e);
 	}
 }
-function N(e) {
+function M(e) {
 	let t = null;
-	Wr(e) && (t = Object.assign({}, e), e.expires_at || (t.expires_at = or(e.expires_in)));
+	Kr(e) && (t = Object.assign({}, e), e.expires_at || (t.expires_at = lr(e.expires_in)));
 	let n = e.user ?? (typeof e?.id == "string" ? e : null);
 	return {
 		data: {
@@ -3989,23 +4006,23 @@ function N(e) {
 		error: null
 	};
 }
-function zr(e) {
-	let t = N(e);
+function Vr(e) {
+	let t = M(e);
 	return !t.error && e.weak_password && typeof e.weak_password == "object" && Array.isArray(e.weak_password.reasons) && e.weak_password.reasons.length && e.weak_password.message && typeof e.weak_password.message == "string" && e.weak_password.reasons.reduce((e, t) => e && typeof t == "string", !0) && (t.data.weak_password = e.weak_password), t;
 }
-function Br(e) {
+function Hr(e) {
 	return {
 		data: { user: e.user ?? e },
 		error: null
 	};
 }
-function Vr(e) {
+function Ur(e) {
 	return {
 		data: e,
 		error: null
 	};
 }
-function Hr(e) {
+function Wr(e) {
 	let { action_link: n, email_otp: r, hashed_token: i, redirect_to: a, verification_type: o } = e, s = t(e, [
 		"action_link",
 		"email_otp",
@@ -4027,21 +4044,21 @@ function Hr(e) {
 		error: null
 	};
 }
-function Ur(e) {
+function Gr(e) {
 	return e;
 }
-function Wr(e) {
+function Kr(e) {
 	return !!e.access_token && !!e.refresh_token && !!e.expires_in;
 }
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/lib/types.js
-var Gr = [
+var qr = [
 	"global",
 	"local",
 	"others"
-], Kr = class {
+], Jr = class {
 	constructor({ url: e = "", headers: t = {}, fetch: n, experimental: r }) {
-		this.url = e, this.headers = t, this.fetch = dr(n), this.experimental = r ?? {}, this.mfa = {
+		this.url = e, this.headers = t, this.fetch = mr(n), this.experimental = r ?? {}, this.mfa = {
 			listFactors: this._listFactors.bind(this),
 			deleteFactor: this._deleteFactor.bind(this)
 		}, this.oauth = {
@@ -4062,10 +4079,10 @@ var Gr = [
 			deletePasskey: this._adminDeletePasskey.bind(this)
 		};
 	}
-	async signOut(e, t = Gr[0]) {
-		if (Gr.indexOf(t) < 0) throw Error(`@supabase/auth-js: Parameter scope must be one of ${Gr.join(", ")}`);
+	async signOut(e, t = qr[0]) {
+		if (qr.indexOf(t) < 0) throw Error(`@supabase/auth-js: Parameter scope must be one of ${qr.join(", ")}`);
 		try {
-			return await M(this.fetch, "POST", `${this.url}/logout?scope=${t}`, {
+			return await j(this.fetch, "POST", `${this.url}/logout?scope=${t}`, {
 				headers: this.headers,
 				jwt: e,
 				noResolveJson: !0
@@ -4074,7 +4091,7 @@ var Gr = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4083,17 +4100,17 @@ var Gr = [
 	}
 	async inviteUserByEmail(e, t = {}) {
 		try {
-			return await M(this.fetch, "POST", `${this.url}/invite`, {
+			return await j(this.fetch, "POST", `${this.url}/invite`, {
 				body: {
 					email: e,
 					data: t.data
 				},
 				headers: this.headers,
 				redirectTo: t.redirectTo,
-				xform: Br
+				xform: Hr
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4103,14 +4120,14 @@ var Gr = [
 	async generateLink(e) {
 		try {
 			let { options: n } = e, r = t(e, ["options"]), i = Object.assign(Object.assign({}, r), n);
-			return "newEmail" in r && (i.new_email = r?.newEmail, delete i.newEmail), await M(this.fetch, "POST", `${this.url}/admin/generate_link`, {
+			return "newEmail" in r && (i.new_email = r?.newEmail, delete i.newEmail), await j(this.fetch, "POST", `${this.url}/admin/generate_link`, {
 				body: i,
 				headers: this.headers,
-				xform: Hr,
+				xform: Wr,
 				redirectTo: n?.redirectTo
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: {
 					properties: null,
 					user: null
@@ -4122,13 +4139,13 @@ var Gr = [
 	}
 	async createUser(e) {
 		try {
-			return await M(this.fetch, "POST", `${this.url}/admin/users`, {
+			return await j(this.fetch, "POST", `${this.url}/admin/users`, {
 				body: e,
 				headers: this.headers,
-				xform: Br
+				xform: Hr
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4141,14 +4158,14 @@ var Gr = [
 				nextPage: null,
 				lastPage: 0,
 				total: 0
-			}, n = await M(this.fetch, "GET", `${this.url}/admin/users`, {
+			}, n = await j(this.fetch, "GET", `${this.url}/admin/users`, {
 				headers: this.headers,
 				noResolveJson: !0,
 				query: {
 					page: (e?.page)?.toString() ?? "",
 					per_page: (e?.perPage)?.toString() ?? ""
 				},
-				xform: Ur
+				xform: Gr
 			});
 			if (n.error) throw n.error;
 			let r = await n.json(), i = n.headers.get("x-total-count") ?? 0, a = n.headers.get("link")?.split(",") ?? [];
@@ -4160,7 +4177,7 @@ var Gr = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: { users: [] },
 				error: e
 			};
@@ -4168,14 +4185,14 @@ var Gr = [
 		}
 	}
 	async getUserById(e) {
-		kr(e);
+		jr(e);
 		try {
-			return await M(this.fetch, "GET", `${this.url}/admin/users/${e}`, {
+			return await j(this.fetch, "GET", `${this.url}/admin/users/${e}`, {
 				headers: this.headers,
-				xform: Br
+				xform: Hr
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4183,15 +4200,15 @@ var Gr = [
 		}
 	}
 	async updateUserById(e, t) {
-		kr(e);
+		jr(e);
 		try {
-			return await M(this.fetch, "PUT", `${this.url}/admin/users/${e}`, {
+			return await j(this.fetch, "PUT", `${this.url}/admin/users/${e}`, {
 				body: t,
 				headers: this.headers,
-				xform: Br
+				xform: Hr
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4199,15 +4216,15 @@ var Gr = [
 		}
 	}
 	async deleteUser(e, t = !1) {
-		kr(e);
+		jr(e);
 		try {
-			return await M(this.fetch, "DELETE", `${this.url}/admin/users/${e}`, {
+			return await j(this.fetch, "DELETE", `${this.url}/admin/users/${e}`, {
 				headers: this.headers,
 				body: { should_soft_delete: t },
-				xform: Br
+				xform: Hr
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: { user: null },
 				error: e
 			};
@@ -4215,9 +4232,9 @@ var Gr = [
 		}
 	}
 	async _listFactors(e) {
-		kr(e.userId);
+		jr(e.userId);
 		try {
-			let { data: t, error: n } = await M(this.fetch, "GET", `${this.url}/admin/users/${e.userId}/factors`, {
+			let { data: t, error: n } = await j(this.fetch, "GET", `${this.url}/admin/users/${e.userId}/factors`, {
 				headers: this.headers,
 				xform: (e) => ({
 					data: { factors: e },
@@ -4229,7 +4246,7 @@ var Gr = [
 				error: n
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4237,14 +4254,14 @@ var Gr = [
 		}
 	}
 	async _deleteFactor(e) {
-		kr(e.userId), kr(e.id);
+		jr(e.userId), jr(e.id);
 		try {
 			return {
-				data: await M(this.fetch, "DELETE", `${this.url}/admin/users/${e.userId}/factors/${e.id}`, { headers: this.headers }),
+				data: await j(this.fetch, "DELETE", `${this.url}/admin/users/${e.userId}/factors/${e.id}`, { headers: this.headers }),
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4257,14 +4274,14 @@ var Gr = [
 				nextPage: null,
 				lastPage: 0,
 				total: 0
-			}, n = await M(this.fetch, "GET", `${this.url}/admin/oauth/clients`, {
+			}, n = await j(this.fetch, "GET", `${this.url}/admin/oauth/clients`, {
 				headers: this.headers,
 				noResolveJson: !0,
 				query: {
 					page: (e?.page)?.toString() ?? "",
 					per_page: (e?.perPage)?.toString() ?? ""
 				},
-				xform: Ur
+				xform: Gr
 			});
 			if (n.error) throw n.error;
 			let r = await n.json(), i = n.headers.get("x-total-count") ?? 0, a = n.headers.get("link")?.split(",") ?? [];
@@ -4276,7 +4293,7 @@ var Gr = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: { clients: [] },
 				error: e
 			};
@@ -4285,7 +4302,7 @@ var Gr = [
 	}
 	async _createOAuthClient(e) {
 		try {
-			return await M(this.fetch, "POST", `${this.url}/admin/oauth/clients`, {
+			return await j(this.fetch, "POST", `${this.url}/admin/oauth/clients`, {
 				body: e,
 				headers: this.headers,
 				xform: (e) => ({
@@ -4294,7 +4311,7 @@ var Gr = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4303,7 +4320,7 @@ var Gr = [
 	}
 	async _getOAuthClient(e) {
 		try {
-			return await M(this.fetch, "GET", `${this.url}/admin/oauth/clients/${e}`, {
+			return await j(this.fetch, "GET", `${this.url}/admin/oauth/clients/${e}`, {
 				headers: this.headers,
 				xform: (e) => ({
 					data: e,
@@ -4311,7 +4328,7 @@ var Gr = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4320,7 +4337,7 @@ var Gr = [
 	}
 	async _updateOAuthClient(e, t) {
 		try {
-			return await M(this.fetch, "PUT", `${this.url}/admin/oauth/clients/${e}`, {
+			return await j(this.fetch, "PUT", `${this.url}/admin/oauth/clients/${e}`, {
 				body: t,
 				headers: this.headers,
 				xform: (e) => ({
@@ -4329,7 +4346,7 @@ var Gr = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4338,7 +4355,7 @@ var Gr = [
 	}
 	async _deleteOAuthClient(e) {
 		try {
-			return await M(this.fetch, "DELETE", `${this.url}/admin/oauth/clients/${e}`, {
+			return await j(this.fetch, "DELETE", `${this.url}/admin/oauth/clients/${e}`, {
 				headers: this.headers,
 				noResolveJson: !0
 			}), {
@@ -4346,7 +4363,7 @@ var Gr = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4355,7 +4372,7 @@ var Gr = [
 	}
 	async _regenerateOAuthClientSecret(e) {
 		try {
-			return await M(this.fetch, "POST", `${this.url}/admin/oauth/clients/${e}/regenerate_secret`, {
+			return await j(this.fetch, "POST", `${this.url}/admin/oauth/clients/${e}/regenerate_secret`, {
 				headers: this.headers,
 				xform: (e) => ({
 					data: e,
@@ -4363,7 +4380,7 @@ var Gr = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4373,7 +4390,7 @@ var Gr = [
 	async _listCustomProviders(e) {
 		try {
 			let t = {};
-			return e?.type && (t.type = e.type), await M(this.fetch, "GET", `${this.url}/admin/custom-providers`, {
+			return e?.type && (t.type = e.type), await j(this.fetch, "GET", `${this.url}/admin/custom-providers`, {
 				headers: this.headers,
 				query: t,
 				xform: (e) => ({
@@ -4382,7 +4399,7 @@ var Gr = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: { providers: [] },
 				error: e
 			};
@@ -4391,7 +4408,7 @@ var Gr = [
 	}
 	async _createCustomProvider(e) {
 		try {
-			return await M(this.fetch, "POST", `${this.url}/admin/custom-providers`, {
+			return await j(this.fetch, "POST", `${this.url}/admin/custom-providers`, {
 				body: e,
 				headers: this.headers,
 				xform: (e) => ({
@@ -4400,7 +4417,7 @@ var Gr = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4409,7 +4426,7 @@ var Gr = [
 	}
 	async _getCustomProvider(e) {
 		try {
-			return await M(this.fetch, "GET", `${this.url}/admin/custom-providers/${e}`, {
+			return await j(this.fetch, "GET", `${this.url}/admin/custom-providers/${e}`, {
 				headers: this.headers,
 				xform: (e) => ({
 					data: e,
@@ -4417,7 +4434,7 @@ var Gr = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4426,7 +4443,7 @@ var Gr = [
 	}
 	async _updateCustomProvider(e, t) {
 		try {
-			return await M(this.fetch, "PUT", `${this.url}/admin/custom-providers/${e}`, {
+			return await j(this.fetch, "PUT", `${this.url}/admin/custom-providers/${e}`, {
 				body: t,
 				headers: this.headers,
 				xform: (e) => ({
@@ -4435,7 +4452,7 @@ var Gr = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4444,7 +4461,7 @@ var Gr = [
 	}
 	async _deleteCustomProvider(e) {
 		try {
-			return await M(this.fetch, "DELETE", `${this.url}/admin/custom-providers/${e}`, {
+			return await j(this.fetch, "DELETE", `${this.url}/admin/custom-providers/${e}`, {
 				headers: this.headers,
 				noResolveJson: !0
 			}), {
@@ -4452,7 +4469,7 @@ var Gr = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4460,9 +4477,9 @@ var Gr = [
 		}
 	}
 	async _adminListPasskeys(e) {
-		Ar(this.experimental), kr(e.userId);
+		Mr(this.experimental), jr(e.userId);
 		try {
-			return await M(this.fetch, "GET", `${this.url}/admin/users/${e.userId}/passkeys`, {
+			return await j(this.fetch, "GET", `${this.url}/admin/users/${e.userId}/passkeys`, {
 				headers: this.headers,
 				xform: (e) => ({
 					data: e,
@@ -4470,7 +4487,7 @@ var Gr = [
 				})
 			});
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4478,9 +4495,9 @@ var Gr = [
 		}
 	}
 	async _adminDeletePasskey(e) {
-		Ar(this.experimental), kr(e.userId), kr(e.passkeyId);
+		Mr(this.experimental), jr(e.userId), jr(e.passkeyId);
 		try {
-			return await M(this.fetch, "DELETE", `${this.url}/admin/users/${e.userId}/passkeys/${e.passkeyId}`, {
+			return await j(this.fetch, "DELETE", `${this.url}/admin/users/${e.userId}/passkeys/${e.passkeyId}`, {
 				headers: this.headers,
 				noResolveJson: !0
 			}), {
@@ -4488,7 +4505,7 @@ var Gr = [
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return {
+			if (E(e)) return {
 				data: null,
 				error: e
 			};
@@ -4498,7 +4515,7 @@ var Gr = [
 };
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/lib/local-storage.js
-function qr(e = {}) {
+function Yr(e = {}) {
 	return {
 		getItem: (t) => e[t] || null,
 		setItem: (t, n) => {
@@ -4509,15 +4526,15 @@ function qr(e = {}) {
 		}
 	};
 }
-globalThis && lr() && globalThis.localStorage && globalThis.localStorage.getItem("supabase.gotrue-js.locks.debug");
-var Jr = class extends Error {
+globalThis && fr() && globalThis.localStorage && globalThis.localStorage.getItem("supabase.gotrue-js.locks.debug");
+var Xr = class extends Error {
 	constructor(e) {
 		super(e), this.isAcquireTimeout = !0;
 	}
 };
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/lib/polyfills.js
-function Yr() {
+function Zr() {
 	if (typeof globalThis != "object") try {
 		Object.defineProperty(Object.prototype, "__magic__", {
 			get: function() {
@@ -4531,18 +4548,18 @@ function Yr() {
 }
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/lib/web3/ethereum.js
-function Xr(e) {
+function Qr(e) {
 	if (!/^0x[a-fA-F0-9]{40}$/.test(e)) throw Error(`@supabase/auth-js: Address "${e}" is invalid.`);
 	return e.toLowerCase();
 }
-function Zr(e) {
+function $r(e) {
 	return parseInt(e, 16);
 }
-function Qr(e) {
+function ei(e) {
 	let t = new TextEncoder().encode(e);
 	return "0x" + Array.from(t, (e) => e.toString(16).padStart(2, "0")).join("");
 }
-function $r(e) {
+function ti(e) {
 	let { chainId: t, domain: n, expirationTime: r, issuedAt: i = /* @__PURE__ */ new Date(), nonce: a, notBefore: o, requestId: s, resources: c, scheme: l, uri: u, version: d } = e;
 	if (!Number.isInteger(t)) throw Error(`@supabase/auth-js: Invalid SIWE message field "chainId". Chain ID must be a EIP-155 chain ID. Provided value: ${t}`);
 	if (!n) throw Error("@supabase/auth-js: Invalid SIWE message field \"domain\". Domain must be provided.");
@@ -4550,7 +4567,7 @@ function $r(e) {
 	if (!u) throw Error("@supabase/auth-js: Invalid SIWE message field \"uri\". URI must be provided.");
 	if (d !== "1") throw Error(`@supabase/auth-js: Invalid SIWE message field "version". Version must be '1'. Provided value: ${d}`);
 	if (e.statement?.includes("\n")) throw Error(`@supabase/auth-js: Invalid SIWE message field "statement". Statement must not include '\\n'. Provided value: ${e.statement}`);
-	let f = Xr(e.address), p = `${l ? `${l}://${n}` : n} wants you to sign in with your Ethereum account:\n${f}\n\n${e.statement ? `${e.statement}\n` : ""}`, m = `URI: ${u}\nVersion: ${d}\nChain ID: ${t}${a ? `\nNonce: ${a}` : ""}\nIssued At: ${i.toISOString()}`;
+	let f = Qr(e.address), p = `${l ? `${l}://${n}` : n} wants you to sign in with your Ethereum account:\n${f}\n\n${e.statement ? `${e.statement}\n` : ""}`, m = `URI: ${u}\nVersion: ${d}\nChain ID: ${t}${a ? `\nNonce: ${a}` : ""}\nIssued At: ${i.toISOString()}`;
 	if (r && (m += `\nExpiration Time: ${r.toISOString()}`), o && (m += `\nNot Before: ${o.toISOString()}`), s && (m += `\nRequest ID: ${s}`), c) {
 		let e = "\nResources:";
 		for (let t of c) {
@@ -4563,7 +4580,7 @@ function $r(e) {
 }
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js
-var P = class extends Error {
+var N = class extends Error {
 	constructor({ message: e, code: t, cause: n, name: r }) {
 		super(e, { cause: n }), this.__isWebAuthnError = !0, this.name = r ?? (n instanceof Error ? n.name : void 0) ?? "Unknown Error", this.code = t;
 	}
@@ -4574,7 +4591,7 @@ var P = class extends Error {
 			code: this.code
 		};
 	}
-}, ei = class extends P {
+}, ni = class extends N {
 	constructor(e, t) {
 		super({
 			code: "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY",
@@ -4583,117 +4600,117 @@ var P = class extends Error {
 		}), this.name = "WebAuthnUnknownError", this.originalError = t;
 	}
 };
-function ti({ error: e, options: t }) {
+function ri({ error: e, options: t }) {
 	let { publicKey: n } = t;
 	if (!n) throw Error("options was missing required publicKey property");
 	if (e.name === "AbortError") {
-		if (t.signal instanceof AbortSignal) return new P({
+		if (t.signal instanceof AbortSignal) return new N({
 			message: "Registration ceremony was sent an abort signal",
 			code: "ERROR_CEREMONY_ABORTED",
 			cause: e
 		});
 	} else if (e.name === "ConstraintError") {
-		if (n.authenticatorSelection?.requireResidentKey === !0) return new P({
+		if (n.authenticatorSelection?.requireResidentKey === !0) return new N({
 			message: "Discoverable credentials were required but no available authenticator supported it",
 			code: "ERROR_AUTHENTICATOR_MISSING_DISCOVERABLE_CREDENTIAL_SUPPORT",
 			cause: e
 		});
-		if (t.mediation === "conditional" && n.authenticatorSelection?.userVerification === "required") return new P({
+		if (t.mediation === "conditional" && n.authenticatorSelection?.userVerification === "required") return new N({
 			message: "User verification was required during automatic registration but it could not be performed",
 			code: "ERROR_AUTO_REGISTER_USER_VERIFICATION_FAILURE",
 			cause: e
 		});
-		if (n.authenticatorSelection?.userVerification === "required") return new P({
+		if (n.authenticatorSelection?.userVerification === "required") return new N({
 			message: "User verification was required but no available authenticator supported it",
 			code: "ERROR_AUTHENTICATOR_MISSING_USER_VERIFICATION_SUPPORT",
 			cause: e
 		});
-	} else if (e.name === "InvalidStateError") return new P({
+	} else if (e.name === "InvalidStateError") return new N({
 		message: "The authenticator was previously registered",
 		code: "ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED",
 		cause: e
 	});
-	else if (e.name === "NotAllowedError") return new P({
+	else if (e.name === "NotAllowedError") return new N({
 		message: e.message,
 		code: "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY",
 		cause: e
 	});
-	else if (e.name === "NotSupportedError") return n.pubKeyCredParams.filter((e) => e.type === "public-key").length === 0 ? new P({
+	else if (e.name === "NotSupportedError") return n.pubKeyCredParams.filter((e) => e.type === "public-key").length === 0 ? new N({
 		message: "No entry in pubKeyCredParams was of type \"public-key\"",
 		code: "ERROR_MALFORMED_PUBKEYCREDPARAMS",
 		cause: e
-	}) : new P({
+	}) : new N({
 		message: "No available authenticator supported any of the specified pubKeyCredParams algorithms",
 		code: "ERROR_AUTHENTICATOR_NO_SUPPORTED_PUBKEYCREDPARAMS_ALG",
 		cause: e
 	});
 	else if (e.name === "SecurityError") {
 		let t = window.location.hostname;
-		if (!ci(t)) return new P({
+		if (!ui(t)) return new N({
 			message: `${window.location.hostname} is an invalid domain`,
 			code: "ERROR_INVALID_DOMAIN",
 			cause: e
 		});
-		if (n.rp.id !== t) return new P({
+		if (n.rp.id !== t) return new N({
 			message: `The RP ID "${n.rp.id}" is invalid for this domain`,
 			code: "ERROR_INVALID_RP_ID",
 			cause: e
 		});
 	} else if (e.name === "TypeError") {
-		if (n.user.id.byteLength < 1 || n.user.id.byteLength > 64) return new P({
+		if (n.user.id.byteLength < 1 || n.user.id.byteLength > 64) return new N({
 			message: "User ID was not between 1 and 64 characters",
 			code: "ERROR_INVALID_USER_ID_LENGTH",
 			cause: e
 		});
-	} else if (e.name === "UnknownError") return new P({
+	} else if (e.name === "UnknownError") return new N({
 		message: "The authenticator was unable to process the specified options, or could not create a new credential",
 		code: "ERROR_AUTHENTICATOR_GENERAL_ERROR",
 		cause: e
 	});
-	return new P({
+	return new N({
 		message: "a Non-Webauthn related error has occurred",
 		code: "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY",
 		cause: e
 	});
 }
-function ni({ error: e, options: t }) {
+function ii({ error: e, options: t }) {
 	let { publicKey: n } = t;
 	if (!n) throw Error("options was missing required publicKey property");
 	if (e.name === "AbortError") {
-		if (t.signal instanceof AbortSignal) return new P({
+		if (t.signal instanceof AbortSignal) return new N({
 			message: "Authentication ceremony was sent an abort signal",
 			code: "ERROR_CEREMONY_ABORTED",
 			cause: e
 		});
-	} else if (e.name === "NotAllowedError") return new P({
+	} else if (e.name === "NotAllowedError") return new N({
 		message: e.message,
 		code: "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY",
 		cause: e
 	});
 	else if (e.name === "SecurityError") {
 		let t = window.location.hostname;
-		if (!ci(t)) return new P({
+		if (!ui(t)) return new N({
 			message: `${window.location.hostname} is an invalid domain`,
 			code: "ERROR_INVALID_DOMAIN",
 			cause: e
 		});
-		if (n.rpId !== t) return new P({
+		if (n.rpId !== t) return new N({
 			message: `The RP ID "${n.rpId}" is invalid for this domain`,
 			code: "ERROR_INVALID_RP_ID",
 			cause: e
 		});
-	} else if (e.name === "UnknownError") return new P({
+	} else if (e.name === "UnknownError") return new N({
 		message: "The authenticator was unable to process the specified options, or could not create a new assertion signature",
 		code: "ERROR_AUTHENTICATOR_GENERAL_ERROR",
 		cause: e
 	});
-	return new P({
+	return new N({
 		message: "a Non-Webauthn related error has occurred",
 		code: "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY",
 		cause: e
 	});
 }
-var ri = new class {
+var ai = new class {
 	createNewAbortSignal() {
 		if (this.controller) {
 			let e = /* @__PURE__ */ Error("Cancelling existing WebAuthn API call for new one");
@@ -4709,14 +4726,14 @@ var ri = new class {
 		}
 	}
 }();
-function ii(e) {
+function oi(e) {
 	if (!e) throw Error("Credential creation options are required");
 	if (typeof PublicKeyCredential < "u" && "parseCreationOptionsFromJSON" in PublicKeyCredential && typeof PublicKeyCredential.parseCreationOptionsFromJSON == "function") return PublicKeyCredential.parseCreationOptionsFromJSON(e);
 	let { challenge: n, user: r, excludeCredentials: i } = e, a = t(e, [
 		"challenge",
 		"user",
 		"excludeCredentials"
-	]), o = rr(n).buffer, s = Object.assign(Object.assign({}, r), { id: rr(r.id).buffer }), c = Object.assign(Object.assign({}, a), {
+	]), o = or(n).buffer, s = Object.assign(Object.assign({}, r), { id: or(r.id).buffer }), c = Object.assign(Object.assign({}, a), {
 		challenge: o,
 		user: s
 	});
@@ -4725,7 +4742,7 @@ function ii(e) {
 		for (let e = 0; e < i.length; e++) {
 			let t = i[e];
 			c.excludeCredentials[e] = Object.assign(Object.assign({}, t), {
-				id: rr(t.id).buffer,
+				id: or(t.id).buffer,
 				type: t.type || "public-key",
 				transports: t.transports
 			});
@@ -4733,16 +4750,16 @@ function ii(e) {
 	}
 	return c;
 }
-function ai(e) {
+function si(e) {
 	if (!e) throw Error("Credential request options are required");
 	if (typeof PublicKeyCredential < "u" && "parseRequestOptionsFromJSON" in PublicKeyCredential && typeof PublicKeyCredential.parseRequestOptionsFromJSON == "function") return PublicKeyCredential.parseRequestOptionsFromJSON(e);
-	let { challenge: n, allowCredentials: r } = e, i = t(e, ["challenge", "allowCredentials"]), a = rr(n).buffer, o = Object.assign(Object.assign({}, i), { challenge: a });
+	let { challenge: n, allowCredentials: r } = e, i = t(e, ["challenge", "allowCredentials"]), a = or(n).buffer, o = Object.assign(Object.assign({}, i), { challenge: a });
 	if (r && r.length > 0) {
 		o.allowCredentials = Array(r.length);
 		for (let e = 0; e < r.length; e++) {
 			let t = r[e];
 			o.allowCredentials[e] = Object.assign(Object.assign({}, t), {
-				id: rr(t.id).buffer,
+				id: or(t.id).buffer,
 				type: t.type || "public-key",
 				transports: t.transports
 			});
@@ -4750,45 +4767,45 @@ function ai(e) {
 	}
 	return o;
 }
-function oi(e) {
+function ci(e) {
 	if ("toJSON" in e && typeof e.toJSON == "function") return e.toJSON();
 	let t = e;
 	return {
 		id: e.id,
 		rawId: e.id,
 		response: {
-			attestationObject: ar(new Uint8Array(e.response.attestationObject)),
-			clientDataJSON: ar(new Uint8Array(e.response.clientDataJSON))
+			attestationObject: cr(new Uint8Array(e.response.attestationObject)),
+			clientDataJSON: cr(new Uint8Array(e.response.clientDataJSON))
 		},
 		type: "public-key",
 		clientExtensionResults: e.getClientExtensionResults(),
 		authenticatorAttachment: t.authenticatorAttachment ?? void 0
 	};
 }
-function si(e) {
+function li(e) {
 	if ("toJSON" in e && typeof e.toJSON == "function") return e.toJSON();
 	let t = e, n = e.getClientExtensionResults(), r = e.response;
 	return {
 		id: e.id,
 		rawId: e.id,
 		response: {
-			authenticatorData: ar(new Uint8Array(r.authenticatorData)),
-			clientDataJSON: ar(new Uint8Array(r.clientDataJSON)),
-			signature: ar(new Uint8Array(r.signature)),
-			userHandle: r.userHandle ? ar(new Uint8Array(r.userHandle)) : void 0
+			authenticatorData: cr(new Uint8Array(r.authenticatorData)),
+			clientDataJSON: cr(new Uint8Array(r.clientDataJSON)),
+			signature: cr(new Uint8Array(r.signature)),
+			userHandle: r.userHandle ? cr(new Uint8Array(r.userHandle)) : void 0
 		},
 		type: "public-key",
 		clientExtensionResults: n,
 		authenticatorAttachment: t.authenticatorAttachment ?? void 0
 	};
 }
-function ci(e) {
+function ui(e) {
 	return e === "localhost" || /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i.test(e);
 }
-function li() {
-	return !!(A() && "PublicKeyCredential" in window && window.PublicKeyCredential && "credentials" in navigator && typeof (navigator == null ? void 0 : navigator.credentials)?.create == "function" && typeof (navigator == null ? void 0 : navigator.credentials)?.get == "function");
+function di() {
+	return !!(O() && "PublicKeyCredential" in window && window.PublicKeyCredential && "credentials" in navigator && typeof (navigator == null ? void 0 : navigator.credentials)?.create == "function" && typeof (navigator == null ? void 0 : navigator.credentials)?.get == "function");
 }
-async function ui(e) {
+async function fi(e) {
 	try {
 		let t = await navigator.credentials.create(e);
 		return t ? t instanceof PublicKeyCredential ? {
@@ -4796,22 +4813,22 @@ async function ui(e) {
 			error: null
 		} : {
 			data: null,
-			error: new ei("Browser returned unexpected credential type", t)
+			error: new ni("Browser returned unexpected credential type", t)
 		} : {
 			data: null,
-			error: new ei("Empty credential response", t)
+			error: new ni("Empty credential response", t)
 		};
 	} catch (t) {
 		return {
 			data: null,
-			error: ti({
+			error: ri({
 				error: t,
 				options: e
 			})
 		};
 	}
 }
-async function di(e) {
+async function pi(e) {
 	try {
 		let t = await navigator.credentials.get(e);
 		return t ? t instanceof PublicKeyCredential ? {
@@ -4819,22 +4836,22 @@ async function di(e) {
 			error: null
 		} : {
 			data: null,
-			error: new ei("Browser returned unexpected credential type", t)
+			error: new ni("Browser returned unexpected credential type", t)
 		} : {
 			data: null,
-			error: new ei("Empty credential response", t)
+			error: new ni("Empty credential response", t)
 		};
 	} catch (t) {
 		return {
 			data: null,
-			error: ni({
+			error: ii({
 				error: t,
 				options: e
 			})
 		};
 	}
 }
-var fi = {
+var mi = {
 	hints: ["security-key"],
 	authenticatorSelection: {
 		authenticatorAttachment: "cross-platform",
@@ -4843,12 +4860,12 @@ var fi = {
 		residentKey: "discouraged"
 	},
 	attestation: "direct"
-}, pi = {
+}, hi = {
 	userVerification: "preferred",
 	hints: ["security-key"],
 	attestation: "direct"
 };
-function mi(...e) {
+function gi(...e) {
 	let t = (e) => typeof e == "object" && !!e && !Array.isArray(e), n = (e) => e instanceof ArrayBuffer || ArrayBuffer.isView(e), r = {};
 	for (let i of e) if (i) for (let e in i) {
 		let a = i[e];
@@ -4856,18 +4873,18 @@ function mi(...e) {
 		else if (n(a)) r[e] = a;
 		else if (t(a)) {
 			let n = r[e];
-			t(n) ? r[e] = mi(n, a) : r[e] = mi(a);
+			t(n) ? r[e] = gi(n, a) : r[e] = gi(a);
 		} else r[e] = a;
 	}
 	return r;
 }
-function hi(e, t) {
-	return mi(fi, e, t || {});
+function _i(e, t) {
+	return gi(mi, e, t || {});
 }
-function gi(e, t) {
-	return mi(pi, e, t || {});
+function vi(e, t) {
+	return gi(hi, e, t || {});
 }
-var _i = class {
+var yi = class {
 	constructor(e) {
 		this.client = e, this.enroll = this._enroll.bind(this), this.challenge = this._challenge.bind(this), this.verify = this._verify.bind(this), this.authenticate = this._authenticate.bind(this), this.register = this._register.bind(this);
 	}
@@ -4884,7 +4901,7 @@ var _i = class {
 				data: null,
 				error: o
 			};
-			let s = r ?? ri.createNewAbortSignal();
+			let s = r ?? ai.createNewAbortSignal();
 			if (a.webauthn.type === "create") {
 				let { user: e } = a.webauthn.credential_options.publicKey;
 				if (!e.name) {
@@ -4899,8 +4916,8 @@ var _i = class {
 			}
 			switch (a.webauthn.type) {
 				case "create": {
-					let { data: t, error: n } = await ui({
-						publicKey: hi(a.webauthn.credential_options.publicKey, i?.create),
+					let { data: t, error: n } = await fi({
+						publicKey: _i(a.webauthn.credential_options.publicKey, i?.create),
 						signal: s
 					});
 					return t ? {
@@ -4919,7 +4936,7 @@ var _i = class {
 					};
 				}
 				case "request": {
-					let t = gi(a.webauthn.credential_options.publicKey, i?.request), { data: n, error: r } = await di(Object.assign(Object.assign({}, a.webauthn.credential_options), {
+					let t = vi(a.webauthn.credential_options.publicKey, i?.request), { data: n, error: r } = await pi(Object.assign(Object.assign({}, a.webauthn.credential_options), {
 						publicKey: t,
 						signal: s
 					}));
@@ -4940,12 +4957,12 @@ var _i = class {
 				}
 			}
 		} catch (e) {
-			return O(e) ? {
+			return E(e) ? {
 				data: null,
 				error: e
 			} : {
 				data: null,
-				error: new Nn("Unexpected error in challenge", e)
+				error: new In("Unexpected error in challenge", e)
 			};
 		}
 	}
@@ -4959,12 +4976,12 @@ var _i = class {
 	async _authenticate({ factorId: e, webauthn: { rpId: t = typeof window < "u" ? window.location.hostname : void 0, rpOrigins: n = typeof window < "u" ? [window.location.origin] : void 0, signal: r } = {} }, i) {
 		if (!t) return {
 			data: null,
-			error: new An("rpId is required for WebAuthn authentication")
+			error: new Nn("rpId is required for WebAuthn authentication")
 		};
 		try {
-			if (!li()) return {
+			if (!di()) return {
 				data: null,
-				error: new Nn("Browser does not support WebAuthn", null)
+				error: new In("Browser does not support WebAuthn", null)
 			};
 			let { data: a, error: o } = await this.challenge({
 				factorId: e,
@@ -4990,24 +5007,24 @@ var _i = class {
 				}
 			});
 		} catch (e) {
-			return O(e) ? {
+			return E(e) ? {
 				data: null,
 				error: e
 			} : {
 				data: null,
-				error: new Nn("Unexpected error in authenticate", e)
+				error: new In("Unexpected error in authenticate", e)
 			};
 		}
 	}
 	async _register({ friendlyName: e, webauthn: { rpId: t = typeof window < "u" ? window.location.hostname : void 0, rpOrigins: n = typeof window < "u" ? [window.location.origin] : void 0, signal: r } = {} }, i) {
 		if (!t) return {
 			data: null,
-			error: new An("rpId is required for WebAuthn registration")
+			error: new Nn("rpId is required for WebAuthn registration")
 		};
 		try {
-			if (!li()) return {
+			if (!di()) return {
 				data: null,
-				error: new Nn("Browser does not support WebAuthn", null)
+				error: new In("Browser does not support WebAuthn", null)
 			};
 			let { data: a, error: o } = await this._enroll({ friendlyName: e });
 			if (!a) return await this.client.mfa.listFactors().then((t) => t.data?.all.find((t) => t.factor_type === "webauthn" && t.friendly_name === e && t.status !== "unverified")).then((e) => e ? this.client.mfa.unenroll({ factorId: e?.id }) : void 0), {
@@ -5037,26 +5054,26 @@ var _i = class {
 				error: c
 			};
 		} catch (e) {
-			return O(e) ? {
+			return E(e) ? {
 				data: null,
 				error: e
 			} : {
 				data: null,
-				error: new Nn("Unexpected error in register", e)
+				error: new In("Unexpected error in register", e)
 			};
 		}
 	}
 };
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/GoTrueClient.js
-Yr();
-var vi = {
-	url: wn,
-	storageKey: Tn,
+Zr();
+var bi = {
+	url: Dn,
+	storageKey: On,
 	autoRefreshToken: !0,
 	persistSession: !0,
 	detectSessionInUrl: !0,
-	headers: En,
+	headers: kn,
 	flowType: "implicit",
 	debug: !1,
 	hasCustomAuthorizationHeader: !1,
@@ -5064,33 +5081,33 @@ var vi = {
 	lockAcquireTimeout: 5e3,
 	skipAutoInitialize: !1,
 	experimental: {}
-}, yi = {}, bi = class e {
+}, xi = {}, Si = class e {
 	get jwks() {
-		return yi[this.storageKey]?.jwks ?? { keys: [] };
+		return xi[this.storageKey]?.jwks ?? { keys: [] };
 	}
 	set jwks(e) {
-		yi[this.storageKey] = Object.assign(Object.assign({}, yi[this.storageKey]), { jwks: e });
+		xi[this.storageKey] = Object.assign(Object.assign({}, xi[this.storageKey]), { jwks: e });
 	}
 	get jwks_cached_at() {
-		return yi[this.storageKey]?.cachedAt ?? -(2 ** 53 - 1);
+		return xi[this.storageKey]?.cachedAt ?? -(2 ** 53 - 1);
 	}
 	set jwks_cached_at(e) {
-		yi[this.storageKey] = Object.assign(Object.assign({}, yi[this.storageKey]), { cachedAt: e });
+		xi[this.storageKey] = Object.assign(Object.assign({}, xi[this.storageKey]), { cachedAt: e });
 	}
 	constructor(t) {
 		var n;
 		this.userStorage = null, this.memoryStorage = null, this.stateChangeEmitters = /* @__PURE__ */ new Map(), this.autoRefreshTicker = null, this.autoRefreshTickTimeout = null, this.visibilityChangedCallback = null, this.refreshingDeferred = null, this.lastRefreshFailure = null, this._sessionRemovalEpoch = 0, this.initializePromise = null, this._pendingInitNotifications = null, this.detectSessionInUrl = !0, this.hasCustomAuthorizationHeader = !1, this.suppressGetSessionWarning = !1, this.lock = null, this.lockAcquired = !1, this.pendingInLock = [], this.broadcastChannel = null, this.logger = console.log;
-		let r = Object.assign(Object.assign({}, vi), t);
-		if (this.storageKey = r.storageKey, this.instanceID = e.nextInstanceID[this.storageKey] ?? 0, e.nextInstanceID[this.storageKey] = this.instanceID + 1, this.logDebugMessages = !!r.debug, typeof r.debug == "function" && (this.logger = r.debug), this.instanceID > 0 && A()) {
+		let r = Object.assign(Object.assign({}, bi), t);
+		if (this.storageKey = r.storageKey, this.instanceID = e.nextInstanceID[this.storageKey] ?? 0, e.nextInstanceID[this.storageKey] = this.instanceID + 1, this.logDebugMessages = !!r.debug, typeof r.debug == "function" && (this.logger = r.debug), this.instanceID > 0 && O()) {
 			let e = `${this._logPrefix()} Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.`;
 			console.warn(e), this.logDebugMessages && console.trace(e);
 		}
-		if (this.persistSession = r.persistSession, this.autoRefreshToken = r.autoRefreshToken, this.experimental = r.experimental ?? {}, this.admin = new Kr({
+		if (this.persistSession = r.persistSession, this.autoRefreshToken = r.autoRefreshToken, this.experimental = r.experimental ?? {}, this.admin = new Jr({
 			url: r.url,
 			headers: r.headers,
 			fetch: r.fetch,
 			experimental: this.experimental
-		}), this.url = r.url, this.headers = r.headers, this.fetch = dr(r.fetch), this.detectSessionInUrl = r.detectSessionInUrl, this.flowType = r.flowType, this.hasCustomAuthorizationHeader = r.hasCustomAuthorizationHeader, this.throwOnError = r.throwOnError, this.lockAcquireTimeout = r.lockAcquireTimeout, r.lock != null && (this.lock = r.lock), this.jwks || (this.jwks = { keys: [] }, this.jwks_cached_at = -(2 ** 53 - 1)), this.mfa = {
+		}), this.url = r.url, this.headers = r.headers, this.fetch = mr(r.fetch), this.detectSessionInUrl = r.detectSessionInUrl, this.flowType = r.flowType, this.hasCustomAuthorizationHeader = r.hasCustomAuthorizationHeader, this.throwOnError = r.throwOnError, this.lockAcquireTimeout = r.lockAcquireTimeout, r.lock != null && (this.lock = r.lock), this.jwks || (this.jwks = { keys: [] }, this.jwks_cached_at = -(2 ** 53 - 1)), this.mfa = {
 			verify: this._verify.bind(this),
 			enroll: this._enroll.bind(this),
 			unenroll: this._unenroll.bind(this),
@@ -5098,7 +5115,7 @@ var vi = {
 			listFactors: this._listFactors.bind(this),
 			challengeAndVerify: this._challengeAndVerify.bind(this),
 			getAuthenticatorAssuranceLevel: this._getAuthenticatorAssuranceLevel.bind(this),
-			webauthn: new _i(this)
+			webauthn: new yi(this)
 		}, this.oauth = {
 			getAuthorizationDetails: this._getAuthorizationDetails.bind(this),
 			approveAuthorization: this._approveAuthorization.bind(this),
@@ -5113,7 +5130,7 @@ var vi = {
 			list: this._listPasskeys.bind(this),
 			update: this._updatePasskey.bind(this),
 			delete: this._deletePasskey.bind(this)
-		}, this.persistSession ? (r.storage ? this.storage = r.storage : lr() ? this.storage = globalThis.localStorage : (this.memoryStorage = {}, this.storage = qr(this.memoryStorage)), r.userStorage && (this.userStorage = r.userStorage)) : (this.memoryStorage = {}, this.storage = qr(this.memoryStorage)), A() && globalThis.BroadcastChannel && this.persistSession && this.storageKey) {
+		}, this.persistSession ? (r.storage ? this.storage = r.storage : fr() ? this.storage = globalThis.localStorage : (this.memoryStorage = {}, this.storage = Yr(this.memoryStorage)), r.userStorage && (this.userStorage = r.userStorage)) : (this.memoryStorage = {}, this.storage = Yr(this.memoryStorage)), O() && globalThis.BroadcastChannel && this.persistSession && this.storageKey) {
 			try {
 				this.broadcastChannel = new globalThis.BroadcastChannel(this.storageKey);
 			} catch (e) {
@@ -5140,7 +5157,7 @@ var vi = {
 		return e;
 	}
 	_logPrefix() {
-		return `GoTrueClient@${this.storageKey}:${this.instanceID} (${bn}) ${(/* @__PURE__ */ new Date()).toISOString()}`;
+		return `GoTrueClient@${this.storageKey}:${this.instanceID} (${Cn}) ${(/* @__PURE__ */ new Date()).toISOString()}`;
 	}
 	_debug(...e) {
 		return this.logDebugMessages && this.logger(this._logPrefix(), ...e), this;
@@ -5156,10 +5173,10 @@ var vi = {
 	async _initialize() {
 		try {
 			let e = {}, t = "none";
-			if (A() && (e = ur(window.location.href), this._isImplicitGrantCallback(e) ? t = "implicit" : await this._isPKCECallback(e) && (t = "pkce")), A() && this.detectSessionInUrl && t !== "none") {
+			if (O() && (e = pr(window.location.href), this._isImplicitGrantCallback(e) ? t = "implicit" : await this._isPKCECallback(e) && (t = "pkce")), O() && this.detectSessionInUrl && t !== "none") {
 				let { data: n, error: r } = await this._getSessionFromURL(e, t);
 				if (r) {
-					if (this._debug("#_initialize()", "error detecting session from URL", r), zn(r)) {
+					if (this._debug("#_initialize()", "error detecting session from URL", r), Hn(r)) {
 						let e = r.details?.code;
 						if (e === "identity_already_exists" || e === "identity_not_found" || e === "single_identity_not_deletable") return { error: r };
 					}
@@ -5172,20 +5189,20 @@ var vi = {
 			}
 			return await this._recoverAndRefresh(), { error: null };
 		} catch (e) {
-			return O(e) ? this._returnResult({ error: e }) : this._returnResult({ error: new Nn("Unexpected error during initialization", e) });
+			return E(e) ? this._returnResult({ error: e }) : this._returnResult({ error: new In("Unexpected error during initialization", e) });
 		} finally {
 			await this._handleVisibilityChange(), this._debug("#_initialize()", "end");
 		}
 	}
 	async signInAnonymously(e) {
 		try {
-			let { data: t, error: n } = await M(this.fetch, "POST", `${this.url}/signup`, {
+			let { data: t, error: n } = await j(this.fetch, "POST", `${this.url}/signup`, {
 				headers: this.headers,
 				body: {
 					data: e?.options?.data ?? {},
 					gotrue_meta_security: { captcha_token: e?.options?.captchaToken }
 				},
-				xform: N
+				xform: M
 			});
 			if (n || !t) return this._returnResult({
 				data: {
@@ -5203,7 +5220,7 @@ var vi = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5218,7 +5235,7 @@ var vi = {
 			let t;
 			if ("email" in e) {
 				let { email: n, password: r, options: i } = e, a = null, o = null;
-				this.flowType === "pkce" && ([a, o] = await Cr(this.storage, this.storageKey)), t = await M(this.fetch, "POST", `${this.url}/signup`, {
+				this.flowType === "pkce" && ([a, o] = await Tr(this.storage, this.storageKey)), t = await j(this.fetch, "POST", `${this.url}/signup`, {
 					headers: this.headers,
 					redirectTo: i?.emailRedirectTo,
 					body: {
@@ -5229,11 +5246,11 @@ var vi = {
 						code_challenge: a,
 						code_challenge_method: o
 					},
-					xform: N
+					xform: M
 				});
 			} else if ("phone" in e) {
 				let { phone: n, password: r, options: i } = e;
-				t = await M(this.fetch, "POST", `${this.url}/signup`, {
+				t = await j(this.fetch, "POST", `${this.url}/signup`, {
 					headers: this.headers,
 					body: {
 						phone: n,
@@ -5242,11 +5259,11 @@ var vi = {
 						channel: i?.channel ?? "sms",
 						gotrue_meta_security: { captcha_token: i?.captchaToken }
 					},
-					xform: N
+					xform: M
 				});
-			} else throw new Ln("You must provide either an email or phone number and a password");
+			} else throw new Bn("You must provide either an email or phone number and a password");
 			let { data: n, error: r } = t;
-			if (r || !n) return await j(this.storage, `${this.storageKey}-code-verifier`), this._returnResult({
+			if (r || !n) return await A(this.storage, `${this.storageKey}-code-verifier`), this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5262,7 +5279,7 @@ var vi = {
 				error: null
 			});
 		} catch (e) {
-			if (await j(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await A(this.storage, `${this.storageKey}-code-verifier`), E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5277,27 +5294,27 @@ var vi = {
 			let t;
 			if ("email" in e) {
 				let { email: n, password: r, options: i } = e;
-				t = await M(this.fetch, "POST", `${this.url}/token?grant_type=password`, {
+				t = await j(this.fetch, "POST", `${this.url}/token?grant_type=password`, {
 					headers: this.headers,
 					body: {
 						email: n,
 						password: r,
 						gotrue_meta_security: { captcha_token: i?.captchaToken }
 					},
-					xform: zr
+					xform: Vr
 				});
 			} else if ("phone" in e) {
 				let { phone: n, password: r, options: i } = e;
-				t = await M(this.fetch, "POST", `${this.url}/token?grant_type=password`, {
+				t = await j(this.fetch, "POST", `${this.url}/token?grant_type=password`, {
 					headers: this.headers,
 					body: {
 						phone: n,
 						password: r,
 						gotrue_meta_security: { captcha_token: i?.captchaToken }
 					},
-					xform: zr
+					xform: Vr
 				});
-			} else throw new Ln("You must provide either an email or phone number and a password");
+			} else throw new Bn("You must provide either an email or phone number and a password");
 			let { data: n, error: r } = t;
 			if (r) return this._returnResult({
 				data: {
@@ -5307,7 +5324,7 @@ var vi = {
 				error: r
 			});
 			if (!n || !n.session || !n.user) {
-				let e = new In();
+				let e = new zn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5324,7 +5341,7 @@ var vi = {
 				error: r
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5358,7 +5375,7 @@ var vi = {
 		if ("message" in e) t = e.message, n = e.signature;
 		else {
 			let { chain: r, wallet: i, statement: a, options: o } = e, s;
-			if (!A()) {
+			if (!O()) {
 				if (typeof i != "object" || !o?.url) throw Error("@supabase/auth-js: Both wallet and url must be specified in non-browser environments.");
 				s = i;
 			} else if (typeof i == "object") s = i;
@@ -5371,8 +5388,8 @@ var vi = {
 				throw Error("@supabase/auth-js: Wallet method eth_requestAccounts is missing or invalid");
 			});
 			if (!l || l.length === 0) throw Error("@supabase/auth-js: No accounts available. Please ensure the wallet is connected.");
-			let u = Xr(l[0]), d = o?.signInWithEthereum?.chainId;
-			d ||= Zr(await s.request({ method: "eth_chainId" })), t = $r({
+			let u = Qr(l[0]), d = o?.signInWithEthereum?.chainId;
+			d ||= $r(await s.request({ method: "eth_chainId" })), t = ti({
 				domain: c.host,
 				address: u,
 				statement: a,
@@ -5387,22 +5404,22 @@ var vi = {
 				resources: o?.signInWithEthereum?.resources
 			}), n = await s.request({
 				method: "personal_sign",
-				params: [Qr(t), u]
+				params: [ei(t), u]
 			});
 		}
 		try {
-			let { data: r, error: i } = await M(this.fetch, "POST", `${this.url}/token?grant_type=web3`, {
+			let { data: r, error: i } = await j(this.fetch, "POST", `${this.url}/token?grant_type=web3`, {
 				headers: this.headers,
 				body: Object.assign({
 					chain: "ethereum",
 					message: t,
 					signature: n
 				}, e.options?.captchaToken ? { gotrue_meta_security: { captcha_token: e.options?.captchaToken } } : null),
-				xform: N
+				xform: M
 			});
 			if (i) throw i;
 			if (!r || !r.session || !r.user) {
-				let e = new In();
+				let e = new zn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5416,7 +5433,7 @@ var vi = {
 				error: i
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5431,7 +5448,7 @@ var vi = {
 		if ("message" in e) t = e.message, n = e.signature;
 		else {
 			let { chain: r, wallet: i, statement: a, options: o } = e, s;
-			if (!A()) {
+			if (!O()) {
 				if (typeof i != "object" || !o?.url) throw Error("@supabase/auth-js: Both wallet and url must be specified in non-browser environments.");
 				s = i;
 			} else if (typeof i == "object") s = i;
@@ -5478,18 +5495,18 @@ var vi = {
 			}
 		}
 		try {
-			let { data: r, error: i } = await M(this.fetch, "POST", `${this.url}/token?grant_type=web3`, {
+			let { data: r, error: i } = await j(this.fetch, "POST", `${this.url}/token?grant_type=web3`, {
 				headers: this.headers,
 				body: Object.assign({
 					chain: "solana",
 					message: t,
-					signature: ar(n)
+					signature: cr(n)
 				}, e.options?.captchaToken ? { gotrue_meta_security: { captcha_token: e.options?.captchaToken } } : null),
-				xform: N
+				xform: M
 			});
 			if (i) throw i;
 			if (!r || !r.session || !r.user) {
-				let e = new In();
+				let e = new zn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5503,7 +5520,7 @@ var vi = {
 				error: i
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5514,20 +5531,20 @@ var vi = {
 		}
 	}
 	async _exchangeCodeForSession(e) {
-		let [t, n] = (await mr(this.storage, `${this.storageKey}-code-verifier`) ?? "").split("/");
+		let [t, n] = (await k(this.storage, `${this.storageKey}-code-verifier`) ?? "").split("/");
 		try {
-			if (!t && this.flowType === "pkce") throw new Vn();
-			let { data: r, error: i } = await M(this.fetch, "POST", `${this.url}/token?grant_type=pkce`, {
+			if (!t && this.flowType === "pkce") throw new Wn();
+			let { data: r, error: i } = await j(this.fetch, "POST", `${this.url}/token?grant_type=pkce`, {
 				headers: this.headers,
 				body: {
 					auth_code: e,
 					code_verifier: t
 				},
-				xform: N
+				xform: M
 			});
-			if (await j(this.storage, `${this.storageKey}-code-verifier`), i) throw i;
+			if (await A(this.storage, `${this.storageKey}-code-verifier`), i) throw i;
 			if (!r || !r.session || !r.user) {
-				let e = new In();
+				let e = new zn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5542,7 +5559,7 @@ var vi = {
 				error: i
 			});
 		} catch (e) {
-			if (await j(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await A(this.storage, `${this.storageKey}-code-verifier`), E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null,
@@ -5555,7 +5572,7 @@ var vi = {
 	}
 	async signInWithIdToken(e) {
 		try {
-			let { options: t, provider: n, token: r, access_token: i, nonce: a } = e, { data: o, error: s } = await M(this.fetch, "POST", `${this.url}/token?grant_type=id_token`, {
+			let { options: t, provider: n, token: r, access_token: i, nonce: a } = e, { data: o, error: s } = await j(this.fetch, "POST", `${this.url}/token?grant_type=id_token`, {
 				headers: this.headers,
 				body: {
 					provider: n,
@@ -5564,7 +5581,7 @@ var vi = {
 					nonce: a,
 					gotrue_meta_security: { captcha_token: t?.captchaToken }
 				},
-				xform: N
+				xform: M
 			});
 			if (s) return this._returnResult({
 				data: {
@@ -5574,7 +5591,7 @@ var vi = {
 				error: s
 			});
 			if (!o || !o.session || !o.user) {
-				let e = new In();
+				let e = new zn();
 				return this._returnResult({
 					data: {
 						user: null,
@@ -5588,7 +5605,7 @@ var vi = {
 				error: s
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5602,8 +5619,8 @@ var vi = {
 		try {
 			if ("email" in e) {
 				let { email: t, options: n } = e, r = null, i = null;
-				this.flowType === "pkce" && ([r, i] = await Cr(this.storage, this.storageKey));
-				let { error: a } = await M(this.fetch, "POST", `${this.url}/otp`, {
+				this.flowType === "pkce" && ([r, i] = await Tr(this.storage, this.storageKey));
+				let { error: a } = await j(this.fetch, "POST", `${this.url}/otp`, {
 					headers: this.headers,
 					body: {
 						email: t,
@@ -5624,7 +5641,7 @@ var vi = {
 				});
 			}
 			if ("phone" in e) {
-				let { phone: t, options: n } = e, { data: r, error: i } = await M(this.fetch, "POST", `${this.url}/otp`, {
+				let { phone: t, options: n } = e, { data: r, error: i } = await j(this.fetch, "POST", `${this.url}/otp`, {
 					headers: this.headers,
 					body: {
 						phone: t,
@@ -5643,9 +5660,9 @@ var vi = {
 					error: i
 				});
 			}
-			throw new Ln("You must provide either an email or phone number.");
+			throw new Bn("You must provide either an email or phone number.");
 		} catch (e) {
-			if (await j(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await A(this.storage, `${this.storageKey}-code-verifier`), E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5659,11 +5676,11 @@ var vi = {
 		try {
 			let t, n;
 			"options" in e && (t = e.options?.redirectTo, n = e.options?.captchaToken);
-			let { data: r, error: i } = await M(this.fetch, "POST", `${this.url}/verify`, {
+			let { data: r, error: i } = await j(this.fetch, "POST", `${this.url}/verify`, {
 				headers: this.headers,
 				body: Object.assign(Object.assign({}, e), { gotrue_meta_security: { captcha_token: n } }),
 				redirectTo: t,
-				xform: N
+				xform: M
 			});
 			if (i) throw i;
 			if (!r) throw /* @__PURE__ */ Error("An error occurred on token verification.");
@@ -5676,7 +5693,7 @@ var vi = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5689,19 +5706,19 @@ var vi = {
 	async signInWithSSO(e) {
 		try {
 			let t = null, n = null;
-			this.flowType === "pkce" && ([t, n] = await Cr(this.storage, this.storageKey));
-			let r = await M(this.fetch, "POST", `${this.url}/sso`, {
+			this.flowType === "pkce" && ([t, n] = await Tr(this.storage, this.storageKey));
+			let r = await j(this.fetch, "POST", `${this.url}/sso`, {
 				body: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, "providerId" in e ? { provider_id: e.providerId } : null), "domain" in e ? { domain: e.domain } : null), { redirect_to: e.options?.redirectTo ?? void 0 }), e?.options?.captchaToken ? { gotrue_meta_security: { captcha_token: e.options.captchaToken } } : null), {
 					skip_http_redirect: !0,
 					code_challenge: t,
 					code_challenge_method: n
 				}),
 				headers: this.headers,
-				xform: Vr
+				xform: Ur
 			});
-			return r.data?.url && A() && !e.options?.skipBrowserRedirect && window.location.assign(r.data.url), this._returnResult(r);
+			return r.data?.url && O() && !e.options?.skipBrowserRedirect && window.location.assign(r.data.url), this._returnResult(r);
 		} catch (e) {
-			if (await j(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await A(this.storage, `${this.storageKey}-code-verifier`), E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -5716,8 +5733,8 @@ var vi = {
 			return await this._useSession(async (e) => {
 				let { data: { session: t }, error: n } = e;
 				if (n) throw n;
-				if (!t) throw new k();
-				let { error: r } = await M(this.fetch, "GET", `${this.url}/reauthenticate`, {
+				if (!t) throw new D();
+				let { error: r } = await j(this.fetch, "GET", `${this.url}/reauthenticate`, {
 					headers: this.headers,
 					jwt: t.access_token
 				});
@@ -5730,7 +5747,7 @@ var vi = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5745,8 +5762,8 @@ var vi = {
 			let t = `${this.url}/resend`;
 			if ("email" in e) {
 				let { email: n, type: r, options: i } = e, a = null, o = null;
-				this.flowType === "pkce" && ([a, o] = await Cr(this.storage, this.storageKey));
-				let { error: s } = await M(this.fetch, "POST", t, {
+				this.flowType === "pkce" && ([a, o] = await Tr(this.storage, this.storageKey));
+				let { error: s } = await j(this.fetch, "POST", t, {
 					headers: this.headers,
 					body: {
 						email: n,
@@ -5757,7 +5774,7 @@ var vi = {
 					},
 					redirectTo: i?.emailRedirectTo
 				});
-				return s && await j(this.storage, `${this.storageKey}-code-verifier`), this._returnResult({
+				return s && await A(this.storage, `${this.storageKey}-code-verifier`), this._returnResult({
 					data: {
 						user: null,
 						session: null
@@ -5765,7 +5782,7 @@ var vi = {
 					error: s
 				});
 			} else if ("phone" in e) {
-				let { phone: n, type: r, options: i } = e, { data: a, error: o } = await M(this.fetch, "POST", t, {
+				let { phone: n, type: r, options: i } = e, { data: a, error: o } = await j(this.fetch, "POST", t, {
 					headers: this.headers,
 					body: {
 						phone: n,
@@ -5782,9 +5799,9 @@ var vi = {
 					error: o
 				});
 			}
-			throw new Ln("You must provide either an email or phone number and a type");
+			throw new Bn("You must provide either an email or phone number and a type");
 		} catch (e) {
-			if (await j(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await A(this.storage, `${this.storageKey}-code-verifier`), E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -5841,20 +5858,20 @@ var vi = {
 	async __loadSession() {
 		this._debug("#__loadSession()", "begin"), this.lock != null && !this.lockAcquired && this._debug("#__loadSession()", "used outside of an acquired lock!", (/* @__PURE__ */ Error()).stack);
 		try {
-			let e = null, t = await mr(this.storage, this.storageKey);
+			let e = null, t = await k(this.storage, this.storageKey);
 			if (this._debug("#getSession()", "session from storage", t), t !== null && (this._isValidSession(t) ? e = t : (this._debug("#getSession()", "session from storage is not valid"), await this._removeSession())), !e) return {
 				data: { session: null },
 				error: null
 			};
-			let n = e.expires_at ? e.expires_at * 1e3 - Date.now() < Sn : !1;
+			let n = e.expires_at ? e.expires_at * 1e3 - Date.now() < Tn : !1;
 			if (this._debug("#__loadSession()", `session has${n ? "" : " not"} expired`, "expires_at", e.expires_at), !n) {
 				if (this.userStorage) {
-					let t = await mr(this.userStorage, this.storageKey + "-user");
-					t?.user ? e.user = t.user : e.user = jr();
+					let t = await k(this.userStorage, this.storageKey + "-user");
+					t?.user ? e.user = t.user : e.user = Nr();
 				}
 				if (this.storage.isServer && e.user && !e.user.__isUserNotAvailableProxy) {
 					let t = { value: this.suppressGetSessionWarning };
-					e.user = Mr(e.user, t), t.value && (this.suppressGetSessionWarning = !0);
+					e.user = Pr(e.user, t), t.value && (this.suppressGetSessionWarning = !0);
 				}
 				return {
 					data: { session: e },
@@ -5864,7 +5881,7 @@ var vi = {
 			let { data: r, error: i } = await this._callRefreshToken(e.refresh_token);
 			if (i) {
 				if (e.expires_at && e.expires_at * 1e3 > Date.now()) {
-					let t = await mr(this.storage, this.storageKey);
+					let t = await k(this.storage, this.storageKey);
 					if (t && t.refresh_token === e.refresh_token) return this._returnResult({
 						data: { session: e },
 						error: null
@@ -5891,24 +5908,24 @@ var vi = {
 	}
 	async _getUser(e) {
 		try {
-			return e ? await M(this.fetch, "GET", `${this.url}/user`, {
+			return e ? await j(this.fetch, "GET", `${this.url}/user`, {
 				headers: this.headers,
 				jwt: e,
-				xform: Br
+				xform: Hr
 			}) : await this._useSession(async (e) => {
 				let { data: t, error: n } = e;
 				if (n) throw n;
 				return !t.session?.access_token && !this.hasCustomAuthorizationHeader ? {
 					data: { user: null },
-					error: new k()
-				} : await M(this.fetch, "GET", `${this.url}/user`, {
+					error: new D()
+				} : await j(this.fetch, "GET", `${this.url}/user`, {
 					headers: this.headers,
 					jwt: t.session?.access_token ?? void 0,
-					xform: Br
+					xform: Hr
 				});
 			});
 		} catch (e) {
-			if (O(e)) return Fn(e) && (await this._removeSession(), await j(this.storage, `${this.storageKey}-code-verifier`)), this._returnResult({
+			if (E(e)) return Rn(e) && (await this._removeSession(), await A(this.storage, `${this.storageKey}-code-verifier`)), this._returnResult({
 				data: { user: null },
 				error: e
 			});
@@ -5923,10 +5940,10 @@ var vi = {
 			return await this._useSession(async (n) => {
 				let { data: r, error: i } = n;
 				if (i) throw i;
-				if (!r.session) throw new k();
+				if (!r.session) throw new D();
 				let a = r.session, o = null, s = null;
-				this.flowType === "pkce" && e.email != null && ([o, s] = await Cr(this.storage, this.storageKey));
-				let { data: c, error: l } = await M(this.fetch, "PUT", `${this.url}/user`, {
+				this.flowType === "pkce" && e.email != null && ([o, s] = await Tr(this.storage, this.storageKey));
+				let { data: c, error: l } = await j(this.fetch, "PUT", `${this.url}/user`, {
 					headers: this.headers,
 					redirectTo: t?.emailRedirectTo,
 					body: Object.assign(Object.assign({}, e), {
@@ -5934,7 +5951,7 @@ var vi = {
 						code_challenge_method: s
 					}),
 					jwt: a.access_token,
-					xform: Br
+					xform: Hr
 				});
 				if (l) throw l;
 				return a.user = c.user, await this._saveSession(a), await this._notifyAllSubscribers("USER_UPDATED", a), this._returnResult({
@@ -5943,7 +5960,7 @@ var vi = {
 				});
 			});
 		} catch (e) {
-			if (await j(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await A(this.storage, `${this.storageKey}-code-verifier`), E(e)) return this._returnResult({
 				data: { user: null },
 				error: e
 			});
@@ -5955,8 +5972,8 @@ var vi = {
 	}
 	async _setSession(e) {
 		try {
-			if (!e.access_token || !e.refresh_token) throw new k();
-			let t = Date.now() / 1e3, n = t, r = !0, i = null, { payload: a } = gr(e.access_token);
+			if (!e.access_token || !e.refresh_token) throw new D();
+			let t = Date.now() / 1e3, n = t, r = !0, i = null, { payload: a } = vr(e.access_token);
 			if (a.exp && (n = a.exp, r = n <= t), r) {
 				let { data: t, error: n } = await this._callRefreshToken(e.refresh_token);
 				if (n) return this._returnResult({
@@ -6000,7 +6017,7 @@ var vi = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					session: null,
 					user: null
@@ -6021,7 +6038,7 @@ var vi = {
 					if (r) throw r;
 					e = n.session ?? void 0;
 				}
-				if (!e?.refresh_token) throw new k();
+				if (!e?.refresh_token) throw new D();
 				let { data: n, error: r } = await this._callRefreshToken(e.refresh_token);
 				return r ? this._returnResult({
 					data: {
@@ -6044,7 +6061,7 @@ var vi = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					user: null,
 					session: null
@@ -6056,22 +6073,22 @@ var vi = {
 	}
 	async _getSessionFromURL(e, t) {
 		try {
-			if (!A()) throw new Rn("No browser detected.");
-			if (e.error || e.error_description || e.error_code) throw new Rn(e.error_description || "Error in URL with unspecified error_description", {
+			if (!O()) throw new Vn("No browser detected.");
+			if (e.error || e.error_description || e.error_code) throw new Vn(e.error_description || "Error in URL with unspecified error_description", {
 				error: e.error || "unspecified_error",
 				code: e.error_code || "unspecified_code"
 			});
 			switch (t) {
 				case "implicit":
-					if (this.flowType === "pkce") throw new Bn("Not a valid PKCE flow url.");
+					if (this.flowType === "pkce") throw new Un("Not a valid PKCE flow url.");
 					break;
 				case "pkce":
-					if (this.flowType === "implicit") throw new Rn("Not a valid implicit grant flow url.");
+					if (this.flowType === "implicit") throw new Vn("Not a valid implicit grant flow url.");
 					break;
 				default:
 			}
 			if (t === "pkce") {
-				if (this._debug("#_initialize()", "begin", "is PKCE flow", !0), !e.code) throw new Bn("No code detected.");
+				if (this._debug("#_initialize()", "begin", "is PKCE flow", !0), !e.code) throw new Un("No code detected.");
 				let { data: t, error: n } = await this._exchangeCodeForSession(e.code);
 				if (n) throw n;
 				let r = new URL(window.location.href);
@@ -6084,7 +6101,7 @@ var vi = {
 				};
 			}
 			let { provider_token: n, provider_refresh_token: r, access_token: i, refresh_token: a, expires_in: o, expires_at: s, token_type: c } = e;
-			if (!i || !o || !a || !c) throw new Rn("No session defined in URL");
+			if (!i || !o || !a || !c) throw new Vn("No session defined in URL");
 			let l = Math.round(Date.now() / 1e3), u = parseInt(o), d = l + u;
 			s && (d = parseInt(s));
 			let f = d - l;
@@ -6111,7 +6128,7 @@ var vi = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: {
 					session: null,
 					redirectType: null
@@ -6125,7 +6142,7 @@ var vi = {
 		return typeof this.detectSessionInUrl == "function" ? this.detectSessionInUrl(new URL(window.location.href), e) : !!(e.access_token || e.error || e.error_description || e.error_code);
 	}
 	async _isPKCECallback(e) {
-		let t = await mr(this.storage, `${this.storageKey}-code-verifier`);
+		let t = await k(this.storage, `${this.storageKey}-code-verifier`);
 		return !!(e.code && t);
 	}
 	async signOut(e = { scope: "global" }) {
@@ -6134,19 +6151,19 @@ var vi = {
 	async _signOut({ scope: e } = { scope: "global" }) {
 		return await this._useSession(async (t) => {
 			let n = async () => {
-				await this._removeSession(), await j(this.storage, `${this.storageKey}-code-verifier`);
+				await this._removeSession(), await A(this.storage, `${this.storageKey}-code-verifier`);
 			}, { data: r, error: i } = t;
-			if (i && !Fn(i)) return this._returnResult({ error: i });
+			if (i && !Rn(i)) return this._returnResult({ error: i });
 			let a = r.session?.access_token;
 			if (a) {
 				let { error: t } = await this.admin.signOut(a, e);
-				if (t && !(Mn(t) && (t.status === 404 || t.status === 401 || t.status === 403) || Fn(t))) return e !== "others" && await n(), this._returnResult({ error: t });
+				if (t && !(Fn(t) && (t.status === 404 || t.status === 401 || t.status === 403) || Rn(t))) return e !== "others" && await n(), this._returnResult({ error: t });
 			}
 			return e !== "others" && await n(), this._returnResult({ error: null });
 		});
 	}
 	onAuthStateChange(e) {
-		let t = sr(), n = {
+		let t = ur(), n = {
 			id: t,
 			callback: e,
 			unsubscribe: () => {
@@ -6166,15 +6183,15 @@ var vi = {
 				if (r) throw r;
 				await this.stateChangeEmitters.get(e)?.callback("INITIAL_SESSION", n), this._debug("INITIAL_SESSION", "callback id", e, "session", n);
 			} catch (t) {
-				await this.stateChangeEmitters.get(e)?.callback("INITIAL_SESSION", null), this._debug("INITIAL_SESSION", "callback id", e, "error", t), Fn(t) ? console.warn(t) : console.error(t);
+				await this.stateChangeEmitters.get(e)?.callback("INITIAL_SESSION", null), this._debug("INITIAL_SESSION", "callback id", e, "error", t), Rn(t) ? console.warn(t) : console.error(t);
 			}
 		});
 	}
 	async resetPasswordForEmail(e, t = {}) {
 		let n = null, r = null;
-		this.flowType === "pkce" && ([n, r] = await Cr(this.storage, this.storageKey, !0));
+		this.flowType === "pkce" && ([n, r] = await Tr(this.storage, this.storageKey, !0));
 		try {
-			return await M(this.fetch, "POST", `${this.url}/recover`, {
+			return await j(this.fetch, "POST", `${this.url}/recover`, {
 				body: {
 					email: e,
 					code_challenge: n,
@@ -6185,7 +6202,7 @@ var vi = {
 				redirectTo: t.redirectTo
 			});
 		} catch (e) {
-			if (await j(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+			if (await A(this.storage, `${this.storageKey}-code-verifier`), E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6201,7 +6218,7 @@ var vi = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6222,13 +6239,13 @@ var vi = {
 					queryParams: e.options?.queryParams,
 					skipBrowserRedirect: !0
 				});
-				return await M(this.fetch, "GET", i, {
+				return await j(this.fetch, "GET", i, {
 					headers: this.headers,
 					jwt: n.session?.access_token ?? void 0
 				});
 			});
 			if (n) throw n;
-			return A() && !e.options?.skipBrowserRedirect && window.location.assign(t?.url), this._returnResult({
+			return O() && !e.options?.skipBrowserRedirect && window.location.assign(t?.url), this._returnResult({
 				data: {
 					provider: e.provider,
 					url: t?.url
@@ -6236,7 +6253,7 @@ var vi = {
 				error: null
 			});
 		} catch (t) {
-			if (O(t)) return this._returnResult({
+			if (E(t)) return this._returnResult({
 				data: {
 					provider: e.provider,
 					url: null
@@ -6251,7 +6268,7 @@ var vi = {
 			try {
 				let { error: n, data: { session: r } } = t;
 				if (n) throw n;
-				let { options: i, provider: a, token: o, access_token: s, nonce: c } = e, { data: l, error: u } = await M(this.fetch, "POST", `${this.url}/token?grant_type=id_token`, {
+				let { options: i, provider: a, token: o, access_token: s, nonce: c } = e, { data: l, error: u } = await j(this.fetch, "POST", `${this.url}/token?grant_type=id_token`, {
 					headers: this.headers,
 					jwt: r?.access_token ?? void 0,
 					body: {
@@ -6262,7 +6279,7 @@ var vi = {
 						link_identity: !0,
 						gotrue_meta_security: { captcha_token: i?.captchaToken }
 					},
-					xform: N
+					xform: M
 				});
 				return u ? this._returnResult({
 					data: {
@@ -6275,13 +6292,13 @@ var vi = {
 						user: null,
 						session: null
 					},
-					error: new In()
+					error: new zn()
 				}) : (l.session && (await this._saveSession(l.session), await this._notifyAllSubscribers("USER_UPDATED", l.session)), this._returnResult({
 					data: l,
 					error: u
 				}));
 			} catch (e) {
-				if (await j(this.storage, `${this.storageKey}-code-verifier`), O(e)) return this._returnResult({
+				if (await A(this.storage, `${this.storageKey}-code-verifier`), E(e)) return this._returnResult({
 					data: {
 						user: null,
 						session: null
@@ -6297,13 +6314,13 @@ var vi = {
 			return await this._useSession(async (t) => {
 				let { data: n, error: r } = t;
 				if (r) throw r;
-				return await M(this.fetch, "DELETE", `${this.url}/user/identities/${e.identity_id}`, {
+				return await j(this.fetch, "DELETE", `${this.url}/user/identities/${e.identity_id}`, {
 					headers: this.headers,
 					jwt: n.session?.access_token ?? void 0
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6315,16 +6332,16 @@ var vi = {
 		this._debug(t, "begin");
 		try {
 			let n = Date.now();
-			return await vr(async (n) => (n > 0 && await _r(200 * 2 ** (n - 1)), this._debug(t, "refreshing attempt", n), await M(this.fetch, "POST", `${this.url}/token?grant_type=refresh_token`, {
+			return await br(async (n) => (n > 0 && await yr(200 * 2 ** (n - 1)), this._debug(t, "refreshing attempt", n), await j(this.fetch, "POST", `${this.url}/token?grant_type=refresh_token`, {
 				body: { refresh_token: e },
 				headers: this.headers,
-				xform: N
+				xform: M
 			})), (e, t) => {
 				let r = 200 * 2 ** e;
-				return t && Un(t) && Date.now() + r - n < 3e4;
+				return t && Kn(t) && Date.now() + r - n < 3e4;
 			});
 		} catch (e) {
-			if (this._debug(t, "error", e), O(e)) return this._returnResult({
+			if (this._debug(t, "error", e), E(e)) return this._returnResult({
 				data: {
 					session: null,
 					user: null
@@ -6345,7 +6362,7 @@ var vi = {
 			scopes: t.scopes,
 			queryParams: t.queryParams
 		});
-		return this._debug("#_handleProviderSignIn()", "provider", e, "options", t, "url", n), A() && !t.skipBrowserRedirect && window.location.assign(n), {
+		return this._debug("#_handleProviderSignIn()", "provider", e, "options", t, "url", n), O() && !t.skipBrowserRedirect && window.location.assign(n), {
 			data: {
 				provider: e,
 				url: n
@@ -6357,23 +6374,23 @@ var vi = {
 		let e = "#_recoverAndRefresh()";
 		this._debug(e, "begin");
 		try {
-			let t = await mr(this.storage, this.storageKey);
+			let t = await k(this.storage, this.storageKey);
 			if (t && this.userStorage) {
-				let e = await mr(this.userStorage, this.storageKey + "-user");
-				!this.storage.isServer && Object.is(this.storage, this.userStorage) && !e && (e = { user: t.user }, await pr(this.userStorage, this.storageKey + "-user", e)), t.user = e?.user ?? jr();
+				let e = await k(this.userStorage, this.storageKey + "-user");
+				!this.storage.isServer && Object.is(this.storage, this.userStorage) && !e && (e = { user: t.user }, await gr(this.userStorage, this.storageKey + "-user", e)), t.user = e?.user ?? Nr();
 			} else if (t && !t.user && !t.user) {
-				let e = await mr(this.storage, this.storageKey + "-user");
-				e && e?.user ? (t.user = e.user, await j(this.storage, this.storageKey + "-user"), await pr(this.storage, this.storageKey, t)) : t.user = jr();
+				let e = await k(this.storage, this.storageKey + "-user");
+				e && e?.user ? (t.user = e.user, await A(this.storage, this.storageKey + "-user"), await gr(this.storage, this.storageKey, t)) : t.user = Nr();
 			}
 			if (this._debug(e, "session from storage", t), !this._isValidSession(t)) {
 				this._debug(e, "session is not valid"), t !== null && await this._removeSession();
 				return;
 			}
-			let n = (t.expires_at ?? Infinity) * 1e3 - Date.now() < Sn;
-			if (this._debug(e, `session has${n ? "" : " not"} expired with margin of ${Sn}s`), n) {
+			let n = (t.expires_at ?? Infinity) * 1e3 - Date.now() < Tn;
+			if (this._debug(e, `session has${n ? "" : " not"} expired with margin of ${Tn}s`), n) {
 				if (this.autoRefreshToken && t.refresh_token) {
 					let { error: n } = await this._callRefreshToken(t.refresh_token);
-					n && (Gn(n) ? this._debug(e, "refresh discarded by commit guard", n) : this._debug(e, "refresh failed", n));
+					n && (Jn(n) ? this._debug(e, "refresh discarded by commit guard", n) : this._debug(e, "refresh failed", n));
 				}
 			} else if (t.user && t.user.__isUserNotAvailableProxy === !0) try {
 				let { data: n, error: r } = await this._getUser(t.access_token);
@@ -6391,17 +6408,17 @@ var vi = {
 	}
 	async _callRefreshToken(e) {
 		var t, n;
-		if (!e) throw new k();
+		if (!e) throw new D();
 		if (this.refreshingDeferred) return this.refreshingDeferred.promise;
 		if (this.lastRefreshFailure && this.lastRefreshFailure.refreshToken === e && Date.now() < this.lastRefreshFailure.expiresAt) return this._debug("#_callRefreshToken()", "returning cached failure (cooldown active)"), this.lastRefreshFailure.result;
 		let r = "#_callRefreshToken()";
 		this._debug(r, "begin");
 		try {
-			this.refreshingDeferred = new hr();
-			let t = await mr(this.storage, this.storageKey), { data: n, error: i } = await this._refreshAccessToken(e);
+			this.refreshingDeferred = new _r();
+			let t = await k(this.storage, this.storageKey), { data: n, error: i } = await this._refreshAccessToken(e);
 			if (i) throw i;
-			if (!n.session) throw new k();
-			let a = await mr(this.storage, this.storageKey);
+			if (!n.session) throw new D();
+			let a = await k(this.storage, this.storageKey);
 			if (t !== null && (a === null || a.refresh_token !== t.refresh_token)) {
 				this._debug(r, "commit guard: storage changed since refresh started, discarding rotated tokens", {
 					startedWith: "present",
@@ -6409,16 +6426,16 @@ var vi = {
 				});
 				let e = {
 					data: null,
-					error: new Wn()
+					error: new qn()
 				};
 				return this.refreshingDeferred.resolve(e), e;
 			}
 			let o = this._sessionRemovalEpoch;
 			if (await this._saveSession(n.session), this._sessionRemovalEpoch !== o) {
-				this._debug(r, "commit guard (post-save): _removeSession ran during _saveSession, undoing write"), await j(this.storage, this.storageKey), this.userStorage && await j(this.userStorage, this.storageKey + "-user");
+				this._debug(r, "commit guard (post-save): _removeSession ran during _saveSession, undoing write"), await A(this.storage, this.storageKey), this.userStorage && await A(this.userStorage, this.storageKey + "-user");
 				let e = {
 					data: null,
-					error: new Wn()
+					error: new qn()
 				};
 				return this.refreshingDeferred.resolve(e), e;
 			}
@@ -6429,19 +6446,19 @@ var vi = {
 			};
 			return this.lastRefreshFailure = null, this.refreshingDeferred.resolve(s), s;
 		} catch (i) {
-			if (this._debug(r, "error", i), O(i)) {
+			if (this._debug(r, "error", i), E(i)) {
 				let n = {
 					data: null,
 					error: i
 				};
-				if (!Un(i)) {
-					let e = await mr(this.storage, this.storageKey);
+				if (!Kn(i)) {
+					let e = await k(this.storage, this.storageKey);
 					e?.expires_at && e.expires_at * 1e3 > Date.now() ? this._debug(r, "proactive refresh failed, access token still valid — preserving session") : await this._removeSession();
 				}
 				return this.lastRefreshFailure = {
 					refreshToken: e,
 					result: n,
-					expiresAt: Date.now() + Cn
+					expiresAt: Date.now() + En
 				}, (t = this.refreshingDeferred) == null || t.resolve(n), n;
 			}
 			throw (n = this.refreshingDeferred) == null || n.reject(i), i;
@@ -6484,32 +6501,32 @@ var vi = {
 		this._debug("#_saveSession()", e), this.suppressGetSessionWarning = !0;
 		let t = Object.assign({}, e), n = t.user && t.user.__isUserNotAvailableProxy === !0;
 		if (this.userStorage) {
-			!n && t.user && await pr(this.userStorage, this.storageKey + "-user", { user: t.user });
+			!n && t.user && await gr(this.userStorage, this.storageKey + "-user", { user: t.user });
 			let e = Object.assign({}, t);
 			delete e.user;
-			let r = Nr(e);
-			await pr(this.storage, this.storageKey, r);
+			let r = Fr(e);
+			await gr(this.storage, this.storageKey, r);
 		} else {
-			let e = Nr(t);
-			await pr(this.storage, this.storageKey, e);
+			let e = Fr(t);
+			await gr(this.storage, this.storageKey, e);
 		}
 	}
 	async _removeSession() {
-		this._sessionRemovalEpoch += 1, this._debug("#_removeSession()"), this.lastRefreshFailure = null, this.suppressGetSessionWarning = !1, await j(this.storage, this.storageKey), await j(this.storage, this.storageKey + "-code-verifier"), await j(this.storage, this.storageKey + "-user"), this.userStorage && await j(this.userStorage, this.storageKey + "-user"), await this._notifyAllSubscribers("SIGNED_OUT", null);
+		this._sessionRemovalEpoch += 1, this._debug("#_removeSession()"), this.lastRefreshFailure = null, this.suppressGetSessionWarning = !1, await A(this.storage, this.storageKey), await A(this.storage, this.storageKey + "-code-verifier"), await A(this.storage, this.storageKey + "-user"), this.userStorage && await A(this.userStorage, this.storageKey + "-user"), await this._notifyAllSubscribers("SIGNED_OUT", null);
 	}
 	_removeVisibilityChangedCallback() {
 		this._debug("#_removeVisibilityChangedCallback()");
 		let e = this.visibilityChangedCallback;
 		this.visibilityChangedCallback = null;
 		try {
-			e && A() && window != null && window.removeEventListener && window.removeEventListener("visibilitychange", e);
+			e && O() && window != null && window.removeEventListener && window.removeEventListener("visibilitychange", e);
 		} catch (e) {
 			console.error("removing visibilitychange callback failed", e);
 		}
 	}
 	async _startAutoRefresh() {
 		await this._stopAutoRefresh(), this._debug("#_startAutoRefresh()");
-		let e = setInterval(() => this._autoRefreshTokenTick(), xn);
+		let e = setInterval(() => this._autoRefreshTokenTick(), wn);
 		this.autoRefreshTicker = e, e && typeof e == "object" && typeof e.unref == "function" ? e.unref() : typeof Deno < "u" && typeof Deno.unrefTimer == "function" && Deno.unrefTimer(e);
 		let t = setTimeout(async () => {
 			await this.initializePromise, await this._autoRefreshTokenTick();
@@ -6546,8 +6563,8 @@ var vi = {
 									this._debug("#_autoRefreshTokenTick()", "no session");
 									return;
 								}
-								let r = Math.floor((n.expires_at * 1e3 - e) / xn);
-								this._debug("#_autoRefreshTokenTick()", `access token expires in ${r} ticks, a tick lasts ${xn}ms, refresh threshold is 3 ticks`), r <= 3 && await this._callRefreshToken(n.refresh_token);
+								let r = Math.floor((n.expires_at * 1e3 - e) / wn);
+								this._debug("#_autoRefreshTokenTick()", `access token expires in ${r} ticks, a tick lasts ${wn}ms, refresh threshold is 3 ticks`), r <= 3 && await this._callRefreshToken(n.refresh_token);
 							});
 						} catch (e) {
 							console.error("Auto refresh tick failed with error. This is likely a transient error.", e);
@@ -6557,7 +6574,7 @@ var vi = {
 					}
 				});
 			} catch (e) {
-				if (e instanceof Jr) this._debug("auto refresh token tick lock not available");
+				if (e instanceof Xr) this._debug("auto refresh token tick lock not available");
 				else throw e;
 			}
 			return;
@@ -6575,8 +6592,8 @@ var vi = {
 						this._debug("#_autoRefreshTokenTick()", "no session");
 						return;
 					}
-					let r = Math.floor((n.expires_at * 1e3 - e) / xn);
-					this._debug("#_autoRefreshTokenTick()", `access token expires in ${r} ticks, a tick lasts ${xn}ms, refresh threshold is 3 ticks`), r <= 3 && await this._callRefreshToken(n.refresh_token);
+					let r = Math.floor((n.expires_at * 1e3 - e) / wn);
+					this._debug("#_autoRefreshTokenTick()", `access token expires in ${r} ticks, a tick lasts ${wn}ms, refresh threshold is 3 ticks`), r <= 3 && await this._callRefreshToken(n.refresh_token);
 				});
 			} catch (e) {
 				console.error("Auto refresh tick failed with error. This is likely a transient error.", e);
@@ -6586,7 +6603,7 @@ var vi = {
 		}
 	}
 	async _handleVisibilityChange() {
-		if (this._debug("#_handleVisibilityChange()"), !A() || !(window != null && window.addEventListener)) return this.autoRefreshToken && this.startAutoRefresh(), !1;
+		if (this._debug("#_handleVisibilityChange()"), !O() || !(window != null && window.addEventListener)) return this.autoRefreshToken && this.startAutoRefresh(), !1;
 		try {
 			this.visibilityChangedCallback = async () => {
 				try {
@@ -6621,7 +6638,7 @@ var vi = {
 	async _getUrlForProvider(e, t, n) {
 		let r = [`provider=${encodeURIComponent(t)}`];
 		if (n?.redirectTo && r.push(`redirect_to=${encodeURIComponent(n.redirectTo)}`), n?.scopes && r.push(`scopes=${encodeURIComponent(n.scopes)}`), this.flowType === "pkce") {
-			let [e, t] = await Cr(this.storage, this.storageKey), n = new URLSearchParams({
+			let [e, t] = await Tr(this.storage, this.storageKey), n = new URLSearchParams({
 				code_challenge: `${encodeURIComponent(e)}`,
 				code_challenge_method: `${encodeURIComponent(t)}`
 			});
@@ -6640,13 +6657,13 @@ var vi = {
 				return r ? this._returnResult({
 					data: null,
 					error: r
-				}) : await M(this.fetch, "DELETE", `${this.url}/factors/${e.factorId}`, {
+				}) : await j(this.fetch, "DELETE", `${this.url}/factors/${e.factorId}`, {
 					headers: this.headers,
 					jwt: n?.session?.access_token
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6664,7 +6681,7 @@ var vi = {
 				let i = Object.assign({
 					friendly_name: e.friendlyName,
 					factor_type: e.factorType
-				}, e.factorType === "phone" ? { phone: e.phone } : e.factorType === "totp" ? { issuer: e.issuer } : {}), { data: a, error: o } = await M(this.fetch, "POST", `${this.url}/factors`, {
+				}, e.factorType === "phone" ? { phone: e.phone } : e.factorType === "totp" ? { issuer: e.issuer } : {}), { data: a, error: o } = await j(this.fetch, "POST", `${this.url}/factors`, {
 					body: i,
 					headers: this.headers,
 					jwt: n?.session?.access_token
@@ -6678,7 +6695,7 @@ var vi = {
 				}));
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6694,7 +6711,7 @@ var vi = {
 						data: null,
 						error: r
 					});
-					let i = Object.assign({ challenge_id: e.challengeId }, "webauthn" in e ? { webauthn: Object.assign(Object.assign({}, e.webauthn), { credential_response: e.webauthn.type === "create" ? oi(e.webauthn.credential_response) : si(e.webauthn.credential_response) }) } : { code: e.code }), { data: a, error: o } = await M(this.fetch, "POST", `${this.url}/factors/${e.factorId}/verify`, {
+					let i = Object.assign({ challenge_id: e.challengeId }, "webauthn" in e ? { webauthn: Object.assign(Object.assign({}, e.webauthn), { credential_response: e.webauthn.type === "create" ? ci(e.webauthn.credential_response) : li(e.webauthn.credential_response) }) } : { code: e.code }), { data: a, error: o } = await j(this.fetch, "POST", `${this.url}/factors/${e.factorId}/verify`, {
 						body: i,
 						headers: this.headers,
 						jwt: n?.session?.access_token
@@ -6708,7 +6725,7 @@ var vi = {
 					}));
 				});
 			} catch (e) {
-				if (O(e)) return this._returnResult({
+				if (E(e)) return this._returnResult({
 					data: null,
 					error: e
 				});
@@ -6726,7 +6743,7 @@ var vi = {
 						data: null,
 						error: r
 					});
-					let i = await M(this.fetch, "POST", `${this.url}/factors/${e.factorId}/challenge`, {
+					let i = await j(this.fetch, "POST", `${this.url}/factors/${e.factorId}/challenge`, {
 						body: e,
 						headers: this.headers,
 						jwt: n?.session?.access_token
@@ -6739,17 +6756,17 @@ var vi = {
 					};
 					switch (a.webauthn.type) {
 						case "create": return {
-							data: Object.assign(Object.assign({}, a), { webauthn: Object.assign(Object.assign({}, a.webauthn), { credential_options: Object.assign(Object.assign({}, a.webauthn.credential_options), { publicKey: ii(a.webauthn.credential_options.publicKey) }) }) }),
+							data: Object.assign(Object.assign({}, a), { webauthn: Object.assign(Object.assign({}, a.webauthn), { credential_options: Object.assign(Object.assign({}, a.webauthn.credential_options), { publicKey: oi(a.webauthn.credential_options.publicKey) }) }) }),
 							error: null
 						};
 						case "request": return {
-							data: Object.assign(Object.assign({}, a), { webauthn: Object.assign(Object.assign({}, a.webauthn), { credential_options: Object.assign(Object.assign({}, a.webauthn.credential_options), { publicKey: ai(a.webauthn.credential_options.publicKey) }) }) }),
+							data: Object.assign(Object.assign({}, a), { webauthn: Object.assign(Object.assign({}, a.webauthn), { credential_options: Object.assign(Object.assign({}, a.webauthn.credential_options), { publicKey: si(a.webauthn.credential_options.publicKey) }) }) }),
 							error: null
 						};
 					}
 				});
 			} catch (e) {
-				if (O(e)) return this._returnResult({
+				if (E(e)) return this._returnResult({
 					data: null,
 					error: e
 				});
@@ -6789,7 +6806,7 @@ var vi = {
 	}
 	async _getAuthenticatorAssuranceLevel(e) {
 		if (e) try {
-			let { payload: t } = gr(e), n = null;
+			let { payload: t } = vr(e), n = null;
 			t.aal && (n = t.aal);
 			let r = n, { data: { user: i }, error: a } = await this.getUser(e);
 			if (a) return this._returnResult({
@@ -6807,7 +6824,7 @@ var vi = {
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6826,7 +6843,7 @@ var vi = {
 			},
 			error: null
 		};
-		let { payload: r } = gr(t.access_token), i = null;
+		let { payload: r } = vr(t.access_token), i = null;
 		r.aal && (i = r.aal);
 		let a = i;
 		(t.user.factors?.filter((e) => e.status === "verified") ?? []).length > 0 && (a = "aal2");
@@ -6847,7 +6864,7 @@ var vi = {
 				return r ? this._returnResult({
 					data: null,
 					error: r
-				}) : n ? await M(this.fetch, "GET", `${this.url}/oauth/authorizations/${e}`, {
+				}) : n ? await j(this.fetch, "GET", `${this.url}/oauth/authorizations/${e}`, {
 					headers: this.headers,
 					jwt: n.access_token,
 					xform: (e) => ({
@@ -6856,11 +6873,11 @@ var vi = {
 					})
 				}) : this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6877,9 +6894,9 @@ var vi = {
 				});
 				if (!r) return this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
-				let a = await M(this.fetch, "POST", `${this.url}/oauth/authorizations/${e}/consent`, {
+				let a = await j(this.fetch, "POST", `${this.url}/oauth/authorizations/${e}/consent`, {
 					headers: this.headers,
 					jwt: r.access_token,
 					body: { action: "approve" },
@@ -6888,10 +6905,10 @@ var vi = {
 						error: null
 					})
 				});
-				return a.data && a.data.redirect_url && A() && !t?.skipBrowserRedirect && window.location.assign(a.data.redirect_url), a;
+				return a.data && a.data.redirect_url && O() && !t?.skipBrowserRedirect && window.location.assign(a.data.redirect_url), a;
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6908,9 +6925,9 @@ var vi = {
 				});
 				if (!r) return this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
-				let a = await M(this.fetch, "POST", `${this.url}/oauth/authorizations/${e}/consent`, {
+				let a = await j(this.fetch, "POST", `${this.url}/oauth/authorizations/${e}/consent`, {
 					headers: this.headers,
 					jwt: r.access_token,
 					body: { action: "deny" },
@@ -6919,10 +6936,10 @@ var vi = {
 						error: null
 					})
 				});
-				return a.data && a.data.redirect_url && A() && !t?.skipBrowserRedirect && window.location.assign(a.data.redirect_url), a;
+				return a.data && a.data.redirect_url && O() && !t?.skipBrowserRedirect && window.location.assign(a.data.redirect_url), a;
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6936,7 +6953,7 @@ var vi = {
 				return n ? this._returnResult({
 					data: null,
 					error: n
-				}) : t ? await M(this.fetch, "GET", `${this.url}/user/oauth/grants`, {
+				}) : t ? await j(this.fetch, "GET", `${this.url}/user/oauth/grants`, {
 					headers: this.headers,
 					jwt: t.access_token,
 					xform: (e) => ({
@@ -6945,11 +6962,11 @@ var vi = {
 					})
 				}) : this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6963,7 +6980,7 @@ var vi = {
 				return r ? this._returnResult({
 					data: null,
 					error: r
-				}) : n ? (await M(this.fetch, "DELETE", `${this.url}/user/oauth/grants`, {
+				}) : n ? (await j(this.fetch, "DELETE", `${this.url}/user/oauth/grants`, {
 					headers: this.headers,
 					jwt: n.access_token,
 					query: { client_id: e.clientId },
@@ -6973,11 +6990,11 @@ var vi = {
 					error: null
 				}) : this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -6989,7 +7006,7 @@ var vi = {
 		if (n) return n;
 		let r = Date.now();
 		if (n = this.jwks.keys.find((t) => t.kid === e), n && this.jwks_cached_at + 6e5 > r) return n;
-		let { data: i, error: a } = await M(this.fetch, "GET", `${this.url}/.well-known/jwks.json`, { headers: this.headers });
+		let { data: i, error: a } = await j(this.fetch, "GET", `${this.url}/.well-known/jwks.json`, { headers: this.headers });
 		if (a) throw a;
 		return !i.keys || i.keys.length === 0 || (this.jwks = i, this.jwks_cached_at = r, n = i.keys.find((t) => t.kid === e), !n) ? null : n;
 	}
@@ -7004,11 +7021,11 @@ var vi = {
 				});
 				n = e.session.access_token;
 			}
-			let { header: r, payload: i, signature: a, raw: { header: o, payload: s } } = gr(n);
+			let { header: r, payload: i, signature: a, raw: { header: o, payload: s } } = vr(n);
 			if (!t?.allowExpired) try {
-				Er(i.exp);
+				Or(i.exp);
 			} catch (e) {
-				throw new qn(e instanceof Error ? e.message : "JWT validation failed");
+				throw new Xn(e instanceof Error ? e.message : "JWT validation failed");
 			}
 			let c = !r.alg || r.alg.startsWith("HS") || !r.kid || !("crypto" in globalThis && "subtle" in globalThis.crypto) ? null : await this.fetchJwk(r.kid, t?.keys ? { keys: t.keys } : t?.jwks);
 			if (!c) {
@@ -7023,8 +7040,8 @@ var vi = {
 					error: null
 				};
 			}
-			let l = Dr(r.alg), u = await crypto.subtle.importKey("jwk", c, l, !0, ["verify"]);
-			if (!await crypto.subtle.verify(l, u, a, ir(`${o}.${s}`))) throw new qn("Invalid JWT signature");
+			let l = kr(r.alg), u = await crypto.subtle.importKey("jwk", c, l, !0, ["verify"]);
+			if (!await crypto.subtle.verify(l, u, a, sr(`${o}.${s}`))) throw new Xn("Invalid JWT signature");
 			return {
 				data: {
 					claims: i,
@@ -7034,7 +7051,7 @@ var vi = {
 				error: null
 			};
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7042,32 +7059,32 @@ var vi = {
 		}
 	}
 	async signInWithPasskey(e) {
-		Ar(this.experimental);
+		Mr(this.experimental);
 		try {
-			if (!li()) return this._returnResult({
+			if (!di()) return this._returnResult({
 				data: null,
-				error: new Nn("Browser does not support WebAuthn", null)
+				error: new In("Browser does not support WebAuthn", null)
 			});
 			let { data: t, error: n } = await this._startPasskeyAuthentication({ options: { captchaToken: e?.options?.captchaToken } });
 			if (n || !t) return this._returnResult({
 				data: null,
 				error: n
 			});
-			let { data: r, error: i } = await di({
-				publicKey: ai(t.options),
-				signal: e?.options?.signal ?? ri.createNewAbortSignal()
+			let { data: r, error: i } = await pi({
+				publicKey: si(t.options),
+				signal: e?.options?.signal ?? ai.createNewAbortSignal()
 			});
 			if (i || !r) return this._returnResult({
 				data: null,
-				error: i ?? new Nn("WebAuthn ceremony failed", null)
+				error: i ?? new In("WebAuthn ceremony failed", null)
 			});
-			let a = si(r);
+			let a = li(r);
 			return this._verifyPasskeyAuthentication({
 				challengeId: t.challenge_id,
 				credential: a
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7075,32 +7092,32 @@ var vi = {
 		}
 	}
 	async registerPasskey(e) {
-		Ar(this.experimental);
+		Mr(this.experimental);
 		try {
-			if (!li()) return this._returnResult({
+			if (!di()) return this._returnResult({
 				data: null,
-				error: new Nn("Browser does not support WebAuthn", null)
+				error: new In("Browser does not support WebAuthn", null)
 			});
 			let { data: t, error: n } = await this._startPasskeyRegistration();
 			if (n || !t) return this._returnResult({
 				data: null,
 				error: n
 			});
-			let { data: r, error: i } = await ui({
-				publicKey: ii(t.options),
-				signal: e?.options?.signal ?? ri.createNewAbortSignal()
+			let { data: r, error: i } = await fi({
+				publicKey: oi(t.options),
+				signal: e?.options?.signal ?? ai.createNewAbortSignal()
 			});
 			if (i || !r) return this._returnResult({
 				data: null,
-				error: i ?? new Nn("WebAuthn ceremony failed", null)
+				error: i ?? new In("WebAuthn ceremony failed", null)
 			});
-			let a = oi(r);
+			let a = ci(r);
 			return this._verifyPasskeyRegistration({
 				challengeId: t.challenge_id,
 				credential: a
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7108,7 +7125,7 @@ var vi = {
 		}
 	}
 	async _startPasskeyRegistration() {
-		Ar(this.experimental);
+		Mr(this.experimental);
 		try {
 			return await this._useSession(async (e) => {
 				let { data: { session: t }, error: n } = e;
@@ -7118,9 +7135,9 @@ var vi = {
 				});
 				if (!t) return this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
-				let { data: r, error: i } = await M(this.fetch, "POST", `${this.url}/passkeys/registration/options`, {
+				let { data: r, error: i } = await j(this.fetch, "POST", `${this.url}/passkeys/registration/options`, {
 					headers: this.headers,
 					jwt: t.access_token,
 					body: {}
@@ -7134,7 +7151,7 @@ var vi = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7142,7 +7159,7 @@ var vi = {
 		}
 	}
 	async _verifyPasskeyRegistration(e) {
-		Ar(this.experimental);
+		Mr(this.experimental);
 		try {
 			return await this._useSession(async (t) => {
 				let { data: { session: n }, error: r } = t;
@@ -7152,9 +7169,9 @@ var vi = {
 				});
 				if (!n) return this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
-				let { data: i, error: a } = await M(this.fetch, "POST", `${this.url}/passkeys/registration/verify`, {
+				let { data: i, error: a } = await j(this.fetch, "POST", `${this.url}/passkeys/registration/verify`, {
 					headers: this.headers,
 					jwt: n.access_token,
 					body: {
@@ -7171,7 +7188,7 @@ var vi = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7179,9 +7196,9 @@ var vi = {
 		}
 	}
 	async _startPasskeyAuthentication(e) {
-		Ar(this.experimental);
+		Mr(this.experimental);
 		try {
-			let { data: t, error: n } = await M(this.fetch, "POST", `${this.url}/passkeys/authentication/options`, {
+			let { data: t, error: n } = await j(this.fetch, "POST", `${this.url}/passkeys/authentication/options`, {
 				headers: this.headers,
 				body: { gotrue_meta_security: { captcha_token: e?.options?.captchaToken } }
 			});
@@ -7193,7 +7210,7 @@ var vi = {
 				error: null
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7201,15 +7218,15 @@ var vi = {
 		}
 	}
 	async _verifyPasskeyAuthentication(e) {
-		Ar(this.experimental);
+		Mr(this.experimental);
 		try {
-			let { data: t, error: n } = await M(this.fetch, "POST", `${this.url}/passkeys/authentication/verify`, {
+			let { data: t, error: n } = await j(this.fetch, "POST", `${this.url}/passkeys/authentication/verify`, {
 				headers: this.headers,
 				body: {
 					challenge_id: e.challengeId,
 					credential: e.credential
 				},
-				xform: N
+				xform: M
 			});
 			return n ? this._returnResult({
 				data: null,
@@ -7219,7 +7236,7 @@ var vi = {
 				error: null
 			}));
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7227,7 +7244,7 @@ var vi = {
 		}
 	}
 	async _listPasskeys() {
-		Ar(this.experimental);
+		Mr(this.experimental);
 		try {
 			return await this._useSession(async (e) => {
 				let { data: { session: t }, error: n } = e;
@@ -7237,9 +7254,9 @@ var vi = {
 				});
 				if (!t) return this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
-				let { data: r, error: i } = await M(this.fetch, "GET", `${this.url}/passkeys`, {
+				let { data: r, error: i } = await j(this.fetch, "GET", `${this.url}/passkeys`, {
 					headers: this.headers,
 					jwt: t.access_token,
 					xform: (e) => ({
@@ -7256,7 +7273,7 @@ var vi = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7264,7 +7281,7 @@ var vi = {
 		}
 	}
 	async _updatePasskey(e) {
-		Ar(this.experimental);
+		Mr(this.experimental);
 		try {
 			return await this._useSession(async (t) => {
 				let { data: { session: n }, error: r } = t;
@@ -7274,9 +7291,9 @@ var vi = {
 				});
 				if (!n) return this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
-				let { data: i, error: a } = await M(this.fetch, "PATCH", `${this.url}/passkeys/${e.passkeyId}`, {
+				let { data: i, error: a } = await j(this.fetch, "PATCH", `${this.url}/passkeys/${e.passkeyId}`, {
 					headers: this.headers,
 					jwt: n.access_token,
 					body: { friendly_name: e.friendlyName }
@@ -7290,7 +7307,7 @@ var vi = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7298,7 +7315,7 @@ var vi = {
 		}
 	}
 	async _deletePasskey(e) {
-		Ar(this.experimental);
+		Mr(this.experimental);
 		try {
 			return await this._useSession(async (t) => {
 				let { data: { session: n }, error: r } = t;
@@ -7308,9 +7325,9 @@ var vi = {
 				});
 				if (!n) return this._returnResult({
 					data: null,
-					error: new k()
+					error: new D()
 				});
-				let { error: i } = await M(this.fetch, "DELETE", `${this.url}/passkeys/${e.passkeyId}`, {
+				let { error: i } = await j(this.fetch, "DELETE", `${this.url}/passkeys/${e.passkeyId}`, {
 					headers: this.headers,
 					jwt: n.access_token,
 					noResolveJson: !0
@@ -7324,7 +7341,7 @@ var vi = {
 				});
 			});
 		} catch (e) {
-			if (O(e)) return this._returnResult({
+			if (E(e)) return this._returnResult({
 				data: null,
 				error: e
 			});
@@ -7332,23 +7349,31 @@ var vi = {
 		}
 	}
 };
-bi.nextInstanceID = {};
+Si.nextInstanceID = {};
 //#endregion
 //#region ../node_modules/@supabase/auth-js/dist/module/AuthClient.js
-var xi = bi, Si = "2.110.3", Ci = "", wi;
-typeof Deno < "u" ? (Ci = "deno", wi = Deno.version?.deno) : typeof document < "u" ? Ci = "web" : typeof navigator < "u" && navigator.product === "ReactNative" ? Ci = "react-native" : (Ci = "node", wi = typeof process < "u" ? process.version?.replace(/^v/, "") : void 0);
-var Ti = [`runtime=${Ci}`];
-wi && Ti.push(`runtime-version=${wi}`);
-var Ei = { headers: { "X-Client-Info": `supabase-js/${Si}; ${Ti.join("; ")}` } }, Di = { schema: "public" }, Oi = {
+var Ci = Si, wi = "2.110.7", Ti = "", Ei;
+if (typeof Deno < "u") Ti = "deno", Ei = Deno.version?.deno;
+else if (typeof document < "u") Ti = "web";
+else if (typeof navigator < "u" && navigator.product === "ReactNative") Ti = "react-native";
+else {
+	var Di;
+	Ti = "node";
+	let e = globalThis.process;
+	Ei = e == null || (Di = e.version) == null ? void 0 : Di.replace(/^v/, "");
+}
+var Oi = [`runtime=${Ti}`];
+Ei && Oi.push(`runtime-version=${Ei}`);
+var ki = { headers: { "X-Client-Info": `supabase-js/${wi}; ${Oi.join("; ")}` } }, Ai = { schema: "public" }, ji = {
 	autoRefreshToken: !0,
 	persistSession: !0,
 	detectSessionInUrl: !0,
 	flowType: "implicit"
-}, ki = {}, Ai = {
+}, Mi = {}, Ni = {
 	enabled: !1,
 	respectSamplingDecision: !0
 };
-function ji(e, t, n, r) {
+function Pi(e, t, n, r) {
 	function i(e) {
 		return e instanceof n ? e : new n(function(t) {
 			t(e);
@@ -7375,19 +7400,19 @@ function ji(e, t, n, r) {
 		c((r = r.apply(e, t || [])).next());
 	});
 }
-var Mi = null, Ni = "@opentelemetry/api";
-function Pi() {
-	return Mi === null && (Mi = import(
+var Fi = null, Ii = "@opentelemetry/api";
+function Li() {
+	return Fi === null && (Fi = import(
 		/* webpackIgnore: true */
 		/* turbopackIgnore: true */
 		/* @vite-ignore */
-		Ni
-).catch(() => null)), Mi;
+		Ii
+).catch(() => null)), Fi;
 }
-function Fi() {
-	return ji(this, void 0, void 0, function* () {
+function Ri() {
+	return Pi(this, void 0, void 0, function* () {
 		try {
-			let e = yield Pi();
+			let e = yield Li();
 			if (!e || !e.propagation || !e.context) return null;
 			let t = {};
 			e.propagation.inject(e.context.active(), t);
@@ -7402,7 +7427,7 @@ function Fi() {
 		}
 	});
 }
-function Ii(e) {
+function zi(e) {
 	if (!e || typeof e != "string") return null;
 	let t = e.split("-");
 	if (t.length !== 4) return null;
@@ -7417,7 +7442,7 @@ function Ii(e) {
 		isSampled: (parseInt(a, 16) & 1) == 1
 	};
 }
-function Li(e, t) {
+function Bi(e, t) {
 	if (!e || !t || t.length === 0) return !1;
 	let n;
 	if (e instanceof URL) n = e;
@@ -7428,7 +7453,7 @@ function Li(e, t) {
 	}
 	for (let e of t) try {
 		if (typeof e == "string") {
-			if (Ri(n.hostname, e)) return !0;
+			if (Vi(n.hostname, e)) return !0;
 		} else if (e instanceof RegExp) {
 			if (e.test(n.hostname)) return !0;
 		} else if (typeof e == "function" && e(n)) return !0;
@@ -7437,7 +7462,7 @@ function Li(e, t) {
 	}
 	return !1;
 }
-function Ri(e, t) {
+function Vi(e, t) {
 	if (t === e) return !0;
 	if (t.startsWith("*.")) {
 		let n = t.slice(2);
@@ -7445,7 +7470,7 @@ function Ri(e, t) {
 	}
 	return !1;
 }
-function zi(e) {
+function Hi(e) {
 	let t = [];
 	try {
 		let n = new URL(e);
@@ -7453,37 +7478,37 @@ function zi(e) {
 	} catch {}
 	return t.push("*.supabase.co", "*.supabase.in"), t.push("localhost", "127.0.0.1", "[::1]"), t;
 }
-function Bi(e) {
+function Ui(e) {
 	"@babel/helpers - typeof";
-	return Bi = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function(e) {
+	return Ui = typeof Symbol == "function" && typeof Symbol.iterator == "symbol" ? function(e) {
 		return typeof e;
 	} : function(e) {
 		return e && typeof Symbol == "function" && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e;
-	}, Bi(e);
+	}, Ui(e);
 }
-function Vi(e, t) {
-	if (Bi(e) != "object" || !e) return e;
+function Wi(e, t) {
+	if (Ui(e) != "object" || !e) return e;
 	var n = e[Symbol.toPrimitive];
 	if (n !== void 0) {
 		var r = n.call(e, t || "default");
-		if (Bi(r) != "object") return r;
+		if (Ui(r) != "object") return r;
 		throw TypeError("@@toPrimitive must return a primitive value.");
 	}
 	return (t === "string" ? String : Number)(e);
 }
-function Hi(e) {
-	var t = Vi(e, "string");
-	return Bi(t) == "symbol" ? t : t + "";
+function Gi(e) {
+	var t = Wi(e, "string");
+	return Ui(t) == "symbol" ? t : t + "";
 }
-function Ui(e, t, n) {
-	return (t = Hi(t)) in e ? Object.defineProperty(e, t, {
+function Ki(e, t, n) {
+	return (t = Gi(t)) in e ? Object.defineProperty(e, t, {
 		value: n,
 		enumerable: !0,
 		configurable: !0,
 		writable: !0
 	}) : e[t] = n, e;
 }
-function Wi(e, t) {
+function qi(e, t) {
 	var n = Object.keys(e);
 	if (Object.getOwnPropertySymbols) {
 		var r = Object.getOwnPropertySymbols(e);
@@ -7493,51 +7518,59 @@ function Wi(e, t) {
 	}
 	return n;
 }
-function F(e) {
+function P(e) {
 	for (var t = 1; t < arguments.length; t++) {
 		var n = arguments[t] == null ? {} : arguments[t];
-		t % 2 ? Wi(Object(n), !0).forEach(function(t) {
-			Ui(e, t, n[t]);
-		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : Wi(Object(n)).forEach(function(t) {
+		t % 2 ? qi(Object(n), !0).forEach(function(t) {
+			Ki(e, t, n[t]);
+		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : qi(Object(n)).forEach(function(t) {
 			Object.defineProperty(e, t, Object.getOwnPropertyDescriptor(n, t));
 		});
 	}
 	return e;
 }
-var Gi = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), Ki = () => Headers, qi = (e, t, n, r, i) => {
-	let a = Gi(r), o = Ki(), s = i?.enabled === !0, c = i?.respectSamplingDecision !== !1, l = s ? zi(t) : null;
+var Ji = (e) => e ? (...t) => e(...t) : (...e) => fetch(...e), Yi = () => Headers, Xi = (e) => e.startsWith("sb_publishable_") || e.startsWith("sb_secret_"), Zi = "sb_temp_", Qi = /* @__PURE__ */ new Set(), $i = (e) => {
+	if (!e.startsWith("sb_") || Xi(e) || e.startsWith(Zi)) return;
+	let t = e.match(/^sb_[a-zA-Z0-9]+_/)?.[0] ?? "unknown";
+	Qi.has(t) || (Qi.add(t), console.warn("@supabase/supabase-js: Unrecognized Supabase API key format. The client will proceed and send this key as-is; if you see authentication errors you may need to upgrade @supabase/supabase-js to a version that recognizes this key type."));
+}, ea = (e, t, n, r, i, a) => {
+	let o = Ji(r), s = Yi(), c = i?.enabled === !0, l = i?.respectSamplingDecision !== !1, u = c ? Hi(t) : null, d = !(a?.omitApiKeyAsBearer && Xi(e));
 	return async (t, r) => {
-		let i = await n() ?? e, s = new o(r?.headers);
-		if (s.has("apikey") || s.set("apikey", e), s.has("Authorization") || s.set("Authorization", `Bearer ${i}`), l) {
-			let e = await Ji(t, l, c);
-			e && (e.traceparent && !s.has("traceparent") && s.set("traceparent", e.traceparent), e.tracestate && !s.has("tracestate") && s.set("tracestate", e.tracestate), e.baggage && !s.has("baggage") && s.set("baggage", e.baggage));
+		let i = await n(), a = new s(r?.headers);
+		if (a.has("apikey") || a.set("apikey", e), !a.has("Authorization")) {
+			let t = i ?? (d ? e : null);
+			t && a.set("Authorization", `Bearer ${t}`);
 		}
-		return a(t, F(F({}, r), {}, { headers: s }));
+		if (u) {
+			let e = await ta(t, u, l);
+			e && (e.traceparent && !a.has("traceparent") && a.set("traceparent", e.traceparent), e.tracestate && !a.has("tracestate") && a.set("tracestate", e.tracestate), e.baggage && !a.has("baggage") && a.set("baggage", e.baggage));
+		}
+		return o(t, P(P({}, r), {}, { headers: a }));
 	};
 };
-async function Ji(e, t, n) {
-	if (!Li(typeof e == "string" || e instanceof URL ? e : e.url, t)) return null;
-	let r = await Fi();
+async function ta(e, t, n) {
+	if (!Bi(typeof e == "string" || e instanceof URL ? e : e.url, t)) return null;
+	let r = await Ri();
 	if (!r || !r.traceparent) return null;
 	if (n) {
-		let e = Ii(r.traceparent);
+		let e = zi(r.traceparent);
 		if (e && !e.isSampled) return null;
 	}
 	return r;
 }
-function Yi(e) {
+function na(e) {
 	return typeof e == "boolean" ? { enabled: e } : e;
 }
-function Xi(e) {
+function ra(e) {
 	return e.endsWith("/") ? e : e + "/";
 }
-function Zi(e, t) {
-	let { db: n, auth: r, realtime: i, global: a } = e, { db: o, auth: s, realtime: c, global: l } = t, u = Yi(e.tracePropagation), d = Yi(t.tracePropagation), f = {
-		db: F(F({}, o), n),
-		auth: F(F({}, s), r),
-		realtime: F(F({}, c), i),
+function ia(e, t) {
+	let { db: n, auth: r, realtime: i, global: a } = e, { db: o, auth: s, realtime: c, global: l } = t, u = na(e.tracePropagation), d = na(t.tracePropagation), f = {
+		db: P(P({}, o), n),
+		auth: P(P({}, s), r),
+		realtime: P(P({}, c), i),
 		storage: {},
-		global: F(F(F({}, l), a), {}, { headers: F(F({}, l?.headers ?? {}), a?.headers ?? {}) }),
+		global: P(P(P({}, l), a), {}, { headers: P(P({}, l?.headers ?? {}), a?.headers ?? {}) }),
 		tracePropagation: {
 			enabled: u?.enabled ?? d?.enabled ?? !1,
 			respectSamplingDecision: u?.respectSamplingDecision ?? d?.respectSamplingDecision ?? !0
@@ -7546,36 +7579,36 @@ function Zi(e, t) {
 	};
 	return e.accessToken ? f.accessToken = e.accessToken : delete f.accessToken, f;
 }
-function Qi(e) {
+function aa(e) {
 	let t = e?.trim();
 	if (!t) throw Error("supabaseUrl is required.");
 	if (!t.match(/^https?:\/\//i)) throw Error("Invalid supabaseUrl: Must be a valid HTTP or HTTPS URL.");
 	try {
-		return new URL(Xi(t));
+		return new URL(ra(t));
 	} catch {
 		throw Error("Invalid supabaseUrl: Provided URL is malformed.");
 	}
 }
-var $i = class extends xi {
+var oa = class extends Ci {
 	constructor(e) {
 		super(e);
 	}
-}, ea = class {
+}, sa = class {
 	constructor(e, t, n) {
 		this.supabaseUrl = e, this.supabaseKey = t;
-		let r = Qi(e);
+		let r = aa(e);
 		if (!t) throw Error("supabaseKey is required.");
-		this.realtimeUrl = new URL("realtime/v1", r), this.realtimeUrl.protocol = this.realtimeUrl.protocol.replace("http", "ws"), this.authUrl = new URL("auth/v1", r), this.storageUrl = new URL("storage/v1", r), this.functionsUrl = new URL("functions/v1", r);
+		$i(t), this.realtimeUrl = new URL("realtime/v1", r), this.realtimeUrl.protocol = this.realtimeUrl.protocol.replace("http", "ws"), this.authUrl = new URL("auth/v1", r), this.storageUrl = new URL("storage/v1", r), this.functionsUrl = new URL("functions/v1", r);
 		let i = `sb-${r.hostname.split(".")[0]}-auth-token`, a = {
-			db: Di,
-			realtime: ki,
-			auth: F(F({}, Oi), {}, { storageKey: i }),
-			global: Ei,
-			tracePropagation: Ai
-		}, o = Zi(n ?? {}, a);
+			db: Ai,
+			realtime: Mi,
+			auth: P(P({}, ji), {}, { storageKey: i }),
+			global: ki,
+			tracePropagation: Ni
+		}, o = ia(n ?? {}, a);
 		this.settings = o, this.storageKey = o.auth.storageKey ?? "", this.headers = o.global.headers ?? {}, o.accessToken ? (this.accessToken = o.accessToken, this.auth = new Proxy({}, { get: (e, t) => {
 			throw Error(`@supabase/supabase-js: Supabase Client is configured with the accessToken option, accessing supabase.auth.${String(t)} is not possible`);
-		} })) : this.auth = this._initSupabaseAuthClient(o.auth ?? {}, this.headers, o.global.fetch), this.fetch = qi(t, e, this._getAccessToken.bind(this), o.global.fetch, o.tracePropagation), this.realtime = this._initRealtimeClient(F({
+		} })) : this.auth = this._initSupabaseAuthClient(o.auth ?? {}, this.headers, o.global.fetch), this.fetch = ea(t, e, this._getSessionToken.bind(this), o.global.fetch, o.tracePropagation), this.functionsFetch = ea(t, e, this._getSessionToken.bind(this), o.global.fetch, o.tracePropagation, { omitApiKeyAsBearer: !0 }), this.realtime = this._initRealtimeClient(P({
 			headers: this.headers,
 			accessToken: this._getAccessToken.bind(this),
 			fetch: this.fetch
@@ -7585,12 +7618,12 @@ var $i = class extends xi {
 			fetch: this.fetch,
 			timeout: o.db.timeout,
 			urlLengthLimit: o.db.urlLengthLimit
-		}), this.storage = new yn(this.storageUrl.href, this.headers, this.fetch, n?.storage), o.accessToken || this._listenForAuthEvents();
+		}), this.storage = new Sn(this.storageUrl.href, this.headers, this.fetch, n?.storage), o.accessToken || this._listenForAuthEvents();
 	}
 	get functions() {
 		return new l(this.functionsUrl.href, {
 			headers: this.headers,
-			customFetch: this.fetch
+			customFetch: this.functionsFetch
 		});
 	}
 	from(e) {
@@ -7618,20 +7651,24 @@ var $i = class extends xi {
 	removeAllChannels() {
 		return this.realtime.removeAllChannels();
 	}
-	async _getAccessToken() {
+	async _getSessionToken() {
 		var e = this;
 		if (e.accessToken) return await e.accessToken();
 		let { data: t } = await e.auth.getSession();
-		return t.session?.access_token ?? e.supabaseKey;
+		return t.session?.access_token ?? null;
+	}
+	async _getAccessToken() {
+		var e = this;
+		return await e._getSessionToken() ?? e.supabaseKey;
 	}
 	_initSupabaseAuthClient({ autoRefreshToken: e, persistSession: t, detectSessionInUrl: n, storage: r, userStorage: i, storageKey: a, flowType: o, lock: s, debug: c, throwOnError: l, experimental: u, lockAcquireTimeout: d, skipAutoInitialize: f }, p, m) {
 		let h = {
 			Authorization: `Bearer ${this.supabaseKey}`,
 			apikey: `${this.supabaseKey}`
 		};
-		return new $i({
+		return new oa({
 			url: this.authUrl.href,
-			headers: F(F({}, h), p),
+			headers: P(P({}, h), p),
 			storageKey: a,
 			autoRefreshToken: e,
 			persistSession: t,
@@ -7650,7 +7687,7 @@ var $i = class extends xi {
 		});
 	}
 	_initRealtimeClient(e) {
-		return new xt(this.realtimeUrl.href, F(F({}, e), {}, { params: F(F({}, { apikey: this.supabaseKey }), e?.params) }));
+		return new Ct(this.realtimeUrl.href, P(P({}, e), {}, { params: P(P({}, { apikey: this.supabaseKey }), e?.params) }));
 	}
 	_listenForAuthEvents() {
 		return this.auth.onAuthStateChange((e, t) => {
@@ -7658,10 +7695,10 @@ var $i = class extends xi {
 		});
 	}
 	_handleTokenChanged(e, t, n) {
-		(e === "TOKEN_REFRESHED" || e === "SIGNED_IN") && this.changedAccessToken !== n ? (this.changedAccessToken = n, this.realtime.setAuth(n)) : e === "SIGNED_OUT" && (this.realtime.setAuth(), t == "STORAGE" && this.auth.signOut(), this.changedAccessToken = void 0);
+		(e === "TOKEN_REFRESHED" || e === "SIGNED_IN" || e === "INITIAL_SESSION") && this.changedAccessToken !== n ? (this.changedAccessToken = n, this.realtime.setAuth(n)) : e === "SIGNED_OUT" && (this.realtime.setAuth(), t == "STORAGE" && this.auth.signOut(), this.changedAccessToken = void 0);
 	}
-}, ta = (e, t, n) => new ea(e, t, n);
-function na() {
+}, ca = (e, t, n) => new sa(e, t, n);
+function la() {
 	if (typeof window < "u") return !1;
 	let e = globalThis.process;
 	if (!e) return !1;
@@ -7670,34 +7707,34 @@ function na() {
 	let n = t.match(/^v(\d+)\./);
 	return n ? parseInt(n[1], 10) <= 20 : !1;
 }
-na() && console.warn("⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715");
+la() && console.warn("⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715");
 //#endregion
 //#region ../node_modules/groq-sdk/internal/tslib.mjs
-function ra(e, t, n, r, i) {
+function ua(e, t, n, r, i) {
 	if (r === "m") throw TypeError("Private method is not writable");
 	if (r === "a" && !i) throw TypeError("Private accessor was defined without a setter");
 	if (typeof t == "function" ? e !== t || !i : !t.has(e)) throw TypeError("Cannot write private member to an object whose class did not declare it");
 	return r === "a" ? i.call(e, n) : i ? i.value = n : t.set(e, n), n;
 }
-function I(e, t, n, r) {
+function F(e, t, n, r) {
 	if (n === "a" && !r) throw TypeError("Private accessor was defined without a getter");
 	if (typeof t == "function" ? e !== t || !r : !t.has(e)) throw TypeError("Cannot read private member from an object whose class did not declare it");
 	return n === "m" ? r : n === "a" ? r.call(e) : r ? r.value : t.get(e);
 }
 //#endregion
 //#region ../node_modules/groq-sdk/internal/utils/uuid.mjs
-var ia = function() {
+var da = function() {
 	let { crypto: e } = globalThis;
-	if (e?.randomUUID) return ia = e.randomUUID.bind(e), e.randomUUID();
+	if (e?.randomUUID) return da = e.randomUUID.bind(e), e.randomUUID();
 	let t = /* @__PURE__ */ new Uint8Array(1), n = e ? () => e.getRandomValues(t)[0] : () => Math.random() * 255 & 255;
 	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (e) => (e ^ n() & 15 >> e / 4).toString(16));
 };
 //#endregion
 //#region ../node_modules/groq-sdk/internal/errors.mjs
-function aa(e) {
+function fa(e) {
 	return typeof e == "object" && !!e && ("name" in e && e.name === "AbortError" || "message" in e && String(e.message).includes("FetchRequestCanceledException"));
 }
-var oa = (e) => {
+var pa = (e) => {
 	if (e instanceof Error) return e;
 	if (typeof e == "object" && e) {
 		try {
@@ -7711,7 +7748,7 @@ var oa = (e) => {
 		} catch {}
 	}
 	return Error(e);
-}, L = class extends Error {}, R = class e extends L {
+}, I = class extends Error {}, L = class e extends I {
 	constructor(t, n, r, i) {
 		super(`${e.makeMessage(t, n, r)}`), this.status = t, this.headers = i, this.error = n;
 	}
@@ -7720,61 +7757,61 @@ var oa = (e) => {
 		return e && r ? `${e} ${r}` : e ? `${e} status code (no body)` : r || "(no status code or body)";
 	}
 	static generate(t, n, r, i) {
-		if (!t || !i) return new ca({
+		if (!t || !i) return new ha({
 			message: r,
-			cause: oa(n)
+			cause: pa(n)
 		});
 		let a = n;
-		return t === 400 ? new ua(t, a, r, i) : t === 401 ? new da(t, a, r, i) : t === 403 ? new fa(t, a, r, i) : t === 404 ? new pa(t, a, r, i) : t === 409 ? new ma(t, a, r, i) : t === 422 ? new ha(t, a, r, i) : t === 429 ? new ga(t, a, r, i) : t >= 500 ? new _a(t, a, r, i) : new e(t, a, r, i);
+		return t === 400 ? new _a(t, a, r, i) : t === 401 ? new va(t, a, r, i) : t === 403 ? new ya(t, a, r, i) : t === 404 ? new ba(t, a, r, i) : t === 409 ? new xa(t, a, r, i) : t === 422 ? new Sa(t, a, r, i) : t === 429 ? new Ca(t, a, r, i) : t >= 500 ? new wa(t, a, r, i) : new e(t, a, r, i);
 	}
-}, sa = class extends R {
+}, ma = class extends L {
 	constructor({ message: e } = {}) {
 		super(void 0, void 0, e || "Request was aborted.", void 0);
 	}
-}, ca = class extends R {
+}, ha = class extends L {
 	constructor({ message: e, cause: t }) {
 		super(void 0, void 0, e || "Connection error.", void 0), t && (this.cause = t);
 	}
-}, la = class extends ca {
+}, ga = class extends ha {
 	constructor({ message: e } = {}) {
 		super({ message: e ?? "Request timed out." });
 	}
-}, ua = class extends R {}, da = class extends R {}, fa = class extends R {}, pa = class extends R {}, ma = class extends R {}, ha = class extends R {}, ga = class extends R {}, _a = class extends R {}, va = /^[a-z][a-z0-9+.-]*:/i, ya = (e) => va.test(e), ba = (e) => (ba = Array.isArray, ba(e)), xa = ba;
-function Sa(e) {
+}, _a = class extends L {}, va = class extends L {}, ya = class extends L {}, ba = class extends L {}, xa = class extends L {}, Sa = class extends L {}, Ca = class extends L {}, wa = class extends L {}, Ta = /^[a-z][a-z0-9+.-]*:/i, Ea = (e) => Ta.test(e), Da = (e) => (Da = Array.isArray, Da(e)), Oa = Da;
+function ka(e) {
 	if (!e) return !0;
 	for (let t in e) return !1;
 	return !0;
 }
-function Ca(e, t) {
+function Aa(e, t) {
 	return Object.prototype.hasOwnProperty.call(e, t);
 }
-var wa = (e, t) => {
-	if (typeof t != "number" || !Number.isInteger(t)) throw new L(`${e} must be an integer`);
-	if (t < 0) throw new L(`${e} must be a positive integer`);
+var ja = (e, t) => {
+	if (typeof t != "number" || !Number.isInteger(t)) throw new I(`${e} must be an integer`);
+	if (t < 0) throw new I(`${e} must be a positive integer`);
 	return t;
-}, Ta = (e) => {
+}, Ma = (e) => {
 	try {
 		return JSON.parse(e);
 	} catch {
 		return;
 	}
-}, Ea = (e) => new Promise((t) => setTimeout(t, e)), Da = "1.3.0", Oa = () => typeof window < "u" && window.document !== void 0 && typeof navigator < "u";
-function ka() {
+}, Na = (e) => new Promise((t) => setTimeout(t, e)), Pa = "1.4.0", Fa = () => typeof window < "u" && window.document !== void 0 && typeof navigator < "u";
+function Ia() {
 	return typeof Deno < "u" && Deno.build != null ? "deno" : typeof EdgeRuntime < "u" ? "edge" : Object.prototype.toString.call(globalThis.process === void 0 ? 0 : globalThis.process) === "[object process]" ? "node" : "unknown";
 }
-var Aa = () => {
-	let e = ka();
+var La = () => {
+	let e = Ia();
 	if (e === "deno") return {
 		"X-Stainless-Lang": "js",
-		"X-Stainless-Package-Version": Da,
-		"X-Stainless-OS": Na(Deno.build.os),
-		"X-Stainless-Arch": Ma(Deno.build.arch),
+		"X-Stainless-Package-Version": Pa,
+		"X-Stainless-OS": Ba(Deno.build.os),
+		"X-Stainless-Arch": za(Deno.build.arch),
 		"X-Stainless-Runtime": "deno",
 		"X-Stainless-Runtime-Version": typeof Deno.version == "string" ? Deno.version : Deno.version?.deno ?? "unknown"
 	};
 	if (typeof EdgeRuntime < "u") return {
 		"X-Stainless-Lang": "js",
-		"X-Stainless-Package-Version": Da,
+		"X-Stainless-Package-Version": Pa,
 		"X-Stainless-OS": "Unknown",
 		"X-Stainless-Arch": `other:${EdgeRuntime}`,
 		"X-Stainless-Runtime": "edge",
@@ -7782,30 +7819,30 @@ var Aa = () => {
 	};
 	if (e === "node") return {
 		"X-Stainless-Lang": "js",
-		"X-Stainless-Package-Version": Da,
-		"X-Stainless-OS": Na(globalThis.process.platform ?? "unknown"),
-		"X-Stainless-Arch": Ma(globalThis.process.arch ?? "unknown"),
+		"X-Stainless-Package-Version": Pa,
+		"X-Stainless-OS": Ba(globalThis.process.platform ?? "unknown"),
+		"X-Stainless-Arch": za(globalThis.process.arch ?? "unknown"),
 		"X-Stainless-Runtime": "node",
 		"X-Stainless-Runtime-Version": globalThis.process.version ?? "unknown"
 	};
-	let t = ja();
+	let t = Ra();
 	return t ? {
 		"X-Stainless-Lang": "js",
-		"X-Stainless-Package-Version": Da,
+		"X-Stainless-Package-Version": Pa,
 		"X-Stainless-OS": "Unknown",
 		"X-Stainless-Arch": "unknown",
 		"X-Stainless-Runtime": `browser:${t.browser}`,
 		"X-Stainless-Runtime-Version": t.version
 	} : {
 		"X-Stainless-Lang": "js",
-		"X-Stainless-Package-Version": Da,
+		"X-Stainless-Package-Version": Pa,
 		"X-Stainless-OS": "Unknown",
 		"X-Stainless-Arch": "unknown",
 		"X-Stainless-Runtime": "unknown",
 		"X-Stainless-Runtime-Version": "unknown"
 	};
 };
-function ja() {
+function Ra() {
 	if (typeof navigator > "u" || !navigator) return null;
 	for (let { key: e, pattern: t } of [
 		{
@@ -7841,21 +7878,21 @@ function ja() {
 	}
 	return null;
 }
-var Ma = (e) => e === "x32" ? "x32" : e === "x86_64" || e === "x64" ? "x64" : e === "arm" ? "arm" : e === "aarch64" || e === "arm64" ? "arm64" : e ? `other:${e}` : "unknown", Na = (e) => (e = e.toLowerCase(), e.includes("ios") ? "iOS" : e === "android" ? "Android" : e === "darwin" ? "MacOS" : e === "win32" ? "Windows" : e === "freebsd" ? "FreeBSD" : e === "openbsd" ? "OpenBSD" : e === "linux" ? "Linux" : e ? `Other:${e}` : "Unknown"), Pa, Fa = () => Pa ??= Aa();
+var za = (e) => e === "x32" ? "x32" : e === "x86_64" || e === "x64" ? "x64" : e === "arm" ? "arm" : e === "aarch64" || e === "arm64" ? "arm64" : e ? `other:${e}` : "unknown", Ba = (e) => (e = e.toLowerCase(), e.includes("ios") ? "iOS" : e === "android" ? "Android" : e === "darwin" ? "MacOS" : e === "win32" ? "Windows" : e === "freebsd" ? "FreeBSD" : e === "openbsd" ? "OpenBSD" : e === "linux" ? "Linux" : e ? `Other:${e}` : "Unknown"), Va, Ha = () => Va ??= La();
 //#endregion
 //#region ../node_modules/groq-sdk/internal/shims.mjs
-function Ia() {
+function Ua() {
 	if (typeof fetch < "u") return fetch;
 	throw Error("`fetch` is not defined as a global; Either pass `fetch` to the client, `new Groq({ fetch })` or polyfill the global, `globalThis.fetch = fetch`");
 }
-function La(...e) {
+function Wa(...e) {
 	let t = globalThis.ReadableStream;
 	if (t === void 0) throw Error("`ReadableStream` is not defined as a global; You will need to polyfill it, `globalThis.ReadableStream = ReadableStream`");
 	return new t(...e);
 }
-function Ra(e) {
+function Ga(e) {
 	let t = Symbol.asyncIterator in e ? e[Symbol.asyncIterator]() : e[Symbol.iterator]();
-	return La({
+	return Wa({
 		start() {},
 		async pull(e) {
 			let { done: n, value: r } = await t.next();
@@ -7866,7 +7903,7 @@ function Ra(e) {
 		}
 	});
 }
-function za(e) {
+function Ka(e) {
 	if (e[Symbol.asyncIterator]) return e;
 	let t = e.getReader();
 	return {
@@ -7890,7 +7927,7 @@ function za(e) {
 		}
 	};
 }
-async function Ba(e) {
+async function qa(e) {
 	if (typeof e != "object" || !e) return;
 	if (e[Symbol.asyncIterator]) {
 		await e[Symbol.asyncIterator]().return?.();
@@ -7901,39 +7938,39 @@ async function Ba(e) {
 }
 //#endregion
 //#region ../node_modules/groq-sdk/internal/request-options.mjs
-var Va = ({ headers: e, body: t }) => ({
+var Ja = ({ headers: e, body: t }) => ({
 	bodyHeaders: { "content-type": "application/json" },
 	body: JSON.stringify(t)
 });
 //#endregion
 //#region ../node_modules/groq-sdk/internal/utils/query.mjs
-function Ha(e) {
+function Ya(e) {
 	return Object.entries(e).filter(([e, t]) => t !== void 0).map(([e, t]) => {
 		if (typeof t == "string" || typeof t == "number" || typeof t == "boolean") return `${encodeURIComponent(e)}=${encodeURIComponent(t)}`;
 		if (t === null) return `${encodeURIComponent(e)}=`;
-		throw new L(`Cannot stringify type ${typeof t}; Expected string, number, boolean, or null. If you need to pass nested query parameters, you can manually encode them, e.g. { query: { 'foo[key1]': value1, 'foo[key2]': value2 } }, and please open a GitHub issue requesting better support for your use case.`);
+		throw new I(`Cannot stringify type ${typeof t}; Expected string, number, boolean, or null. If you need to pass nested query parameters, you can manually encode them, e.g. { query: { 'foo[key1]': value1, 'foo[key2]': value2 } }, and please open a GitHub issue requesting better support for your use case.`);
 	}).join("&");
 }
 //#endregion
 //#region ../node_modules/groq-sdk/internal/uploads.mjs
-var Ua = () => {
+var Xa = () => {
 	if (typeof File > "u") {
 		let { process: e } = globalThis, t = typeof e?.versions?.node == "string" && parseInt(e.versions.node.split(".")) < 20;
 		throw Error("`File` is not defined as a global, which is required for file uploads." + (t ? " Update to Node 20 LTS or newer, or set `globalThis.File` to `import('node:buffer').File`." : ""));
 	}
 };
-function Wa(e, t, n) {
-	return Ua(), new File(e, t ?? "unknown_file", n);
+function Za(e, t, n) {
+	return Xa(), new File(e, t ?? "unknown_file", n);
 }
-function Ga(e) {
+function Qa(e) {
 	return (typeof e == "object" && !!e && ("name" in e && e.name && String(e.name) || "url" in e && e.url && String(e.url) || "filename" in e && e.filename && String(e.filename) || "path" in e && e.path && String(e.path)) || "").split(/[\\/]/).pop() || void 0;
 }
-var Ka = (e) => typeof e == "object" && !!e && typeof e[Symbol.asyncIterator] == "function", qa = async (e, t) => ({
+var $a = (e) => typeof e == "object" && !!e && typeof e[Symbol.asyncIterator] == "function", eo = async (e, t) => ({
 	...e,
-	body: await Xa(e.body, t)
-}), Ja = /* @__PURE__ */ new WeakMap();
-function Ya(e) {
-	let t = typeof e == "function" ? e : e.fetch, n = Ja.get(t);
+	body: await ro(e.body, t)
+}), to = /* @__PURE__ */ new WeakMap();
+function no(e) {
+	let t = typeof e == "function" ? e : e.fetch, n = to.get(t);
 	if (n) return n;
 	let r = (async () => {
 		try {
@@ -7943,132 +7980,132 @@ function Ya(e) {
 			return !0;
 		}
 	})();
-	return Ja.set(t, r), r;
+	return to.set(t, r), r;
 }
-var Xa = async (e, t) => {
-	if (!await Ya(t)) throw TypeError("The provided fetch function does not support file uploads with the current global FormData class.");
+var ro = async (e, t) => {
+	if (!await no(t)) throw TypeError("The provided fetch function does not support file uploads with the current global FormData class.");
 	let n = new FormData();
-	return await Promise.all(Object.entries(e || {}).map(([e, t]) => Qa(n, e, t))), n;
-}, Za = (e) => e instanceof Blob && "name" in e, Qa = async (e, t, n) => {
+	return await Promise.all(Object.entries(e || {}).map(([e, t]) => ao(n, e, t))), n;
+}, io = (e) => e instanceof Blob && "name" in e, ao = async (e, t, n) => {
 	if (n !== void 0) {
 		if (n == null) throw TypeError(`Received null for "${t}"; to pass null in FormData, you must use the string 'null'`);
 		if (typeof n == "string" || typeof n == "number" || typeof n == "boolean") e.append(t, String(n));
-		else if (n instanceof Response) e.append(t, Wa([await n.blob()], Ga(n)));
-		else if (Ka(n)) e.append(t, Wa([await new Response(Ra(n)).blob()], Ga(n)));
-		else if (Za(n)) e.append(t, n, Ga(n));
-		else if (Array.isArray(n)) await Promise.all(n.map((n) => Qa(e, t + "[]", n)));
-		else if (typeof n == "object") await Promise.all(Object.entries(n).map(([n, r]) => Qa(e, `${t}[${n}]`, r)));
+		else if (n instanceof Response) e.append(t, Za([await n.blob()], Qa(n)));
+		else if ($a(n)) e.append(t, Za([await new Response(Ga(n)).blob()], Qa(n)));
+		else if (io(n)) e.append(t, n, Qa(n));
+		else if (Array.isArray(n)) await Promise.all(n.map((n) => ao(e, t + "[]", n)));
+		else if (typeof n == "object") await Promise.all(Object.entries(n).map(([n, r]) => ao(e, `${t}[${n}]`, r)));
 		else throw TypeError(`Invalid value given to form, expected a string, number, boolean, object, Array, File or Blob but got ${n} instead`);
 	}
-}, $a = (e) => typeof e == "object" && !!e && typeof e.size == "number" && typeof e.type == "string" && typeof e.text == "function" && typeof e.slice == "function" && typeof e.arrayBuffer == "function", eo = (e) => typeof e == "object" && !!e && typeof e.name == "string" && typeof e.lastModified == "number" && $a(e), to = (e) => typeof e == "object" && !!e && typeof e.url == "string" && typeof e.blob == "function";
-async function no(e, t, n) {
-	if (Ua(), e = await e, eo(e)) return e instanceof File ? e : Wa([await e.arrayBuffer()], e.name);
-	if (to(e)) {
+}, oo = (e) => typeof e == "object" && !!e && typeof e.size == "number" && typeof e.type == "string" && typeof e.text == "function" && typeof e.slice == "function" && typeof e.arrayBuffer == "function", so = (e) => typeof e == "object" && !!e && typeof e.name == "string" && typeof e.lastModified == "number" && oo(e), co = (e) => typeof e == "object" && !!e && typeof e.url == "string" && typeof e.blob == "function";
+async function lo(e, t, n) {
+	if (Xa(), e = await e, so(e)) return e instanceof File ? e : Za([await e.arrayBuffer()], e.name);
+	if (co(e)) {
 		let r = await e.blob();
-		return t ||= new URL(e.url).pathname.split(/[\\/]/).pop(), Wa(await ro(r), t, n);
+		return t ||= new URL(e.url).pathname.split(/[\\/]/).pop(), Za(await uo(r), t, n);
 	}
-	let r = await ro(e);
-	if (t ||= Ga(e), !n?.type) {
+	let r = await uo(e);
+	if (t ||= Qa(e), !n?.type) {
 		let e = r.find((e) => typeof e == "object" && "type" in e && e.type);
 		typeof e == "string" && (n = {
 			...n,
 			type: e
 		});
 	}
-	return Wa(r, t, n);
+	return Za(r, t, n);
 }
-async function ro(e) {
+async function uo(e) {
 	let t = [];
 	if (typeof e == "string" || ArrayBuffer.isView(e) || e instanceof ArrayBuffer) t.push(e);
-	else if ($a(e)) t.push(e instanceof Blob ? e : await e.arrayBuffer());
-	else if (Ka(e)) for await (let n of e) t.push(...await ro(n));
+	else if (oo(e)) t.push(e instanceof Blob ? e : await e.arrayBuffer());
+	else if ($a(e)) for await (let n of e) t.push(...await uo(n));
 	else {
 		let t = e?.constructor?.name;
-		throw Error(`Unexpected data type: ${typeof e}${t ? `; constructor: ${t}` : ""}${io(e)}`);
+		throw Error(`Unexpected data type: ${typeof e}${t ? `; constructor: ${t}` : ""}${fo(e)}`);
 	}
 	return t;
 }
-function io(e) {
+function fo(e) {
 	return typeof e != "object" || !e ? "" : `; props: [${Object.getOwnPropertyNames(e).map((e) => `"${e}"`).join(", ")}]`;
 }
 //#endregion
 //#region ../node_modules/groq-sdk/core/resource.mjs
-var ao = class {
+var R = class {
 	constructor(e) {
 		this._client = e;
 	}
-}, oo = /* @__PURE__ */ Symbol("brand.privateNullableHeaders");
-function* so(e) {
+}, po = /* @__PURE__ */ Symbol("brand.privateNullableHeaders");
+function* mo(e) {
 	if (!e) return;
-	if (oo in e) {
+	if (po in e) {
 		let { values: t, nulls: n } = e;
 		yield* t.entries();
 		for (let e of n) yield [e, null];
 		return;
 	}
 	let t = !1, n;
-	e instanceof Headers ? n = e.entries() : xa(e) ? n = e : (t = !0, n = Object.entries(e ?? {}));
+	e instanceof Headers ? n = e.entries() : Oa(e) ? n = e : (t = !0, n = Object.entries(e ?? {}));
 	for (let e of n) {
 		let n = e[0];
 		if (typeof n != "string") throw TypeError("expected header name to be a string");
-		let r = xa(e[1]) ? e[1] : [e[1]], i = !1;
+		let r = Oa(e[1]) ? e[1] : [e[1]], i = !1;
 		for (let e of r) e !== void 0 && (t && !i && (i = !0, yield [n, null]), yield [n, e]);
 	}
 }
-var co = (e) => {
+var ho = (e) => {
 	let t = new Headers(), n = /* @__PURE__ */ new Set();
 	for (let r of e) {
 		let e = /* @__PURE__ */ new Set();
-		for (let [i, a] of so(r)) {
+		for (let [i, a] of mo(r)) {
 			let r = i.toLowerCase();
 			e.has(r) || (t.delete(i), e.add(r)), a === null ? (t.delete(i), n.add(r)) : (t.append(i, a), n.delete(r));
 		}
 	}
 	return {
-		[oo]: !0,
+		[po]: !0,
 		values: t,
 		nulls: n
 	};
-}, lo = class extends ao {
+}, go = class extends R {
 	create(e, t) {
 		return this._client.post("/openai/v1/audio/speech", {
 			body: e,
 			...t,
-			headers: co([{ Accept: "audio/wav" }, t?.headers]),
+			headers: ho([{ Accept: "audio/wav" }, t?.headers]),
 			__binaryResponse: !0
 		});
 	}
-}, uo = class extends ao {
+}, _o = class extends R {
 	create(e, t) {
-		return this._client.post("/openai/v1/audio/transcriptions", qa({
+		return this._client.post("/openai/v1/audio/transcriptions", eo({
 			body: e,
 			...t
 		}, this._client));
 	}
-}, fo = class extends ao {
+}, vo = class extends R {
 	create(e, t) {
-		return this._client.post("/openai/v1/audio/translations", qa({
+		return this._client.post("/openai/v1/audio/translations", eo({
 			body: e,
 			...t
 		}, this._client));
 	}
-}, po = class extends ao {
+}, yo = class extends R {
 	constructor() {
-		super(...arguments), this.speech = new lo(this._client), this.transcriptions = new uo(this._client), this.translations = new fo(this._client);
+		super(...arguments), this.speech = new go(this._client), this.transcriptions = new _o(this._client), this.translations = new vo(this._client);
 	}
 };
-po.Speech = lo, po.Transcriptions = uo, po.Translations = fo;
+yo.Speech = go, yo.Transcriptions = _o, yo.Translations = vo;
 //#endregion
 //#region ../node_modules/groq-sdk/internal/utils/path.mjs
-function mo(e) {
+function bo(e) {
 	return e.replace(/[^A-Za-z0-9\-._~!$&'()*+,;=:@]+/g, encodeURIComponent);
 }
-var ho = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null)), go = /* @__PURE__ */ ((e = mo) => function(t, ...n) {
+var xo = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null)), So = /* @__PURE__ */ ((e = bo) => function(t, ...n) {
 	if (t.length === 1) return t[0];
 	let r = !1, i = [], a = t.reduce((t, a, o) => {
 		/[?#]/.test(a) && (r = !0);
 		let s = n[o], c = (r ? encodeURIComponent : e)("" + s);
-		return o !== n.length && (s == null || typeof s == "object" && s.toString === Object.getPrototypeOf(Object.getPrototypeOf(s.hasOwnProperty ?? ho) ?? ho)?.toString) && (c = s + "", i.push({
+		return o !== n.length && (s == null || typeof s == "object" && s.toString === Object.getPrototypeOf(Object.getPrototypeOf(s.hasOwnProperty ?? xo) ?? xo)?.toString) && (c = s + "", i.push({
 			start: t.length + a.length,
 			length: c.length,
 			error: `Value of type ${Object.prototype.toString.call(s).slice(8, -1)} is not a valid path parameter`
@@ -8084,10 +8121,10 @@ var ho = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null)), go 
 			let r = " ".repeat(n.start - e), i = "^".repeat(n.length);
 			return e = n.start + n.length, t + r + i;
 		}, "");
-		throw new L(`Path parameters result in path with invalid segments:\n${i.map((e) => e.error).join("\n")}\n${a}\n${t}`);
+		throw new I(`Path parameters result in path with invalid segments:\n${i.map((e) => e.error).join("\n")}\n${a}\n${t}`);
 	}
 	return a;
-})(mo), _o = class extends ao {
+})(bo), Co = class extends R {
 	create(e, t) {
 		return this._client.post("/openai/v1/batches", {
 			body: e,
@@ -8095,15 +8132,15 @@ var ho = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null)), go 
 		});
 	}
 	retrieve(e, t) {
-		return this._client.get(go`/openai/v1/batches/${e}`, t);
+		return this._client.get(So`/openai/v1/batches/${e}`, t);
 	}
 	list(e) {
 		return this._client.get("/openai/v1/batches", e);
 	}
 	cancel(e, t) {
-		return this._client.post(go`/openai/v1/batches/${e}/cancel`, t);
+		return this._client.post(So`/openai/v1/batches/${e}/cancel`, t);
 	}
-}, vo = class extends ao {
+}, wo = class extends R {
 	create(e, t) {
 		return this._client.post("/openai/v1/chat/completions", {
 			body: e,
@@ -8111,24 +8148,24 @@ var ho = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null)), go 
 			stream: e.stream ?? !1
 		});
 	}
-}, yo = class extends ao {
+}, To = class extends R {
 	constructor() {
-		super(...arguments), this.completions = new vo(this._client);
+		super(...arguments), this.completions = new wo(this._client);
 	}
 };
-yo.Completions = vo;
+To.Completions = wo;
 //#endregion
 //#region ../node_modules/groq-sdk/resources/completions.mjs
-var bo = class extends ao {}, xo = class extends ao {
+var Eo = class extends R {}, Do = class extends R {
 	create(e, t) {
 		return this._client.post("/openai/v1/embeddings", {
 			body: e,
 			...t
 		});
 	}
-}, So = class extends ao {
+}, Oo = class extends R {
 	create(e, t) {
-		return this._client.post("/openai/v1/files", qa({
+		return this._client.post("/openai/v1/files", eo({
 			body: e,
 			...t
 		}, this._client));
@@ -8137,79 +8174,79 @@ var bo = class extends ao {}, xo = class extends ao {
 		return this._client.get("/openai/v1/files", e);
 	}
 	delete(e, t) {
-		return this._client.delete(go`/openai/v1/files/${e}`, t);
+		return this._client.delete(So`/openai/v1/files/${e}`, t);
 	}
 	content(e, t) {
-		return this._client.get(go`/openai/v1/files/${e}/content`, {
+		return this._client.get(So`/openai/v1/files/${e}/content`, {
 			...t,
-			headers: co([{ Accept: "application/octet-stream" }, t?.headers]),
+			headers: ho([{ Accept: "application/octet-stream" }, t?.headers]),
 			__binaryResponse: !0
 		});
 	}
 	info(e, t) {
-		return this._client.get(go`/openai/v1/files/${e}`, t);
+		return this._client.get(So`/openai/v1/files/${e}`, t);
 	}
-}, Co = class extends ao {
+}, ko = class extends R {
 	retrieve(e, t) {
-		return this._client.get(go`/openai/v1/models/${e}`, t);
+		return this._client.get(So`/openai/v1/models/${e}`, t);
 	}
 	list(e) {
 		return this._client.get("/openai/v1/models", e);
 	}
 	delete(e, t) {
-		return this._client.delete(go`/openai/v1/models/${e}`, t);
+		return this._client.delete(So`/openai/v1/models/${e}`, t);
 	}
 };
 //#endregion
 //#region ../node_modules/groq-sdk/internal/utils/bytes.mjs
-function wo(e) {
+function Ao(e) {
 	let t = 0;
 	for (let n of e) t += n.length;
 	let n = new Uint8Array(t), r = 0;
 	for (let t of e) n.set(t, r), r += t.length;
 	return n;
 }
-var To;
-function Eo(e) {
+var jo;
+function Mo(e) {
 	let t;
-	return (To ??= (t = new globalThis.TextEncoder(), t.encode.bind(t)))(e);
+	return (jo ??= (t = new globalThis.TextEncoder(), t.encode.bind(t)))(e);
 }
-var Do;
-function Oo(e) {
+var No;
+function Po(e) {
 	let t;
-	return (Do ??= (t = new globalThis.TextDecoder(), t.decode.bind(t)))(e);
+	return (No ??= (t = new globalThis.TextDecoder(), t.decode.bind(t)))(e);
 }
 //#endregion
 //#region ../node_modules/groq-sdk/internal/decoders/line.mjs
-var z, B, ko = class {
+var z, B, Fo = class {
 	constructor() {
-		z.set(this, void 0), B.set(this, void 0), ra(this, z, /* @__PURE__ */ new Uint8Array(), "f"), ra(this, B, null, "f");
+		z.set(this, void 0), B.set(this, void 0), ua(this, z, /* @__PURE__ */ new Uint8Array(), "f"), ua(this, B, null, "f");
 	}
 	decode(e) {
 		if (e == null) return [];
-		let t = e instanceof ArrayBuffer ? new Uint8Array(e) : typeof e == "string" ? Eo(e) : e;
-		ra(this, z, wo([I(this, z, "f"), t]), "f");
+		let t = e instanceof ArrayBuffer ? new Uint8Array(e) : typeof e == "string" ? Mo(e) : e;
+		ua(this, z, Ao([F(this, z, "f"), t]), "f");
 		let n = [], r;
-		for (; (r = Ao(I(this, z, "f"), I(this, B, "f"))) != null;) {
-			if (r.carriage && I(this, B, "f") == null) {
-				ra(this, B, r.index, "f");
+		for (; (r = Io(F(this, z, "f"), F(this, B, "f"))) != null;) {
+			if (r.carriage && F(this, B, "f") == null) {
+				ua(this, B, r.index, "f");
 				continue;
 			}
-			if (I(this, B, "f") != null && (r.index !== I(this, B, "f") + 1 || r.carriage)) {
-				n.push(Oo(I(this, z, "f").subarray(0, I(this, B, "f") - 1))), ra(this, z, I(this, z, "f").subarray(I(this, B, "f")), "f"), ra(this, B, null, "f");
+			if (F(this, B, "f") != null && (r.index !== F(this, B, "f") + 1 || r.carriage)) {
+				n.push(Po(F(this, z, "f").subarray(0, F(this, B, "f") - 1))), ua(this, z, F(this, z, "f").subarray(F(this, B, "f")), "f"), ua(this, B, null, "f");
 				continue;
 			}
-			let e = I(this, B, "f") === null ? r.preceding : r.preceding - 1, t = Oo(I(this, z, "f").subarray(0, e));
-			n.push(t), ra(this, z, I(this, z, "f").subarray(r.index), "f"), ra(this, B, null, "f");
+			let e = F(this, B, "f") === null ? r.preceding : r.preceding - 1, t = Po(F(this, z, "f").subarray(0, e));
+			n.push(t), ua(this, z, F(this, z, "f").subarray(r.index), "f"), ua(this, B, null, "f");
 		}
 		return n;
 	}
 	flush() {
-		return I(this, z, "f").length ? this.decode("\n") : [];
+		return F(this, z, "f").length ? this.decode("\n") : [];
 	}
 };
-z = /* @__PURE__ */ new WeakMap(), B = /* @__PURE__ */ new WeakMap(), ko.NEWLINE_CHARS = /* @__PURE__ */ new Set(["\n", "\r"]), ko.NEWLINE_REGEXP = /\r\n|[\n\r]/g;
-function Ao(e, t) {
+z = /* @__PURE__ */ new WeakMap(), B = /* @__PURE__ */ new WeakMap(), Fo.NEWLINE_CHARS = /* @__PURE__ */ new Set(["\n", "\r"]), Fo.NEWLINE_REGEXP = /\r\n|[\n\r]/g;
+function Io(e, t) {
 	for (let n = t ?? 0; n < e.length; n++) {
 		if (e[n] === 10) return {
 			preceding: n,
@@ -8224,7 +8261,7 @@ function Ao(e, t) {
 	}
 	return null;
 }
-function jo(e) {
+function Lo(e) {
 	for (let t = 0; t < e.length - 1; t++) {
 		if (e[t] === 10 && e[t + 1] === 10 || e[t] === 13 && e[t + 1] === 13) return t + 2;
 		if (e[t] === 13 && e[t + 1] === 10 && t + 3 < e.length && e[t + 2] === 13 && e[t + 3] === 10) return t + 4;
@@ -8233,53 +8270,53 @@ function jo(e) {
 }
 //#endregion
 //#region ../node_modules/groq-sdk/internal/utils/log.mjs
-var Mo = {
+var Ro = {
 	off: 0,
 	error: 200,
 	warn: 300,
 	info: 400,
 	debug: 500
-}, No = (e, t, n) => {
+}, zo = (e, t, n) => {
 	if (e) {
-		if (Ca(Mo, e)) return e;
-		V(n).warn(`${t} was set to ${JSON.stringify(e)}, expected one of ${JSON.stringify(Object.keys(Mo))}`);
+		if (Aa(Ro, e)) return e;
+		V(n).warn(`${t} was set to ${JSON.stringify(e)}, expected one of ${JSON.stringify(Object.keys(Ro))}`);
 	}
 };
-function Po() {}
-function Fo(e, t, n) {
-	return !t || Mo[e] > Mo[n] ? Po : t[e].bind(t);
+function Bo() {}
+function Vo(e, t, n) {
+	return !t || Ro[e] > Ro[n] ? Bo : t[e].bind(t);
 }
-var Io = {
-	error: Po,
-	warn: Po,
-	info: Po,
-	debug: Po
-}, Lo = /* @__PURE__ */ new WeakMap();
+var Ho = {
+	error: Bo,
+	warn: Bo,
+	info: Bo,
+	debug: Bo
+}, Uo = /* @__PURE__ */ new WeakMap();
 function V(e) {
 	let t = e.logger, n = e.logLevel ?? "off";
-	if (!t) return Io;
-	let r = Lo.get(t);
+	if (!t) return Ho;
+	let r = Uo.get(t);
 	if (r && r[0] === n) return r[1];
 	let i = {
-		error: Fo("error", t, n),
-		warn: Fo("warn", t, n),
-		info: Fo("info", t, n),
-		debug: Fo("debug", t, n)
+		error: Vo("error", t, n),
+		warn: Vo("warn", t, n),
+		info: Vo("info", t, n),
+		debug: Vo("debug", t, n)
 	};
-	return Lo.set(t, [n, i]), i;
+	return Uo.set(t, [n, i]), i;
 }
-var Ro = (e) => (e.options && (e.options = { ...e.options }, delete e.options.headers), e.headers &&= Object.fromEntries((e.headers instanceof Headers ? [...e.headers] : Object.entries(e.headers)).map(([e, t]) => [e, e.toLowerCase() === "authorization" || e.toLowerCase() === "api-key" || e.toLowerCase() === "x-api-key" || e.toLowerCase() === "cookie" || e.toLowerCase() === "set-cookie" ? "***" : t])), "retryOfRequestLogID" in e && (e.retryOfRequestLogID && (e.retryOf = e.retryOfRequestLogID), delete e.retryOfRequestLogID), e), zo, Bo = class e {
+var Wo = (e) => (e.options && (e.options = { ...e.options }, delete e.options.headers), e.headers &&= Object.fromEntries((e.headers instanceof Headers ? [...e.headers] : Object.entries(e.headers)).map(([e, t]) => [e, e.toLowerCase() === "authorization" || e.toLowerCase() === "api-key" || e.toLowerCase() === "x-api-key" || e.toLowerCase() === "cookie" || e.toLowerCase() === "set-cookie" ? "***" : t])), "retryOfRequestLogID" in e && (e.retryOfRequestLogID && (e.retryOf = e.retryOfRequestLogID), delete e.retryOfRequestLogID), e), Go, Ko = class e {
 	constructor(e, t, n) {
-		this.iterator = e, zo.set(this, void 0), this.controller = t, ra(this, zo, n, "f");
+		this.iterator = e, Go.set(this, void 0), this.controller = t, ua(this, Go, n, "f");
 	}
 	static fromSSEResponse(t, n, r) {
 		let i = !1, a = r ? V(r) : console;
 		async function* o() {
-			if (i) throw new L("Cannot iterate over a consumed stream, use `.tee()` to split the stream.");
+			if (i) throw new I("Cannot iterate over a consumed stream, use `.tee()` to split the stream.");
 			i = !0;
 			let e = !1;
 			try {
-				for await (let r of Vo(t, n)) if (!e) {
+				for await (let r of qo(t, n)) if (!e) {
 					if (r.data.startsWith("[DONE]")) {
 						e = !0;
 						continue;
@@ -8291,7 +8328,7 @@ var Ro = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 						} catch (e) {
 							throw a.error("Could not parse message into JSON:", r.data), a.error("From chunk:", r.raw), e;
 						}
-						if (e && e.error) throw new R(void 0, e.error, void 0, t.headers);
+						if (e && e.error) throw new L(void 0, e.error, void 0, t.headers);
 						yield e;
 					} else {
 						let e;
@@ -8300,7 +8337,7 @@ var Ro = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 						} catch (e) {
 							throw console.error("Could not parse message into JSON:", r.data), console.error("From chunk:", r.raw), e;
 						}
-						if (r.event == "error") throw new R(void 0, e.error, e.message, void 0);
+						if (r.event == "error") throw new L(void 0, e.error, e.message, void 0);
 						yield {
 							event: r.event,
 							data: e
@@ -8309,7 +8346,7 @@ var Ro = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 				}
 				e = !0;
 			} catch (e) {
-				if (aa(e)) return;
+				if (fa(e)) return;
 				throw e;
 			} finally {
 				e || n.abort();
@@ -8320,19 +8357,19 @@ var Ro = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 	static fromReadableStream(t, n, r) {
 		let i = !1;
 		async function* a() {
-			let e = new ko(), n = za(t);
+			let e = new Fo(), n = Ka(t);
 			for await (let t of n) for (let n of e.decode(t)) yield n;
 			for (let t of e.flush()) yield t;
 		}
 		async function* o() {
-			if (i) throw new L("Cannot iterate over a consumed stream, use `.tee()` to split the stream.");
+			if (i) throw new I("Cannot iterate over a consumed stream, use `.tee()` to split the stream.");
 			i = !0;
 			let e = !1;
 			try {
 				for await (let t of a()) e || t && (yield JSON.parse(t));
 				e = !0;
 			} catch (e) {
-				if (aa(e)) return;
+				if (fa(e)) return;
 				throw e;
 			} finally {
 				e || n.abort();
@@ -8340,7 +8377,7 @@ var Ro = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 		}
 		return new e(o, n, r);
 	}
-	[(zo = /* @__PURE__ */ new WeakMap(), Symbol.asyncIterator)]() {
+	[(Go = /* @__PURE__ */ new WeakMap(), Symbol.asyncIterator)]() {
 		return this.iterator();
 	}
 	tee() {
@@ -8351,11 +8388,11 @@ var Ro = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 			}
 			return e.shift();
 		} });
-		return [new e(() => i(t), this.controller, I(this, zo, "f")), new e(() => i(n), this.controller, I(this, zo, "f"))];
+		return [new e(() => i(t), this.controller, F(this, Go, "f")), new e(() => i(n), this.controller, F(this, Go, "f"))];
 	}
 	toReadableStream() {
 		let e = this, t;
-		return La({
+		return Wa({
 			async start() {
 				t = e[Symbol.asyncIterator]();
 			},
@@ -8363,7 +8400,7 @@ var Ro = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 				try {
 					let { value: n, done: r } = await t.next();
 					if (r) return e.close();
-					let i = Eo(JSON.stringify(n) + "\n");
+					let i = Mo(JSON.stringify(n) + "\n");
 					e.enqueue(i);
 				} catch (t) {
 					e.error(t);
@@ -8375,10 +8412,10 @@ var Ro = (e) => (e.options && (e.options = { ...e.options }, delete e.options.he
 		});
 	}
 };
-async function* Vo(e, t) {
-	if (!e.body) throw t.abort(), globalThis.navigator !== void 0 && globalThis.navigator.product === "ReactNative" ? new L("The default react-native fetch implementation does not support streaming. Please use expo/fetch: https://docs.expo.dev/versions/latest/sdk/expo/#expofetch-api") : new L("Attempted to iterate over a response with no body");
-	let n = new Uo(), r = new ko(), i = za(e.body);
-	for await (let e of Ho(i)) for (let t of r.decode(e)) {
+async function* qo(e, t) {
+	if (!e.body) throw t.abort(), globalThis.navigator !== void 0 && globalThis.navigator.product === "ReactNative" ? new I("The default react-native fetch implementation does not support streaming. Please use expo/fetch: https://docs.expo.dev/versions/latest/sdk/expo/#expofetch-api") : new I("Attempted to iterate over a response with no body");
+	let n = new Yo(), r = new Fo(), i = Ka(e.body);
+	for await (let e of Jo(i)) for (let t of r.decode(e)) {
 		let e = n.decode(t);
 		e && (yield e);
 	}
@@ -8387,18 +8424,18 @@ async function* Vo(e, t) {
 		t && (yield t);
 	}
 }
-async function* Ho(e) {
+async function* Jo(e) {
 	let t = /* @__PURE__ */ new Uint8Array();
 	for await (let n of e) {
 		if (n == null) continue;
-		let e = n instanceof ArrayBuffer ? new Uint8Array(n) : typeof n == "string" ? Eo(n) : n, r = new Uint8Array(t.length + e.length);
+		let e = n instanceof ArrayBuffer ? new Uint8Array(n) : typeof n == "string" ? Mo(n) : n, r = new Uint8Array(t.length + e.length);
 		r.set(t), r.set(e, t.length), t = r;
 		let i;
-		for (; (i = jo(t)) !== -1;) yield t.slice(0, i), t = t.slice(i);
+		for (; (i = Lo(t)) !== -1;) yield t.slice(0, i), t = t.slice(i);
 	}
 	t.length > 0 && (yield t);
 }
-var Uo = class {
+var Yo = class {
 	constructor() {
 		this.event = null, this.data = [], this.chunks = [];
 	}
@@ -8413,11 +8450,11 @@ var Uo = class {
 			return this.event = null, this.data = [], this.chunks = [], e;
 		}
 		if (this.chunks.push(e), e.startsWith(":")) return null;
-		let [t, n, r] = Wo(e, ":");
+		let [t, n, r] = Xo(e, ":");
 		return r.startsWith(" ") && (r = r.substring(1)), t === "event" ? this.event = r : t === "data" && this.data.push(r), null;
 	}
 };
-function Wo(e, t) {
+function Xo(e, t) {
 	let n = e.indexOf(t);
 	return n === -1 ? [
 		e,
@@ -8431,15 +8468,15 @@ function Wo(e, t) {
 }
 //#endregion
 //#region ../node_modules/groq-sdk/internal/parse.mjs
-async function Go(e, t) {
+async function Zo(e, t) {
 	let { response: n, requestLogID: r, retryOfRequestLogID: i, startTime: a } = t, o = await (async () => {
 		if (n.status === 204) return null;
 		if (t.options.__binaryResponse) return n;
-		if (t.options.stream) return Bo.fromSSEResponse(n, t.controller, e);
+		if (t.options.stream) return Ko.fromSSEResponse(n, t.controller, e);
 		let r = n.headers.get("content-type")?.split(";")[0]?.trim();
 		return r?.includes("application/json") || r?.endsWith("+json") ? n.headers.get("content-length") === "0" ? void 0 : await n.json() : await n.text();
 	})();
-	return V(e).debug(`[${r}] response parsed`, Ro({
+	return V(e).debug(`[${r}] response parsed`, Wo({
 		retryOfRequestLogID: i,
 		url: n.url,
 		status: n.status,
@@ -8449,14 +8486,14 @@ async function Go(e, t) {
 }
 //#endregion
 //#region ../node_modules/groq-sdk/core/api-promise.mjs
-var Ko, qo = class e extends Promise {
-	constructor(e, t, n = Go) {
+var Qo, $o = class e extends Promise {
+	constructor(e, t, n = Zo) {
 		super((e) => {
 			e(null);
-		}), this.responsePromise = t, this.parseResponse = n, Ko.set(this, void 0), ra(this, Ko, e, "f");
+		}), this.responsePromise = t, this.parseResponse = n, Qo.set(this, void 0), ua(this, Qo, e, "f");
 	}
 	_thenUnwrap(t) {
-		return new e(I(this, Ko, "f"), this.responsePromise, async (e, n) => t(await this.parseResponse(e, n), n));
+		return new e(F(this, Qo, "f"), this.responsePromise, async (e, n) => t(await this.parseResponse(e, n), n));
 	}
 	asResponse() {
 		return this.responsePromise.then((e) => e.response);
@@ -8469,7 +8506,7 @@ var Ko, qo = class e extends Promise {
 		};
 	}
 	parse() {
-		return this.parsedPromise ||= this.responsePromise.then((e) => this.parseResponse(I(this, Ko, "f"), e)), this.parsedPromise;
+		return this.parsedPromise ||= this.responsePromise.then((e) => this.parseResponse(F(this, Qo, "f"), e)), this.parsedPromise;
 	}
 	then(e, t) {
 		return this.parse().then(e, t);
@@ -8481,25 +8518,25 @@ var Ko, qo = class e extends Promise {
 		return this.parse().finally(e);
 	}
 };
-Ko = /* @__PURE__ */ new WeakMap();
+Qo = /* @__PURE__ */ new WeakMap();
 //#endregion
 //#region ../node_modules/groq-sdk/internal/utils/env.mjs
-var Jo = (e) => {
+var es = (e) => {
 	if (globalThis.process !== void 0) return globalThis.process.env?.[e]?.trim() || void 0;
 	if (globalThis.Deno !== void 0) return globalThis.Deno.env?.get?.(e)?.trim() || void 0;
-}, Yo, Xo, Zo, Qo, H = class {
-	constructor({ baseURL: e = Jo("GROQ_BASE_URL"), apiKey: t = Jo("GROQ_API_KEY"), ...n } = {}) {
-		if (Yo.add(this), Zo.set(this, void 0), this.completions = new bo(this), this.chat = new yo(this), this.embeddings = new xo(this), this.audio = new po(this), this.models = new Co(this), this.batches = new _o(this), this.files = new So(this), t === void 0) throw new L("The GROQ_API_KEY environment variable is missing or empty; either provide it, or instantiate the Groq client with an apiKey option, like new Groq({ apiKey: 'My API Key' }).");
+}, ts, ns, rs, is, H = class {
+	constructor({ baseURL: e = es("GROQ_BASE_URL"), apiKey: t = es("GROQ_API_KEY"), ...n } = {}) {
+		if (ts.add(this), rs.set(this, void 0), this.completions = new Eo(this), this.chat = new To(this), this.embeddings = new Do(this), this.audio = new yo(this), this.models = new ko(this), this.batches = new Co(this), this.files = new Oo(this), t === void 0) throw new I("The GROQ_API_KEY environment variable is missing or empty; either provide it, or instantiate the Groq client with an apiKey option, like new Groq({ apiKey: 'My API Key' }).");
 		let r = {
 			apiKey: t,
 			...n,
 			baseURL: e || "https://api.groq.com"
 		};
-		if (!r.dangerouslyAllowBrowser && Oa()) throw new L("It looks like you're running in a browser-like environment.\n\nThis is disabled by default, as it risks exposing your secret API credentials to attackers.\nIf you understand the risks and have appropriate mitigations in place,\nyou can set the `dangerouslyAllowBrowser` option to `true`, e.g.,\n\nnew Groq({ apiKey, dangerouslyAllowBrowser: true })");
-		this.baseURL = r.baseURL, this.timeout = r.timeout ?? Xo.DEFAULT_TIMEOUT, this.logger = r.logger ?? console;
+		if (!r.dangerouslyAllowBrowser && Fa()) throw new I("It looks like you're running in a browser-like environment.\n\nThis is disabled by default, as it risks exposing your secret API credentials to attackers.\nIf you understand the risks and have appropriate mitigations in place,\nyou can set the `dangerouslyAllowBrowser` option to `true`, e.g.,\n\nnew Groq({ apiKey, dangerouslyAllowBrowser: true })");
+		this.baseURL = r.baseURL, this.timeout = r.timeout ?? ns.DEFAULT_TIMEOUT, this.logger = r.logger ?? console;
 		let i = "warn";
-		this.logLevel = i, this.logLevel = No(r.logLevel, "ClientOptions.logLevel", this) ?? No(Jo("GROQ_LOG"), "process.env['GROQ_LOG']", this) ?? i, this.fetchOptions = r.fetchOptions, this.maxRetries = r.maxRetries ?? 2, this.fetch = r.fetch ?? Ia(), ra(this, Zo, Va, "f");
-		let a = Jo("GROQ_CUSTOM_HEADERS");
+		this.logLevel = i, this.logLevel = zo(r.logLevel, "ClientOptions.logLevel", this) ?? zo(es("GROQ_LOG"), "process.env['GROQ_LOG']", this) ?? i, this.fetchOptions = r.fetchOptions, this.maxRetries = r.maxRetries ?? 2, this.fetch = r.fetch ?? Ua(), ua(this, rs, Ja, "f");
+		let a = es("GROQ_CUSTOM_HEADERS");
 		if (a) {
 			let e = {};
 			for (let t of a.split("\n")) {
@@ -8532,23 +8569,23 @@ var Jo = (e) => {
 	}
 	validateHeaders({ values: e, nulls: t }) {}
 	async authHeaders(e) {
-		return co([{ Authorization: `Bearer ${this.apiKey}` }]);
+		return ho([{ Authorization: `Bearer ${this.apiKey}` }]);
 	}
 	stringifyQuery(e) {
-		return Ha(e);
+		return Ya(e);
 	}
 	getUserAgent() {
-		return `${this.constructor.name}/JS ${Da}`;
+		return `${this.constructor.name}/JS ${Pa}`;
 	}
 	defaultIdempotencyKey() {
-		return `stainless-node-retry-${ia()}`;
+		return `stainless-node-retry-${da()}`;
 	}
 	makeStatusError(e, t, n, r) {
-		return R.generate(e, t, n, r);
+		return L.generate(e, t, n, r);
 	}
 	buildURL(e, t, n) {
-		let r = !I(this, Yo, "m", Qo).call(this) && n || this.baseURL, i = ya(e) ? new URL(e) : new URL(r + (r.endsWith("/") && e.startsWith("/") ? e.slice(1) : e)), a = this.defaultQuery(), o = Object.fromEntries(i.searchParams);
-		return (!Sa(a) || !Sa(o)) && (t = {
+		let r = !F(this, ts, "m", is).call(this) && n || this.baseURL, i = Ea(e) ? new URL(e) : new URL(r + (r.endsWith("/") && e.startsWith("/") ? e.slice(1) : e)), a = this.defaultQuery(), o = Object.fromEntries(i.searchParams);
+		return (!ka(a) || !ka(o)) && (t = {
 			...o,
 			...a,
 			...t
@@ -8579,7 +8616,7 @@ var Jo = (e) => {
 		})));
 	}
 	request(e, t = null) {
-		return new qo(this, this.makeRequest(e, t, void 0));
+		return new $o(this, this.makeRequest(e, t, void 0));
 	}
 	async makeRequest(e, t, n) {
 		let r = await e, i = r.maxRetries ?? this.maxRetries;
@@ -8590,37 +8627,37 @@ var Jo = (e) => {
 			options: r
 		});
 		let c = "log_" + (Math.random() * (1 << 24) | 0).toString(16).padStart(6, "0"), l = n === void 0 ? "" : `, retryOf: ${n}`, u = Date.now();
-		if (V(this).debug(`[${c}] sending request`, Ro({
+		if (V(this).debug(`[${c}] sending request`, Wo({
 			retryOfRequestLogID: n,
 			method: r.method,
 			url: o,
 			options: r,
 			headers: a.headers
-		})), r.signal?.aborted) throw new sa();
-		let d = new AbortController(), f = await this.fetchWithTimeout(o, a, s, d).catch(oa), p = Date.now();
+		})), r.signal?.aborted) throw new ma();
+		let d = new AbortController(), f = await this.fetchWithTimeout(o, a, s, d).catch(pa), p = Date.now();
 		if (f instanceof globalThis.Error) {
 			let e = `retrying, ${t} attempts remaining`;
-			if (r.signal?.aborted) throw new sa();
-			let i = aa(f) || /timed? ?out/i.test(String(f) + ("cause" in f ? String(f.cause) : ""));
-			if (t) return V(this).info(`[${c}] connection ${i ? "timed out" : "failed"} - ${e}`), V(this).debug(`[${c}] connection ${i ? "timed out" : "failed"} (${e})`, Ro({
+			if (r.signal?.aborted) throw new ma();
+			let i = fa(f) || /timed? ?out/i.test(String(f) + ("cause" in f ? String(f.cause) : ""));
+			if (t) return V(this).info(`[${c}] connection ${i ? "timed out" : "failed"} - ${e}`), V(this).debug(`[${c}] connection ${i ? "timed out" : "failed"} (${e})`, Wo({
 				retryOfRequestLogID: n,
 				url: o,
 				durationMs: p - u,
 				message: f.message
 			})), this.retryRequest(r, t, n ?? c);
-			throw V(this).info(`[${c}] connection ${i ? "timed out" : "failed"} - error; no more retries left`), V(this).debug(`[${c}] connection ${i ? "timed out" : "failed"} (error; no more retries left)`, Ro({
+			throw V(this).info(`[${c}] connection ${i ? "timed out" : "failed"} - error; no more retries left`), V(this).debug(`[${c}] connection ${i ? "timed out" : "failed"} (error; no more retries left)`, Wo({
 				retryOfRequestLogID: n,
 				url: o,
 				durationMs: p - u,
 				message: f.message
-			})), i ? new la() : new ca({ cause: f });
+			})), i ? new ga() : new ha({ cause: f });
 		}
 		let m = `[${c}${l}] ${a.method} ${o} ${f.ok ? "succeeded" : "failed"} with status ${f.status} in ${p - u}ms`;
 		if (!f.ok) {
 			let e = await this.shouldRetry(f);
 			if (t && e) {
 				let e = `retrying, ${t} attempts remaining`;
-				return await Ba(f.body), V(this).info(`${m} - ${e}`), V(this).debug(`[${c}] response error (${e})`, Ro({
+				return await qa(f.body), V(this).info(`${m} - ${e}`), V(this).debug(`[${c}] response error (${e})`, Wo({
 					retryOfRequestLogID: n,
 					url: f.url,
 					status: f.status,
@@ -8630,8 +8667,8 @@ var Jo = (e) => {
 			}
 			let i = e ? "error; no more retries left" : "error; not retryable";
 			V(this).info(`${m} - ${i}`);
-			let a = await f.text().catch((e) => oa(e).message), o = Ta(a), s = o ? void 0 : a;
-			throw V(this).debug(`[${c}] response error (${i})`, Ro({
+			let a = await f.text().catch((e) => pa(e).message), o = Ma(a), s = o ? void 0 : a;
+			throw V(this).debug(`[${c}] response error (${i})`, Wo({
 				retryOfRequestLogID: n,
 				url: f.url,
 				status: f.status,
@@ -8640,7 +8677,7 @@ var Jo = (e) => {
 				durationMs: Date.now() - u
 			})), this.makeStatusError(f.status, o, s, f.headers);
 		}
-		return V(this).info(m), V(this).debug(`[${c}] response start`, Ro({
+		return V(this).info(m), V(this).debug(`[${c}] response start`, Wo({
 			retryOfRequestLogID: n,
 			url: f.url,
 			status: f.status,
@@ -8690,7 +8727,7 @@ var Jo = (e) => {
 			let n = e.maxRetries ?? this.maxRetries;
 			i = this.calculateDefaultRetryTimeoutMillis(t, n);
 		}
-		return await Ea(i), this.makeRequest(e, t - 1, n);
+		return await Na(i), this.makeRequest(e, t - 1, n);
 	}
 	calculateDefaultRetryTimeoutMillis(e, t) {
 		let n = t - e;
@@ -8698,7 +8735,7 @@ var Jo = (e) => {
 	}
 	async buildRequest(e, { retryCount: t = 0 } = {}) {
 		let n = { ...e }, { method: r, path: i, query: a, defaultBaseURL: o } = n, s = this.buildURL(i, a, o);
-		"timeout" in n && wa("timeout", n.timeout), n.timeout = n.timeout ?? this.timeout;
+		"timeout" in n && ja("timeout", n.timeout), n.timeout = n.timeout ?? this.timeout;
 		let { bodyHeaders: c, body: l } = this.buildBody({ options: n });
 		return {
 			req: {
@@ -8722,14 +8759,14 @@ var Jo = (e) => {
 	async buildHeaders({ options: e, method: t, bodyHeaders: n, retryCount: r }) {
 		let i = {};
 		this.idempotencyHeader && t !== "get" && (e.idempotencyKey ||= this.defaultIdempotencyKey(), i[this.idempotencyHeader] = e.idempotencyKey);
-		let a = co([
+		let a = ho([
 			i,
 			{
 				Accept: "application/json",
 				"User-Agent": this.getUserAgent(),
 				"X-Stainless-Retry-Count": String(r),
 				...e.timeout ? { "X-Stainless-Timeout": String(Math.trunc(e.timeout / 1e3)) } : {},
-				...Fa()
+				...Ha()
 			},
 			await this.authHeaders(e),
 			this._options.defaultHeaders,
@@ -8743,38 +8780,38 @@ var Jo = (e) => {
 	}
 	buildBody({ options: e }) {
 		let { body: t, headers: n } = e;
-		if (!t) return t == null && "body" in e ? I(this, Zo, "f").call(this, {
+		if (!t) return t == null && "body" in e ? F(this, rs, "f").call(this, {
 			body: t,
-			headers: co([n])
+			headers: ho([n])
 		}) : {
 			bodyHeaders: void 0,
 			body: void 0
 		};
-		let r = co([n]);
+		let r = ho([n]);
 		return ArrayBuffer.isView(t) || t instanceof ArrayBuffer || t instanceof DataView || typeof t == "string" && r.values.has("content-type") || globalThis.Blob && t instanceof globalThis.Blob || t instanceof FormData || t instanceof URLSearchParams || globalThis.ReadableStream && t instanceof globalThis.ReadableStream ? {
 			bodyHeaders: void 0,
 			body: t
 		} : typeof t == "object" && (Symbol.asyncIterator in t || Symbol.iterator in t && "next" in t && typeof t.next == "function") ? {
 			bodyHeaders: void 0,
-			body: Ra(t)
+			body: Ga(t)
 		} : typeof t == "object" && r.values.get("content-type") === "application/x-www-form-urlencoded" ? {
 			bodyHeaders: { "content-type": "application/x-www-form-urlencoded" },
 			body: this.stringifyQuery(t)
-		} : I(this, Zo, "f").call(this, {
+		} : F(this, rs, "f").call(this, {
 			body: t,
 			headers: r
 		});
 	}
 };
-Xo = H, Zo = /* @__PURE__ */ new WeakMap(), Yo = /* @__PURE__ */ new WeakSet(), Qo = function() {
+ns = H, rs = /* @__PURE__ */ new WeakMap(), ts = /* @__PURE__ */ new WeakSet(), is = function() {
 	return this.baseURL !== "https://api.groq.com";
-}, H.Groq = Xo, H.DEFAULT_TIMEOUT = 6e4, H.GroqError = L, H.APIError = R, H.APIConnectionError = ca, H.APIConnectionTimeoutError = la, H.APIUserAbortError = sa, H.NotFoundError = pa, H.ConflictError = ma, H.RateLimitError = ga, H.BadRequestError = ua, H.AuthenticationError = da, H.InternalServerError = _a, H.PermissionDeniedError = fa, H.UnprocessableEntityError = ha, H.toFile = no, H.Completions = bo, H.Chat = yo, H.Embeddings = xo, H.Audio = po, H.Models = Co, H.Batches = _o, H.Files = So;
+}, H.Groq = ns, H.DEFAULT_TIMEOUT = 6e4, H.GroqError = I, H.APIError = L, H.APIConnectionError = ha, H.APIConnectionTimeoutError = ga, H.APIUserAbortError = ma, H.NotFoundError = ba, H.ConflictError = xa, H.RateLimitError = Ca, H.BadRequestError = _a, H.AuthenticationError = va, H.InternalServerError = wa, H.PermissionDeniedError = ya, H.UnprocessableEntityError = Sa, H.toFile = lo, H.Completions = Eo, H.Chat = To, H.Embeddings = Do, H.Audio = yo, H.Models = ko, H.Batches = Co, H.Files = Oo;
 //#endregion
 //#region ../shared/prompts/defaultPrompt.js
-var $o = "You are an expert open-source repository maintainer, systems architect, and technical analyst. Your sole responsibility is to analyze an incoming GitHub issue, extract its core technical context, and cross-reference it against existing historical context to identify duplicate or overlapping submissions.\n\nINCOMING ISSUE DATA\nThe incoming issue will belong to one of several templates (e.g., Bug, Feature, Security, Performance, Refactor, UI/UX, Docs, Test, Good First Issue). The following fields have been parsed from the submission (fields not applicable to this specific issue type will remain empty):\n\n1. Core Problem / Request:\n{{issue.primary_description}}\n\n2. Context & Reproduction:\n{{issue.context_steps}}\n\n3. Proposed Solution / Impact:\n{{issue.expected_outcome}}\n\n4. Technical Metrics & Environment:\n{{issue.technical_metrics}}\n\nHISTORICAL REPOSITORY CONTEXT\nThe following is an array of existing active or resolved issue IDs along with their previously computed summaries to check against for duplicates:\n{{repository.historical_context_log}}\n\nANALYSIS GUIDELINES\n- Determine the Scope:\n  - Bugs & Security: Isolate root causes (e.g., stack traces, bottlenecks, vulnerabilities).\n  - Features & UI: Analyze the architectural impact, DOM manipulations, or accessibility concerns.\n  - Performance & Refactor: Evaluate the proposed system modifications against current benchmarks.\n- Handle Incomplete Templates: Rely strictly on the fields provided. Do not invent missing facts or infer technical metrics if the user omitted them.\n- Trace Structural Links: Classify an issue as a duplicate ONLY if it targets the exact same code-path break, UI component failure, or architectural enhancement as a historical issue.\n\nOUTPUT COMPLIANCE CONTRACT\nYou MUST respond using a single, valid JSON object.\nDo NOT wrap the JSON inside markdown code blocks (such as ```json ... ```).\nDo NOT include any conversational introduction, sign-offs, or explanatory prose outside of the JSON keys.\nEnsure all quotes inside text strings are properly escaped to prevent parsing failures.\n\nYour response must strictly conform to the following schema structure:\n{\n  \"is_duplicate\": true,\n  \"analysis_summary\": \"Provide a thorough technical breakdown explaining why this issue is structurally linked to an existing issue, or if unique, a crisp summary of its core scope.\"\n}\n";
+var as = "You are an expert open-source repository maintainer, systems architect, and technical analyst. Your sole responsibility is to analyze an incoming GitHub issue, extract its core technical context, and cross-reference it against existing historical context to identify duplicate or overlapping submissions.\n\nINCOMING ISSUE DATA\nThe incoming issue will belong to one of several templates (e.g., Bug, Feature, Security, Performance, Refactor, UI/UX, Docs, Test, Good First Issue). The following fields have been parsed from the submission (fields not applicable to this specific issue type will remain empty):\n\n1. Core Problem / Request:\n{{issue.primary_description}}\n\n2. Context & Reproduction:\n{{issue.context_steps}}\n\n3. Proposed Solution / Impact:\n{{issue.expected_outcome}}\n\n4. Technical Metrics & Environment:\n{{issue.technical_metrics}}\n\nHISTORICAL REPOSITORY CONTEXT\nThe following is an array of existing active or resolved issue IDs along with their previously computed summaries to check against for duplicates:\n{{repository.historical_context_log}}\n\nANALYSIS GUIDELINES\n- Determine the Scope:\n  - Bugs & Security: Isolate root causes (e.g., stack traces, bottlenecks, vulnerabilities).\n  - Features & UI: Analyze the architectural impact, DOM manipulations, or accessibility concerns.\n  - Performance & Refactor: Evaluate the proposed system modifications against current benchmarks.\n- Handle Incomplete Templates: Rely strictly on the fields provided. Do not invent missing facts or infer technical metrics if the user omitted them.\n- Trace Structural Links: Classify an issue as a duplicate ONLY if it targets the exact same code-path break, UI component failure, or architectural enhancement as a historical issue.\n\nOUTPUT COMPLIANCE CONTRACT\nYou MUST respond using a single, valid JSON object.\nDo NOT wrap the JSON inside markdown code blocks (such as ```json ... ```).\nDo NOT include any conversational introduction, sign-offs, or explanatory prose outside of the JSON keys.\nEnsure all quotes inside text strings are properly escaped to prevent parsing failures.\n\nYour response must strictly conform to the following schema structure:\n{\n  \"is_duplicate\": true,\n  \"analysis_summary\": \"Provide a thorough technical breakdown explaining why this issue is structurally linked to an existing issue, or if unique, a crisp summary of its core scope.\"\n}\n";
 //#endregion
 //#region ../shared/utils/renderPrompt.js
-function es(e, t) {
+function os(e, t) {
 	return e.replace(/\{\{([^}]+)\}\}/g, (e, n) => {
 		let r = n.trim().split("."), i = t;
 		for (let e of r) {
@@ -8784,7 +8821,7 @@ function es(e, t) {
 		return i == null ? "" : String(i);
 	});
 }
-function ts(e, t) {
+function ss(e, t) {
 	return {
 		issue: {
 			title: e.title ?? "",
@@ -8798,34 +8835,34 @@ function ts(e, t) {
 }
 //#endregion
 //#region src/lib/supabase.js
-var ns = {
+var cs = {
 	getItem: () => null,
 	setItem: () => {},
 	removeItem: () => {}
-}, rs = "repoOwlConfig", is = null;
-async function as() {
+}, ls = "repoOwlConfig", us = null;
+async function ds() {
 	let e = {};
-	return typeof chrome < "u" && chrome.storage?.local && (e = (await chrome.storage.local.get([rs]))[rs] || {}), e.supabaseUrl ||= "https://sdgazpgnenkammrlhjel.supabase.co", e.supabaseAnonKey ||= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", e;
+	return typeof chrome < "u" && chrome.storage?.local && (e = (await chrome.storage.local.get([ls]))[ls] || {}), e.supabaseUrl ||= "https://sdgazpgnenkammrlhjel.supabase.co", e.supabaseAnonKey ||= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", e;
 }
-async function os() {
-	let e = await as();
+async function fs() {
+	let e = await ds();
 	return !!(e.supabaseUrl && e.supabaseAnonKey);
 }
-async function ss() {
-	if (!await os()) return null;
-	if (!is) {
-		let e = await as();
-		is = ta(e.supabaseUrl, e.supabaseAnonKey, { auth: {
+async function ps() {
+	if (!await fs()) return null;
+	if (!us) {
+		let e = await ds();
+		us = ca(e.supabaseUrl, e.supabaseAnonKey, { auth: {
 			persistSession: !1,
 			autoRefreshToken: !1,
 			detectSessionInUrl: !1,
-			storage: ns
+			storage: cs
 		} });
 	}
-	return is;
+	return us;
 }
-async function cs() {
-	let e = await ss();
+async function ms() {
+	let e = await ps();
 	if (!e) return { error: "Sandbox Supabase is not configured for RepoOwl." };
 	try {
 		let { data: t, error: n } = await e.auth.getSession();
@@ -8840,12 +8877,12 @@ async function cs() {
 }
 //#endregion
 //#region __vite-browser-external
-var ls = /* @__PURE__ */ e(((e, t) => {
+var hs = /* @__PURE__ */ e(((e, t) => {
 	t.exports = {};
 }));
 //#endregion
 //#region ../node_modules/libsodium/dist/modules-esm/libsodium.mjs
-async function us(e = {}) {
+async function gs(e = {}) {
 	var t, n = e, r = !!globalThis.window, i = !!globalThis.WorkerGlobalScope, a = (globalThis.process?.versions?.node && globalThis.process, import.meta.url);
 	if (r || i) {
 		try {
@@ -8936,7 +8973,7 @@ async function us(e = {}) {
 			default: x(`invalid type for getValue: ${t}`);
 		}
 	}, n.UTF8ToString = oe;
-	var fe, S, pe = {
+	var fe, pe, me = {
 		40216: () => n.getRandomValue(),
 		40252: () => {
 			if (n.getRandomValue === void 0) try {
@@ -8949,7 +8986,7 @@ async function us(e = {}) {
 				r(), n.getRandomValue = r;
 			} catch {
 				try {
-					var i = ls(), a = function() {
+					var i = hs(), a = function() {
 						var e = i.randomBytes(4);
 						return (e[0] << 24 | e[1] << 16 | e[2] << 8 | e[3]) >>> 0;
 					};
@@ -8959,7 +8996,7 @@ async function us(e = {}) {
 				}
 			}
 		}
-	}, me = {
+	}, he = {
 		a: (e, t, n, r) => x(`Assertion failed: ${oe(e)}, at: ` + [
 			t ? oe(t) : "unknown filename",
 			n,
@@ -8975,7 +9012,7 @@ async function us(e = {}) {
 				}
 				return se;
 			})(t, n);
-			return pe[e](...r);
+			return me[e](...r);
 		})(e, t, n),
 		d: (e) => {
 			var t = g.length, n = 2147483648;
@@ -8987,13 +9024,13 @@ async function us(e = {}) {
 			return !1;
 		}
 	};
-	return S = await async function() {
+	return pe = await async function() {
 		function e(e, t) {
 			return function(e) {
 				n._crypto_aead_aegis128l_keybytes = e.f, n._crypto_aead_aegis128l_nsecbytes = e.g, n._crypto_aead_aegis128l_npubbytes = e.h, n._crypto_aead_aegis128l_abytes = e.i, n._crypto_aead_aegis128l_messagebytes_max = e.j, n._crypto_aead_aegis128l_keygen = e.k, n._crypto_aead_aegis128l_encrypt = e.l, n._crypto_aead_aegis128l_encrypt_detached = e.m, n._crypto_aead_aegis128l_decrypt = e.n, n._crypto_aead_aegis128l_decrypt_detached = e.o, n._crypto_aead_aegis256_keybytes = e.p, n._crypto_aead_aegis256_nsecbytes = e.q, n._crypto_aead_aegis256_npubbytes = e.r, n._crypto_aead_aegis256_abytes = e.s, n._crypto_aead_aegis256_messagebytes_max = e.t, n._crypto_aead_aegis256_keygen = e.u, n._crypto_aead_aegis256_encrypt = e.v, n._crypto_aead_aegis256_encrypt_detached = e.w, n._crypto_aead_aegis256_decrypt = e.x, n._crypto_aead_aegis256_decrypt_detached = e.y, n._crypto_aead_aes256gcm_is_available = e.z, n._crypto_aead_chacha20poly1305_encrypt_detached = e.A, n._crypto_aead_chacha20poly1305_encrypt = e.B, n._crypto_aead_chacha20poly1305_ietf_encrypt_detached = e.C, n._crypto_aead_chacha20poly1305_ietf_encrypt = e.D, n._crypto_aead_chacha20poly1305_decrypt_detached = e.E, n._crypto_aead_chacha20poly1305_decrypt = e.F, n._crypto_aead_chacha20poly1305_ietf_decrypt_detached = e.G, n._crypto_aead_chacha20poly1305_ietf_decrypt = e.H, n._crypto_aead_chacha20poly1305_ietf_keybytes = e.I, n._crypto_aead_chacha20poly1305_ietf_npubbytes = e.J, n._crypto_aead_chacha20poly1305_ietf_nsecbytes = e.K, n._crypto_aead_chacha20poly1305_ietf_abytes = e.L, n._crypto_aead_chacha20poly1305_ietf_messagebytes_max = e.M, n._crypto_aead_chacha20poly1305_ietf_keygen = e.N, n._crypto_aead_chacha20poly1305_keybytes = e.O, n._crypto_aead_chacha20poly1305_npubbytes = e.P, n._crypto_aead_chacha20poly1305_nsecbytes = e.Q, n._crypto_aead_chacha20poly1305_abytes = e.R, n._crypto_aead_chacha20poly1305_messagebytes_max = e.S, n._crypto_aead_chacha20poly1305_keygen = e.T, n._crypto_aead_xchacha20poly1305_ietf_encrypt_detached = e.U, n._crypto_aead_xchacha20poly1305_ietf_encrypt = e.V, n._crypto_aead_xchacha20poly1305_ietf_decrypt_detached = e.W, n._crypto_aead_xchacha20poly1305_ietf_decrypt = e.X, n._crypto_aead_xchacha20poly1305_ietf_keybytes = e.Y, n._crypto_aead_xchacha20poly1305_ietf_npubbytes = e.Z, n._crypto_aead_xchacha20poly1305_ietf_nsecbytes = e._, n._crypto_aead_xchacha20poly1305_ietf_abytes = e.$, n._crypto_aead_xchacha20poly1305_ietf_messagebytes_max = e.aa, n._crypto_aead_xchacha20poly1305_ietf_keygen = e.ba, n._crypto_auth_bytes = e.ca, n._crypto_auth_keybytes = e.da, n._crypto_auth = e.ea, n._crypto_auth_verify = e.fa, n._crypto_auth_keygen = e.ga, n._crypto_box_seedbytes = e.ha, n._crypto_box_publickeybytes = e.ia, n._crypto_box_secretkeybytes = e.ja, n._crypto_box_beforenmbytes = e.ka, n._crypto_box_noncebytes = e.la, n._crypto_box_macbytes = e.ma, n._crypto_box_messagebytes_max = e.na, n._crypto_box_seed_keypair = e.oa, n._crypto_box_keypair = e.pa, n._crypto_box_beforenm = e.qa, n._crypto_box_detached_afternm = e.ra, n._crypto_box_detached = e.sa, n._crypto_box_easy_afternm = e.ta, n._crypto_box_easy = e.ua, n._crypto_box_open_detached_afternm = e.va, n._crypto_box_open_detached = e.wa, n._crypto_box_open_easy_afternm = e.xa, n._crypto_box_open_easy = e.ya, n._crypto_box_seal = e.za, n._crypto_box_seal_open = e.Aa, n._crypto_box_sealbytes = e.Ba, n._crypto_generichash_bytes_min = e.Ca, n._crypto_generichash_bytes_max = e.Da, n._crypto_generichash_bytes = e.Ea, n._crypto_generichash_keybytes_min = e.Fa, n._crypto_generichash_keybytes_max = e.Ga, n._crypto_generichash_keybytes = e.Ha, n._crypto_generichash_statebytes = e.Ia, n._crypto_generichash = e.Ja, n._crypto_generichash_init = e.Ka, n._crypto_generichash_update = e.La, n._crypto_generichash_final = e.Ma, n._crypto_generichash_keygen = e.Na, n._crypto_hash_bytes = e.Oa, n._crypto_hash = e.Pa, n._crypto_hash_sha3256_bytes = e.Qa, n._crypto_hash_sha3256_statebytes = e.Ra, n._crypto_hash_sha3256_init = e.Sa, n._crypto_hash_sha3256_update = e.Ta, n._crypto_hash_sha3256_final = e.Ua, n._crypto_hash_sha3256 = e.Va, n._crypto_hash_sha3512_bytes = e.Wa, n._crypto_hash_sha3512_statebytes = e.Xa, n._crypto_hash_sha3512_init = e.Ya, n._crypto_hash_sha3512_update = e.Za, n._crypto_hash_sha3512_final = e._a, n._crypto_hash_sha3512 = e.$a, n._crypto_ipcrypt_bytes = e.ab, n._crypto_ipcrypt_keybytes = e.bb, n._crypto_ipcrypt_nd_keybytes = e.cb, n._crypto_ipcrypt_nd_tweakbytes = e.db, n._crypto_ipcrypt_nd_inputbytes = e.eb, n._crypto_ipcrypt_nd_outputbytes = e.fb, n._crypto_ipcrypt_ndx_keybytes = e.gb, n._crypto_ipcrypt_ndx_tweakbytes = e.hb, n._crypto_ipcrypt_ndx_inputbytes = e.ib, n._crypto_ipcrypt_ndx_outputbytes = e.jb, n._crypto_ipcrypt_pfx_keybytes = e.kb, n._crypto_ipcrypt_pfx_bytes = e.lb, n._crypto_ipcrypt_keygen = e.mb, n._crypto_ipcrypt_nd_keygen = e.nb, n._crypto_ipcrypt_ndx_keygen = e.ob, n._crypto_ipcrypt_pfx_keygen = e.pb, n._crypto_ipcrypt_encrypt = e.qb, n._crypto_ipcrypt_decrypt = e.rb, n._crypto_ipcrypt_nd_encrypt = e.sb, n._crypto_ipcrypt_nd_decrypt = e.tb, n._crypto_ipcrypt_ndx_encrypt = e.ub, n._crypto_ipcrypt_ndx_decrypt = e.vb, n._crypto_ipcrypt_pfx_encrypt = e.wb, n._crypto_ipcrypt_pfx_decrypt = e.xb, n._crypto_kdf_bytes_min = e.yb, n._crypto_kdf_bytes_max = e.zb, n._crypto_kdf_contextbytes = e.Ab, n._crypto_kdf_keybytes = e.Bb, n._crypto_kdf_derive_from_key = e.Cb, n._crypto_kdf_keygen = e.Db, n._crypto_kdf_hkdf_sha256_extract_init = e.Eb, n._crypto_kdf_hkdf_sha256_extract_update = e.Fb, n._crypto_kdf_hkdf_sha256_extract_final = e.Gb, n._crypto_kdf_hkdf_sha256_extract = e.Hb, n._crypto_kdf_hkdf_sha256_keygen = e.Ib, n._crypto_kdf_hkdf_sha256_expand = e.Jb, n._crypto_kdf_hkdf_sha256_keybytes = e.Kb, n._crypto_kdf_hkdf_sha256_bytes_min = e.Lb, n._crypto_kdf_hkdf_sha256_bytes_max = e.Mb, n._crypto_kdf_hkdf_sha256_statebytes = e.Nb, n._crypto_kdf_hkdf_sha512_extract_init = e.Ob, n._crypto_kdf_hkdf_sha512_extract_update = e.Pb, n._crypto_kdf_hkdf_sha512_extract_final = e.Qb, n._crypto_kdf_hkdf_sha512_extract = e.Rb, n._crypto_kdf_hkdf_sha512_keygen = e.Sb, n._crypto_kdf_hkdf_sha512_expand = e.Tb, n._crypto_kdf_hkdf_sha512_keybytes = e.Ub, n._crypto_kdf_hkdf_sha512_bytes_min = e.Vb, n._crypto_kdf_hkdf_sha512_bytes_max = e.Wb, n._crypto_kdf_hkdf_sha512_statebytes = e.Xb, n._crypto_kem_publickeybytes = e.Yb, n._crypto_kem_secretkeybytes = e.Zb, n._crypto_kem_ciphertextbytes = e._b, n._crypto_kem_sharedsecretbytes = e.$b, n._crypto_kem_seedbytes = e.ac, n._crypto_kem_primitive = e.bc, n._crypto_kem_seed_keypair = e.cc, n._crypto_kem_keypair = e.dc, n._crypto_kem_enc = e.ec, n._crypto_kem_dec = e.fc, n._crypto_kem_mlkem768_publickeybytes = e.gc, n._crypto_kem_mlkem768_secretkeybytes = e.hc, n._crypto_kem_mlkem768_ciphertextbytes = e.ic, n._crypto_kem_mlkem768_sharedsecretbytes = e.jc, n._crypto_kem_mlkem768_seedbytes = e.kc, n._crypto_kem_mlkem768_seed_keypair = e.lc, n._crypto_kem_mlkem768_keypair = e.mc, n._crypto_kem_mlkem768_enc = e.nc, n._crypto_kem_mlkem768_enc_deterministic = e.oc, n._crypto_kem_mlkem768_dec = e.pc, n._crypto_kem_xwing_publickeybytes = e.qc, n._crypto_kem_xwing_secretkeybytes = e.rc, n._crypto_kem_xwing_ciphertextbytes = e.sc, n._crypto_kem_xwing_sharedsecretbytes = e.tc, n._crypto_kem_xwing_seedbytes = e.uc, n._crypto_kem_xwing_seed_keypair = e.vc, n._crypto_kem_xwing_keypair = e.wc, n._crypto_kem_xwing_enc_deterministic = e.xc, n._crypto_kem_xwing_enc = e.yc, n._crypto_kem_xwing_dec = e.zc, n._crypto_kx_seed_keypair = e.Ac, n._crypto_kx_keypair = e.Bc, n._crypto_kx_client_session_keys = e.Cc, n._crypto_kx_server_session_keys = e.Dc, n._crypto_kx_publickeybytes = e.Ec, n._crypto_kx_secretkeybytes = e.Fc, n._crypto_kx_seedbytes = e.Gc, n._crypto_kx_sessionkeybytes = e.Hc, n._crypto_scalarmult_base = e.Ic, n._crypto_scalarmult = e.Jc, n._crypto_scalarmult_bytes = e.Kc, n._crypto_scalarmult_scalarbytes = e.Lc, n._crypto_secretbox_keybytes = e.Mc, n._crypto_secretbox_noncebytes = e.Nc, n._crypto_secretbox_macbytes = e.Oc, n._crypto_secretbox_messagebytes_max = e.Pc, n._crypto_secretbox_keygen = e.Qc, n._crypto_secretbox_detached = e.Rc, n._crypto_secretbox_easy = e.Sc, n._crypto_secretbox_open_detached = e.Tc, n._crypto_secretbox_open_easy = e.Uc, n._crypto_secretstream_xchacha20poly1305_keygen = e.Vc, n._crypto_secretstream_xchacha20poly1305_init_push = e.Wc, n._crypto_secretstream_xchacha20poly1305_init_pull = e.Xc, n._crypto_secretstream_xchacha20poly1305_rekey = e.Yc, n._crypto_secretstream_xchacha20poly1305_push = e.Zc, n._crypto_secretstream_xchacha20poly1305_pull = e._c, n._crypto_secretstream_xchacha20poly1305_statebytes = e.$c, n._crypto_secretstream_xchacha20poly1305_abytes = e.ad, n._crypto_secretstream_xchacha20poly1305_headerbytes = e.bd, n._crypto_secretstream_xchacha20poly1305_keybytes = e.cd, n._crypto_secretstream_xchacha20poly1305_messagebytes_max = e.dd, n._crypto_secretstream_xchacha20poly1305_tag_message = e.ed, n._crypto_secretstream_xchacha20poly1305_tag_push = e.fd, n._crypto_secretstream_xchacha20poly1305_tag_rekey = e.gd, n._crypto_secretstream_xchacha20poly1305_tag_final = e.hd, n._crypto_shorthash_bytes = e.id, n._crypto_shorthash_keybytes = e.jd, n._crypto_shorthash = e.kd, n._crypto_shorthash_keygen = e.ld, n._crypto_sign_statebytes = e.md, n._crypto_sign_bytes = e.nd, n._crypto_sign_seedbytes = e.od, n._crypto_sign_publickeybytes = e.pd, n._crypto_sign_secretkeybytes = e.qd, n._crypto_sign_messagebytes_max = e.rd, n._crypto_sign_seed_keypair = e.sd, n._crypto_sign_keypair = e.td, n._crypto_sign = e.ud, n._crypto_sign_open = e.vd, n._crypto_sign_detached = e.wd, n._crypto_sign_verify_detached = e.xd, n._crypto_sign_init = e.yd, n._crypto_sign_update = e.zd, n._crypto_sign_final_create = e.Ad, n._crypto_sign_final_verify = e.Bd, n._crypto_sign_ed25519_pk_to_curve25519 = e.Cd, n._crypto_sign_ed25519_sk_to_curve25519 = e.Dd, n._crypto_xof_shake128_blockbytes = e.Ed, n._crypto_xof_shake128_statebytes = e.Fd, n._crypto_xof_shake128_domain_standard = e.Gd, n._crypto_xof_shake128 = e.Hd, n._crypto_xof_shake128_init = e.Id, n._crypto_xof_shake128_init_with_domain = e.Jd, n._crypto_xof_shake128_update = e.Kd, n._crypto_xof_shake128_squeeze = e.Ld, n._crypto_xof_shake256_blockbytes = e.Md, n._crypto_xof_shake256_statebytes = e.Nd, n._crypto_xof_shake256_domain_standard = e.Od, n._crypto_xof_shake256 = e.Pd, n._crypto_xof_shake256_init = e.Qd, n._crypto_xof_shake256_init_with_domain = e.Rd, n._crypto_xof_shake256_update = e.Sd, n._crypto_xof_shake256_squeeze = e.Td, n._crypto_xof_turboshake128_blockbytes = e.Ud, n._crypto_xof_turboshake128_statebytes = e.Vd, n._crypto_xof_turboshake128_domain_standard = e.Wd, n._crypto_xof_turboshake128 = e.Xd, n._crypto_xof_turboshake128_init = e.Yd, n._crypto_xof_turboshake128_init_with_domain = e.Zd, n._crypto_xof_turboshake128_update = e._d, n._crypto_xof_turboshake128_squeeze = e.$d, n._crypto_xof_turboshake256_blockbytes = e.ae, n._crypto_xof_turboshake256_statebytes = e.be, n._crypto_xof_turboshake256_domain_standard = e.ce, n._crypto_xof_turboshake256 = e.de, n._crypto_xof_turboshake256_init = e.ee, n._crypto_xof_turboshake256_init_with_domain = e.fe, n._crypto_xof_turboshake256_update = e.ge, n._crypto_xof_turboshake256_squeeze = e.he, n._randombytes_random = e.ie, n._randombytes_stir = e.je, n._randombytes_uniform = e.ke, n._randombytes_buf = e.le, n._randombytes_buf_deterministic = e.me, n._randombytes_seedbytes = e.ne, n._randombytes_close = e.oe, n._randombytes = e.pe, n._sodium_bin2hex = e.qe, n._sodium_hex2bin = e.re, n._sodium_base64_encoded_len = e.se, n._sodium_bin2base64 = e.te, n._sodium_base642bin = e.ue, n._sodium_ip2bin = e.ve, n._sodium_bin2ip = e.we, n._sodium_init = e.xe, n._sodium_pad = e.ye, n._sodium_unpad = e.ze, n._sodium_version_string = e.Ae, n._sodium_library_version_major = e.Be, n._sodium_library_version_minor = e.Ce, n._sodium_library_minimal = e.De, n._malloc = e.Ee, n._free = e.Fe, e.dynCall_iiiji, e.dynCall_iiij, e.dynCall_iijii, e.dynCall_iiijiji, e.dynCall_iiijiii, fe = e.e, e.__indirect_function_table;
-			}(S = e.exports), b(), S;
+			}(pe = e.exports), b(), pe;
 		}
-		var r = { a: me };
+		var r = { a: he };
 		return n.instantiateWasm ? new Promise((t, i) => {
 			n.instantiateWasm(r, (n, r) => {
 				t(e(n));
@@ -9039,23 +9076,17 @@ async function us(e = {}) {
 //#region ../node_modules/libsodium-wrappers/dist/modules-esm/libsodium-wrappers.mjs
 var U, W = {};
 if (globalThis.crypto === void 0 || typeof globalThis.crypto.getRandomValues != "function") throw Error("globalThis.crypto.getRandomValues is not available. The ESM build of libsodium requires a secure random source (available in all browsers and Node.js 19+).");
-var ds = typeof (fs = us) == "function" ? fs : fs != null && typeof fs.default == "function" ? fs.default : null, fs, ps = function(e) {
+var _s = typeof (vs = gs) == "function" ? vs : vs != null && typeof vs.default == "function" ? vs.default : null, vs, ys = function(e) {
 	return e != null && e.ready !== void 0 ? e : e != null && e.default != null && e.default.ready !== void 0 ? e.default : null;
-}(us), ms = (ds == null ? ps == null ? Promise.reject(/* @__PURE__ */ Error("Unsupported libsodium ESM export shape")) : ps.ready.then(function() {
-	return ps;
-}) : ds({ getRandomValue: function() {
+}(gs), bs = (_s == null ? ys == null ? Promise.reject(/* @__PURE__ */ Error("Unsupported libsodium ESM export shape")) : ys.ready.then(function() {
+	return ys;
+}) : _s({ getRandomValue: function() {
 	var e = /* @__PURE__ */ new Uint32Array(1);
 	return globalThis.crypto.getRandomValues(e), e[0] >>> 0;
 } })).then(function(e) {
 	U = e, W.libsodium = U, function() {
 		if (U._sodium_init() < 0) throw Error("libsodium was not correctly initialized.");
 		for (var e = /* @__PURE__ */ "crypto_aead_aegis128l_decrypt.crypto_aead_aegis128l_decrypt_detached.crypto_aead_aegis128l_encrypt.crypto_aead_aegis128l_encrypt_detached.crypto_aead_aegis128l_keygen.crypto_aead_aegis256_decrypt.crypto_aead_aegis256_decrypt_detached.crypto_aead_aegis256_encrypt.crypto_aead_aegis256_encrypt_detached.crypto_aead_aegis256_keygen.crypto_aead_chacha20poly1305_decrypt.crypto_aead_chacha20poly1305_decrypt_detached.crypto_aead_chacha20poly1305_encrypt.crypto_aead_chacha20poly1305_encrypt_detached.crypto_aead_chacha20poly1305_ietf_decrypt.crypto_aead_chacha20poly1305_ietf_decrypt_detached.crypto_aead_chacha20poly1305_ietf_encrypt.crypto_aead_chacha20poly1305_ietf_encrypt_detached.crypto_aead_chacha20poly1305_ietf_keygen.crypto_aead_chacha20poly1305_keygen.crypto_aead_xchacha20poly1305_ietf_decrypt.crypto_aead_xchacha20poly1305_ietf_decrypt_detached.crypto_aead_xchacha20poly1305_ietf_encrypt.crypto_aead_xchacha20poly1305_ietf_encrypt_detached.crypto_aead_xchacha20poly1305_ietf_keygen.crypto_auth.crypto_auth_hmacsha256.crypto_auth_hmacsha256_final.crypto_auth_hmacsha256_init.crypto_auth_hmacsha256_keygen.crypto_auth_hmacsha256_update.crypto_auth_hmacsha256_verify.crypto_auth_hmacsha512.crypto_auth_hmacsha512256.crypto_auth_hmacsha512256_final.crypto_auth_hmacsha512256_init.crypto_auth_hmacsha512256_keygen.crypto_auth_hmacsha512256_update.crypto_auth_hmacsha512256_verify.crypto_auth_hmacsha512_final.crypto_auth_hmacsha512_init.crypto_auth_hmacsha512_keygen.crypto_auth_hmacsha512_update.crypto_auth_hmacsha512_verify.crypto_auth_keygen.crypto_auth_verify.crypto_box_beforenm.crypto_box_curve25519xchacha20poly1305_beforenm.crypto_box_curve25519xchacha20poly1305_detached.crypto_box_curve25519xchacha20poly1305_detached_afternm.crypto_box_curve25519xchacha20poly1305_easy.crypto_box_curve25519xchacha20poly1305_easy_afternm.crypto_box_curve25519xchacha20poly1305_keypair.crypto_box_curve25519xchacha20poly1305_open_detached.crypto_box_curve25519xchacha20poly1305_open_detached_afternm.crypto_box_curve25519xchacha20poly1305_open_easy.crypto_box_curve25519xchacha20poly1305_open_easy_afternm.crypto_box_curve25519xchacha20poly1305_seal.crypto_box_curve25519xchacha20poly1305_seal_open.crypto_box_curve25519xchacha20poly1305_seed_keypair.crypto_box_detached.crypto_box_easy.crypto_box_easy_afternm.crypto_box_keypair.crypto_box_open_detached.crypto_box_open_easy.crypto_box_open_easy_afternm.crypto_box_seal.crypto_box_seal_open.crypto_box_seed_keypair.crypto_core_ed25519_add.crypto_core_ed25519_from_hash.crypto_core_ed25519_from_uniform.crypto_core_ed25519_is_valid_point.crypto_core_ed25519_random.crypto_core_ed25519_scalar_add.crypto_core_ed25519_scalar_complement.crypto_core_ed25519_scalar_invert.crypto_core_ed25519_scalar_mul.crypto_core_ed25519_scalar_negate.crypto_core_ed25519_scalar_random.crypto_core_ed25519_scalar_reduce.crypto_core_ed25519_scalar_sub.crypto_core_ed25519_sub.crypto_core_hchacha20.crypto_core_hsalsa20.crypto_core_ristretto255_add.crypto_core_ristretto255_from_hash.crypto_core_ristretto255_is_valid_point.crypto_core_ristretto255_random.crypto_core_ristretto255_scalar_add.crypto_core_ristretto255_scalar_complement.crypto_core_ristretto255_scalar_invert.crypto_core_ristretto255_scalar_mul.crypto_core_ristretto255_scalar_negate.crypto_core_ristretto255_scalar_random.crypto_core_ristretto255_scalar_reduce.crypto_core_ristretto255_scalar_sub.crypto_core_ristretto255_sub.crypto_generichash.crypto_generichash_blake2b_salt_personal.crypto_generichash_final.crypto_generichash_init.crypto_generichash_keygen.crypto_generichash_update.crypto_hash.crypto_hash_sha256.crypto_hash_sha256_final.crypto_hash_sha256_init.crypto_hash_sha256_update.crypto_hash_sha3256.crypto_hash_sha3256_final.crypto_hash_sha3256_init.crypto_hash_sha3256_update.crypto_hash_sha3512.crypto_hash_sha3512_final.crypto_hash_sha3512_init.crypto_hash_sha3512_update.crypto_hash_sha512.crypto_hash_sha512_final.crypto_hash_sha512_init.crypto_hash_sha512_update.crypto_ipcrypt_decrypt.crypto_ipcrypt_encrypt.crypto_ipcrypt_keygen.crypto_ipcrypt_nd_decrypt.crypto_ipcrypt_nd_encrypt.crypto_ipcrypt_nd_keygen.crypto_ipcrypt_ndx_decrypt.crypto_ipcrypt_ndx_encrypt.crypto_ipcrypt_ndx_keygen.crypto_ipcrypt_pfx_decrypt.crypto_ipcrypt_pfx_encrypt.crypto_ipcrypt_pfx_keygen.crypto_kdf_derive_from_key.crypto_kdf_keygen.crypto_kem_dec.crypto_kem_enc.crypto_kem_keypair.crypto_kem_mlkem768_dec.crypto_kem_mlkem768_enc.crypto_kem_mlkem768_enc_deterministic.crypto_kem_mlkem768_keypair.crypto_kem_mlkem768_seed_keypair.crypto_kem_primitive.crypto_kem_seed_keypair.crypto_kem_xwing_dec.crypto_kem_xwing_enc.crypto_kem_xwing_enc_deterministic.crypto_kem_xwing_keypair.crypto_kem_xwing_seed_keypair.crypto_kx_client_session_keys.crypto_kx_keypair.crypto_kx_seed_keypair.crypto_kx_server_session_keys.crypto_onetimeauth.crypto_onetimeauth_final.crypto_onetimeauth_init.crypto_onetimeauth_keygen.crypto_onetimeauth_update.crypto_onetimeauth_verify.crypto_pwhash.crypto_pwhash_scryptsalsa208sha256.crypto_pwhash_scryptsalsa208sha256_ll.crypto_pwhash_scryptsalsa208sha256_str.crypto_pwhash_scryptsalsa208sha256_str_verify.crypto_pwhash_str.crypto_pwhash_str_needs_rehash.crypto_pwhash_str_verify.crypto_scalarmult.crypto_scalarmult_base.crypto_scalarmult_ed25519.crypto_scalarmult_ed25519_base.crypto_scalarmult_ed25519_base_noclamp.crypto_scalarmult_ed25519_noclamp.crypto_scalarmult_ristretto255.crypto_scalarmult_ristretto255_base.crypto_secretbox_detached.crypto_secretbox_easy.crypto_secretbox_keygen.crypto_secretbox_open_detached.crypto_secretbox_open_easy.crypto_secretstream_xchacha20poly1305_init_pull.crypto_secretstream_xchacha20poly1305_init_push.crypto_secretstream_xchacha20poly1305_keygen.crypto_secretstream_xchacha20poly1305_pull.crypto_secretstream_xchacha20poly1305_push.crypto_secretstream_xchacha20poly1305_rekey.crypto_shorthash.crypto_shorthash_keygen.crypto_shorthash_siphashx24.crypto_sign.crypto_sign_detached.crypto_sign_ed25519_pk_to_curve25519.crypto_sign_ed25519_sk_to_curve25519.crypto_sign_ed25519_sk_to_pk.crypto_sign_ed25519_sk_to_seed.crypto_sign_final_create.crypto_sign_final_verify.crypto_sign_init.crypto_sign_keypair.crypto_sign_open.crypto_sign_seed_keypair.crypto_sign_update.crypto_sign_verify_detached.crypto_stream_chacha20.crypto_stream_chacha20_ietf_xor.crypto_stream_chacha20_ietf_xor_ic.crypto_stream_chacha20_keygen.crypto_stream_chacha20_xor.crypto_stream_chacha20_xor_ic.crypto_stream_keygen.crypto_stream_xchacha20_keygen.crypto_stream_xchacha20_xor.crypto_stream_xchacha20_xor_ic.crypto_xof_shake128.crypto_xof_shake128_init.crypto_xof_shake128_init_with_domain.crypto_xof_shake128_squeeze.crypto_xof_shake128_update.crypto_xof_shake256.crypto_xof_shake256_init.crypto_xof_shake256_init_with_domain.crypto_xof_shake256_squeeze.crypto_xof_shake256_update.crypto_xof_turboshake128.crypto_xof_turboshake128_init.crypto_xof_turboshake128_init_with_domain.crypto_xof_turboshake128_squeeze.crypto_xof_turboshake128_update.crypto_xof_turboshake256.crypto_xof_turboshake256_init.crypto_xof_turboshake256_init_with_domain.crypto_xof_turboshake256_squeeze.crypto_xof_turboshake256_update.randombytes_buf.randombytes_buf_deterministic.randombytes_close.randombytes_random.randombytes_set_implementation.randombytes_stir.randombytes_uniform.sodium_bin2ip.sodium_ip2bin.sodium_version_string".split("."), t = [
-			Is,
-			Ls,
-			Rs,
-			zs,
-			Bs,
-			Vs,
 			Hs,
 			Us,
 			Ws,
@@ -9294,7 +9325,13 @@ var ds = typeof (fs = us) == "function" ? fs : fs != null && typeof fs.default =
 			cf,
 			lf,
 			uf,
-			df
+			df,
+			ff,
+			pf,
+			mf,
+			hf,
+			gf,
+			_f
 		], n = 0; n < t.length; n++) typeof U["_" + e[n]] == "function" && (W[e[n]] = t[n]);
 		var r = /* @__PURE__ */ "SODIUM_LIBRARY_VERSION_MAJOR.SODIUM_LIBRARY_VERSION_MINOR.crypto_aead_aegis128l_ABYTES.crypto_aead_aegis128l_KEYBYTES.crypto_aead_aegis128l_MESSAGEBYTES_MAX.crypto_aead_aegis128l_NPUBBYTES.crypto_aead_aegis128l_NSECBYTES.crypto_aead_aegis256_ABYTES.crypto_aead_aegis256_KEYBYTES.crypto_aead_aegis256_MESSAGEBYTES_MAX.crypto_aead_aegis256_NPUBBYTES.crypto_aead_aegis256_NSECBYTES.crypto_aead_aes256gcm_ABYTES.crypto_aead_aes256gcm_KEYBYTES.crypto_aead_aes256gcm_MESSAGEBYTES_MAX.crypto_aead_aes256gcm_NPUBBYTES.crypto_aead_aes256gcm_NSECBYTES.crypto_aead_chacha20poly1305_ABYTES.crypto_aead_chacha20poly1305_IETF_ABYTES.crypto_aead_chacha20poly1305_IETF_KEYBYTES.crypto_aead_chacha20poly1305_IETF_MESSAGEBYTES_MAX.crypto_aead_chacha20poly1305_IETF_NPUBBYTES.crypto_aead_chacha20poly1305_IETF_NSECBYTES.crypto_aead_chacha20poly1305_KEYBYTES.crypto_aead_chacha20poly1305_MESSAGEBYTES_MAX.crypto_aead_chacha20poly1305_NPUBBYTES.crypto_aead_chacha20poly1305_NSECBYTES.crypto_aead_chacha20poly1305_ietf_ABYTES.crypto_aead_chacha20poly1305_ietf_KEYBYTES.crypto_aead_chacha20poly1305_ietf_MESSAGEBYTES_MAX.crypto_aead_chacha20poly1305_ietf_NPUBBYTES.crypto_aead_chacha20poly1305_ietf_NSECBYTES.crypto_aead_xchacha20poly1305_IETF_ABYTES.crypto_aead_xchacha20poly1305_IETF_KEYBYTES.crypto_aead_xchacha20poly1305_IETF_MESSAGEBYTES_MAX.crypto_aead_xchacha20poly1305_IETF_NPUBBYTES.crypto_aead_xchacha20poly1305_IETF_NSECBYTES.crypto_aead_xchacha20poly1305_ietf_ABYTES.crypto_aead_xchacha20poly1305_ietf_KEYBYTES.crypto_aead_xchacha20poly1305_ietf_MESSAGEBYTES_MAX.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES.crypto_aead_xchacha20poly1305_ietf_NSECBYTES.crypto_auth_BYTES.crypto_auth_KEYBYTES.crypto_auth_hmacsha256_BYTES.crypto_auth_hmacsha256_KEYBYTES.crypto_auth_hmacsha512256_BYTES.crypto_auth_hmacsha512256_KEYBYTES.crypto_auth_hmacsha512_BYTES.crypto_auth_hmacsha512_KEYBYTES.crypto_box_BEFORENMBYTES.crypto_box_MACBYTES.crypto_box_MESSAGEBYTES_MAX.crypto_box_NONCEBYTES.crypto_box_PUBLICKEYBYTES.crypto_box_SEALBYTES.crypto_box_SECRETKEYBYTES.crypto_box_SEEDBYTES.crypto_box_curve25519xchacha20poly1305_BEFORENMBYTES.crypto_box_curve25519xchacha20poly1305_MACBYTES.crypto_box_curve25519xchacha20poly1305_MESSAGEBYTES_MAX.crypto_box_curve25519xchacha20poly1305_NONCEBYTES.crypto_box_curve25519xchacha20poly1305_PUBLICKEYBYTES.crypto_box_curve25519xchacha20poly1305_SEALBYTES.crypto_box_curve25519xchacha20poly1305_SECRETKEYBYTES.crypto_box_curve25519xchacha20poly1305_SEEDBYTES.crypto_box_curve25519xsalsa20poly1305_BEFORENMBYTES.crypto_box_curve25519xsalsa20poly1305_MACBYTES.crypto_box_curve25519xsalsa20poly1305_MESSAGEBYTES_MAX.crypto_box_curve25519xsalsa20poly1305_NONCEBYTES.crypto_box_curve25519xsalsa20poly1305_PUBLICKEYBYTES.crypto_box_curve25519xsalsa20poly1305_SECRETKEYBYTES.crypto_box_curve25519xsalsa20poly1305_SEEDBYTES.crypto_core_ed25519_BYTES.crypto_core_ed25519_HASHBYTES.crypto_core_ed25519_NONREDUCEDSCALARBYTES.crypto_core_ed25519_SCALARBYTES.crypto_core_ed25519_UNIFORMBYTES.crypto_core_hchacha20_CONSTBYTES.crypto_core_hchacha20_INPUTBYTES.crypto_core_hchacha20_KEYBYTES.crypto_core_hchacha20_OUTPUTBYTES.crypto_core_hsalsa20_CONSTBYTES.crypto_core_hsalsa20_INPUTBYTES.crypto_core_hsalsa20_KEYBYTES.crypto_core_hsalsa20_OUTPUTBYTES.crypto_core_ristretto255_BYTES.crypto_core_ristretto255_HASHBYTES.crypto_core_ristretto255_NONREDUCEDSCALARBYTES.crypto_core_ristretto255_SCALARBYTES.crypto_core_salsa2012_CONSTBYTES.crypto_core_salsa2012_INPUTBYTES.crypto_core_salsa2012_KEYBYTES.crypto_core_salsa2012_OUTPUTBYTES.crypto_core_salsa208_CONSTBYTES.crypto_core_salsa208_INPUTBYTES.crypto_core_salsa208_KEYBYTES.crypto_core_salsa208_OUTPUTBYTES.crypto_core_salsa20_CONSTBYTES.crypto_core_salsa20_INPUTBYTES.crypto_core_salsa20_KEYBYTES.crypto_core_salsa20_OUTPUTBYTES.crypto_generichash_BYTES.crypto_generichash_BYTES_MAX.crypto_generichash_BYTES_MIN.crypto_generichash_KEYBYTES.crypto_generichash_KEYBYTES_MAX.crypto_generichash_KEYBYTES_MIN.crypto_generichash_blake2b_BYTES.crypto_generichash_blake2b_BYTES_MAX.crypto_generichash_blake2b_BYTES_MIN.crypto_generichash_blake2b_KEYBYTES.crypto_generichash_blake2b_KEYBYTES_MAX.crypto_generichash_blake2b_KEYBYTES_MIN.crypto_generichash_blake2b_PERSONALBYTES.crypto_generichash_blake2b_SALTBYTES.crypto_hash_BYTES.crypto_hash_sha256_BYTES.crypto_hash_sha3256_BYTES.crypto_hash_sha3512_BYTES.crypto_hash_sha512_BYTES.crypto_ipcrypt_BYTES.crypto_ipcrypt_KEYBYTES.crypto_ipcrypt_NDX_INPUTBYTES.crypto_ipcrypt_NDX_KEYBYTES.crypto_ipcrypt_NDX_OUTPUTBYTES.crypto_ipcrypt_NDX_TWEAKBYTES.crypto_ipcrypt_ND_INPUTBYTES.crypto_ipcrypt_ND_KEYBYTES.crypto_ipcrypt_ND_OUTPUTBYTES.crypto_ipcrypt_ND_TWEAKBYTES.crypto_ipcrypt_PFX_BYTES.crypto_ipcrypt_PFX_KEYBYTES.crypto_kdf_BYTES_MAX.crypto_kdf_BYTES_MIN.crypto_kdf_CONTEXTBYTES.crypto_kdf_KEYBYTES.crypto_kdf_blake2b_BYTES_MAX.crypto_kdf_blake2b_BYTES_MIN.crypto_kdf_blake2b_CONTEXTBYTES.crypto_kdf_blake2b_KEYBYTES.crypto_kdf_hkdf_sha256_BYTES_MAX.crypto_kdf_hkdf_sha256_BYTES_MIN.crypto_kdf_hkdf_sha256_KEYBYTES.crypto_kdf_hkdf_sha512_BYTES_MAX.crypto_kdf_hkdf_sha512_BYTES_MIN.crypto_kdf_hkdf_sha512_KEYBYTES.crypto_kem_CIPHERTEXTBYTES.crypto_kem_PUBLICKEYBYTES.crypto_kem_SECRETKEYBYTES.crypto_kem_SEEDBYTES.crypto_kem_SHAREDSECRETBYTES.crypto_kem_mlkem768_CIPHERTEXTBYTES.crypto_kem_mlkem768_PUBLICKEYBYTES.crypto_kem_mlkem768_SECRETKEYBYTES.crypto_kem_mlkem768_SEEDBYTES.crypto_kem_mlkem768_SHAREDSECRETBYTES.crypto_kem_xwing_CIPHERTEXTBYTES.crypto_kem_xwing_PUBLICKEYBYTES.crypto_kem_xwing_SECRETKEYBYTES.crypto_kem_xwing_SEEDBYTES.crypto_kem_xwing_SHAREDSECRETBYTES.crypto_kx_PUBLICKEYBYTES.crypto_kx_SECRETKEYBYTES.crypto_kx_SEEDBYTES.crypto_kx_SESSIONKEYBYTES.crypto_onetimeauth_BYTES.crypto_onetimeauth_KEYBYTES.crypto_onetimeauth_poly1305_BYTES.crypto_onetimeauth_poly1305_KEYBYTES.crypto_pwhash_ALG_ARGON2I13.crypto_pwhash_ALG_ARGON2ID13.crypto_pwhash_ALG_DEFAULT.crypto_pwhash_BYTES_MAX.crypto_pwhash_BYTES_MIN.crypto_pwhash_MEMLIMIT_INTERACTIVE.crypto_pwhash_MEMLIMIT_MAX.crypto_pwhash_MEMLIMIT_MIN.crypto_pwhash_MEMLIMIT_MODERATE.crypto_pwhash_MEMLIMIT_SENSITIVE.crypto_pwhash_OPSLIMIT_INTERACTIVE.crypto_pwhash_OPSLIMIT_MAX.crypto_pwhash_OPSLIMIT_MIN.crypto_pwhash_OPSLIMIT_MODERATE.crypto_pwhash_OPSLIMIT_SENSITIVE.crypto_pwhash_PASSWD_MAX.crypto_pwhash_PASSWD_MIN.crypto_pwhash_SALTBYTES.crypto_pwhash_STRBYTES.crypto_pwhash_argon2i_BYTES_MAX.crypto_pwhash_argon2i_BYTES_MIN.crypto_pwhash_argon2i_MEMLIMIT_INTERACTIVE.crypto_pwhash_argon2i_MEMLIMIT_MAX.crypto_pwhash_argon2i_MEMLIMIT_MIN.crypto_pwhash_argon2i_MEMLIMIT_MODERATE.crypto_pwhash_argon2i_MEMLIMIT_SENSITIVE.crypto_pwhash_argon2i_OPSLIMIT_INTERACTIVE.crypto_pwhash_argon2i_OPSLIMIT_MAX.crypto_pwhash_argon2i_OPSLIMIT_MIN.crypto_pwhash_argon2i_OPSLIMIT_MODERATE.crypto_pwhash_argon2i_OPSLIMIT_SENSITIVE.crypto_pwhash_argon2i_PASSWD_MAX.crypto_pwhash_argon2i_PASSWD_MIN.crypto_pwhash_argon2i_SALTBYTES.crypto_pwhash_argon2i_STRBYTES.crypto_pwhash_argon2id_BYTES_MAX.crypto_pwhash_argon2id_BYTES_MIN.crypto_pwhash_argon2id_MEMLIMIT_INTERACTIVE.crypto_pwhash_argon2id_MEMLIMIT_MAX.crypto_pwhash_argon2id_MEMLIMIT_MIN.crypto_pwhash_argon2id_MEMLIMIT_MODERATE.crypto_pwhash_argon2id_MEMLIMIT_SENSITIVE.crypto_pwhash_argon2id_OPSLIMIT_INTERACTIVE.crypto_pwhash_argon2id_OPSLIMIT_MAX.crypto_pwhash_argon2id_OPSLIMIT_MIN.crypto_pwhash_argon2id_OPSLIMIT_MODERATE.crypto_pwhash_argon2id_OPSLIMIT_SENSITIVE.crypto_pwhash_argon2id_PASSWD_MAX.crypto_pwhash_argon2id_PASSWD_MIN.crypto_pwhash_argon2id_SALTBYTES.crypto_pwhash_argon2id_STRBYTES.crypto_pwhash_scryptsalsa208sha256_BYTES_MAX.crypto_pwhash_scryptsalsa208sha256_BYTES_MIN.crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE.crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MAX.crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_MIN.crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_SENSITIVE.crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE.crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MAX.crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_MIN.crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_SENSITIVE.crypto_pwhash_scryptsalsa208sha256_PASSWD_MAX.crypto_pwhash_scryptsalsa208sha256_PASSWD_MIN.crypto_pwhash_scryptsalsa208sha256_SALTBYTES.crypto_pwhash_scryptsalsa208sha256_STRBYTES.crypto_scalarmult_BYTES.crypto_scalarmult_SCALARBYTES.crypto_scalarmult_curve25519_BYTES.crypto_scalarmult_curve25519_SCALARBYTES.crypto_scalarmult_ed25519_BYTES.crypto_scalarmult_ed25519_SCALARBYTES.crypto_scalarmult_ristretto255_BYTES.crypto_scalarmult_ristretto255_SCALARBYTES.crypto_secretbox_KEYBYTES.crypto_secretbox_MACBYTES.crypto_secretbox_MESSAGEBYTES_MAX.crypto_secretbox_NONCEBYTES.crypto_secretbox_xchacha20poly1305_KEYBYTES.crypto_secretbox_xchacha20poly1305_MACBYTES.crypto_secretbox_xchacha20poly1305_MESSAGEBYTES_MAX.crypto_secretbox_xchacha20poly1305_NONCEBYTES.crypto_secretbox_xsalsa20poly1305_KEYBYTES.crypto_secretbox_xsalsa20poly1305_MACBYTES.crypto_secretbox_xsalsa20poly1305_MESSAGEBYTES_MAX.crypto_secretbox_xsalsa20poly1305_NONCEBYTES.crypto_secretstream_xchacha20poly1305_ABYTES.crypto_secretstream_xchacha20poly1305_HEADERBYTES.crypto_secretstream_xchacha20poly1305_KEYBYTES.crypto_secretstream_xchacha20poly1305_MESSAGEBYTES_MAX.crypto_secretstream_xchacha20poly1305_TAG_FINAL.crypto_secretstream_xchacha20poly1305_TAG_MESSAGE.crypto_secretstream_xchacha20poly1305_TAG_PUSH.crypto_secretstream_xchacha20poly1305_TAG_REKEY.crypto_shorthash_BYTES.crypto_shorthash_KEYBYTES.crypto_shorthash_siphash24_BYTES.crypto_shorthash_siphash24_KEYBYTES.crypto_shorthash_siphashx24_BYTES.crypto_shorthash_siphashx24_KEYBYTES.crypto_sign_BYTES.crypto_sign_MESSAGEBYTES_MAX.crypto_sign_PUBLICKEYBYTES.crypto_sign_SECRETKEYBYTES.crypto_sign_SEEDBYTES.crypto_sign_ed25519_BYTES.crypto_sign_ed25519_MESSAGEBYTES_MAX.crypto_sign_ed25519_PUBLICKEYBYTES.crypto_sign_ed25519_SECRETKEYBYTES.crypto_sign_ed25519_SEEDBYTES.crypto_stream_KEYBYTES.crypto_stream_MESSAGEBYTES_MAX.crypto_stream_NONCEBYTES.crypto_stream_chacha20_IETF_KEYBYTES.crypto_stream_chacha20_IETF_MESSAGEBYTES_MAX.crypto_stream_chacha20_IETF_NONCEBYTES.crypto_stream_chacha20_KEYBYTES.crypto_stream_chacha20_MESSAGEBYTES_MAX.crypto_stream_chacha20_NONCEBYTES.crypto_stream_chacha20_ietf_KEYBYTES.crypto_stream_chacha20_ietf_MESSAGEBYTES_MAX.crypto_stream_chacha20_ietf_NONCEBYTES.crypto_stream_salsa2012_KEYBYTES.crypto_stream_salsa2012_MESSAGEBYTES_MAX.crypto_stream_salsa2012_NONCEBYTES.crypto_stream_salsa208_KEYBYTES.crypto_stream_salsa208_MESSAGEBYTES_MAX.crypto_stream_salsa208_NONCEBYTES.crypto_stream_salsa20_KEYBYTES.crypto_stream_salsa20_MESSAGEBYTES_MAX.crypto_stream_salsa20_NONCEBYTES.crypto_stream_xchacha20_KEYBYTES.crypto_stream_xchacha20_MESSAGEBYTES_MAX.crypto_stream_xchacha20_NONCEBYTES.crypto_stream_xsalsa20_KEYBYTES.crypto_stream_xsalsa20_MESSAGEBYTES_MAX.crypto_stream_xsalsa20_NONCEBYTES.crypto_verify_16_BYTES.crypto_verify_32_BYTES.crypto_verify_64_BYTES.crypto_xof_shake128_BLOCKBYTES.crypto_xof_shake128_STATEBYTES.crypto_xof_shake256_BLOCKBYTES.crypto_xof_shake256_STATEBYTES.crypto_xof_turboshake128_BLOCKBYTES.crypto_xof_turboshake128_STATEBYTES.crypto_xof_turboshake256_BLOCKBYTES.crypto_xof_turboshake256_STATEBYTES".split(".");
 		for (n = 0; n < r.length; n++) typeof (a = U["_" + r[n].toLowerCase()]) == "function" && (W[r[n]] = a());
@@ -9320,61 +9357,61 @@ var ds = typeof (fs = us) == "function" ? fs : fs != null && typeof fs.default =
 	]), n = W.randombytes_buf(W.crypto_secretbox_NONCEBYTES), r = W.randombytes_buf(W.crypto_secretbox_KEYBYTES), i = W.crypto_secretbox_easy(t, n, r), a = W.crypto_secretbox_open_easy(i, n, r);
 	if (!W.memcmp(t, a)) throw Error("Initialization self-test failed");
 });
-function hs() {
+function xs() {
 	return Object.keys(W).sort();
 }
-function gs(e) {
+function Ss(e) {
 	if (!(e instanceof Uint8Array)) throw TypeError("Only Uint8Array instances can be incremented");
 	for (var t = 256, n = 0, r = e.length; n < r; n++) t >>= 8, t += e[n], e[n] = 255 & t;
 }
-function _s(e, t) {
+function Cs(e, t) {
 	if (!(e instanceof Uint8Array && t instanceof Uint8Array)) throw TypeError("Only Uint8Array instances can be added");
 	var n = e.length, r = 0, i = 0;
 	if (t.length !== e.length) throw TypeError("Arguments must have the same length");
 	for (i = 0; i < n; i++) r >>= 8, r += e[i] + t[i], e[i] = 255 & r;
 }
-function vs(e) {
+function ws(e) {
 	if (!(e instanceof Uint8Array)) throw TypeError("Only Uint8Array instances can be checked");
 	for (var t = 0, n = 0, r = e.length; n < r; n++) t |= e[n];
 	return t === 0;
 }
-function ys(e) {
+function Ts(e) {
 	if (!(e instanceof Uint8Array)) throw TypeError("Only Uint8Array instances can be wiped");
 	for (var t = 0, n = e.length; t < n; t++) e[t] = 0;
 }
-function bs(e, t) {
+function Es(e, t) {
 	if (!(e instanceof Uint8Array && t instanceof Uint8Array)) throw TypeError("Only Uint8Array instances can be compared");
 	if (e.length !== t.length) throw TypeError("Only instances of identical length can be compared");
 	for (var n = 0, r = 0, i = e.length; r < i; r++) n |= e[r] ^ t[r];
 	return n === 0;
 }
-function xs(e, t) {
+function Ds(e, t) {
 	if (!(e instanceof Uint8Array && t instanceof Uint8Array)) throw TypeError("Only Uint8Array instances can be compared");
 	if (e.length !== t.length) throw TypeError("Only instances of identical length can be compared");
 	for (var n = 0, r = 1, i = e.length; i-- > 0;) n |= t[i] - e[i] >> 8 & r, r &= (t[i] ^ e[i]) - 1 >> 8;
 	return n + n + r - 1;
 }
-function Ss(e, t) {
+function Os(e, t) {
 	if (!(e instanceof Uint8Array)) throw TypeError("buffer must be a Uint8Array");
 	if ((t |= 0) <= 0) throw Error("block size must be > 0");
-	var n, r = [], i = Ps(4), a = 1, o = 0, s = 0 | e.length, c = new q(s + t);
+	var n, r = [], i = Bs(4), a = 1, o = 0, s = 0 | e.length, c = new q(s + t);
 	r.push(i), r.push(c.address);
 	for (var l = c.address, u = c.address + s + t; l < u; l++) U.HEAPU8[l] = e[o], o += a = 1 & ~((65535 & ((s -= a) >>> 48 | s >>> 32 | s >>> 16 | s)) - 1 >> 16);
 	return U._sodium_pad(i, c.address, e.length, t, c.length) !== 0 && X(r, "internal error"), c.length = U.getValue(i, "i32"), n = c.to_Uint8Array(), Y(r), n;
 }
-function Cs(e, t) {
+function ks(e, t) {
 	if (!(e instanceof Uint8Array)) throw TypeError("buffer must be a Uint8Array");
 	if ((t |= 0) <= 0) throw Error("block size must be > 0");
-	var n = [], r = J(e), i = Ps(4);
+	var n = [], r = J(e), i = Bs(4);
 	return n.push(r), n.push(i), U._sodium_unpad(i, r, e.length, t) !== 0 && X(n, "unsupported/invalid padding"), e = (e = new Uint8Array(e)).subarray(0, U.getValue(i, "i32")), Y(n), e;
 }
-function ws(e) {
+function As(e) {
 	if (typeof TextEncoder == "function") return new TextEncoder().encode(e);
 	e = unescape(encodeURIComponent(e));
 	for (var t = new Uint8Array(e.length), n = 0, r = e.length; n < r; n++) t[n] = e.charCodeAt(n);
 	return t;
 }
-function Ts(e) {
+function js(e) {
 	if (typeof TextDecoder == "function") return new TextDecoder("utf-8", { fatal: !0 }).decode(e);
 	var t = 8192, n = Math.ceil(e.length / t);
 	if (n <= 1) try {
@@ -9391,44 +9428,44 @@ function Ts(e) {
 				u >= 240 ? (l = 4, s = !0) : u >= 224 ? (l = 3, s = !0) : u >= 192 ? (l = 2, s = !0) : u < 128 && (l = 1, s = !0);
 			} while (!s);
 			for (var d = l - (o.length - c), f = 0; f < d; f++) i--, o.pop();
-			r += Ts(o);
+			r += js(o);
 		}
 	}
 	return r;
 }
-function Es(e) {
-	var t, n = [], r = new q((e = $(n, e, "input")).length / 2), i = J(e), a = Ps(4);
+function Ms(e) {
+	var t, n = [], r = new q((e = $(n, e, "input")).length / 2), i = J(e), a = Bs(4);
 	return n.push(i), n.push(r.address), n.push(a), U._sodium_hex2bin(r.address, r.length, i, e.length, 0, 0, a) !== 0 && X(n, "invalid input"), U.getValue(a, "i32") - i !== e.length && X(n, "incomplete input"), t = r.to_Uint8Array(), Y(n), t;
 }
-function Ds(e) {
+function Ns(e) {
 	e = $(null, e, "input");
 	for (var t, n, r, i = "", a = 0; a < e.length; a++) r = 87 + (n = 15 & e[a]) + (n - 10 >> 8 & -39) << 8 | 87 + (t = e[a] >>> 4) + (t - 10 >> 8 & -39), i += String.fromCharCode(255 & r) + String.fromCharCode(r >>> 8);
 	return i;
 }
-var Os = {
+var Ps = {
 	ORIGINAL: 1,
 	ORIGINAL_NO_PADDING: 3,
 	URLSAFE: 5,
 	URLSAFE_NO_PADDING: 7
 };
-function ks(e) {
-	if (e === void 0) return Os.URLSAFE_NO_PADDING;
-	if (e !== Os.ORIGINAL && e !== Os.ORIGINAL_NO_PADDING && e !== Os.URLSAFE && e !== Os.URLSAFE_NO_PADDING) throw Error("unsupported base64 variant");
+function Fs(e) {
+	if (e === void 0) return Ps.URLSAFE_NO_PADDING;
+	if (e !== Ps.ORIGINAL && e !== Ps.ORIGINAL_NO_PADDING && e !== Ps.URLSAFE && e !== Ps.URLSAFE_NO_PADDING) throw Error("unsupported base64 variant");
 	return e;
 }
-function As(e, t) {
-	t = ks(t);
-	var n, r = [], i = new q(3 * (e = $(r, e, "input")).length / 4), a = J(e), o = Ps(4), s = Ps(4);
+function Is(e, t) {
+	t = Fs(t);
+	var n, r = [], i = new q(3 * (e = $(r, e, "input")).length / 4), a = J(e), o = Bs(4), s = Bs(4);
 	return r.push(a), r.push(i.address), r.push(o), r.push(s), U._sodium_base642bin(i.address, i.length, a, e.length, 0, o, s, t) !== 0 && X(r, "invalid input"), U.getValue(s, "i32") - a !== e.length && X(r, "incomplete input"), i.length = U.getValue(o, "i32"), n = i.to_Uint8Array(), Y(r), n;
 }
-function js(e, t) {
-	t = ks(t);
+function Ls(e, t) {
+	t = Fs(t);
 	var n = [];
 	e = $(n, e, "input");
 	var r, i = 0 | Math.floor(e.length / 3), a = e.length - 3 * i, o = 4 * i + (a === 0 ? 0 : 2 & t ? 2 + (a >>> 1) : 4), s = new q(o + 1), c = J(e);
-	return n.push(c), n.push(s.address), U._sodium_bin2base64(s.address, s.length, c, e.length, t) === 0 && X(n, "conversion failed"), s.length = o, r = Ts(s.to_Uint8Array()), Y(n), r;
+	return n.push(c), n.push(s.address), U._sodium_bin2base64(s.address, s.length, c, e.length, t) === 0 && X(n, "conversion failed"), s.length = o, r = js(s.to_Uint8Array()), Y(n), r;
 }
-function Ms() {
+function Rs() {
 	return [
 		"uint8array",
 		"text",
@@ -9438,12 +9475,12 @@ function Ms() {
 }
 function G(e, t) {
 	var n = t || "uint8array";
-	if (!Ns(n)) throw Error(n + " output format is not available");
+	if (!zs(n)) throw Error(n + " output format is not available");
 	if (e instanceof q) {
 		if (n === "uint8array") return e.to_Uint8Array();
-		if (n === "text") return Ts(e.to_Uint8Array());
-		if (n === "hex") return Ds(e.to_Uint8Array());
-		if (n === "base64") return js(e.to_Uint8Array(), Os.URLSAFE_NO_PADDING);
+		if (n === "text") return js(e.to_Uint8Array());
+		if (n === "hex") return Ns(e.to_Uint8Array());
+		if (n === "base64") return Ls(e.to_Uint8Array(), Ps.URLSAFE_NO_PADDING);
 		throw Error("What is output format \"" + n + "\"?");
 	}
 	if (typeof e == "object") {
@@ -9453,7 +9490,7 @@ function G(e, t) {
 	if (typeof e == "string") return e;
 	throw TypeError("Cannot format output");
 }
-function Ns(e) {
+function zs(e) {
 	for (var t = [
 		"uint8array",
 		"text",
@@ -9465,17 +9502,17 @@ function Ns(e) {
 function K(e) {
 	if (e) {
 		if (typeof e != "string") throw TypeError("When defined, the output format must be a string");
-		if (!Ns(e)) throw Error(e + " is not a supported output format");
+		if (!zs(e)) throw Error(e + " is not a supported output format");
 	}
 }
 function q(e) {
-	this.length = e, this.address = Ps(e);
+	this.length = e, this.address = Bs(e);
 }
 function J(e) {
-	var t = Ps(e.length);
+	var t = Bs(e.length);
 	return U.HEAPU8.set(e, t), t;
 }
-function Ps(e) {
+function Bs(e) {
 	var t = U._malloc(e);
 	if (t === 0) throw {
 		message: "_malloc() failed",
@@ -9483,11 +9520,11 @@ function Ps(e) {
 	};
 	return t;
 }
-function Fs(e) {
+function Vs(e) {
 	U._free(e);
 }
 function Y(e) {
-	if (e) for (var t = 0; t < e.length; t++) Fs(e[t]);
+	if (e) for (var t = 0; t < e.length; t++) Vs(e[t]);
 }
 function X(e, t) {
 	throw Y(e), Error(t);
@@ -9499,9 +9536,9 @@ function Q(e, t, n) {
 	t ?? Z(e, n + " cannot be null or undefined");
 }
 function $(e, t, n) {
-	return Q(e, t, n), t instanceof Uint8Array ? t : typeof t == "string" ? ws(t) : void Z(e, "unsupported input type for " + n);
+	return Q(e, t, n), t instanceof Uint8Array ? t : typeof t == "string" ? As(t) : void Z(e, "unsupported input type for " + n);
 }
-function Is(e, t, n, r, i, a) {
+function Hs(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = null;
@@ -9521,7 +9558,7 @@ function Is(e, t, n, r, i, a) {
 	}
 	X(o, "ciphertext cannot be decrypted using that key");
 }
-function Ls(e, t, n, r, i, a, o) {
+function Us(e, t, n, r, i, a, o) {
 	var s = [];
 	K(o);
 	var c = null;
@@ -9543,7 +9580,7 @@ function Ls(e, t, n, r, i, a, o) {
 	}
 	X(s, "ciphertext cannot be decrypted using that key");
 }
-function Rs(e, t, n, r, i, a) {
+function Ws(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9563,7 +9600,7 @@ function Rs(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function zs(e, t, n, r, i, a) {
+function Gs(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9588,7 +9625,7 @@ function zs(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function Bs(e) {
+function Ks(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_aead_aegis128l_keybytes()), r = n.address;
@@ -9596,7 +9633,7 @@ function Bs(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function Vs(e, t, n, r, i, a) {
+function qs(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = null;
@@ -9616,7 +9653,7 @@ function Vs(e, t, n, r, i, a) {
 	}
 	X(o, "ciphertext cannot be decrypted using that key");
 }
-function Hs(e, t, n, r, i, a, o) {
+function Js(e, t, n, r, i, a, o) {
 	var s = [];
 	K(o);
 	var c = null;
@@ -9638,7 +9675,7 @@ function Hs(e, t, n, r, i, a, o) {
 	}
 	X(s, "ciphertext cannot be decrypted using that key");
 }
-function Us(e, t, n, r, i, a) {
+function Ys(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9658,7 +9695,7 @@ function Us(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function Ws(e, t, n, r, i, a) {
+function Xs(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9683,7 +9720,7 @@ function Ws(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function Gs(e) {
+function Zs(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_aead_aegis256_keybytes()), r = n.address;
@@ -9691,7 +9728,7 @@ function Gs(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function Ks(e, t, n, r, i, a) {
+function Qs(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = null;
@@ -9711,7 +9748,7 @@ function Ks(e, t, n, r, i, a) {
 	}
 	X(o, "ciphertext cannot be decrypted using that key");
 }
-function qs(e, t, n, r, i, a, o) {
+function $s(e, t, n, r, i, a, o) {
 	var s = [];
 	K(o);
 	var c = null;
@@ -9733,7 +9770,7 @@ function qs(e, t, n, r, i, a, o) {
 	}
 	X(s, "ciphertext cannot be decrypted using that key");
 }
-function Js(e, t, n, r, i, a) {
+function ec(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9753,7 +9790,7 @@ function Js(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function Ys(e, t, n, r, i, a) {
+function tc(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9778,7 +9815,7 @@ function Ys(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function Xs(e, t, n, r, i, a) {
+function nc(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = null;
@@ -9798,7 +9835,7 @@ function Xs(e, t, n, r, i, a) {
 	}
 	X(o, "ciphertext cannot be decrypted using that key");
 }
-function Zs(e, t, n, r, i, a, o) {
+function rc(e, t, n, r, i, a, o) {
 	var s = [];
 	K(o);
 	var c = null;
@@ -9820,7 +9857,7 @@ function Zs(e, t, n, r, i, a, o) {
 	}
 	X(s, "ciphertext cannot be decrypted using that key");
 }
-function Qs(e, t, n, r, i, a) {
+function ic(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9840,7 +9877,7 @@ function Qs(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function $s(e, t, n, r, i, a) {
+function ac(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9865,7 +9902,7 @@ function $s(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function ec(e) {
+function oc(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_aead_chacha20poly1305_ietf_keybytes()), r = n.address;
@@ -9873,7 +9910,7 @@ function ec(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function tc(e) {
+function sc(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_aead_chacha20poly1305_keybytes()), r = n.address;
@@ -9881,7 +9918,7 @@ function tc(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function nc(e, t, n, r, i, a) {
+function cc(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = null;
@@ -9901,7 +9938,7 @@ function nc(e, t, n, r, i, a) {
 	}
 	X(o, "ciphertext cannot be decrypted using that key");
 }
-function rc(e, t, n, r, i, a, o) {
+function lc(e, t, n, r, i, a, o) {
 	var s = [];
 	K(o);
 	var c = null;
@@ -9923,7 +9960,7 @@ function rc(e, t, n, r, i, a, o) {
 	}
 	X(s, "ciphertext cannot be decrypted using that key");
 }
-function ic(e, t, n, r, i, a) {
+function uc(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9943,7 +9980,7 @@ function ic(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function ac(e, t, n, r, i, a) {
+function dc(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "message")), c = e.length;
@@ -9968,7 +10005,7 @@ function ac(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function oc(e) {
+function fc(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_aead_xchacha20poly1305_ietf_keybytes()), r = n.address;
@@ -9976,7 +10013,7 @@ function oc(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function sc(e, t, n) {
+function pc(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -9990,7 +10027,7 @@ function sc(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function cc(e, t, n) {
+function mc(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -10004,7 +10041,7 @@ function cc(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function lc(e, t) {
+function hc(e, t) {
 	var n = [];
 	K(t), Q(n, e, "state_address");
 	var r = new q(0 | U._crypto_auth_hmacsha256_bytes()), i = r.address;
@@ -10014,7 +10051,7 @@ function lc(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function uc(e, t) {
+function gc(e, t) {
 	var n = [];
 	K(t);
 	var r = null, i = 0;
@@ -10026,7 +10063,7 @@ function uc(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function dc(e) {
+function _c(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_auth_hmacsha256_keybytes()), r = n.address;
@@ -10034,13 +10071,13 @@ function dc(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function fc(e, t, n) {
+function vc(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_auth_hmacsha256_update(e, i, a) && X(r, "invalid usage"), Y(r);
 }
-function pc(e, t, n) {
+function yc(e, t, n) {
 	var r = [];
 	e = $(r, e, "tag");
 	var i, a = 0 | U._crypto_auth_hmacsha256_bytes();
@@ -10052,7 +10089,7 @@ function pc(e, t, n) {
 	var u = !(0 | U._crypto_auth_hmacsha256_verify(i, o, s, 0, c));
 	return Y(r), u;
 }
-function mc(e, t, n) {
+function bc(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -10066,7 +10103,7 @@ function mc(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function hc(e, t, n) {
+function xc(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -10080,7 +10117,7 @@ function hc(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function gc(e, t) {
+function Sc(e, t) {
 	var n = [];
 	K(t), Q(n, e, "state_address");
 	var r = new q(0 | U._crypto_auth_hmacsha512256_bytes()), i = r.address;
@@ -10090,7 +10127,7 @@ function gc(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function _c(e, t) {
+function Cc(e, t) {
 	var n = [];
 	K(t);
 	var r = null, i = 0;
@@ -10102,7 +10139,7 @@ function _c(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function vc(e) {
+function wc(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_auth_hmacsha512256_keybytes()), r = n.address;
@@ -10110,13 +10147,13 @@ function vc(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function yc(e, t, n) {
+function Tc(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_auth_hmacsha512256_update(e, i, a) && X(r, "invalid usage"), Y(r);
 }
-function bc(e, t, n) {
+function Ec(e, t, n) {
 	var r = [];
 	e = $(r, e, "tag");
 	var i, a = 0 | U._crypto_auth_hmacsha512256_bytes();
@@ -10128,7 +10165,7 @@ function bc(e, t, n) {
 	var u = !(0 | U._crypto_auth_hmacsha512256_verify(i, o, s, 0, c));
 	return Y(r), u;
 }
-function xc(e, t) {
+function Dc(e, t) {
 	var n = [];
 	K(t), Q(n, e, "state_address");
 	var r = new q(0 | U._crypto_auth_hmacsha512_bytes()), i = r.address;
@@ -10138,7 +10175,7 @@ function xc(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Sc(e, t) {
+function Oc(e, t) {
 	var n = [];
 	K(t);
 	var r = null, i = 0;
@@ -10150,7 +10187,7 @@ function Sc(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Cc(e) {
+function kc(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_auth_hmacsha512_keybytes()), r = n.address;
@@ -10158,13 +10195,13 @@ function Cc(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function wc(e, t, n) {
+function Ac(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_auth_hmacsha512_update(e, i, a) && X(r, "invalid usage"), Y(r);
 }
-function Tc(e, t, n) {
+function jc(e, t, n) {
 	var r = [];
 	e = $(r, e, "tag");
 	var i, a = 0 | U._crypto_auth_hmacsha512_bytes();
@@ -10176,7 +10213,7 @@ function Tc(e, t, n) {
 	var u = !(0 | U._crypto_auth_hmacsha512_verify(i, o, s, 0, c));
 	return Y(r), u;
 }
-function Ec(e) {
+function Mc(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_auth_keybytes()), r = n.address;
@@ -10184,7 +10221,7 @@ function Ec(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function Dc(e, t, n) {
+function Nc(e, t, n) {
 	var r = [];
 	e = $(r, e, "tag");
 	var i, a = 0 | U._crypto_auth_bytes();
@@ -10196,7 +10233,7 @@ function Dc(e, t, n) {
 	var u = !(0 | U._crypto_auth_verify(i, o, s, 0, c));
 	return Y(r), u;
 }
-function Oc(e, t, n) {
+function Pc(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "publicKey");
 	var i, a = 0 | U._crypto_box_publickeybytes();
@@ -10210,7 +10247,7 @@ function Oc(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function kc(e, t, n) {
+function Fc(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "publicKey");
 	var i, a = 0 | U._crypto_box_curve25519xchacha20poly1305_publickeybytes();
@@ -10224,7 +10261,7 @@ function kc(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Ac(e, t, n, r, i) {
+function Ic(e, t, n, r, i) {
 	var a = [];
 	K(i);
 	var o = J(e = $(a, e, "message")), s = e.length;
@@ -10247,7 +10284,7 @@ function Ac(e, t, n, r, i) {
 	}
 	X(a, "invalid usage");
 }
-function jc(e, t, n, r) {
+function Lc(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "message")), o = e.length;
@@ -10268,7 +10305,7 @@ function jc(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Mc(e, t, n, r, i) {
+function Rc(e, t, n, r, i) {
 	var a = [];
 	K(i);
 	var o = J(e = $(a, e, "message")), s = e.length;
@@ -10286,7 +10323,7 @@ function Mc(e, t, n, r, i) {
 	}
 	X(a, "invalid usage");
 }
-function Nc(e, t, n, r) {
+function zc(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "message")), o = e.length;
@@ -10302,7 +10339,7 @@ function Nc(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Pc(e) {
+function Bc(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_box_curve25519xchacha20poly1305_publickeybytes()), r = n.address;
@@ -10316,7 +10353,7 @@ function Pc(e) {
 	}, e);
 	return Y(t), o;
 }
-function Fc(e, t, n, r, i, a) {
+function Vc(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "ciphertext")), c = e.length;
@@ -10336,7 +10373,7 @@ function Fc(e, t, n, r, i, a) {
 	}
 	X(o, "incorrect key pair for the given ciphertext");
 }
-function Ic(e, t, n, r, i) {
+function Hc(e, t, n, r, i) {
 	var a = [];
 	K(i);
 	var o = J(e = $(a, e, "ciphertext")), s = e.length;
@@ -10354,7 +10391,7 @@ function Ic(e, t, n, r, i) {
 	}
 	X(a, "incorrect secret key for the given ciphertext");
 }
-function Lc(e, t, n, r, i) {
+function Uc(e, t, n, r, i) {
 	var a = [];
 	K(i), e = $(a, e, "ciphertext");
 	var o, s = U._crypto_box_curve25519xchacha20poly1305_macbytes(), c = e.length;
@@ -10372,7 +10409,7 @@ function Lc(e, t, n, r, i) {
 	}
 	X(a, "incorrect key pair for the given ciphertext");
 }
-function Rc(e, t, n, r) {
+function Wc(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "ciphertext")), o = e.length;
@@ -10388,7 +10425,7 @@ function Rc(e, t, n, r) {
 	}
 	X(i, "incorrect secret key for the given ciphertext");
 }
-function zc(e, t, n) {
+function Gc(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -10400,7 +10437,7 @@ function zc(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function Bc(e, t, n, r) {
+function Kc(e, t, n, r) {
 	var i = [];
 	K(r), e = $(i, e, "ciphertext");
 	var a, o = U._crypto_box_curve25519xchacha20poly1305_sealbytes(), s = e.length;
@@ -10414,7 +10451,7 @@ function Bc(e, t, n, r) {
 	var m = G(f, r);
 	return Y(i), m;
 }
-function Vc(e, t) {
+function qc(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "seed");
 	var r, i = 0 | U._crypto_box_curve25519xchacha20poly1305_seedbytes();
@@ -10432,7 +10469,7 @@ function Vc(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Hc(e, t, n, r, i) {
+function Jc(e, t, n, r, i) {
 	var a = [];
 	K(i);
 	var o = J(e = $(a, e, "message")), s = e.length;
@@ -10455,7 +10492,7 @@ function Hc(e, t, n, r, i) {
 	}
 	X(a, "invalid usage");
 }
-function Uc(e, t, n, r, i) {
+function Yc(e, t, n, r, i) {
 	var a = [];
 	K(i);
 	var o = J(e = $(a, e, "message")), s = e.length;
@@ -10473,7 +10510,7 @@ function Uc(e, t, n, r, i) {
 	}
 	X(a, "invalid usage");
 }
-function Wc(e, t, n, r) {
+function Xc(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "message")), o = e.length;
@@ -10489,7 +10526,7 @@ function Wc(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Gc(e) {
+function Zc(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_box_publickeybytes()), r = n.address;
@@ -10505,7 +10542,7 @@ function Gc(e) {
 	}
 	X(t, "internal error");
 }
-function Kc(e, t, n, r, i, a) {
+function Qc(e, t, n, r, i, a) {
 	var o = [];
 	K(a);
 	var s = J(e = $(o, e, "ciphertext")), c = e.length;
@@ -10525,7 +10562,7 @@ function Kc(e, t, n, r, i, a) {
 	}
 	X(o, "incorrect key pair for the given ciphertext");
 }
-function qc(e, t, n, r, i) {
+function $c(e, t, n, r, i) {
 	var a = [];
 	K(i), e = $(a, e, "ciphertext");
 	var o, s = U._crypto_box_macbytes(), c = e.length;
@@ -10543,7 +10580,7 @@ function qc(e, t, n, r, i) {
 	}
 	X(a, "incorrect key pair for the given ciphertext");
 }
-function Jc(e, t, n, r) {
+function el(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "ciphertext")), o = e.length;
@@ -10559,7 +10596,7 @@ function Jc(e, t, n, r) {
 	}
 	X(i, "incorrect secret key for the given ciphertext");
 }
-function Yc(e, t, n) {
+function tl(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -10573,7 +10610,7 @@ function Yc(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Xc(e, t, n, r) {
+function nl(e, t, n, r) {
 	var i = [];
 	K(r), e = $(i, e, "ciphertext");
 	var a, o = U._crypto_box_sealbytes(), s = e.length;
@@ -10589,7 +10626,7 @@ function Xc(e, t, n, r) {
 	}
 	X(i, "incorrect key pair for the given ciphertext");
 }
-function Zc(e, t) {
+function rl(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "seed");
 	var r, i = 0 | U._crypto_box_seedbytes();
@@ -10607,7 +10644,7 @@ function Zc(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Qc(e, t, n) {
+function il(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "p");
 	var i, a = 0 | U._crypto_core_ed25519_bytes();
@@ -10621,7 +10658,7 @@ function Qc(e, t, n) {
 	}
 	X(r, "input is an invalid element");
 }
-function $c(e, t) {
+function al(e, t) {
 	var n = [];
 	K(t);
 	var r = J(e = $(n, e, "r"));
@@ -10633,7 +10670,7 @@ function $c(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function el(e, t) {
+function ol(e, t) {
 	var n = [];
 	K(t);
 	var r = J(e = $(n, e, "r"));
@@ -10645,7 +10682,7 @@ function el(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function tl(e, t) {
+function sl(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "repr");
 	var r, i = 0 | U._crypto_core_ed25519_bytes();
@@ -10653,7 +10690,7 @@ function tl(e, t) {
 	var a = (0 | U._crypto_core_ed25519_is_valid_point(r)) == 1;
 	return Y(n), a;
 }
-function nl(e) {
+function cl(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_core_ed25519_bytes()), r = n.address;
@@ -10661,7 +10698,7 @@ function nl(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function rl(e, t, n) {
+function ll(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "x");
 	var i, a = 0 | U._crypto_core_ed25519_scalarbytes();
@@ -10673,7 +10710,7 @@ function rl(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function il(e, t) {
+function ul(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "s");
 	var r, i = 0 | U._crypto_core_ed25519_scalarbytes();
@@ -10683,7 +10720,7 @@ function il(e, t) {
 	var s = G(a, t);
 	return Y(n), s;
 }
-function al(e, t) {
+function dl(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "s");
 	var r, i = 0 | U._crypto_core_ed25519_scalarbytes();
@@ -10695,7 +10732,7 @@ function al(e, t) {
 	}
 	X(n, "invalid reciprocate");
 }
-function ol(e, t, n) {
+function fl(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "x");
 	var i, a = 0 | U._crypto_core_ed25519_scalarbytes();
@@ -10707,7 +10744,7 @@ function ol(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function sl(e, t) {
+function pl(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "s");
 	var r, i = 0 | U._crypto_core_ed25519_scalarbytes();
@@ -10717,7 +10754,7 @@ function sl(e, t) {
 	var s = G(a, t);
 	return Y(n), s;
 }
-function cl(e) {
+function ml(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_core_ed25519_scalarbytes()), r = n.address;
@@ -10725,7 +10762,7 @@ function cl(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function ll(e, t) {
+function hl(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "sample");
 	var r, i = 0 | U._crypto_core_ed25519_nonreducedscalarbytes();
@@ -10735,7 +10772,7 @@ function ll(e, t) {
 	var s = G(a, t);
 	return Y(n), s;
 }
-function ul(e, t, n) {
+function gl(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "x");
 	var i, a = 0 | U._crypto_core_ed25519_scalarbytes();
@@ -10747,7 +10784,7 @@ function ul(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function dl(e, t, n) {
+function _l(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "p");
 	var i, a = 0 | U._crypto_core_ed25519_bytes();
@@ -10761,7 +10798,7 @@ function dl(e, t, n) {
 	}
 	X(r, "input is an invalid element");
 }
-function fl(e, t, n, r) {
+function vl(e, t, n, r) {
 	var i = [];
 	K(r), e = $(i, e, "input");
 	var a, o = 0 | U._crypto_core_hchacha20_inputbytes();
@@ -10777,7 +10814,7 @@ function fl(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function pl(e, t, n, r) {
+function yl(e, t, n, r) {
 	var i = [];
 	K(r), e = $(i, e, "input");
 	var a, o = 0 | U._crypto_core_hsalsa20_inputbytes();
@@ -10793,7 +10830,7 @@ function pl(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function ml(e, t, n) {
+function bl(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "p");
 	var i, a = 0 | U._crypto_core_ristretto255_bytes();
@@ -10807,7 +10844,7 @@ function ml(e, t, n) {
 	}
 	X(r, "input is an invalid element");
 }
-function hl(e, t) {
+function xl(e, t) {
 	var n = [];
 	K(t);
 	var r = J(e = $(n, e, "r"));
@@ -10819,7 +10856,7 @@ function hl(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function gl(e, t) {
+function Sl(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "repr");
 	var r, i = 0 | U._crypto_core_ristretto255_bytes();
@@ -10827,7 +10864,7 @@ function gl(e, t) {
 	var a = (0 | U._crypto_core_ristretto255_is_valid_point(r)) == 1;
 	return Y(n), a;
 }
-function _l(e) {
+function Cl(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_core_ristretto255_bytes()), r = n.address;
@@ -10835,7 +10872,7 @@ function _l(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function vl(e, t, n) {
+function wl(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "x");
 	var i, a = 0 | U._crypto_core_ristretto255_scalarbytes();
@@ -10847,7 +10884,7 @@ function vl(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function yl(e, t) {
+function Tl(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "s");
 	var r, i = 0 | U._crypto_core_ristretto255_scalarbytes();
@@ -10857,7 +10894,7 @@ function yl(e, t) {
 	var s = G(a, t);
 	return Y(n), s;
 }
-function bl(e, t) {
+function El(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "s");
 	var r, i = 0 | U._crypto_core_ristretto255_scalarbytes();
@@ -10869,7 +10906,7 @@ function bl(e, t) {
 	}
 	X(n, "invalid reciprocate");
 }
-function xl(e, t, n) {
+function Dl(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "x");
 	var i, a = 0 | U._crypto_core_ristretto255_scalarbytes();
@@ -10881,7 +10918,7 @@ function xl(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function Sl(e, t) {
+function Ol(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "s");
 	var r, i = 0 | U._crypto_core_ristretto255_scalarbytes();
@@ -10891,7 +10928,7 @@ function Sl(e, t) {
 	var s = G(a, t);
 	return Y(n), s;
 }
-function Cl(e) {
+function kl(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_core_ristretto255_scalarbytes()), r = n.address;
@@ -10899,7 +10936,7 @@ function Cl(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function wl(e, t) {
+function Al(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "sample");
 	var r, i = 0 | U._crypto_core_ristretto255_nonreducedscalarbytes();
@@ -10909,7 +10946,7 @@ function wl(e, t) {
 	var s = G(a, t);
 	return Y(n), s;
 }
-function Tl(e, t, n) {
+function jl(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "x");
 	var i, a = 0 | U._crypto_core_ristretto255_scalarbytes();
@@ -10921,7 +10958,7 @@ function Tl(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function El(e, t, n) {
+function Ml(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "p");
 	var i, a = 0 | U._crypto_core_ristretto255_bytes();
@@ -10935,7 +10972,7 @@ function El(e, t, n) {
 	}
 	X(r, "input is an invalid element");
 }
-function Dl(e, t, n, r) {
+function Nl(e, t, n, r) {
 	var i = [];
 	K(r), Q(i, e, "hash_length"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(i, "hash_length must be an unsigned integer");
 	var a = J(t = $(i, t, "message")), o = t.length;
@@ -10949,7 +10986,7 @@ function Dl(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Ol(e, t, n, r, i) {
+function Pl(e, t, n, r, i) {
 	var a = [];
 	K(i), Q(a, e, "subkey_len"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(a, "subkey_len must be an unsigned integer");
 	var o = null, s = 0;
@@ -10965,7 +11002,7 @@ function Ol(e, t, n, r, i) {
 	}
 	X(a, "invalid usage");
 }
-function kl(e, t, n) {
+function Fl(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address"), Q(r, t, "hash_length"), (typeof t != "number" || (0 | t) !== t || t < 0) && Z(r, "hash_length must be an unsigned integer");
 	var i = new q(t |= 0), a = i.address;
@@ -10975,7 +11012,7 @@ function kl(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Al(e, t, n) {
+function Il(e, t, n) {
 	var r = [];
 	K(n);
 	var i = null, a = 0;
@@ -10987,7 +11024,7 @@ function Al(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function jl(e) {
+function Ll(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_generichash_keybytes()), r = n.address;
@@ -10995,13 +11032,13 @@ function jl(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function Ml(e, t, n) {
+function Rl(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_generichash_update(e, i, a) && X(r, "invalid usage"), Y(r);
 }
-function Nl(e, t) {
+function zl(e, t) {
 	var n = [];
 	K(t);
 	var r = J(e = $(n, e, "message")), i = e.length;
@@ -11013,7 +11050,7 @@ function Nl(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Pl(e, t) {
+function Bl(e, t) {
 	var n = [];
 	K(t);
 	var r = J(e = $(n, e, "message")), i = e.length;
@@ -11025,7 +11062,7 @@ function Pl(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Fl(e, t) {
+function Vl(e, t) {
 	var n = [];
 	K(t), Q(n, e, "state_address");
 	var r = new q(0 | U._crypto_hash_sha256_bytes()), i = r.address;
@@ -11035,7 +11072,7 @@ function Fl(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Il(e) {
+function Hl(e) {
 	var t = [];
 	K(e);
 	var n = new q(104).address;
@@ -11045,13 +11082,13 @@ function Il(e) {
 	}
 	X(t, "invalid usage");
 }
-function Ll(e, t, n) {
+function Ul(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_hash_sha256_update(e, i, a) && X(r, "invalid usage"), Y(r);
 }
-function Rl(e, t) {
+function Wl(e, t) {
 	var n = [];
 	K(t);
 	var r = J(e = $(n, e, "message")), i = e.length;
@@ -11063,7 +11100,7 @@ function Rl(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function zl(e, t) {
+function Gl(e, t) {
 	var n = [];
 	K(t), Q(n, e, "state_address");
 	var r = new q(0 | U._crypto_hash_sha3256_bytes()), i = r.address;
@@ -11073,7 +11110,7 @@ function zl(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Bl(e) {
+function Kl(e) {
 	var t = [];
 	K(e);
 	var n = new q(256).address;
@@ -11083,13 +11120,13 @@ function Bl(e) {
 	}
 	X(t, "invalid usage");
 }
-function Vl(e, t, n) {
+function ql(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_hash_sha3256_update(e, i, a) && X(r, "invalid usage"), Y(r);
 }
-function Hl(e, t) {
+function Jl(e, t) {
 	var n = [];
 	K(t);
 	var r = J(e = $(n, e, "message")), i = e.length;
@@ -11101,7 +11138,7 @@ function Hl(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Ul(e, t) {
+function Yl(e, t) {
 	var n = [];
 	K(t), Q(n, e, "state_address");
 	var r = new q(0 | U._crypto_hash_sha3512_bytes()), i = r.address;
@@ -11111,7 +11148,7 @@ function Ul(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Wl(e) {
+function Xl(e) {
 	var t = [];
 	K(e);
 	var n = new q(256).address;
@@ -11121,13 +11158,13 @@ function Wl(e) {
 	}
 	X(t, "invalid usage");
 }
-function Gl(e, t, n) {
+function Zl(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_hash_sha3512_update(e, i, a) && X(r, "invalid usage"), Y(r);
 }
-function Kl(e, t) {
+function Ql(e, t) {
 	var n = [];
 	K(t);
 	var r = J(e = $(n, e, "message")), i = e.length;
@@ -11139,7 +11176,7 @@ function Kl(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function ql(e, t) {
+function $l(e, t) {
 	var n = [];
 	K(t), Q(n, e, "state_address");
 	var r = new q(0 | U._crypto_hash_sha512_bytes()), i = r.address;
@@ -11149,7 +11186,7 @@ function ql(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Jl(e) {
+function eu(e) {
 	var t = [];
 	K(e);
 	var n = new q(208).address;
@@ -11159,13 +11196,13 @@ function Jl(e) {
 	}
 	X(t, "invalid usage");
 }
-function Yl(e, t, n) {
+function tu(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_hash_sha512_update(e, i, a) && X(r, "invalid usage"), Y(r);
 }
-function Xl(e, t, n) {
+function nu(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "input");
 	var i, a = 0 | U._crypto_ipcrypt_bytes();
@@ -11177,7 +11214,7 @@ function Xl(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function Zl(e, t, n) {
+function ru(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "input");
 	var i, a = 0 | U._crypto_ipcrypt_bytes();
@@ -11189,7 +11226,7 @@ function Zl(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function Ql(e) {
+function iu(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_ipcrypt_keybytes()), r = n.address;
@@ -11197,7 +11234,7 @@ function Ql(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function $l(e, t, n) {
+function au(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "input");
 	var i, a = 0 | U._crypto_ipcrypt_nd_outputbytes();
@@ -11209,7 +11246,7 @@ function $l(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function eu(e, t, n, r) {
+function ou(e, t, n, r) {
 	var i = [];
 	K(r), e = $(i, e, "input");
 	var a, o = 0 | U._crypto_ipcrypt_nd_inputbytes();
@@ -11223,7 +11260,7 @@ function eu(e, t, n, r) {
 	var p = G(d, r);
 	return Y(i), p;
 }
-function tu(e) {
+function su(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_ipcrypt_nd_keybytes()), r = n.address;
@@ -11231,7 +11268,7 @@ function tu(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function nu(e, t, n) {
+function cu(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "input");
 	var i, a = 0 | U._crypto_ipcrypt_ndx_outputbytes();
@@ -11243,7 +11280,7 @@ function nu(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function ru(e, t, n, r) {
+function lu(e, t, n, r) {
 	var i = [];
 	K(r), e = $(i, e, "input");
 	var a, o = 0 | U._crypto_ipcrypt_ndx_inputbytes();
@@ -11257,7 +11294,7 @@ function ru(e, t, n, r) {
 	var p = G(d, r);
 	return Y(i), p;
 }
-function iu(e) {
+function uu(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_ipcrypt_ndx_keybytes()), r = n.address;
@@ -11265,7 +11302,7 @@ function iu(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function au(e, t, n) {
+function du(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "input");
 	var i, a = 0 | U._crypto_ipcrypt_pfx_bytes();
@@ -11277,7 +11314,7 @@ function au(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function ou(e, t, n) {
+function fu(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "input");
 	var i, a = 0 | U._crypto_ipcrypt_pfx_bytes();
@@ -11289,7 +11326,7 @@ function ou(e, t, n) {
 	var u = G(c, n);
 	return Y(r), u;
 }
-function su(e) {
+function pu(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_ipcrypt_pfx_keybytes()), r = n.address;
@@ -11297,7 +11334,7 @@ function su(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function cu(e, t, n, r, i) {
+function mu(e, t, n, r, i) {
 	var a = [];
 	K(i), Q(a, e, "subkey_len"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(a, "subkey_len must be an unsigned integer"), Q(a, t, "subkey_id");
 	var o, s = 0;
@@ -11305,7 +11342,7 @@ function cu(e, t, n, r, i) {
 		let e = t >> BigInt(32);
 		e > BigInt(4294967295) && Z(a, "subkey_id cannot be more than 64 bits"), s = Number(e), o = Number(t & BigInt(4294967295));
 	} else typeof t == "number" && (0 | t) === t && t >= 0 ? o = t : Z(a, "subkey_id must be an unsigned integer or bigint");
-	typeof n != "string" && Z(a, "ctx must be a string"), (n = ws(n + "\0")).length - 1 !== U._crypto_kdf_contextbytes() && Z(a, "invalid ctx length");
+	typeof n != "string" && Z(a, "ctx must be a string"), (n = As(n + "\0")).length - 1 !== U._crypto_kdf_contextbytes() && Z(a, "invalid ctx length");
 	var c = J(n);
 	n.length, a.push(c), r = $(a, r, "key");
 	var l, u = 0 | U._crypto_kdf_keybytes();
@@ -11315,7 +11352,7 @@ function cu(e, t, n, r, i) {
 	var p = G(d, i);
 	return Y(a), p;
 }
-function lu(e) {
+function hu(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_kdf_keybytes()), r = n.address;
@@ -11323,7 +11360,7 @@ function lu(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function uu(e, t, n) {
+function gu(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "ciphertext");
 	var i, a = 0 | U._crypto_kem_ciphertextbytes();
@@ -11337,7 +11374,7 @@ function uu(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function du(e, t) {
+function _u(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "publicKey");
 	var r, i = 0 | U._crypto_kem_publickeybytes();
@@ -11354,7 +11391,7 @@ function du(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function fu(e) {
+function vu(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_kem_publickeybytes()), r = n.address;
@@ -11370,7 +11407,7 @@ function fu(e) {
 	}
 	X(t, "internal error");
 }
-function pu(e, t, n) {
+function yu(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "ciphertext");
 	var i, a = 0 | U._crypto_kem_mlkem768_ciphertextbytes();
@@ -11384,7 +11421,7 @@ function pu(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function mu(e, t) {
+function bu(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "publicKey");
 	var r, i = 0 | U._crypto_kem_mlkem768_publickeybytes();
@@ -11401,7 +11438,7 @@ function mu(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function hu(e, t, n) {
+function xu(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "publicKey");
 	var i, a, o = 0 | U._crypto_kem_mlkem768_publickeybytes();
@@ -11418,7 +11455,7 @@ function hu(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function gu(e) {
+function Su(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_kem_mlkem768_publickeybytes()), r = n.address;
@@ -11434,7 +11471,7 @@ function gu(e) {
 	}
 	X(t, "internal error");
 }
-function _u(e, t) {
+function Cu(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "seed");
 	var r, i = 0 | U._crypto_kem_mlkem768_seedbytes();
@@ -11452,11 +11489,11 @@ function _u(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function vu() {
+function wu() {
 	var e = U._crypto_kem_primitive(), t = U.UTF8ToString(e);
 	return Y([]), t;
 }
-function yu(e, t) {
+function Tu(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "seed");
 	var r, i = 0 | U._crypto_kem_seedbytes();
@@ -11474,7 +11511,7 @@ function yu(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function bu(e, t, n) {
+function Eu(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "ciphertext");
 	var i, a = 0 | U._crypto_kem_xwing_ciphertextbytes();
@@ -11488,7 +11525,7 @@ function bu(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function xu(e, t) {
+function Du(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "publicKey");
 	var r, i = 0 | U._crypto_kem_xwing_publickeybytes();
@@ -11505,7 +11542,7 @@ function xu(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Su(e, t, n) {
+function Ou(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "publicKey");
 	var i, a, o = 0 | U._crypto_kem_xwing_publickeybytes();
@@ -11522,7 +11559,7 @@ function Su(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Cu(e) {
+function ku(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_kem_xwing_publickeybytes()), r = n.address;
@@ -11538,7 +11575,7 @@ function Cu(e) {
 	}
 	X(t, "internal error");
 }
-function wu(e, t) {
+function Au(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "seed");
 	var r, i = 0 | U._crypto_kem_xwing_seedbytes();
@@ -11556,7 +11593,7 @@ function wu(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Tu(e, t, n, r) {
+function ju(e, t, n, r) {
 	var i = [];
 	K(r), e = $(i, e, "clientPublicKey");
 	var a, o = 0 | U._crypto_kx_publickeybytes();
@@ -11577,7 +11614,7 @@ function Tu(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Eu(e) {
+function Mu(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_kx_publickeybytes()), r = n.address;
@@ -11593,7 +11630,7 @@ function Eu(e) {
 	}
 	X(t, "internal error");
 }
-function Du(e, t) {
+function Nu(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "seed");
 	var r, i = 0 | U._crypto_kx_seedbytes();
@@ -11611,7 +11648,7 @@ function Du(e, t) {
 	}
 	X(n, "internal error");
 }
-function Ou(e, t, n, r) {
+function Pu(e, t, n, r) {
 	var i = [];
 	K(r), e = $(i, e, "serverPublicKey");
 	var a, o = 0 | U._crypto_kx_publickeybytes();
@@ -11632,7 +11669,7 @@ function Ou(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function ku(e, t, n) {
+function Fu(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -11646,7 +11683,7 @@ function ku(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Au(e, t) {
+function Iu(e, t) {
 	var n = [];
 	K(t), Q(n, e, "state_address");
 	var r = new q(0 | U._crypto_onetimeauth_bytes()), i = r.address;
@@ -11656,7 +11693,7 @@ function Au(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function ju(e, t) {
+function Lu(e, t) {
 	var n = [];
 	K(t);
 	var r = null;
@@ -11668,7 +11705,7 @@ function ju(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Mu(e) {
+function Ru(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_onetimeauth_keybytes()), r = n.address;
@@ -11676,13 +11713,13 @@ function Mu(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function Nu(e, t, n) {
+function zu(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_onetimeauth_update(e, i, a) && X(r, "invalid usage"), Y(r);
 }
-function Pu(e, t, n) {
+function Bu(e, t, n) {
 	var r = [];
 	e = $(r, e, "hash");
 	var i, a = 0 | U._crypto_onetimeauth_bytes();
@@ -11694,7 +11731,7 @@ function Pu(e, t, n) {
 	var u = !(0 | U._crypto_onetimeauth_verify(i, o, s, 0, c));
 	return Y(r), u;
 }
-function Fu(e, t, n, r, i, a, o) {
+function Vu(e, t, n, r, i, a, o) {
 	var s = [];
 	K(o), Q(s, e, "keyLength"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(s, "keyLength must be an unsigned integer");
 	var c = J(t = $(s, t, "password")), l = t.length;
@@ -11708,7 +11745,7 @@ function Fu(e, t, n, r, i, a, o) {
 	}
 	X(s, "invalid usage");
 }
-function Iu(e, t, n, r, i, a) {
+function Hu(e, t, n, r, i, a) {
 	var o = [];
 	K(a), Q(o, e, "keyLength"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(o, "keyLength must be an unsigned integer");
 	var s = J(t = $(o, t, "password")), c = t.length;
@@ -11722,7 +11759,7 @@ function Iu(e, t, n, r, i, a) {
 	}
 	X(o, "invalid usage");
 }
-function Lu(e, t, n, r, i, a, o) {
+function Uu(e, t, n, r, i, a, o) {
 	var s = [];
 	K(o);
 	var c = J(e = $(s, e, "password")), l = e.length;
@@ -11736,7 +11773,7 @@ function Lu(e, t, n, r, i, a, o) {
 	}
 	X(s, "invalid usage");
 }
-function Ru(e, t, n, r) {
+function Wu(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "password")), o = e.length;
@@ -11748,17 +11785,17 @@ function Ru(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function zu(e, t, n) {
+function Gu(e, t, n) {
 	var r = [];
 	K(n), typeof e != "string" && Z(r, "hashed_password must be a string");
-	var i = J(e = ws(e + "\0"));
+	var i = J(e = As(e + "\0"));
 	e.length, r.push(i);
 	var a = J(t = $(r, t, "password")), o = t.length;
 	r.push(a);
 	var s = !(0 | U._crypto_pwhash_scryptsalsa208sha256_str_verify(i, a, o, 0));
 	return Y(r), s;
 }
-function Bu(e, t, n, r) {
+function Ku(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "password")), o = e.length;
@@ -11770,25 +11807,25 @@ function Bu(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Vu(e, t, n, r) {
+function qu(e, t, n, r) {
 	var i = [];
 	K(r), typeof e != "string" && Z(i, "hashed_password must be a string");
-	var a = J(e = ws(e + "\0"));
+	var a = J(e = As(e + "\0"));
 	e.length, i.push(a), Q(i, t, "opsLimit"), (typeof t != "number" || (0 | t) !== t || t < 0) && Z(i, "opsLimit must be an unsigned integer"), Q(i, n, "memLimit"), (typeof n != "number" || (0 | n) !== n || n < 0) && Z(i, "memLimit must be an unsigned integer");
 	var o = !!(0 | U._crypto_pwhash_str_needs_rehash(a, t, 0, n));
 	return Y(i), o;
 }
-function Hu(e, t, n) {
+function Ju(e, t, n) {
 	var r = [];
 	K(n), typeof e != "string" && Z(r, "hashed_password must be a string");
-	var i = J(e = ws(e + "\0"));
+	var i = J(e = As(e + "\0"));
 	e.length, r.push(i);
 	var a = J(t = $(r, t, "password")), o = t.length;
 	r.push(a);
 	var s = !(0 | U._crypto_pwhash_str_verify(i, a, o, 0));
 	return Y(r), s;
 }
-function Uu(e, t, n) {
+function Yu(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "privateKey");
 	var i, a = 0 | U._crypto_scalarmult_scalarbytes();
@@ -11802,7 +11839,7 @@ function Uu(e, t, n) {
 	}
 	X(r, "weak public key");
 }
-function Wu(e, t) {
+function Xu(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "privateKey");
 	var r, i = 0 | U._crypto_scalarmult_scalarbytes();
@@ -11814,7 +11851,7 @@ function Wu(e, t) {
 	}
 	X(n, "unknown error");
 }
-function Gu(e, t, n) {
+function Zu(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "n");
 	var i, a = 0 | U._crypto_scalarmult_ed25519_scalarbytes();
@@ -11828,7 +11865,7 @@ function Gu(e, t, n) {
 	}
 	X(r, "invalid point or scalar is 0");
 }
-function Ku(e, t) {
+function Qu(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "scalar");
 	var r, i = 0 | U._crypto_scalarmult_ed25519_scalarbytes();
@@ -11840,7 +11877,7 @@ function Ku(e, t) {
 	}
 	X(n, "scalar is 0");
 }
-function qu(e, t) {
+function $u(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "scalar");
 	var r, i = 0 | U._crypto_scalarmult_ed25519_scalarbytes();
@@ -11852,7 +11889,7 @@ function qu(e, t) {
 	}
 	X(n, "scalar is 0");
 }
-function Ju(e, t, n) {
+function ed(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "n");
 	var i, a = 0 | U._crypto_scalarmult_ed25519_scalarbytes();
@@ -11866,7 +11903,7 @@ function Ju(e, t, n) {
 	}
 	X(r, "invalid point or scalar is 0");
 }
-function Yu(e, t, n) {
+function td(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "scalar");
 	var i, a = 0 | U._crypto_scalarmult_ristretto255_scalarbytes();
@@ -11880,7 +11917,7 @@ function Yu(e, t, n) {
 	}
 	X(r, "result is identity element");
 }
-function Xu(e, t) {
+function nd(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "scalar");
 	var r, i = 0 | U._crypto_core_ristretto255_scalarbytes();
@@ -11892,7 +11929,7 @@ function Xu(e, t) {
 	}
 	X(n, "scalar is 0");
 }
-function Zu(e, t, n, r) {
+function rd(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "message")), o = e.length;
@@ -11913,7 +11950,7 @@ function Zu(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Qu(e, t, n, r) {
+function id(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "message")), o = e.length;
@@ -11929,7 +11966,7 @@ function Qu(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function $u(e) {
+function ad(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_secretbox_keybytes()), r = n.address;
@@ -11937,7 +11974,7 @@ function $u(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function ed(e, t, n, r, i) {
+function od(e, t, n, r, i) {
 	var a = [];
 	K(i);
 	var o = J(e = $(a, e, "ciphertext")), s = e.length;
@@ -11955,7 +11992,7 @@ function ed(e, t, n, r, i) {
 	}
 	X(a, "wrong secret key for the given ciphertext");
 }
-function td(e, t, n, r) {
+function sd(e, t, n, r) {
 	var i = [];
 	K(r), e = $(i, e, "ciphertext");
 	var a, o = U._crypto_secretbox_macbytes(), s = e.length;
@@ -11971,7 +12008,7 @@ function td(e, t, n, r) {
 	}
 	X(i, "wrong secret key for the given ciphertext");
 }
-function nd(e, t, n) {
+function cd(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "header");
 	var i, a = 0 | U._crypto_secretstream_xchacha20poly1305_headerbytes();
@@ -11985,7 +12022,7 @@ function nd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function rd(e, t) {
+function ld(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "key");
 	var r, i = 0 | U._crypto_secretstream_xchacha20poly1305_keybytes();
@@ -12000,7 +12037,7 @@ function rd(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function id(e) {
+function ud(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_secretstream_xchacha20poly1305_keybytes()), r = n.address;
@@ -12008,7 +12045,7 @@ function id(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function ad(e, t, n, r) {
+function dd(e, t, n, r) {
 	var i = [];
 	K(r), Q(i, e, "state_address"), t = $(i, t, "cipher");
 	var a, o = U._crypto_secretstream_xchacha20poly1305_abytes(), s = t.length;
@@ -12017,7 +12054,7 @@ function ad(e, t, n, r) {
 	n != null && (c = J(n = $(i, n, "ad")), l = n.length, i.push(c));
 	var u = new q(s - U._crypto_secretstream_xchacha20poly1305_abytes() | 0), d = u.address;
 	i.push(d);
-	var f, p = (f = Ps(1), i.push(f), (p = U._crypto_secretstream_xchacha20poly1305_pull(e, d, 0, f, a, s, 0, c, l) === 0 && {
+	var f, p = (f = Bs(1), i.push(f), (p = U._crypto_secretstream_xchacha20poly1305_pull(e, d, 0, f, a, s, 0, c, l) === 0 && {
 		tag: U.HEAPU8[f],
 		message: u
 	}) && {
@@ -12026,7 +12063,7 @@ function ad(e, t, n, r) {
 	});
 	return Y(i), p;
 }
-function od(e, t, n, r, i) {
+function fd(e, t, n, r, i) {
 	var a = [];
 	K(i), Q(a, e, "state_address");
 	var o = J(t = $(a, t, "message_chunk")), s = t.length;
@@ -12040,11 +12077,11 @@ function od(e, t, n, r, i) {
 	}
 	X(a, "invalid usage");
 }
-function sd(e, t) {
+function pd(e, t) {
 	var n = [];
 	return K(t), Q(n, e, "state_address"), U._crypto_secretstream_xchacha20poly1305_rekey(e), Y(n), !0;
 }
-function cd(e, t, n) {
+function md(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -12058,7 +12095,7 @@ function cd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function ld(e) {
+function hd(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_shorthash_keybytes()), r = n.address;
@@ -12066,7 +12103,7 @@ function ld(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function ud(e, t, n) {
+function gd(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -12080,7 +12117,7 @@ function ud(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function dd(e, t, n) {
+function _d(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -12094,7 +12131,7 @@ function dd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function fd(e, t, n) {
+function vd(e, t, n) {
 	var r = [];
 	K(n);
 	var i = J(e = $(r, e, "message")), a = e.length;
@@ -12108,7 +12145,7 @@ function fd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function pd(e, t) {
+function yd(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "edPk");
 	var r, i = 0 | U._crypto_sign_publickeybytes();
@@ -12120,7 +12157,7 @@ function pd(e, t) {
 	}
 	X(n, "invalid key");
 }
-function md(e, t) {
+function bd(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "edSk");
 	var r, i = 0 | U._crypto_sign_secretkeybytes();
@@ -12132,7 +12169,7 @@ function md(e, t) {
 	}
 	X(n, "invalid key");
 }
-function hd(e, t) {
+function xd(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "privateKey");
 	var r, i = 0 | U._crypto_sign_secretkeybytes();
@@ -12144,7 +12181,7 @@ function hd(e, t) {
 	}
 	X(n, "invalid key");
 }
-function gd(e, t) {
+function Sd(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "privateKey");
 	var r, i = 0 | U._crypto_sign_secretkeybytes();
@@ -12156,7 +12193,7 @@ function gd(e, t) {
 	}
 	X(n, "invalid key");
 }
-function _d(e, t, n) {
+function Cd(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address"), t = $(r, t, "privateKey");
 	var i, a = 0 | U._crypto_sign_secretkeybytes();
@@ -12168,7 +12205,7 @@ function _d(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function vd(e, t, n, r) {
+function wd(e, t, n, r) {
 	var i = [];
 	K(r), Q(i, e, "state_address"), t = $(i, t, "signature");
 	var a, o = 0 | U._crypto_sign_bytes();
@@ -12178,7 +12215,7 @@ function vd(e, t, n, r) {
 	var l = !(0 | U._crypto_sign_final_verify(e, a, s));
 	return Y(i), l;
 }
-function yd(e) {
+function Td(e) {
 	var t = [];
 	K(e);
 	var n = new q(208).address;
@@ -12188,7 +12225,7 @@ function yd(e) {
 	}
 	X(t, "internal error");
 }
-function bd(e) {
+function Ed(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_sign_publickeybytes()), r = n.address;
@@ -12204,7 +12241,7 @@ function bd(e) {
 	}
 	X(t, "internal error");
 }
-function xd(e, t, n) {
+function Dd(e, t, n) {
 	var r = [];
 	K(n), e = $(r, e, "signedMessage");
 	var i, a = U._crypto_sign_bytes(), o = e.length;
@@ -12218,7 +12255,7 @@ function xd(e, t, n) {
 	}
 	X(r, "incorrect signature for the given public key");
 }
-function Sd(e, t) {
+function Od(e, t) {
 	var n = [];
 	K(t), e = $(n, e, "seed");
 	var r, i = 0 | U._crypto_sign_seedbytes();
@@ -12236,13 +12273,13 @@ function Sd(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Cd(e, t, n) {
+function kd(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_sign_update(e, i, a, 0) && X(r, "invalid usage"), Y(r);
 }
-function wd(e, t, n) {
+function Ad(e, t, n) {
 	var r = [];
 	e = $(r, e, "signature");
 	var i, a = 0 | U._crypto_sign_bytes();
@@ -12254,7 +12291,7 @@ function wd(e, t, n) {
 	var u = !(0 | U._crypto_sign_verify_detached(i, o, s, 0, c));
 	return Y(r), u;
 }
-function Td(e, t, n, r) {
+function jd(e, t, n, r) {
 	var i = [];
 	K(r), Q(i, e, "outLength"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(i, "outLength must be an unsigned integer"), t = $(i, t, "key");
 	var a, o = 0 | U._crypto_stream_chacha20_keybytes();
@@ -12266,7 +12303,7 @@ function Td(e, t, n, r) {
 	var d = G(l, r);
 	return Y(i), d;
 }
-function Ed(e, t, n, r) {
+function Md(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "input_message")), o = e.length;
@@ -12282,7 +12319,7 @@ function Ed(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Dd(e, t, n, r, i) {
+function Nd(e, t, n, r, i) {
 	var a = [];
 	K(i);
 	var o = J(e = $(a, e, "input_message")), s = e.length;
@@ -12298,7 +12335,7 @@ function Dd(e, t, n, r, i) {
 	}
 	X(a, "invalid usage");
 }
-function Od(e) {
+function Pd(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_stream_chacha20_keybytes()), r = n.address;
@@ -12306,7 +12343,7 @@ function Od(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function kd(e, t, n, r) {
+function Fd(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "input_message")), o = e.length;
@@ -12322,7 +12359,7 @@ function kd(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Ad(e, t, n, r, i) {
+function Id(e, t, n, r, i) {
 	var a = [];
 	K(i);
 	var o = J(e = $(a, e, "input_message")), s = e.length;
@@ -12338,7 +12375,7 @@ function Ad(e, t, n, r, i) {
 	}
 	X(a, "invalid usage");
 }
-function jd(e) {
+function Ld(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_stream_keybytes()), r = n.address;
@@ -12346,7 +12383,7 @@ function jd(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function Md(e) {
+function Rd(e) {
 	var t = [];
 	K(e);
 	var n = new q(0 | U._crypto_stream_xchacha20_keybytes()), r = n.address;
@@ -12354,7 +12391,7 @@ function Md(e) {
 	var i = G(n, e);
 	return Y(t), i;
 }
-function Nd(e, t, n, r) {
+function zd(e, t, n, r) {
 	var i = [];
 	K(r);
 	var a = J(e = $(i, e, "input_message")), o = e.length;
@@ -12370,7 +12407,7 @@ function Nd(e, t, n, r) {
 	}
 	X(i, "invalid usage");
 }
-function Pd(e, t, n, r, i) {
+function Bd(e, t, n, r, i) {
 	var a = [];
 	K(i);
 	var o = J(e = $(a, e, "input_message")), s = e.length;
@@ -12386,7 +12423,7 @@ function Pd(e, t, n, r, i) {
 	}
 	X(a, "invalid usage");
 }
-function Fd(e, t, n) {
+function Vd(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "out_length"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(r, "out_length must be an unsigned integer");
 	var i = J(t = $(r, t, "message")), a = t.length;
@@ -12398,7 +12435,7 @@ function Fd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Id(e) {
+function Hd(e) {
 	var t = [];
 	K(e);
 	var n = new q(256).address;
@@ -12408,7 +12445,7 @@ function Id(e) {
 	}
 	X(t, "invalid usage");
 }
-function Ld(e, t) {
+function Ud(e, t) {
 	var n = [];
 	K(t), Q(n, e, "domain"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(n, "domain must be an unsigned integer");
 	var r = new q(256).address;
@@ -12418,7 +12455,7 @@ function Ld(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Rd(e, t, n) {
+function Wd(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address"), Q(r, t, "out_length"), (typeof t != "number" || (0 | t) !== t || t < 0) && Z(r, "out_length must be an unsigned integer");
 	var i = new q(t |= 0), a = i.address;
@@ -12428,13 +12465,13 @@ function Rd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function zd(e, t, n) {
+function Gd(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_xof_shake128_update(e, i, a, 0) && X(r, "invalid usage"), Y(r);
 }
-function Bd(e, t, n) {
+function Kd(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "out_length"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(r, "out_length must be an unsigned integer");
 	var i = J(t = $(r, t, "message")), a = t.length;
@@ -12446,7 +12483,7 @@ function Bd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Vd(e) {
+function qd(e) {
 	var t = [];
 	K(e);
 	var n = new q(256).address;
@@ -12456,7 +12493,7 @@ function Vd(e) {
 	}
 	X(t, "invalid usage");
 }
-function Hd(e, t) {
+function Jd(e, t) {
 	var n = [];
 	K(t), Q(n, e, "domain"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(n, "domain must be an unsigned integer");
 	var r = new q(256).address;
@@ -12466,7 +12503,7 @@ function Hd(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Ud(e, t, n) {
+function Yd(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address"), Q(r, t, "out_length"), (typeof t != "number" || (0 | t) !== t || t < 0) && Z(r, "out_length must be an unsigned integer");
 	var i = new q(t |= 0), a = i.address;
@@ -12476,13 +12513,13 @@ function Ud(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Wd(e, t, n) {
+function Xd(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_xof_shake256_update(e, i, a, 0) && X(r, "invalid usage"), Y(r);
 }
-function Gd(e, t, n) {
+function Zd(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "out_length"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(r, "out_length must be an unsigned integer");
 	var i = J(t = $(r, t, "message")), a = t.length;
@@ -12494,7 +12531,7 @@ function Gd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Kd(e) {
+function Qd(e) {
 	var t = [];
 	K(e);
 	var n = new q(256).address;
@@ -12504,7 +12541,7 @@ function Kd(e) {
 	}
 	X(t, "invalid usage");
 }
-function qd(e, t) {
+function $d(e, t) {
 	var n = [];
 	K(t), Q(n, e, "domain"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(n, "domain must be an unsigned integer");
 	var r = new q(256).address;
@@ -12514,7 +12551,7 @@ function qd(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function Jd(e, t, n) {
+function ef(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address"), Q(r, t, "out_length"), (typeof t != "number" || (0 | t) !== t || t < 0) && Z(r, "out_length must be an unsigned integer");
 	var i = new q(t |= 0), a = i.address;
@@ -12524,13 +12561,13 @@ function Jd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Yd(e, t, n) {
+function tf(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_xof_turboshake128_update(e, i, a, 0) && X(r, "invalid usage"), Y(r);
 }
-function Xd(e, t, n) {
+function nf(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "out_length"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(r, "out_length must be an unsigned integer");
 	var i = J(t = $(r, t, "message")), a = t.length;
@@ -12542,7 +12579,7 @@ function Xd(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function Zd(e) {
+function rf(e) {
 	var t = [];
 	K(e);
 	var n = new q(256).address;
@@ -12552,7 +12589,7 @@ function Zd(e) {
 	}
 	X(t, "invalid usage");
 }
-function Qd(e, t) {
+function af(e, t) {
 	var n = [];
 	K(t), Q(n, e, "domain"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(n, "domain must be an unsigned integer");
 	var r = new q(256).address;
@@ -12562,7 +12599,7 @@ function Qd(e, t) {
 	}
 	X(n, "invalid usage");
 }
-function $d(e, t, n) {
+function of(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address"), Q(r, t, "out_length"), (typeof t != "number" || (0 | t) !== t || t < 0) && Z(r, "out_length must be an unsigned integer");
 	var i = new q(t |= 0), a = i.address;
@@ -12572,13 +12609,13 @@ function $d(e, t, n) {
 	}
 	X(r, "invalid usage");
 }
-function ef(e, t, n) {
+function sf(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "state_address");
 	var i = J(t = $(r, t, "message_chunk")), a = t.length;
 	r.push(i), 0 | U._crypto_xof_turboshake256_update(e, i, a, 0) && X(r, "invalid usage"), Y(r);
 }
-function tf(e, t) {
+function cf(e, t) {
 	var n = [];
 	K(t), Q(n, e, "length"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(n, "length must be an unsigned integer");
 	var r = new q(0 | e), i = r.address;
@@ -12586,7 +12623,7 @@ function tf(e, t) {
 	var a = G(r, t);
 	return Y(n), a;
 }
-function nf(e, t, n) {
+function lf(e, t, n) {
 	var r = [];
 	K(n), Q(r, e, "length"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(r, "length must be an unsigned integer"), t = $(r, t, "seed");
 	var i, a = 0 | U._randombytes_seedbytes();
@@ -12596,15 +12633,15 @@ function nf(e, t, n) {
 	var c = G(o, n);
 	return Y(r), c;
 }
-function rf(e) {
+function uf(e) {
 	K(e), U._randombytes_close();
 }
-function af(e) {
+function df(e) {
 	K(e);
 	var t = U._randombytes_random() >>> 0;
 	return Y([]), t;
 }
-function of(e, t) {
+function ff(e, t) {
 	var n = [];
 	K(t);
 	for (var r = U._malloc(24), i = 0; i < 6; i++) U.setValue(r + 4 * i, U.Runtime.addFunction(e[[
@@ -12617,16 +12654,16 @@ function of(e, t) {
 	][i]]), "i32");
 	0 | U._randombytes_set_implementation(r) && X(n, "unsupported implementation"), Y(n);
 }
-function sf(e) {
+function pf(e) {
 	K(e), U._randombytes_stir();
 }
-function cf(e, t) {
+function mf(e, t) {
 	var n = [];
 	K(t), Q(n, e, "upper_bound"), (typeof e != "number" || (0 | e) !== e || e < 0) && Z(n, "upper_bound must be an unsigned integer");
 	var r = U._randombytes_uniform(e) >>> 0;
 	return Y(n), r;
 }
-function lf(e) {
+function hf(e) {
 	var t, n = [];
 	(e = $(n, e, "bin")).length !== 16 && Z(n, "invalid bin length"), t = J(e), n.push(t);
 	var r = new q(46).address;
@@ -12636,10 +12673,10 @@ function lf(e) {
 	}
 	X(n, "conversion failed");
 }
-function uf(e, t) {
+function gf(e, t) {
 	var n = [];
 	K(t), typeof e != "string" && Z(n, "ip must be a string");
-	var r = J(e = ws(e + "\0")), i = e.length - 1;
+	var r = J(e = As(e + "\0")), i = e.length - 1;
 	n.push(r);
 	var a = new q(16), o = a.address;
 	if (n.push(o), !(0 | U._sodium_ip2bin(o, r, i))) {
@@ -12648,27 +12685,27 @@ function uf(e, t) {
 	}
 	X(n, "invalid IP address");
 }
-function df() {
+function _f() {
 	var e = U._sodium_version_string(), t = U.UTF8ToString(e);
 	return Y([]), t;
 }
 q.prototype.to_Uint8Array = function() {
 	var e = new Uint8Array(this.length);
 	return e.set(U.HEAPU8.subarray(this.address, this.address + this.length)), e;
-}, W.add = _s, W.base64_variants = Os, W.compare = xs, W.from_base64 = As, W.from_hex = Es, W.from_string = ws, W.increment = gs, W.is_zero = vs, W.memcmp = bs, W.memzero = ys, W.output_formats = Ms, W.pad = Ss, W.unpad = Cs, W.ready = ms, W.symbols = hs, W.to_base64 = js, W.to_hex = Ds, W.to_string = Ts;
+}, W.add = Cs, W.base64_variants = Ps, W.compare = Ds, W.from_base64 = Is, W.from_hex = Ms, W.from_string = As, W.increment = Ss, W.is_zero = ws, W.memcmp = Es, W.memzero = Ts, W.output_formats = Rs, W.pad = Os, W.unpad = ks, W.ready = bs, W.symbols = xs, W.to_base64 = Ls, W.to_hex = Ns, W.to_string = js;
 //#endregion
 //#region src/background/githubInstaller.js
-var ff = "bmFtZTogUmVwb093bCBQUiBBbmFseXplcg0KDQpvbjoNCiAgcHVsbF9yZXF1ZXN0X3RhcmdldDoNCiAgICB0eXBlczogW29wZW5lZCwgcmVhZHlfZm9yX3Jldmlld10NCiAgaXNzdWVfY29tbWVudDoNCiAgICB0eXBlczogW2NyZWF0ZWRdDQoNCnBlcm1pc3Npb25zOg0KICBwdWxsLXJlcXVlc3RzOiB3cml0ZQ0KICBpc3N1ZXM6IHdyaXRlDQogIGNvbnRlbnRzOiByZWFkDQoNCmpvYnM6DQogIGFuYWx5emUtcHI6DQogICAgIyBPbmx5IHJ1biBpZiBpdCdzIGEgUFIgY3JlYXRpb24gT1IgaWYgdGhlIGNvbW1lbnQgY29udGFpbnMgZXhhY3RseSAiL2FuYWx5emUiIChvciAiL2FuYWx5c2UiKQ0KICAgIGlmOiA+DQogICAgICBnaXRodWIuZXZlbnRfbmFtZSA9PSAncHVsbF9yZXF1ZXN0X3RhcmdldCcgfHwNCiAgICAgIChnaXRodWIuZXZlbnQuaXNzdWUucHVsbF9yZXF1ZXN0ICYmIChjb250YWlucyhnaXRodWIuZXZlbnQuY29tbWVudC5ib2R5LCAnL2FuYWx5emUnKSB8fCBjb250YWlucyhnaXRodWIuZXZlbnQuY29tbWVudC5ib2R5LCAnL2FuYWx5c2UnKSkpDQoNCiAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0DQoNCiAgICBzdGVwczoNCiAgICAgIC0gbmFtZTogQ2hlY2tvdXQgUmVwb3NpdG9yeQ0KICAgICAgICB1c2VzOiBhY3Rpb25zL2NoZWNrb3V0QHY0DQoNCiAgICAgIC0gbmFtZTogU2V0dXAgTm9kZS5qcw0KICAgICAgICB1c2VzOiBhY3Rpb25zL3NldHVwLW5vZGVAdjQNCiAgICAgICAgd2l0aDoNCiAgICAgICAgICBub2RlLXZlcnNpb246ICcyMCcNCg0KDQogICAgICAtIG5hbWU6IFJ1biBSZXBvT3dsIFBSIEFuYWx5c2lzDQogICAgICAgIGVudjoNCiAgICAgICAgICBHUk9RX0FQSV9LRVk6ICR7eyBzZWNyZXRzLkdST1FfQVBJX0tFWSB9fQ0KICAgICAgICAgIEdJVEhVQl9UT0tFTjogJHt7IHNlY3JldHMuR0lUSFVCX1RPS0VOIH19DQogICAgICAgICAgUFJfTlVNQkVSOiAke3sgZ2l0aHViLmV2ZW50LnB1bGxfcmVxdWVzdC5udW1iZXIgfHwgZ2l0aHViLmV2ZW50Lmlzc3VlLm51bWJlciB9fQ0KICAgICAgICAgIFJFUE9TSVRPUlk6ICR7eyBnaXRodWIucmVwb3NpdG9yeSB9fQ0KICAgICAgICBydW46IG5vZGUgLmdpdGh1Yi9zY3JpcHRzL2FuYWx5emUtcHIuanMNCg==", pf = "DQoNCmNvbnN0IEdST1FfQVBJX0tFWSA9IHByb2Nlc3MuZW52LkdST1FfQVBJX0tFWTsNCmNvbnN0IEdJVEhVQl9UT0tFTiA9IHByb2Nlc3MuZW52LkdJVEhVQl9UT0tFTjsNCmNvbnN0IFBSX05VTUJFUiA9IHByb2Nlc3MuZW52LlBSX05VTUJFUjsNCmNvbnN0IFJFUE9TSVRPUlkgPSBwcm9jZXNzLmVudi5SRVBPU0lUT1JZOyAvLyBmb3JtYXQ6IG93bmVyL3JlcG8NCg0KY29uc3QgR1JPUV9VUkwgPSAnaHR0cHM6Ly9hcGkuZ3JvcS5jb20vb3BlbmFpL3YxL2NoYXQvY29tcGxldGlvbnMnOw0KY29uc3QgTU9ERUxfTkFNRSA9ICdsbGFtYS0zLjMtNzBiLXZlcnNhdGlsZSc7DQoNCmFzeW5jIGZ1bmN0aW9uIGFza0dyb3EocHJvbXB0KSB7DQogIGNvbnN0IHJlc3BvbnNlID0gYXdhaXQgZmV0Y2goR1JPUV9VUkwsIHsNCiAgICBtZXRob2Q6ICdQT1NUJywNCiAgICBoZWFkZXJzOiB7DQogICAgICAnQXV0aG9yaXphdGlvbic6IGBCZWFyZXIgJHtHUk9RX0FQSV9LRVl9YCwNCiAgICAgICdDb250ZW50LVR5cGUnOiAnYXBwbGljYXRpb24vanNvbicNCiAgICB9LA0KICAgIGJvZHk6IEpTT04uc3RyaW5naWZ5KHsNCiAgICAgIG1vZGVsOiBNT0RFTF9OQU1FLA0KICAgICAgbWVzc2FnZXM6IFt7IHJvbGU6ICJ1c2VyIiwgY29udGVudDogcHJvbXB0IH1dDQogICAgfSkNCiAgfSk7DQogIGlmICghcmVzcG9uc2Uub2spIHsNCiAgICBjb25zdCBlcnJvclRleHQgPSBhd2FpdCByZXNwb25zZS50ZXh0KCk7DQogICAgdGhyb3cgbmV3IEVycm9yKGBHcm9xIEFQSSBlcnJvcjogJHtlcnJvclRleHR9YCk7DQogIH0NCiAgY29uc3QgZGF0YSA9IGF3YWl0IHJlc3BvbnNlLmpzb24oKTsNCiAgcmV0dXJuIGRhdGEuY2hvaWNlc1swXS5tZXNzYWdlLmNvbnRlbnQ7DQp9DQoNCmFzeW5jIGZ1bmN0aW9uIHJ1bigpIHsNCiAgaWYgKCFHUk9RX0FQSV9LRVkgfHwgIUdJVEhVQl9UT0tFTikgew0KICAgIGNvbnNvbGUud2Fybigi4pqg77iPICBTa2lwcGluZyBSZXBvT3dsIFBSIEFuYWx5c2lzOiBNaXNzaW5nIEdST1FfQVBJX0tFWSBvciBHSVRIVUJfVE9LRU4gc2VjcmV0LiBQbGVhc2UgY29uZmlndXJlIHRoZXNlIGluIHlvdXIgcmVwb3NpdG9yeSBzZWNyZXRzLiIpOw0KICAgIHByb2Nlc3MuZXhpdCgwKTsNCiAgfQ0KDQogIGNvbnNvbGUubG9nKGBTdGFydGluZyBSZXBvT3dsIE1hcC1SZWR1Y2UgQW5hbHlzaXMgZm9yIFBSICMke1BSX05VTUJFUn0gaW4gJHtSRVBPU0lUT1JZfS4uLmApOw0KDQogIC8vIDEuIEZldGNoIFBSIERldGFpbHMNCiAgY29uc3QgcHJSZXNwb25zZSA9IGF3YWl0IGZldGNoKGBodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zLyR7UkVQT1NJVE9SWX0vcHVsbHMvJHtQUl9OVU1CRVJ9YCwgew0KICAgIGhlYWRlcnM6IHsgJ0F1dGhvcml6YXRpb24nOiBgQmVhcmVyICR7R0lUSFVCX1RPS0VOfWAgfQ0KICB9KTsNCiAgY29uc3QgcHJEYXRhID0gYXdhaXQgcHJSZXNwb25zZS5qc29uKCk7DQoNCiAgLy8gMi4gRmV0Y2ggUFIgRGlmZnMNCiAgY29uc3QgZGlmZlJlc3BvbnNlID0gYXdhaXQgZmV0Y2goYGh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvJHtSRVBPU0lUT1JZfS9wdWxscy8ke1BSX05VTUJFUn0vZmlsZXNgLCB7DQogICAgaGVhZGVyczogeyAnQXV0aG9yaXphdGlvbic6IGBCZWFyZXIgJHtHSVRIVUJfVE9LRU59YCB9DQogIH0pOw0KICBjb25zdCBmaWxlc0RhdGEgPSBhd2FpdCBkaWZmUmVzcG9uc2UuanNvbigpOw0KDQogIC8vIDMuIENoZWNrIGZvciBMaW5rZWQgSXNzdWVzDQogIGxldCBsaW5rZWRJc3N1ZUNvbnRleHQgPSAiTm8gbGlua2VkIGlzc3VlIGRldGVjdGVkLiI7DQogIGNvbnN0IGlzc3VlTWF0Y2ggPSBwckRhdGEuYm9keSA/IHByRGF0YS5ib2R5Lm1hdGNoKC8oPzpmaXh8Zml4ZXN8cmVzb2x2ZXN8Y2xvc2VzKVxzKyMoXGQrKS9pKSA6IG51bGw7DQogIA0KICBpZiAoaXNzdWVNYXRjaCkgew0KICAgIGNvbnN0IGlzc3VlTnVtID0gaXNzdWVNYXRjaFsxXTsNCiAgICBjb25zb2xlLmxvZyhgRGV0ZWN0ZWQgbGlua2VkIGlzc3VlICMke2lzc3VlTnVtfS4gRmV0Y2hpbmcgY29udGV4dC4uLmApOw0KICAgIGNvbnN0IGlzc3VlUmVzID0gYXdhaXQgZmV0Y2goYGh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvJHtSRVBPU0lUT1JZfS9pc3N1ZXMvJHtpc3N1ZU51bX1gLCB7DQogICAgICBoZWFkZXJzOiB7ICdBdXRob3JpemF0aW9uJzogYEJlYXJlciAke0dJVEhVQl9UT0tFTn1gIH0NCiAgICB9KTsNCiAgICBpZiAoaXNzdWVSZXMub2spIHsNCiAgICAgIGNvbnN0IGlzc3VlRGV0YWlscyA9IGF3YWl0IGlzc3VlUmVzLmpzb24oKTsNCiAgICAgIGxpbmtlZElzc3VlQ29udGV4dCA9IGBMaW5rZWQgSXNzdWUgR29hbDogJHtpc3N1ZURldGFpbHMudGl0bGV9XG4ke2lzc3VlRGV0YWlscy5ib2R5fWA7DQogICAgfQ0KICB9DQoNCiAgLy8gNC4gTUFQIFBIQVNFOiBTdW1tYXJpemUgaW5kaXZpZHVhbCBmaWxlcw0KICBjb25zdCBmaWx0ZXJlZEZpbGVzID0gZmlsZXNEYXRhLmZpbHRlcihmID0+IA0KICAgICFmLmZpbGVuYW1lLmluY2x1ZGVzKCdwYWNrYWdlLWxvY2suanNvbicpICYmIA0KICAgICFmLmZpbGVuYW1lLmVuZHNXaXRoKCcuc3ZnJykgJiYNCiAgICBmLnBhdGNoDQogICk7DQoNCiAgY29uc29sZS5sb2coYE1hcHBpbmcgJHtmaWx0ZXJlZEZpbGVzLmxlbmd0aH0gZmlsZXMuLi5gKTsNCiAgY29uc3QgZmlsZVN1bW1hcmllcyA9IFtdOw0KICANCiAgZm9yIChjb25zdCBmaWxlIG9mIGZpbHRlcmVkRmlsZXMpIHsNCiAgICB0cnkgew0KICAgICAgY29uc29sZS5sb2coYFN1bW1hcml6aW5nICR7ZmlsZS5maWxlbmFtZX0uLi5gKTsNCiAgICAgIGNvbnN0IG1hcFByb21wdCA9IGANCiAgICAgICAgQnJpZWZseSBzdW1tYXJpemUgd2hhdCB0aGlzIHNwZWNpZmljIGZpbGUgZGlmZiBkb2VzIGluIDIgc2VudGVuY2VzIG1heC4NCiAgICAgICAgRmlsZTogJHtmaWxlLmZpbGVuYW1lfQ0KICAgICAgICBTdGF0dXM6ICR7ZmlsZS5zdGF0dXN9DQogICAgICAgIFBhdGNoOg0KICAgICAgICAke2ZpbGUucGF0Y2guc3Vic3RyaW5nKDAsIDEwMDAwKX0NCiAgICAgIGA7DQogICAgICBjb25zdCBzdW1tYXJ5ID0gYXdhaXQgYXNrR3JvcShtYXBQcm9tcHQpOw0KICAgICAgZmlsZVN1bW1hcmllcy5wdXNoKGAtICoqJHtmaWxlLmZpbGVuYW1lfSoqOiAke3N1bW1hcnl9YCk7DQogICAgICAvLyBTaW1wbGUgZGVsYXkgdG8gYXZvaWQgcmF0ZSBsaW1pdHMNCiAgICAgIGF3YWl0IG5ldyBQcm9taXNlKHIgPT4gc2V0VGltZW91dChyLCAxMDAwKSk7DQogICAgfSBjYXRjaCAoZXJyKSB7DQogICAgICBjb25zb2xlLndhcm4oYENvdWxkIG5vdCBzdW1tYXJpemUgJHtmaWxlLmZpbGVuYW1lfTpgLCBlcnIubWVzc2FnZSk7DQogICAgfQ0KICB9DQoNCiAgLy8gNS4gUkVEVUNFIFBIQVNFOiBGaW5hbCBBbmFseXNpcw0KICBjb25zb2xlLmxvZygiUmVkdWNpbmcgc3VtbWFyaWVzIGludG8gZmluYWwgYW5hbHlzaXMuLi4iKTsNCiAgY29uc3QgcmVkdWNlUHJvbXB0ID0gYA0KICAgIFlvdSBhcmUgYW4gZXhwZXJ0LCBydXRobGVzcyBBSSBDb2RlIFJldmlld2VyIGZvciBSZXBvT3dsLg0KICAgIA0KICAgIFBSIFRpdGxlOiAke3ByRGF0YS50aXRsZX0NCiAgICBQUiBEZXNjcmlwdGlvbjogJHtwckRhdGEuYm9keSB8fCAiTm9uZSBwcm92aWRlZC4ifQ0KICAgIA0KICAgICR7bGlua2VkSXNzdWVDb250ZXh0fQ0KICAgIA0KICAgIENvZGUgQ2hhbmdlcyBTdW1tYXJpZXMgKE1hcCBQaGFzZSk6DQogICAgJHtmaWxlU3VtbWFyaWVzLmxlbmd0aCA+IDAgPyBmaWxlU3VtbWFyaWVzLmpvaW4oJ1xuJykgOiAiTm8gc2lnbmlmaWNhbnQgY29kZSBjaGFuZ2VzIGZvdW5kLiJ9DQogICAgDQogICAgQW5hbHl6ZSB0aGUgUFIgYW5kIG91dHB1dCB5b3VyIHJlc3BvbnNlIGluIE1hcmtkb3duIGZvcm1hdC4gWW91ciByZXNwb25zZSBNVVNUIGluY2x1ZGUgdGhlIGZvbGxvd2luZyBzdHJ1Y3R1cmVkIHNlY3Rpb25zOg0KICAgIA0KICAgIDEuICoqU2xvcCBCYWRnZSoqOiBPdXRwdXQgZXhhY3RseSBvbmUgb2YgdGhlc2UgdHdvIHBocmFzZXMgYXQgdGhlIHZlcnkgYmVnaW5uaW5nIGJhc2VkIG9uIGlmIHRoZSBjb2RlIGdlbnVpbmVseSBtYXRjaGVzIHRoZSBQUiBkZXNjcmlwdGlvbjoNCiAgICAgICAi8J+foiBbQ29kZSBNYXRjaGVzIERlc2NyaXB0aW9uXSIgb3IgIvCflLQgW+KaoO+4jyBBSSBTbG9wIERldGVjdGVkXSINCiAgICAyLiAqKkFJIFNsb3AgRGV0ZWN0aW9uKio6IEV4cGxhaW4geW91ciByZWFzb25pbmcgZm9yIHRoZSBiYWRnZS4gSXMgdGhlIGRlc2NyaXB0aW9uIGhhbGx1Y2luYXRlZC9pbmFjY3VyYXRlPw0KICAgIDMuICoqSXNzdWUgUmVzb2x1dGlvbioqOiBEb2VzIHRoZSBjb2RlIGFjdHVhbGx5IHNvbHZlIHRoZSBsaW5rZWQgaXNzdWU/DQogICAgNC4gKipEb21haW4gSW1wYWN0Kio6IEEgYnJpZWYgYnVsbGV0ZWQgbGlzdCBvZiB3aGljaCBjb21wb25lbnRzL2RvbWFpbnMgd2VyZSB0b3VjaGVkIChlLmcuLCBGcm9udGVuZCwgRGF0YWJhc2UpLg0KICAgIDUuICoqQnJlYWtpbmcgQ2hhbmdlcyoqOiBBcmUgdGhlcmUgYW55Pw0KICAgIDYuICoqRmluYWwgVmVyZGljdCoqOiBBcHByb3ZlIG9yIFJlcXVlc3QgQ2hhbmdlcyBiYXNlZCBvbiBjb2RlIHF1YWxpdHkgYW5kIGFjY3VyYWN5Lg0KICBgOw0KDQogIGNvbnN0IGFuYWx5c2lzT3V0cHV0ID0gYXdhaXQgYXNrR3JvcShyZWR1Y2VQcm9tcHQpOw0KDQogIC8vIDYuIFBvc3QgdGhlIFJldmlldyBhcyBhIENvbW1lbnQgYmFjayB0byBHaXRIdWINCiAgY29uc29sZS5sb2coIlBvc3RpbmcgQW5hbHlzaXMgQ29tbWVudCB0byBHaXRIdWIuLi4iKTsNCiAgY29uc3QgY29tbWVudEJvZHkgPSBgIyMjIPCfpokgUmVwb093bCBQUiBBbmFseXNpc1xuXG4ke2FuYWx5c2lzT3V0cHV0fVxuXG4qQW5hbHl6ZWQgYXV0b21hdGljYWxseSB2aWEgR2l0SHViIEFjdGlvbnMqYDsNCiAgDQogIGNvbnN0IGNvbW1lbnRSZXMgPSBhd2FpdCBmZXRjaChgaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy8ke1JFUE9TSVRPUll9L2lzc3Vlcy8ke1BSX05VTUJFUn0vY29tbWVudHNgLCB7DQogICAgbWV0aG9kOiAnUE9TVCcsDQogICAgaGVhZGVyczogew0KICAgICAgJ0F1dGhvcml6YXRpb24nOiBgQmVhcmVyICR7R0lUSFVCX1RPS0VOfWAsDQogICAgICAnQ29udGVudC1UeXBlJzogJ2FwcGxpY2F0aW9uL2pzb24nDQogICAgfSwNCiAgICBib2R5OiBKU09OLnN0cmluZ2lmeSh7IGJvZHk6IGNvbW1lbnRCb2R5IH0pDQogIH0pOw0KDQogIGlmICghY29tbWVudFJlcy5vaykgew0KICAgIGNvbnNvbGUuZXJyb3IoIkZhaWxlZCB0byBwb3N0IGNvbW1lbnQ6IiwgYXdhaXQgY29tbWVudFJlcy50ZXh0KCkpOw0KICB9DQoNCiAgY29uc29sZS5sb2coIkFkZGluZyBsYWJlbCB0byBQUi4uLiIpOw0KICBjb25zdCBsYWJlbFJlcyA9IGF3YWl0IGZldGNoKGBodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zLyR7UkVQT1NJVE9SWX0vaXNzdWVzLyR7UFJfTlVNQkVSfS9sYWJlbHNgLCB7DQogICAgbWV0aG9kOiAnUE9TVCcsDQogICAgaGVhZGVyczogew0KICAgICAgJ0F1dGhvcml6YXRpb24nOiBgQmVhcmVyICR7R0lUSFVCX1RPS0VOfWAsDQogICAgICAnQ29udGVudC1UeXBlJzogJ2FwcGxpY2F0aW9uL2pzb24nDQogICAgfSwNCiAgICBib2R5OiBKU09OLnN0cmluZ2lmeSh7IGxhYmVsczogWydyZXBvb3dsLWFuYWx5emVkJ10gfSkNCiAgfSk7DQoNCiAgaWYgKCFsYWJlbFJlcy5vaykgew0KICAgIGNvbnNvbGUuZXJyb3IoIkZhaWxlZCB0byBhZGQgbGFiZWw6IiwgYXdhaXQgbGFiZWxSZXMudGV4dCgpKTsNCiAgfQ0KDQogIGNvbnNvbGUubG9nKCJBbmFseXNpcyBjb21wbGV0ZWQhIik7DQp9DQoNCnJ1bigpLmNhdGNoKGVyciA9PiB7DQogIGNvbnNvbGUuZXJyb3IoIldvcmtmbG93IGZhaWxlZDoiLCBlcnIpOw0KICBwcm9jZXNzLmV4aXQoMSk7DQp9KTsNCg==", mf = atob(ff), hf = atob(pf);
-async function gf(e, t) {
+var vf = "bmFtZTogUmVwb093bCBQUiBBbmFseXplcg0KDQpvbjoNCiAgcHVsbF9yZXF1ZXN0X3RhcmdldDoNCiAgICB0eXBlczogW29wZW5lZCwgcmVhZHlfZm9yX3Jldmlld10NCiAgaXNzdWVfY29tbWVudDoNCiAgICB0eXBlczogW2NyZWF0ZWRdDQoNCnBlcm1pc3Npb25zOg0KICBwdWxsLXJlcXVlc3RzOiB3cml0ZQ0KICBpc3N1ZXM6IHdyaXRlDQogIGNvbnRlbnRzOiByZWFkDQoNCmpvYnM6DQogIGFuYWx5emUtcHI6DQogICAgIyBPbmx5IHJ1biBpZiBpdCdzIGEgUFIgY3JlYXRpb24gT1IgaWYgdGhlIGNvbW1lbnQgY29udGFpbnMgZXhhY3RseSAiL2FuYWx5emUiIChvciAiL2FuYWx5c2UiKQ0KICAgIGlmOiA+DQogICAgICBnaXRodWIuZXZlbnRfbmFtZSA9PSAncHVsbF9yZXF1ZXN0X3RhcmdldCcgfHwNCiAgICAgIChnaXRodWIuZXZlbnQuaXNzdWUucHVsbF9yZXF1ZXN0ICYmIChjb250YWlucyhnaXRodWIuZXZlbnQuY29tbWVudC5ib2R5LCAnL2FuYWx5emUnKSB8fCBjb250YWlucyhnaXRodWIuZXZlbnQuY29tbWVudC5ib2R5LCAnL2FuYWx5c2UnKSkpDQoNCiAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0DQoNCiAgICBzdGVwczoNCiAgICAgIC0gbmFtZTogQ2hlY2tvdXQgUmVwb3NpdG9yeQ0KICAgICAgICB1c2VzOiBhY3Rpb25zL2NoZWNrb3V0QHY0DQoNCiAgICAgIC0gbmFtZTogU2V0dXAgTm9kZS5qcw0KICAgICAgICB1c2VzOiBhY3Rpb25zL3NldHVwLW5vZGVAdjQNCiAgICAgICAgd2l0aDoNCiAgICAgICAgICBub2RlLXZlcnNpb246ICcyMCcNCg0KDQogICAgICAtIG5hbWU6IFJ1biBSZXBvT3dsIFBSIEFuYWx5c2lzDQogICAgICAgIGVudjoNCiAgICAgICAgICBHUk9RX0FQSV9LRVk6ICR7eyBzZWNyZXRzLkdST1FfQVBJX0tFWSB9fQ0KICAgICAgICAgIEdJVEhVQl9UT0tFTjogJHt7IHNlY3JldHMuR0lUSFVCX1RPS0VOIH19DQogICAgICAgICAgUFJfTlVNQkVSOiAke3sgZ2l0aHViLmV2ZW50LnB1bGxfcmVxdWVzdC5udW1iZXIgfHwgZ2l0aHViLmV2ZW50Lmlzc3VlLm51bWJlciB9fQ0KICAgICAgICAgIFJFUE9TSVRPUlk6ICR7eyBnaXRodWIucmVwb3NpdG9yeSB9fQ0KICAgICAgICBydW46IG5vZGUgLmdpdGh1Yi9zY3JpcHRzL2FuYWx5emUtcHIuanMNCg==", yf = "DQoNCmNvbnN0IEdST1FfQVBJX0tFWSA9IHByb2Nlc3MuZW52LkdST1FfQVBJX0tFWTsNCmNvbnN0IEdJVEhVQl9UT0tFTiA9IHByb2Nlc3MuZW52LkdJVEhVQl9UT0tFTjsNCmNvbnN0IFBSX05VTUJFUiA9IHByb2Nlc3MuZW52LlBSX05VTUJFUjsNCmNvbnN0IFJFUE9TSVRPUlkgPSBwcm9jZXNzLmVudi5SRVBPU0lUT1JZOyAvLyBmb3JtYXQ6IG93bmVyL3JlcG8NCg0KY29uc3QgR1JPUV9VUkwgPSAnaHR0cHM6Ly9hcGkuZ3JvcS5jb20vb3BlbmFpL3YxL2NoYXQvY29tcGxldGlvbnMnOw0KY29uc3QgTU9ERUxfTkFNRSA9ICdsbGFtYS0zLjMtNzBiLXZlcnNhdGlsZSc7DQoNCmFzeW5jIGZ1bmN0aW9uIGFza0dyb3EocHJvbXB0KSB7DQogIGNvbnN0IHJlc3BvbnNlID0gYXdhaXQgZmV0Y2goR1JPUV9VUkwsIHsNCiAgICBtZXRob2Q6ICdQT1NUJywNCiAgICBoZWFkZXJzOiB7DQogICAgICAnQXV0aG9yaXphdGlvbic6IGBCZWFyZXIgJHtHUk9RX0FQSV9LRVl9YCwNCiAgICAgICdDb250ZW50LVR5cGUnOiAnYXBwbGljYXRpb24vanNvbicNCiAgICB9LA0KICAgIGJvZHk6IEpTT04uc3RyaW5naWZ5KHsNCiAgICAgIG1vZGVsOiBNT0RFTF9OQU1FLA0KICAgICAgbWVzc2FnZXM6IFt7IHJvbGU6ICJ1c2VyIiwgY29udGVudDogcHJvbXB0IH1dDQogICAgfSkNCiAgfSk7DQogIGlmICghcmVzcG9uc2Uub2spIHsNCiAgICBjb25zdCBlcnJvclRleHQgPSBhd2FpdCByZXNwb25zZS50ZXh0KCk7DQogICAgdGhyb3cgbmV3IEVycm9yKGBHcm9xIEFQSSBlcnJvcjogJHtlcnJvclRleHR9YCk7DQogIH0NCiAgY29uc3QgZGF0YSA9IGF3YWl0IHJlc3BvbnNlLmpzb24oKTsNCiAgcmV0dXJuIGRhdGEuY2hvaWNlc1swXS5tZXNzYWdlLmNvbnRlbnQ7DQp9DQoNCmFzeW5jIGZ1bmN0aW9uIHJ1bigpIHsNCiAgaWYgKCFHUk9RX0FQSV9LRVkgfHwgIUdJVEhVQl9UT0tFTikgew0KICAgIGNvbnNvbGUud2Fybigi4pqg77iPICBTa2lwcGluZyBSZXBvT3dsIFBSIEFuYWx5c2lzOiBNaXNzaW5nIEdST1FfQVBJX0tFWSBvciBHSVRIVUJfVE9LRU4gc2VjcmV0LiBQbGVhc2UgY29uZmlndXJlIHRoZXNlIGluIHlvdXIgcmVwb3NpdG9yeSBzZWNyZXRzLiIpOw0KICAgIHByb2Nlc3MuZXhpdCgwKTsNCiAgfQ0KDQogIGNvbnNvbGUubG9nKGBTdGFydGluZyBSZXBvT3dsIE1hcC1SZWR1Y2UgQW5hbHlzaXMgZm9yIFBSICMke1BSX05VTUJFUn0gaW4gJHtSRVBPU0lUT1JZfS4uLmApOw0KDQogIC8vIDEuIEZldGNoIFBSIERldGFpbHMNCiAgY29uc3QgcHJSZXNwb25zZSA9IGF3YWl0IGZldGNoKGBodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zLyR7UkVQT1NJVE9SWX0vcHVsbHMvJHtQUl9OVU1CRVJ9YCwgew0KICAgIGhlYWRlcnM6IHsgJ0F1dGhvcml6YXRpb24nOiBgQmVhcmVyICR7R0lUSFVCX1RPS0VOfWAgfQ0KICB9KTsNCiAgY29uc3QgcHJEYXRhID0gYXdhaXQgcHJSZXNwb25zZS5qc29uKCk7DQoNCiAgLy8gMi4gRmV0Y2ggUFIgRGlmZnMNCiAgY29uc3QgZGlmZlJlc3BvbnNlID0gYXdhaXQgZmV0Y2goYGh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvJHtSRVBPU0lUT1JZfS9wdWxscy8ke1BSX05VTUJFUn0vZmlsZXNgLCB7DQogICAgaGVhZGVyczogeyAnQXV0aG9yaXphdGlvbic6IGBCZWFyZXIgJHtHSVRIVUJfVE9LRU59YCB9DQogIH0pOw0KICBjb25zdCBmaWxlc0RhdGEgPSBhd2FpdCBkaWZmUmVzcG9uc2UuanNvbigpOw0KDQogIC8vIDMuIENoZWNrIGZvciBMaW5rZWQgSXNzdWVzDQogIGxldCBsaW5rZWRJc3N1ZUNvbnRleHQgPSAiTm8gbGlua2VkIGlzc3VlIGRldGVjdGVkLiI7DQogIGNvbnN0IGlzc3VlTWF0Y2ggPSBwckRhdGEuYm9keSA/IHByRGF0YS5ib2R5Lm1hdGNoKC8oPzpmaXh8Zml4ZXN8cmVzb2x2ZXN8Y2xvc2VzKVxzKyMoXGQrKS9pKSA6IG51bGw7DQogIA0KICBpZiAoaXNzdWVNYXRjaCkgew0KICAgIGNvbnN0IGlzc3VlTnVtID0gaXNzdWVNYXRjaFsxXTsNCiAgICBjb25zb2xlLmxvZyhgRGV0ZWN0ZWQgbGlua2VkIGlzc3VlICMke2lzc3VlTnVtfS4gRmV0Y2hpbmcgY29udGV4dC4uLmApOw0KICAgIGNvbnN0IGlzc3VlUmVzID0gYXdhaXQgZmV0Y2goYGh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvJHtSRVBPU0lUT1JZfS9pc3N1ZXMvJHtpc3N1ZU51bX1gLCB7DQogICAgICBoZWFkZXJzOiB7ICdBdXRob3JpemF0aW9uJzogYEJlYXJlciAke0dJVEhVQl9UT0tFTn1gIH0NCiAgICB9KTsNCiAgICBpZiAoaXNzdWVSZXMub2spIHsNCiAgICAgIGNvbnN0IGlzc3VlRGV0YWlscyA9IGF3YWl0IGlzc3VlUmVzLmpzb24oKTsNCiAgICAgIGxpbmtlZElzc3VlQ29udGV4dCA9IGBMaW5rZWQgSXNzdWUgR29hbDogJHtpc3N1ZURldGFpbHMudGl0bGV9XG4ke2lzc3VlRGV0YWlscy5ib2R5fWA7DQogICAgfQ0KICB9DQoNCiAgLy8gNC4gTUFQIFBIQVNFOiBTdW1tYXJpemUgaW5kaXZpZHVhbCBmaWxlcw0KICBjb25zdCBmaWx0ZXJlZEZpbGVzID0gZmlsZXNEYXRhLmZpbHRlcihmID0+IA0KICAgICFmLmZpbGVuYW1lLmluY2x1ZGVzKCdwYWNrYWdlLWxvY2suanNvbicpICYmIA0KICAgICFmLmZpbGVuYW1lLmVuZHNXaXRoKCcuc3ZnJykgJiYNCiAgICBmLnBhdGNoDQogICk7DQoNCiAgY29uc29sZS5sb2coYE1hcHBpbmcgJHtmaWx0ZXJlZEZpbGVzLmxlbmd0aH0gZmlsZXMuLi5gKTsNCiAgY29uc3QgZmlsZVN1bW1hcmllcyA9IFtdOw0KICANCiAgZm9yIChjb25zdCBmaWxlIG9mIGZpbHRlcmVkRmlsZXMpIHsNCiAgICB0cnkgew0KICAgICAgY29uc29sZS5sb2coYFN1bW1hcml6aW5nICR7ZmlsZS5maWxlbmFtZX0uLi5gKTsNCiAgICAgIGNvbnN0IG1hcFByb21wdCA9IGANCiAgICAgICAgQnJpZWZseSBzdW1tYXJpemUgd2hhdCB0aGlzIHNwZWNpZmljIGZpbGUgZGlmZiBkb2VzIGluIDIgc2VudGVuY2VzIG1heC4NCiAgICAgICAgRmlsZTogJHtmaWxlLmZpbGVuYW1lfQ0KICAgICAgICBTdGF0dXM6ICR7ZmlsZS5zdGF0dXN9DQogICAgICAgIFBhdGNoOg0KICAgICAgICAke2ZpbGUucGF0Y2guc3Vic3RyaW5nKDAsIDEwMDAwKX0NCiAgICAgIGA7DQogICAgICBjb25zdCBzdW1tYXJ5ID0gYXdhaXQgYXNrR3JvcShtYXBQcm9tcHQpOw0KICAgICAgZmlsZVN1bW1hcmllcy5wdXNoKGAtICoqJHtmaWxlLmZpbGVuYW1lfSoqOiAke3N1bW1hcnl9YCk7DQogICAgICAvLyBTaW1wbGUgZGVsYXkgdG8gYXZvaWQgcmF0ZSBsaW1pdHMNCiAgICAgIGF3YWl0IG5ldyBQcm9taXNlKHIgPT4gc2V0VGltZW91dChyLCAxMDAwKSk7DQogICAgfSBjYXRjaCAoZXJyKSB7DQogICAgICBjb25zb2xlLndhcm4oYENvdWxkIG5vdCBzdW1tYXJpemUgJHtmaWxlLmZpbGVuYW1lfTpgLCBlcnIubWVzc2FnZSk7DQogICAgfQ0KICB9DQoNCiAgLy8gNS4gUkVEVUNFIFBIQVNFOiBGaW5hbCBBbmFseXNpcw0KICBjb25zb2xlLmxvZygiUmVkdWNpbmcgc3VtbWFyaWVzIGludG8gZmluYWwgYW5hbHlzaXMuLi4iKTsNCiAgY29uc3QgcmVkdWNlUHJvbXB0ID0gYA0KICAgIFlvdSBhcmUgYW4gZXhwZXJ0LCBydXRobGVzcyBBSSBDb2RlIFJldmlld2VyIGZvciBSZXBvT3dsLg0KICAgIA0KICAgIFBSIFRpdGxlOiAke3ByRGF0YS50aXRsZX0NCiAgICBQUiBEZXNjcmlwdGlvbjogJHtwckRhdGEuYm9keSB8fCAiTm9uZSBwcm92aWRlZC4ifQ0KICAgIA0KICAgICR7bGlua2VkSXNzdWVDb250ZXh0fQ0KICAgIA0KICAgIENvZGUgQ2hhbmdlcyBTdW1tYXJpZXMgKE1hcCBQaGFzZSk6DQogICAgJHtmaWxlU3VtbWFyaWVzLmxlbmd0aCA+IDAgPyBmaWxlU3VtbWFyaWVzLmpvaW4oJ1xuJykgOiAiTm8gc2lnbmlmaWNhbnQgY29kZSBjaGFuZ2VzIGZvdW5kLiJ9DQogICAgDQogICAgQW5hbHl6ZSB0aGUgUFIgYW5kIG91dHB1dCB5b3VyIHJlc3BvbnNlIGluIE1hcmtkb3duIGZvcm1hdC4gWW91ciByZXNwb25zZSBNVVNUIGluY2x1ZGUgdGhlIGZvbGxvd2luZyBzdHJ1Y3R1cmVkIHNlY3Rpb25zOg0KICAgIA0KICAgIDEuICoqU2xvcCBCYWRnZSoqOiBPdXRwdXQgZXhhY3RseSBvbmUgb2YgdGhlc2UgdHdvIHBocmFzZXMgYXQgdGhlIHZlcnkgYmVnaW5uaW5nIGJhc2VkIG9uIGlmIHRoZSBjb2RlIGdlbnVpbmVseSBtYXRjaGVzIHRoZSBQUiBkZXNjcmlwdGlvbjoNCiAgICAgICAi8J+foiBbQ29kZSBNYXRjaGVzIERlc2NyaXB0aW9uXSIgb3IgIvCflLQgW+KaoO+4jyBBSSBTbG9wIERldGVjdGVkXSINCiAgICAyLiAqKkFJIFNsb3AgRGV0ZWN0aW9uKio6IEV4cGxhaW4geW91ciByZWFzb25pbmcgZm9yIHRoZSBiYWRnZS4gSXMgdGhlIGRlc2NyaXB0aW9uIGhhbGx1Y2luYXRlZC9pbmFjY3VyYXRlPw0KICAgIDMuICoqSXNzdWUgUmVzb2x1dGlvbioqOiBEb2VzIHRoZSBjb2RlIGFjdHVhbGx5IHNvbHZlIHRoZSBsaW5rZWQgaXNzdWU/DQogICAgNC4gKipEb21haW4gSW1wYWN0Kio6IEEgYnJpZWYgYnVsbGV0ZWQgbGlzdCBvZiB3aGljaCBjb21wb25lbnRzL2RvbWFpbnMgd2VyZSB0b3VjaGVkIChlLmcuLCBGcm9udGVuZCwgRGF0YWJhc2UpLg0KICAgIDUuICoqQnJlYWtpbmcgQ2hhbmdlcyoqOiBBcmUgdGhlcmUgYW55Pw0KICAgIDYuICoqRmluYWwgVmVyZGljdCoqOiBBcHByb3ZlIG9yIFJlcXVlc3QgQ2hhbmdlcyBiYXNlZCBvbiBjb2RlIHF1YWxpdHkgYW5kIGFjY3VyYWN5Lg0KICBgOw0KDQogIGNvbnN0IGFuYWx5c2lzT3V0cHV0ID0gYXdhaXQgYXNrR3JvcShyZWR1Y2VQcm9tcHQpOw0KDQogIC8vIDYuIFBvc3QgdGhlIFJldmlldyBhcyBhIENvbW1lbnQgYmFjayB0byBHaXRIdWINCiAgY29uc29sZS5sb2coIlBvc3RpbmcgQW5hbHlzaXMgQ29tbWVudCB0byBHaXRIdWIuLi4iKTsNCiAgY29uc3QgY29tbWVudEJvZHkgPSBgIyMjIPCfpokgUmVwb093bCBQUiBBbmFseXNpc1xuXG4ke2FuYWx5c2lzT3V0cHV0fVxuXG4qQW5hbHl6ZWQgYXV0b21hdGljYWxseSB2aWEgR2l0SHViIEFjdGlvbnMqYDsNCiAgDQogIGNvbnN0IGNvbW1lbnRSZXMgPSBhd2FpdCBmZXRjaChgaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy8ke1JFUE9TSVRPUll9L2lzc3Vlcy8ke1BSX05VTUJFUn0vY29tbWVudHNgLCB7DQogICAgbWV0aG9kOiAnUE9TVCcsDQogICAgaGVhZGVyczogew0KICAgICAgJ0F1dGhvcml6YXRpb24nOiBgQmVhcmVyICR7R0lUSFVCX1RPS0VOfWAsDQogICAgICAnQ29udGVudC1UeXBlJzogJ2FwcGxpY2F0aW9uL2pzb24nDQogICAgfSwNCiAgICBib2R5OiBKU09OLnN0cmluZ2lmeSh7IGJvZHk6IGNvbW1lbnRCb2R5IH0pDQogIH0pOw0KDQogIGlmICghY29tbWVudFJlcy5vaykgew0KICAgIGNvbnNvbGUuZXJyb3IoIkZhaWxlZCB0byBwb3N0IGNvbW1lbnQ6IiwgYXdhaXQgY29tbWVudFJlcy50ZXh0KCkpOw0KICB9DQoNCiAgY29uc29sZS5sb2coIkFkZGluZyBsYWJlbCB0byBQUi4uLiIpOw0KICBjb25zdCBsYWJlbFJlcyA9IGF3YWl0IGZldGNoKGBodHRwczovL2FwaS5naXRodWIuY29tL3JlcG9zLyR7UkVQT1NJVE9SWX0vaXNzdWVzLyR7UFJfTlVNQkVSfS9sYWJlbHNgLCB7DQogICAgbWV0aG9kOiAnUE9TVCcsDQogICAgaGVhZGVyczogew0KICAgICAgJ0F1dGhvcml6YXRpb24nOiBgQmVhcmVyICR7R0lUSFVCX1RPS0VOfWAsDQogICAgICAnQ29udGVudC1UeXBlJzogJ2FwcGxpY2F0aW9uL2pzb24nDQogICAgfSwNCiAgICBib2R5OiBKU09OLnN0cmluZ2lmeSh7IGxhYmVsczogWydyZXBvb3dsLWFuYWx5emVkJ10gfSkNCiAgfSk7DQoNCiAgaWYgKCFsYWJlbFJlcy5vaykgew0KICAgIGNvbnNvbGUuZXJyb3IoIkZhaWxlZCB0byBhZGQgbGFiZWw6IiwgYXdhaXQgbGFiZWxSZXMudGV4dCgpKTsNCiAgfQ0KDQogIGNvbnNvbGUubG9nKCJBbmFseXNpcyBjb21wbGV0ZWQhIik7DQp9DQoNCnJ1bigpLmNhdGNoKGVyciA9PiB7DQogIGNvbnNvbGUuZXJyb3IoIldvcmtmbG93IGZhaWxlZDoiLCBlcnIpOw0KICBwcm9jZXNzLmV4aXQoMSk7DQp9KTsNCg==", bf = atob(vf), xf = atob(yf);
+async function Sf(e, t) {
 	await W.ready;
 	let n = W, r = n.from_base64(t, n.base64_variants.ORIGINAL), i = n.from_string(e), a = n.crypto_box_seal(i, r);
 	return n.to_base64(a, n.base64_variants.ORIGINAL);
 }
-async function _f(e) {
+async function Cf(e) {
 	if (e) return e;
 	throw Error("No GitHub Personal Access Token provided. Please enter one.");
 }
-async function vf(e, t, n, r, i, a) {
+async function wf(e, t, n, r, i, a) {
 	let o = btoa(unescape(encodeURIComponent(i))), s = `https://api.github.com/repos/${t}/${n}/contents/${r}`, c;
 	try {
 		let t = await fetch(s, { headers: { Authorization: `Bearer ${e}` } });
@@ -12692,13 +12729,13 @@ async function vf(e, t, n, r, i, a) {
 		throw Error(`Failed to push ${r}: ${e.message}`);
 	}
 }
-async function yf(e, t, n, r) {
+async function Tf(e, t, n, r) {
 	let i = await fetch(`https://api.github.com/repos/${t}/${n}/actions/secrets/public-key`, { headers: { Authorization: `Bearer ${e}` } });
 	if (!i.ok) {
 		let e = await i.json();
 		throw Error(`Failed to fetch public key: ${e.message}`);
 	}
-	let a = await i.json(), o = a.key_id, s = a.key, c = await gf(r, s), l = await fetch(`https://api.github.com/repos/${t}/${n}/actions/secrets/GROQ_API_KEY`, {
+	let a = await i.json(), o = a.key_id, s = a.key, c = await Sf(r, s), l = await fetch(`https://api.github.com/repos/${t}/${n}/actions/secrets/GROQ_API_KEY`, {
 		method: "PUT",
 		headers: {
 			Authorization: `Bearer ${e}`,
@@ -12714,24 +12751,24 @@ async function yf(e, t, n, r) {
 		throw Error(`Failed to upload secret: ${e.message}`);
 	}
 }
-async function bf(e, t, n) {
+async function Ef(e, t, n) {
 	let [r, i] = e.split("/");
 	if (!n) throw Error("GROQ_API_KEY is not set in extension options.");
-	let a = await _f(t);
-	return await vf(a, r, i, ".github/workflows/repoowl-analyze.yml", mf, "Initialize RepoOwl PR Analyzer Action"), await vf(a, r, i, ".github/scripts/analyze-pr.js", hf, "Add RepoOwl Map-Reduce script"), await yf(a, r, i, n), !0;
+	let a = await Cf(t);
+	return await wf(a, r, i, ".github/workflows/repoowl-analyze.yml", bf, "Initialize RepoOwl PR Analyzer Action"), await wf(a, r, i, ".github/scripts/analyze-pr.js", xf, "Add RepoOwl Map-Reduce script"), await Tf(a, r, i, n), !0;
 }
 //#endregion
 //#region src/background.js
-var xf = 2e3, Sf = (e) => new Promise((t) => setTimeout(t, e));
+var Df = 2e3, Of = (e) => new Promise((t) => setTimeout(t, e));
 chrome.runtime.onMessage.addListener((e, t, n) => {
 	if (e.action === "open_settings") chrome.runtime.openOptionsPage();
-	else if (e.action === "force_sync_issues") return Rf([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
-	else if (e.action === "add_repo") Cf(e.repoName).catch((e) => console.error("Error auto-publishing config:", e)), n({ success: !0 });
-	else if (e.action === "check_mediator_status") return Ef(e.repoName).then((e) => n(e)).catch((e) => n({ error: e.message })), !0;
+	else if (e.action === "force_sync_issues") return Kf([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
+	else if (e.action === "add_repo") kf(e.repoName).catch((e) => console.error("Error auto-publishing config:", e)), n({ success: !0 });
+	else if (e.action === "check_mediator_status") return Pf(e.repoName).then((e) => n(e)).catch((e) => n({ error: e.message })), !0;
 	else if (e.action === "initialize_repoowl_pr") {
 		let t = [];
-		return bf(e.repoName, e.githubPat, e.groqApiKey, (e) => {
-			t.push(e), If("pr")(e);
+		return Ef(e.repoName, e.githubPat, e.groqApiKey, (e) => {
+			t.push(e), Wf("pr")(e);
 		}).then(() => n({
 			success: !0,
 			logs: t
@@ -12739,9 +12776,10 @@ chrome.runtime.onMessage.addListener((e, t, n) => {
 			error: e.message,
 			logs: t
 		})), !0;
-	}
+	} else if (e.action === "save_path_labels") return jf(e.repoName, e.pathLabels).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
+	else if (e.action === "save_triage_config") return Mf(e.repoName, e.triageConfig).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
 });
-async function Cf(e) {
+async function kf(e) {
 	let t = (await chrome.storage.local.get(["repoOwlConfig"])).repoOwlConfig || {};
 	if (!(!t.githubToken || !t.supabaseUrl || !t.supabaseAnonKey)) try {
 		let n = await fetch(`https://api.github.com/repos/${e}`, { headers: {
@@ -12751,12 +12789,12 @@ async function Cf(e) {
 		} });
 		if (!n.ok) return;
 		let r = await n.json();
-		(r.permissions?.push === !0 || r.permissions?.admin === !0) && (await wf(e, t), await Tf(e, t));
+		(r.permissions?.push === !0 || r.permissions?.admin === !0) && (await Af(e, t), await Nf(e, t));
 	} catch (t) {
 		console.error(`[${e}] Error verifying permissions for auto-publish:`, t);
 	}
 }
-async function wf(e, t) {
+async function Af(e, t) {
 	let n = {
 		supabaseUrl: t.supabaseUrl,
 		supabaseAnonKey: t.supabaseAnonKey
@@ -12787,8 +12825,91 @@ async function wf(e, t) {
 		})
 	});
 }
-async function Tf(e, t, n = console.log) {
-	let [r, i] = e.split("/"), a = ta("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } });
+async function jf(e, t) {
+	let n = ((await chrome.storage.local.get(["repoOwlConfig"])).repoOwlConfig || {}).githubToken;
+	if (!n) throw Error("GitHub PAT not found in settings. Please configure it in Model Configuration.");
+	let r = {}, i;
+	try {
+		let t = await fetch(`https://api.github.com/repos/${e}/contents/repoowl.json?ref=main&t=${Date.now()}`, { headers: {
+			Accept: "application/vnd.github+json",
+			"X-GitHub-Api-Version": "2022-11-28",
+			Authorization: `Bearer ${n}`
+		} });
+		if (t.ok) {
+			let e = await t.json();
+			i = e.sha, r = JSON.parse(atob(e.content.replace(/\n/g, "")));
+		}
+	} catch (t) {
+		console.warn(`[${e}] Could not read existing repoowl.json; will create fresh:`, t);
+	}
+	let a = Object.fromEntries(t.map((e) => [e.path, {
+		label: e.label,
+		color: e.color || "#0969da"
+	}])), o = {
+		...r,
+		path_labels: a
+	}, s = btoa(JSON.stringify(o, null, 2)), c = await fetch(`https://api.github.com/repos/${e}/contents/repoowl.json`, {
+		method: "PUT",
+		headers: {
+			Authorization: `Bearer ${n}`,
+			"Content-Type": "application/json",
+			Accept: "application/vnd.github+json",
+			"X-GitHub-Api-Version": "2022-11-28"
+		},
+		body: JSON.stringify({
+			message: "feat(repoowl): update path-label routing rules",
+			content: s,
+			branch: "main",
+			...i && { sha: i }
+		})
+	});
+	if (!c.ok) {
+		let e = await c.text();
+		throw Error(`GitHub API error while saving path labels: ${e}`);
+	}
+}
+async function Mf(e, t) {
+	let n = ((await chrome.storage.local.get(["repoOwlConfig"])).repoOwlConfig || {}).githubToken;
+	if (!n) throw Error("GitHub PAT not found in settings. Please configure it in Model Configuration.");
+	let r = {}, i;
+	try {
+		let t = await fetch(`https://api.github.com/repos/${e}/contents/repoowl.json?ref=main&t=${Date.now()}`, { headers: {
+			Accept: "application/vnd.github+json",
+			"X-GitHub-Api-Version": "2022-11-28",
+			Authorization: `Bearer ${n}`
+		} });
+		if (t.ok) {
+			let e = await t.json();
+			i = e.sha, r = JSON.parse(atob(e.content.replace(/\n/g, "")));
+		}
+	} catch (t) {
+		console.warn(`[${e}] Could not read existing repoowl.json; will create fresh:`, t);
+	}
+	let a = {
+		...r,
+		triage_config: t
+	}, o = btoa(JSON.stringify(a, null, 2)), s = await fetch(`https://api.github.com/repos/${e}/contents/repoowl.json`, {
+		method: "PUT",
+		headers: {
+			Authorization: `Bearer ${n}`,
+			"Content-Type": "application/json",
+			Accept: "application/vnd.github+json",
+			"X-GitHub-Api-Version": "2022-11-28"
+		},
+		body: JSON.stringify({
+			message: "feat(repoowl): update auto-triage configuration",
+			content: o,
+			branch: "main",
+			...i && { sha: i }
+		})
+	});
+	if (!s.ok) {
+		let e = await s.text();
+		throw Error(`GitHub API error while saving triage config: ${e}`);
+	}
+}
+async function Nf(e, t, n = console.log) {
+	let [r, i] = e.split("/"), a = ca("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } });
 	try {
 		let { data: o, error: s } = await a.functions.invoke("registry", { body: {
 			owner: r,
@@ -12802,10 +12923,10 @@ async function Tf(e, t, n = console.log) {
 		n(`[${e}] Mediator registration exception: ${t.message}`);
 	}
 }
-async function Ef(e) {
+async function Pf(e) {
 	let [t, n] = e.split("/");
 	try {
-		let { data: e, error: r } = await ta("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } }).from("registry").select("created_at").eq("owner", t).eq("repo", n).single();
+		let { data: e, error: r } = await ca("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } }).from("registry").select("created_at").eq("owner", t).eq("repo", n).single();
 		return !r && e ? {
 			registered: !0,
 			createdAt: e.created_at
@@ -12822,7 +12943,7 @@ chrome.runtime.onInstalled.addListener(() => {
 }), chrome.alarms.onAlarm.addListener(async (e) => {
 	e.name === "repoOwlHourlySync" && (console.log("Waking up for hourly sync..."), await executeSyncQueue());
 });
-async function Df(e, t) {
+async function Ff(e, t) {
 	let [n, r] = e.split("/");
 	if (!n || !r) throw Error(`Invalid repository: ${e}`);
 	let i = new URL(`https://api.github.com/repos/${n}/${r}/issues`);
@@ -12839,11 +12960,11 @@ async function Df(e, t) {
 	}
 	return (await o.json()).filter((e) => !e.pull_request);
 }
-async function Of(e, t) {
-	let { data: n, error: r } = await (await ss()).from("issues").select("issue_number, analysis_summary").eq("repo_name", e).eq("status", "open").order("created_at", { ascending: !1 }).limit(50);
+async function If(e, t) {
+	let { data: n, error: r } = await (await ps()).from("issues").select("issue_number, analysis_summary").eq("repo_name", e).eq("status", "open").order("created_at", { ascending: !1 }).limit(50);
 	return r ? (console.error("Error fetching history:", r), []) : n || [];
 }
-function kf(e) {
+function Lf(e) {
 	if (!e) return {};
 	let t = {}, n = /###\s+(.+?)(?:\r?\n)+([\s\S]*?)(?=###\s+|$)/g, r;
 	for (; (r = n.exec(e)) !== null;) {
@@ -12892,27 +13013,27 @@ function kf(e) {
 		])
 	};
 }
-async function Af(e, t, n = 3) {
+async function Rf(e, t, n = 3) {
 	for (let r = 0; r < n; r++) try {
 		return await e.chat.completions.create(t);
 	} catch (e) {
 		if (e.status === 429 && r < n - 1) {
 			let t = 6e3, n = e.message?.match(/Please try again in ([\d.]+)s/);
-			n && (t = Math.ceil(parseFloat(n[1]) * 1e3) + 500), console.warn(`Rate limit hit. Waiting ${t}ms before retry...`), await Sf(t);
+			n && (t = Math.ceil(parseFloat(n[1]) * 1e3) + 500), console.warn(`Rate limit hit. Waiting ${t}ms before retry...`), await Of(t);
 		} else throw e;
 	}
 }
-async function jf(e, t, n) {
+async function zf(e, t, n) {
 	let r = new H({
 		apiKey: n,
 		dangerouslyAllowBrowser: !0
-	}), i = t.map((e) => `[Issue ID: #${e.issue_number}]\nTitle: ${e.title || "Unknown Title"}\nTechnical Summary: ${e.analysis_summary}`).join("\n\n---\n\n"), a = kf(e.body || ""), o = (await Af(r, {
+	}), i = t.map((e) => `[Issue ID: #${e.issue_number}]\nTitle: ${e.title || "Unknown Title"}\nTechnical Summary: ${e.analysis_summary}`).join("\n\n---\n\n"), a = Lf(e.body || ""), o = (await Rf(r, {
 		messages: [{
 			role: "system",
 			content: "You are an expert GitHub triage AI.\nThe user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\nDo not assume any issues have been resolved, because they are all actively open.\nYour job is to determine if the user's draft is a DUPLICATE of one of these specific OPEN issues.\nIf they are reporting a bug that already exists in this open list, flag it as a duplicate.\nYou must respond in valid JSON format matching this schema:\n{ \"is_duplicate\": boolean, \"analysis_summary\": \"string\" }\nEnsure the JSON is well-formed."
 		}, {
 			role: "user",
-			content: es($o, ts({
+			content: os(as, ss({
 				issue_number: e.number,
 				title: e.title,
 				primary_description: a.primary_description || e.body || "No description provided.",
@@ -12928,8 +13049,8 @@ async function jf(e, t, n) {
 	if (!o) throw Error("Groq API returned an empty response.");
 	return JSON.parse(o);
 }
-async function Mf(e, t, n, r) {
-	let { error: i } = await (await ss()).from("issues").insert({
+async function Bf(e, t, n, r) {
+	let { error: i } = await (await ps()).from("issues").insert({
 		repo_name: e,
 		issue_number: t.number,
 		is_duplicate: n.is_duplicate,
@@ -12941,8 +13062,8 @@ async function Mf(e, t, n, r) {
 		throw console.error("Supabase insert error details:", e), Error(`Supabase insert failed: ${e}`);
 	}
 }
-async function Nf(e, t, n, r) {
-	let { error: i } = await (await ss()).from("public_ecosystem_registry").upsert({
+async function Vf(e, t, n, r) {
+	let { error: i } = await (await ps()).from("public_ecosystem_registry").upsert({
 		repo_name: e,
 		total_issues_analyzed: t,
 		duplicates_found: n,
@@ -12953,7 +13074,7 @@ async function Nf(e, t, n, r) {
 		throw console.error("Supabase registry update error details:", e), Error(`Registry update failed: ${e}`);
 	}
 }
-async function Pf(e, t, n) {
+async function Hf(e, t, n) {
 	let { data: r, error: i } = await t.from("issues").select("issue_number").eq("repo_name", e).eq("status", "open");
 	if (i || !r) return;
 	let a = new Set(n.map((e) => e.number)), o = r.map((e) => e.issue_number).filter((e) => !a.has(e));
@@ -12963,14 +13084,14 @@ async function Pf(e, t, n) {
 		n && console.error("Error closing issues in Supabase:", n);
 	}
 }
-async function Ff(e) {
+async function Uf(e) {
 	let t = await chrome.storage.local.get(["repoOwlConfig", "trackedRepositories"]), n = t.repoOwlConfig || {}, r = e || t.trackedRepositories || [];
 	return n.groqApiKey, n.supabaseUrl ||= "https://sdgazpgnenkammrlhjel.supabase.co", n.supabaseAnonKey ||= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", {
 		keys: n,
 		repos: r
 	};
 }
-function If(e) {
+function Wf(e) {
 	return (t) => {
 		try {
 			if (typeof chrome < "u" && chrome.runtime) {
@@ -12987,7 +13108,7 @@ function If(e) {
 		console.log(`[${e}] ${t}`);
 	};
 }
-async function Lf(e, t, n) {
+async function Gf(e, t, n) {
 	let r = !1, i = null, a = await fetch(`https://api.github.com/repos/${e}`, { headers: {
 		Accept: "application/vnd.github+json",
 		"X-GitHub-Api-Version": "2022-11-28",
@@ -13010,28 +13131,28 @@ async function Lf(e, t, n) {
 		currentUserLogin: i
 	};
 }
-async function Rf(e = null) {
-	let { keys: t, repos: n } = await Ff(e), r = If("issue");
+async function Kf(e = null) {
+	let { keys: t, repos: n } = await Uf(e), r = Wf("issue");
 	if (!t.groqApiKey || !t.supabaseUrl) {
 		r("RepoOwl: API Keys not configured. Skipping sync.");
 		return;
 	}
-	let i = await cs();
+	let i = await ms();
 	if (i.error) {
 		r(`RepoOwl: Could not authenticate with Supabase: ${i.error}`);
 		return;
 	}
-	let a = await ss();
+	let a = await ps();
 	for (let e of n) {
 		r(`\n[${e}] Starting issue sync...`);
 		let n = !1, i = null;
 		try {
-			let a = await Lf(e, t, r);
+			let a = await Gf(e, t, r);
 			if (!a) continue;
 			if (n = a.isMaintainer, i = a.currentUserLogin, n) {
 				r(`[${e}] Confirmed Maintainer. Fetching issues...`);
 				try {
-					await wf(e, t), await Tf(e, t, r);
+					await Af(e, t), await Nf(e, t, r);
 				} catch (t) {
 					r(`[${e}] Warning: Failed to auto-publish Hub config: ${t.message}`);
 				}
@@ -13039,7 +13160,7 @@ async function Rf(e = null) {
 				r(`[${e}] Contributor detected. Starting Sandbox sync...`);
 				try {
 					let [t, n] = e.split("/"), i = null;
-					i = ta("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } });
+					i = ca("https://sdgazpgnenkammrlhjel.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", { auth: { persistSession: !1 } });
 					let a = null;
 					if (i) {
 						let { data: o, error: s } = await i.from("registry").select("supabase_url, supabase_anon_key").eq("owner", t).eq("repo", n).single();
@@ -13054,7 +13175,7 @@ async function Rf(e = null) {
 						t.ok && (a = await t.json(), r(`[${e}] Discovered Hub config from repoowl.json.`));
 					}
 					if (a) {
-						let { data: t, error: n } = await ta(a.supabaseUrl, a.supabaseAnonKey, { auth: { persistSession: !1 } }).from("issues").select("id, issue_number, is_duplicate, analysis_summary").eq("repo_name", e).eq("status", "open");
+						let { data: t, error: n } = await ca(a.supabaseUrl, a.supabaseAnonKey, { auth: { persistSession: !1 } }).from("issues").select("id, issue_number, is_duplicate, analysis_summary").eq("repo_name", e).eq("status", "open");
 						!n && t && (await chrome.storage.local.set({ [`hub_cache_${e}`]: t }), r(`[${e}] Hydrated UI with ${t.length} issues from Maintainer's Hub.`));
 					} else r(`[${e}] No public Hub found for this repository.`);
 				} catch (t) {
@@ -13069,23 +13190,23 @@ async function Rf(e = null) {
 		try {
 			let { data: n, error: r } = await a.from("issues").select("issue_number, is_duplicate").eq("repo_name", e);
 			if (r) throw Error(`Failed to fetch processed issues: ${r.message || JSON.stringify(r)}`);
-			s = new Set((n || []).map((e) => e.issue_number)), c = s.size, l = (n || []).filter((e) => e.is_duplicate).length, o = await Df(e, t.githubToken);
+			s = new Set((n || []).map((e) => e.issue_number)), c = s.size, l = (n || []).filter((e) => e.is_duplicate).length, o = await Ff(e, t.githubToken);
 		} catch (t) {
 			r(`[${e}] Error during issue fetching: ${t.message}`);
 			continue;
 		}
-		n && await Pf(e, a, o);
+		n && await Hf(e, a, o);
 		let u = o.filter((e) => !s.has(e.number));
 		n ? r(`[${e}] ${s.size} already processed. ${u.length} issues need processing.`) : i ? (u = u.filter((e) => e.user && e.user.login === i), r(`[${e}] Found ${u.length} unprocessed issues authored by you.`)) : (r(`[${e}] Could not determine your GitHub username, skipping sandbox processing.`), u = []);
 		for (let n of u) try {
 			r(`[${e}] Processing issue #${n.number}...`);
-			let i = await Of(e, t);
+			let i = await If(e, t);
 			i.forEach((e) => {
 				let t = o.find((t) => t.number === e.issue_number);
 				t && (e.title = t.title);
 			});
-			let a = await jf(n, i, t.groqApiKey);
-			await Mf(e, n, a, t), c++, a.is_duplicate && l++, await Sf(xf);
+			let a = await zf(n, i, t.groqApiKey);
+			await Bf(e, n, a, t), c++, a.is_duplicate && l++, await Of(Df);
 		} catch (t) {
 			let i = t.message || String(t);
 			r(`[${e}] Error processing issue #${n.number}: ${i}`);
@@ -13102,7 +13223,7 @@ async function Rf(e = null) {
 			let t = (await chrome.storage.local.get([`hub_cache_${e}`]))[`hub_cache_${e}`] || [], n = new Set(t.map((e) => e.issue_number));
 			s.forEach((e) => n.add(e)), d = n.size, f = l + t.filter((e) => e.is_duplicate).length;
 		}
-		await Nf(e, d, f, t), r(`[${e}] Issue Sync complete. Total Analyzed: ${d}, Duplicates: ${f}`);
+		await Vf(e, d, f, t), r(`[${e}] Issue Sync complete. Total Analyzed: ${d}, Duplicates: ${f}`);
 	}
 }
 //#endregion
