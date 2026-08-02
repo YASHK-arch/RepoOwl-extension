@@ -415,7 +415,7 @@ The JSON object MUST have exactly these fields:
 - "suggested_labels": array of GitHub label strings (e.g., ["verified", "frontend"]).
 - "summary_reason": string. One-sentence explanation of your decision.
 - "markdown_review": string. A full Markdown-formatted PR review. You MUST use this EXACT formatting with bolds and blockquotes:
-    > **Slop Badge:** 🟢 [Code Matches Description] (or 🔴 [⚠️ AI Slop Detected])
+    > **Slop Badge:** :green_circle: [Code Matches Description] (or :red_circle: [:warning: AI Slop Detected])
     >
     > **AI Slop Detection:** [Reasoning for the badge]
 
