@@ -132,12 +132,12 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, labelsToAd
     suggested_labels.push('invalid', 'security');
     console.log('🚨 Prompt injection detected — closing PR.');
 
-  } else if (is_spam && slop_score >= autoCloseThreshold) {
-    // High-confidence spam
+  } else if (is_spam || slop_score >= autoCloseThreshold) {
+    // High-confidence spam or AI slop
     shouldClose = true;
     closingReason = summary_reason;
     suggested_labels.push('spam', 'invalid');
-    console.log(`🚨 High-confidence spam (slop_score=${slop_score}) — closing PR.`);
+    console.log(`🚨 High-confidence spam/slop (slop_score=${slop_score}, is_spam=${is_spam}) — closing PR.`);
 
   } else if (duplicate_of_issue_id && confidence_score >= closeDuplicateThreshold) {
     // High-confidence duplicate
@@ -151,7 +151,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, labelsToAd
     suggested_labels.push('needs-triage', 'possible-duplicate');
     console.log(`⚠️  Possible duplicate of #${duplicate_of_issue_id} (confidence=${confidence_score}) — flagging for maintainer review.`);
 
-  } else if (slop_score >= triageThreshold && slop_score < autoCloseThreshold) {
+  } else if (slop_score >= triageThreshold) {
     // Ambiguous — needs human review
     suggested_labels.push('needs-triage');
     console.log(`⚠️  Borderline slop score (${slop_score}) — flagging for maintainer review.`);
@@ -165,7 +165,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, labelsToAd
   // ── Build comment ─────────────────────────────────────────────────────────
   if (shouldClose) {
     commentBody = [
-      `### 🦉 RepoOwl Auto-Triage Notice`,
+      `### :owl: RepoOwl Auto-Triage Notice`,
       ``,
       `**Action:** PR Closed Automatically`,
       `**Reason:** ${closingReason}`,
@@ -175,7 +175,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, labelsToAd
     ].join('\n');
   } else if (labelsToAdd.includes('needs-triage') || labelsToAdd.includes('possible-duplicate')) {
     commentBody = [
-      `### 🦉 RepoOwl Triage Alert`,
+      `### :owl: RepoOwl Triage Alert`,
       ``,
       `⚠️ **Requires Maintainer Review**`,
       ``,
@@ -188,7 +188,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, labelsToAd
     ].join('\n');
   } else {
     // Valid contribution — full review comment
-    commentBody = `### 🦉 RepoOwl PR Analysis\n\n${markdown_review || summary_reason}\n\n*Analyzed automatically via GitHub Actions*`;
+    commentBody = `### :owl: RepoOwl PR Analysis\n\n${markdown_review || summary_reason}\n\n*Analyzed automatically via GitHub Actions*`;
   }
 
   // ── Post comment ──────────────────────────────────────────────────────────
