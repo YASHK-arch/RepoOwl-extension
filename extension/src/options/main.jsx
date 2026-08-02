@@ -5,6 +5,7 @@ import { ModelConfig } from '../settings/ModelConfig.jsx';
 import { PromptSettings } from '../settings/PromptSettings.jsx';
 import { AboutPanel } from '../settings/AboutPanel.jsx';
 import { TrackedRepos } from '../settings/TrackedRepos.jsx';
+import { AutoTriagePanel } from '../settings/AutoTriagePanel.jsx';
 import './styles.css';
 
 const REPO_URL = 'https://github.com/YASHK-arch/RepoOwl-extension';
@@ -24,6 +25,11 @@ const NAV_ITEMS = [
     id: 'repos',
     title: 'Tracked Repositories',
     sub: 'Manage which repositories are actively analyzed.',
+  },
+  {
+    id: 'triage',
+    title: 'Auto-Triage Rules',
+    sub: 'Configure spam thresholds, duplicate detection, and auto-close rules.',
   },
   {
     id: 'about',
@@ -119,6 +125,7 @@ function OptionsApp() {
         {activeTab === 'model' && <ModelConfig />}
         {activeTab === 'prompt' && <PromptSettings />}
         {activeTab === 'repos' && <TrackedRepos />}
+        {activeTab === 'triage' && <AutoTriagePanel />}
         {activeTab === 'about' && <AboutPanel />}
       </main>
     </div>
