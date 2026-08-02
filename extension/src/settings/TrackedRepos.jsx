@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-
+import { INSTALLER_VERSION } from '../background/githubInstaller.js';
 const STORAGE_KEY = 'trackedRepositories';
 const DEFAULT_REPO = 'YASHK-arch/Triage-Sandbox';
 
@@ -32,10 +32,12 @@ export function TrackedRepos() {
     repos.forEach(fetchStatus);
   }, [repos]);
 
+  const [installerVersions, setInstallerVersions] = useState({});
+
 
   useEffect(() => {
     if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.get([STORAGE_KEY], (result) => {
+      chrome.storage.local.get([STORAGE_KEY, 'repoOwlInstallerVersions'], (result) => {
         let savedRepos = result[STORAGE_KEY];
         if (!Array.isArray(savedRepos)) {
           savedRepos = [DEFAULT_REPO];
@@ -45,6 +47,7 @@ export function TrackedRepos() {
           chrome.storage.local.set({ [STORAGE_KEY]: savedRepos });
         }
         setRepos(savedRepos);
+        setInstallerVersions(result.repoOwlInstallerVersions || {});
       });
     } else {
       // Fallback for local dev without extension environment
@@ -182,6 +185,14 @@ export function TrackedRepos() {
             }
             if (response && response.success) {
               setStatus({ type: 'success', message: `Successfully installed RepoOwl PR Analyzer in ${repo}!` });
+              if (response.version !== undefined) {
+                chrome.storage.local.get(['repoOwlInstallerVersions'], (res) => {
+                  const versions = res.repoOwlInstallerVersions || {};
+                  versions[repo] = response.version;
+                  chrome.storage.local.set({ repoOwlInstallerVersions: versions });
+                  setInstallerVersions(versions);
+                });
+              }
               if (response.logs) {
                 setSyncLogsPRs(prev => {
                   const newLogs = [...prev];
@@ -279,7 +290,29 @@ export function TrackedRepos() {
                       )}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' }}>
+                    
+                    {/* PR Analyzer Status Alert */}
+                    {((installerVersions[repo] || 0) < INSTALLER_VERSION) && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: '#ffebe9',
+                        color: '#cf222e',
+                        border: '1px solid rgba(207,34,46,0.15)',
+                        padding: '4px 8px',
+                        borderRadius: '100px',
+                        fontSize: '12px',
+                        fontWeight: '600'
+                      }}>
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                          <path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575L6.457 1.047zM8 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 5zm0 8a1 1 0 100-2 1 1 0 000 2z"></path>
+                        </svg>
+                        Update Required
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       className="ro-btn ro-btn--secondary"
@@ -294,7 +327,7 @@ export function TrackedRepos() {
                       className="ro-btn ro-btn--primary"
                       onClick={() => handleInitPRs(repo)}
                     >
-                      🚀 Initialize PR Analyzer
+                      {((installerVersions[repo] || 0) < INSTALLER_VERSION) ? '🚀 Re-initiate PR Analyzer' : '🚀 Initialize PR Analyzer'}
                     </button>
 
                   </div>

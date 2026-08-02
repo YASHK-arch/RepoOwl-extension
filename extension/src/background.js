@@ -2,8 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import Groq from 'groq-sdk';
 import { DEFAULT_PROMPT_TEMPLATE, buildPromptVariables, formatHistoricalContext, renderPrompt } from '@repoowl/shared';
 import { getSandboxClient, ensureAuthenticatedSession } from './lib/supabase.js';
-import { initializeRepoOwl } from './background/githubInstaller.js';
-
+import { initializeRepoOwl, INSTALLER_VERSION } from './background/githubInstaller.js';
 const DELAY_MS = 2000;
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -27,7 +26,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       createBroadcast('pr')(msg);
     };
     initializeRepoOwl(message.repoName, message.githubPat, message.groqApiKey, broadcast)
-      .then(() => sendResponse({ success: true, logs }))
+      .then(() => sendResponse({ success: true, logs, version: INSTALLER_VERSION }))
       .catch(err => sendResponse({ error: err.message, logs }));
     return true;
   } else if (message.action === 'save_path_labels') {
