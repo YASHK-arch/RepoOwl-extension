@@ -7,6 +7,9 @@ const SCRIPT_JS_B64 = "DQpjb25zdCBHUk9RX0FQSV9LRVkgPSBwcm9jZXNzLmVudi5HUk9RX0FQS
 const WORKFLOW_YAML = atob(WORKFLOW_YAML_B64);
 const SCRIPT_JS = atob(SCRIPT_JS_B64);
 
+export const INSTALLER_VERSION = 2;
+
+
 /**
  * Encrypt a secret using the repository's public key
  */

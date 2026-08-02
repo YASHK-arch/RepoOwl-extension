@@ -12771,7 +12771,8 @@ chrome.runtime.onMessage.addListener((e, t, n) => {
 			t.push(e), Wf("pr")(e);
 		}).then(() => n({
 			success: !0,
-			logs: t
+			logs: t,
+			version: 2
 		})).catch((e) => n({
 			error: e.message,
 			logs: t
