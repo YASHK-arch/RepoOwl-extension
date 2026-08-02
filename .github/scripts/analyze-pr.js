@@ -7,7 +7,7 @@ const REPOSITORY = process.env.REPOSITORY; // format: owner/repo
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL_NAME = 'llama-3.3-70b-versatile';
 
-// ── Guardrail floors — these are NEVER overridden by user config ────────────
+// ââ Guardrail floors â these are NEVER overridden by user config ââââââââââââ
 const HARD_AUTO_CLOSE_FLOOR = 90;   // slop/spam score must be >= this to auto-close
 const HARD_TRIAGE_FLOOR = 50;       // slop score >= this triggers needs-triage
 
@@ -43,7 +43,7 @@ function parseTriageJSON(rawOutput) {
     const jsonStr = fenceMatch ? fenceMatch[1] : rawOutput;
     return JSON.parse(jsonStr.trim());
   } catch (e) {
-    console.warn('Could not parse triage JSON from LLM output — defaulting to NEEDS_TRIAGE.', e.message);
+    console.warn('Could not parse triage JSON from LLM output â defaulting to NEEDS_TRIAGE.', e.message);
     console.warn('Raw LLM output was:', rawOutput.substring(0, 500));
     return {
       slop_score: 50,
@@ -60,7 +60,7 @@ function parseTriageJSON(rawOutput) {
 
 /**
  * Check if the PR description contains prompt injection patterns.
- * This is a fast heuristic scan — the LLM also performs a deeper check.
+ * This is a fast heuristic scan â the LLM also performs a deeper check.
  */
 function detectPromptInjection(text) {
   if (!text) return false;
@@ -121,46 +121,46 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
   let closingReason = '';
   let commentBody = '';
 
-  // ── Decision Matrix ────────────────────────────────────────────────────────
+  // ââ Decision Matrix ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
   if (is_prompt_injection) {
-    // Immediate close — no score threshold needed
+    // Immediate close â no score threshold needed
     shouldClose = true;
     closingReason = 'Prompt injection / malicious payload detected in PR description.';
     suggested_labels.push('invalid', 'security');
-    console.log('Prompt injection detected — closing PR.');
+    console.log('Prompt injection detected â closing PR.');
 
   } else if (is_spam || slop_score >= autoCloseThreshold) {
     // High-confidence spam or AI slop
     shouldClose = true;
     closingReason = summary_reason;
     suggested_labels.push('spam', 'invalid');
-    console.log(`High-confidence spam/slop (slop_score=${slop_score}, is_spam=${is_spam}) — closing PR.`);
+    console.log(`High-confidence spam/slop (slop_score=${slop_score}, is_spam=${is_spam}) â closing PR.`);
 
   } else if (duplicate_of_issue_id && confidence_score >= closeDuplicateThreshold) {
     // High-confidence duplicate
     shouldClose = true;
     closingReason = `Duplicate of #${duplicate_of_issue_id}. ${summary_reason}`;
     suggested_labels.push('duplicate');
-    console.log(`High-confidence duplicate of #${duplicate_of_issue_id} (confidence=${confidence_score}) — closing PR.`);
+    console.log(`High-confidence duplicate of #${duplicate_of_issue_id} (confidence=${confidence_score}) â closing PR.`);
 
   } else if (duplicate_of_issue_id && confidence_score >= possibleDuplicateThreshold) {
-    // Possible duplicate — flag but keep open
+    // Possible duplicate â flag but keep open
     suggested_labels.push('needs-triage', 'possible-duplicate');
-    console.log(`Possible duplicate of #${duplicate_of_issue_id} (confidence=${confidence_score}) — flagging for maintainer review.`);
+    console.log(`Possible duplicate of #${duplicate_of_issue_id} (confidence=${confidence_score}) â flagging for maintainer review.`);
 
   } else if (slop_score >= triageThreshold) {
-    // Ambiguous — needs human review
+    // Ambiguous â needs human review
     suggested_labels.push('needs-triage');
-    console.log(`Borderline slop score (${slop_score}) — flagging for maintainer review.`);
+    console.log(`Borderline slop score (${slop_score}) â flagging for maintainer review.`);
   }
 
-  // ── Merge all labels (deduplicated) ───────────────────────────────────────
+  // ââ Merge all labels (deduplicated) âââââââââââââââââââââââââââââââââââââââ
   for (const label of suggested_labels) {
     if (!labelsToAdd.includes(label)) labelsToAdd.push(label);
   }
 
-  // ── Build comment ─────────────────────────────────────────────────────────
+  // ââ Build comment âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   if (shouldClose) {
     commentBody = [
       `### :owl: RepoOwl PR Analysis`,
@@ -187,7 +187,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
       `*Flagged automatically via GitHub Actions*`
     ].join('\n');
   } else {
-    // Valid contribution — full review comment
+    // Valid contribution â full review comment
     commentBody = [
       `### :owl: RepoOwl PR Analysis`,
       ``,
@@ -198,7 +198,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
     ].join('\n');
   }
 
-  // ── Post comment ──────────────────────────────────────────────────────────
+  // ââ Post comment ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   console.log('Posting triage comment to GitHub...');
   const commentRes = await fetch(`${issuesBase}/${pullNumber}/comments`, {
     method: 'POST',
@@ -209,7 +209,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
     console.error('Failed to post triage comment:', await commentRes.text());
   }
 
-  // ── Enforce Label Colors ──────────────────────────────────────────────────
+  // ââ Enforce Label Colors ââââââââââââââââââââââââââââââââââââââââââââââââââ
   if (Object.keys(labelColorsToEnforce).length > 0) {
     console.log('Enforcing custom label colors...');
     for (const [labelName, colorHex] of Object.entries(labelColorsToEnforce)) {
@@ -239,7 +239,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
     }
   }
 
-  // ── Apply labels ──────────────────────────────────────────────────────────
+  // ââ Apply labels ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   console.log(`Applying labels: [${labelsToAdd.join(', ')}]`);
   const labelRes = await fetch(`${issuesBase}/${pullNumber}/labels`, {
     method: 'POST',
@@ -250,7 +250,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
     console.error('Failed to apply labels:', await labelRes.text());
   }
 
-  // ── Close PR if warranted ─────────────────────────────────────────────────
+  // ââ Close PR if warranted âââââââââââââââââââââââââââââââââââââââââââââââââ
   if (shouldClose) {
     console.log(`Closing PR #${pullNumber}...`);
     const closeRes = await fetch(`${pullsBase}/${pullNumber}`, {
@@ -287,7 +287,7 @@ async function run() {
   });
   const filesData = await diffResponse.json();
 
-  // 2b. Load repoowl.json — get path_labels AND triage_config
+  // 2b. Load repoowl.json â get path_labels AND triage_config
   const labelsToAdd = ['repoowl-analyzed'];
   let labelColorsToEnforce = {};
   let triageConfig = {};
@@ -337,7 +337,7 @@ async function run() {
   // 2c. Fast prompt-injection pre-screen
   const injectionDetected = detectPromptInjection(prData.body) || detectPromptInjection(prData.title);
   if (injectionDetected) {
-    console.log('Prompt injection pattern detected in PR head — escalating to LLM for confirmation.');
+    console.log('Prompt injection pattern detected in PR head â escalating to LLM for confirmation.');
   }
 
   // 3. Check for Linked Issues
@@ -450,7 +450,7 @@ ${linkedIssueContext}
 Code Changes:
 ${codeChangesBlock}
 
-Write a PR review using EXACTLY this format. Output only the review — no preamble, no JSON:
+Write a PR review using EXACTLY this format. Output only the review â no preamble, no JSON:
 
 > **Slop Badge:** ${analysis.slop_score >= 50 || analysis.is_spam ? ':red_circle: AI Slop Detected' : ':green_circle: Code Matches Description'}
 >
@@ -463,7 +463,7 @@ Write a PR review using EXACTLY this format. Output only the review — no pream
 
 **Breaking Changes:** [Yes/No and brief explanation]
 
-**Final Verdict:** [Approve OR Request Changes — one sentence justification]
+**Final Verdict:** [Approve OR Request Changes â one sentence justification]
 `;
 
   let markdownReview = '';
