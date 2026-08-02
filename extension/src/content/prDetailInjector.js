@@ -12,11 +12,11 @@ export function injectPRBadges() {
     const body = comment.querySelector('.comment-body')?.textContent;
     
     if (body && body.includes('RepoOwl PR Analysis')) {
-      if (body.includes('🔴') || body.includes('Slop Detected')) {
+      if (body.includes(':red_circle:') || body.includes('🔴') || body.includes('Slop Detected')) {
         slopStatus = 'AI Slop Detected';
         badgeColor = '#cf222e'; // Red
         icon = '🔴';
-      } else if (body.includes('🟢') || body.includes('Code Matches Description')) {
+      } else if (body.includes(':green_circle:') || body.includes('🟢') || body.includes('Code Matches Description')) {
         slopStatus = 'Code Matches Description';
         badgeColor = '#2da44e'; // Green
         icon = '🟢';
