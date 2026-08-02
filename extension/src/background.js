@@ -30,6 +30,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(() => sendResponse({ success: true, logs }))
       .catch(err => sendResponse({ error: err.message, logs }));
     return true;
+  } else if (message.action === 'save_path_labels') {
+    savePathLabels(message.repoName, message.pathLabels)
+      .then(() => sendResponse({ success: true }))
+      .catch(err => sendResponse({ error: err.message }));
+    return true;
+  } else if (message.action === 'save_triage_config') {
+    saveTriageConfig(message.repoName, message.triageConfig)
+      .then(() => sendResponse({ success: true }))
+      .catch(err => sendResponse({ error: err.message }));
+    return true;
   }
 });
 
@@ -105,6 +115,137 @@ async function autoPublishHubConfig(repo, keys) {
       ...(fileSha && { sha: fileSha })
     })
   });
+}
+
+/**
+ * Merges a path_labels map into the repo's repoowl.json without clobbering
+ * existing fields (supabaseUrl, supabaseAnonKey, etc.).
+ * @param {string} repo - "owner/repo" format
+ * @param {{ path: string; label: string }[]} pathLabelsArray - rules to persist
+ */
+async function savePathLabels(repo, pathLabelsArray) {
+  const storage = await chrome.storage.local.get(['repoOwlConfig']);
+  const keys = storage.repoOwlConfig || {};
+  const pat = keys.githubToken;
+
+  if (!pat) {
+    throw new Error('GitHub PAT not found in settings. Please configure it in Model Configuration.');
+  }
+
+  // 1. Read the current repoowl.json to get its SHA and existing content
+  let existingContent = {};
+  let fileSha;
+  try {
+    const checkRes = await fetch(
+      `https://api.github.com/repos/${repo}/contents/repoowl.json?ref=main`,
+      {
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Authorization': `Bearer ${pat}`
+        }
+      }
+    );
+    if (checkRes.ok) {
+      const fileData = await checkRes.json();
+      fileSha = fileData.sha;
+      existingContent = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
+    }
+  } catch (e) {
+    console.warn(`[${repo}] Could not read existing repoowl.json; will create fresh:`, e);
+  }
+
+  // 2. Merge path_labels, preserving all other existing fields
+  const path_labels = Object.fromEntries(pathLabelsArray.map(r => [r.path, r.label]));
+  const updated = { ...existingContent, path_labels };
+  const encodedContent = btoa(JSON.stringify(updated, null, 2));
+
+  // 3. PUT the updated file back
+  const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/repoowl.json`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${pat}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    },
+    body: JSON.stringify({
+      message: 'feat(repoowl): update path-label routing rules',
+      content: encodedContent,
+      branch: 'main',
+      ...(fileSha && { sha: fileSha })
+    })
+  });
+
+  if (!putRes.ok) {
+    const errText = await putRes.text();
+    throw new Error(`GitHub API error while saving path labels: ${errText}`);
+  }
+}
+
+/**
+ * Merges a triage_config object into the repo's repoowl.json without clobbering
+ * existing fields (supabaseUrl, supabaseAnonKey, path_labels, etc.).
+ * @param {string} repo - "owner/repo" format
+ * @param {object} triageConfig - the triage settings object to persist
+ */
+async function saveTriageConfig(repo, triageConfig) {
+  const storage = await chrome.storage.local.get(['repoOwlConfig']);
+  const keys = storage.repoOwlConfig || {};
+  const pat = keys.githubToken;
+
+  if (!pat) {
+    throw new Error('GitHub PAT not found in settings. Please configure it in Model Configuration.');
+  }
+
+  // 1. Read current repoowl.json to get SHA + existing content
+  let existingContent = {};
+  let fileSha;
+  try {
+    const checkRes = await fetch(
+      `https://api.github.com/repos/${repo}/contents/repoowl.json?ref=main`,
+      {
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Authorization': `Bearer ${pat}`
+        }
+      }
+    );
+    if (checkRes.ok) {
+      const fileData = await checkRes.json();
+      fileSha = fileData.sha;
+      existingContent = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
+    }
+  } catch (e) {
+    console.warn(`[${repo}] Could not read existing repoowl.json; will create fresh:`, e);
+  }
+
+  // 2. Merge triage_config, preserving all other existing fields
+  const updated = { ...existingContent, triage_config: triageConfig };
+  const encodedContent = btoa(JSON.stringify(updated, null, 2));
+
+  // 3. PUT the updated file back
+  const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/repoowl.json`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${pat}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    },
+    body: JSON.stringify({
+      message: 'feat(repoowl): update auto-triage configuration',
+      content: encodedContent,
+      branch: 'main',
+      ...(fileSha && { sha: fileSha })
+    })
+  });
+
+  if (!putRes.ok) {
+    const errText = await putRes.text();
+    throw new Error(`GitHub API error while saving triage config: ${errText}`);
+  }
 }
 
 async function registerWithMediator(repo, keys, broadcast = console.log) {
