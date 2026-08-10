@@ -12,7 +12,7 @@
   "dependencies": {
     "@repoowl/shared": "0.1.0",
     "@supabase/supabase-js": "^2.111.0",
-    "groq-sdk": "^1.4.0",
+    "groq-sdk": "^1.5.0",
     "libsodium-wrappers": "^0.8.4",
     "react": "^19.0.0",
     "react-dom": "^19.2.8"
