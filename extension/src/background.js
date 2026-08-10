@@ -304,18 +304,11 @@ async function checkMediatorStatus(repo) {
   }
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create("repoOwlHourlySync", {
-    periodInMinutes: 60
-  });
-});
-
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name === "repoOwlHourlySync") {
-    console.log("Waking up for hourly sync...");
-    await executeSyncQueue();
-  }
-});
+// Issue analysis is now handled server-side by the RepoOwl Issue Analyzer GitHub Actions workflow
+// (.github/workflows/issue-analyze.yml). The chrome.alarms-based hourly sync has been removed
+// because it stopped working whenever the maintainer closed their browser.
+// The extension continues to handle contributor hub-hydration (reading from the maintainer's Supabase)
+// via executeIssueSyncQueue() below, which is triggered on demand via force_sync_issues.
 
 async function fetchFromGitHub(repo, token) {
   const [owner, name] = repo.split('/');
