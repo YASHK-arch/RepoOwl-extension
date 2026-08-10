@@ -425,8 +425,8 @@ The JSON object MUST have EXACTLY these fields and no others:
 
 Rules for recommended_action:
 - "CLOSE_SPAM" if slop_score >= 90 OR is_spam is true
-- "CLOSE_DUPLICATE" if duplicate_of_issue_id is set AND confidence_score >= 90
-- "NEEDS_TRIAGE" if slop_score is between 50-89, OR confidence_score is between 60-89
+- "CLOSE_DUPLICATE" if duplicate_of_issue_id is set AND confidence_score >= 90 (CRITICAL: A PR resolving an issue is NOT a duplicate of that issue. Only set duplicate_of_issue_id if this PR is a duplicate of another PR.)
+- "NEEDS_TRIAGE" if slop_score is between 50-89, OR confidence_score is between 60-89, OR if the PR claims to resolve the linked issue but the code changes do NOT actually solve it.
 - "APPROVE" otherwise
 `;
 
