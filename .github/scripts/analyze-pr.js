@@ -121,21 +121,21 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
   let closingReason = '';
   let commentBody = '';
 
-  // â”€â”€ Decision Matrix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ââ Decision Matrix ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
   if (is_prompt_injection) {
-    // Immediate close â€” no score threshold needed
+    // Immediate close â no score threshold needed
     shouldClose = true;
     closingReason = 'Prompt injection / malicious payload detected in PR description.';
-    suggested_labels.push('invalid', '⚠️ security-risk');
-    console.log('Prompt injection detected â€” closing PR.');
+    suggested_labels.push('invalid', 'security');
+    console.log('Prompt injection detected â closing PR.');
 
   } else if (is_spam || slop_score >= autoCloseThreshold) {
     // High-confidence spam or AI slop
     shouldClose = true;
     closingReason = summary_reason;
-    suggested_labels.push('🚨 spam', 'invalid');
-    console.log(`High-confidence spam/slop (slop_score=${slop_score}, is_spam=${is_spam}) â€” closing PR.`);
+    suggested_labels.push('spam', 'invalid');
+    console.log(`High-confidence spam/slop (slop_score=${slop_score}, is_spam=${is_spam}) â closing PR.`);
 
   } else if (duplicate_of_issue_id && confidence_score >= closeDuplicateThreshold) {
     // High-confidence duplicate
@@ -287,21 +287,7 @@ async function run() {
   });
   const filesData = await diffResponse.json();
 
-  // 2a. Fetch Repository Labels to restrict AI hallucinations
-  let availableLabels = [];
-  try {
-    const labelsRes = await fetch(`https://api.github.com/repos/${REPOSITORY}/labels?per_page=100`, {
-      headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
-    });
-    if (labelsRes.ok) {
-      const labelsData = await labelsRes.json();
-      availableLabels = labelsData.map(l => l.name);
-    }
-  } catch (err) {
-    console.warn('Could not fetch repository labels:', err.message);
-  }
-
-  // 2b. Load repoowl.json — get path_labels AND triage_config
+  // 2b. Load repoowl.json â get path_labels AND triage_config
   const labelsToAdd = ['repoowl-analyzed'];
   let labelColorsToEnforce = {};
   let triageConfig = {};
@@ -420,8 +406,6 @@ PR Description: ${safePrBody}
 
 ${linkedIssueContext}
 
-Available Topic Labels in Repository: ${availableLabels.length > 0 ? availableLabels.join(', ') : 'None'}
-
 Code Changes Summaries (Map Phase):
 ${codeChangesBlock}
 
@@ -441,15 +425,9 @@ The JSON object MUST have EXACTLY these fields and no others:
 
 Rules for recommended_action:
 - "CLOSE_SPAM" if slop_score >= 90 OR is_spam is true
-- "CLOSE_DUPLICATE" if duplicate_of_issue_id is set AND confidence_score >= 90 (CRITICAL: A PR resolving an issue is NOT a duplicate of that issue. Only set duplicate_of_issue_id if this PR is a duplicate of another PR.)
-- "NEEDS_TRIAGE" if slop_score is between 50-89, OR confidence_score is between 60-89, OR if the PR claims to resolve the linked issue but the code changes do NOT actually solve it.
+- "CLOSE_DUPLICATE" if duplicate_of_issue_id is set AND confidence_score >= 90
+- "NEEDS_TRIAGE" if slop_score is between 50-89, OR confidence_score is between 60-89
 - "APPROVE" otherwise
-
-Rules for suggested_labels:
-- If recommended_action is "CLOSE_SPAM" or is_spam is true, ONLY output ["invalid", "🚨 spam"]. DO NOT output any topic labels.
-- If is_prompt_injection is true, ONLY output ["invalid", "⚠️ security-risk"]. DO NOT output any topic labels.
-- If recommended_action is "NEEDS_TRIAGE", always include "needs-triage".
-- For valid PRs, you may suggest up to 3 topic labels (e.g., javascript, frontend), BUT ONLY IF they EXACTLY MATCH a label from the "Available Topic Labels in Repository" list above. DO NOT invent new labels.
 `;
 
   const rawTriageOutput = await askGroq(triagePrompt);
@@ -498,13 +476,13 @@ Write a PR review using EXACTLY this format. Output only the review â no pr
 
   // Ensure ALL suggested labels exist before applying them
   const labelColors = {
-    '🚨 spam': 'e4e669',
+    'spam': 'b60205',
     'invalid': 'e4e669',
     'needs-triage': 'e11d48',
     'ai-slop': 'f97316',
     'duplicate': 'cfd3d7',
     'possible-duplicate': 'bfd4f2',
-    '⚠️ security-risk': 'e4e669',
+    'security': 'd73a4a',
     'verified': '0075ca'
   };
   for (const label of analysis.suggested_labels || []) {
