@@ -25,9 +25,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       logs.push(msg);
       createBroadcast('pr')(msg);
     };
-    initializeRepoOwl(message.repoName, message.githubPat, message.groqApiKey, broadcast)
-      .then(() => sendResponse({ success: true, logs, version: INSTALLER_VERSION }))
-      .catch(err => sendResponse({ error: err.message, logs }));
+    chrome.storage.local.get(['repoOwlConfig'], (result) => {
+      const keys = result.repoOwlConfig || {};
+      initializeRepoOwl(message.repoName, message.githubPat, message.groqApiKey, broadcast, keys.supabaseUrl, keys.supabaseAnonKey)
+        .then(() => sendResponse({ success: true, logs, version: INSTALLER_VERSION }))
+        .catch(err => sendResponse({ error: err.message, logs }));
+    });
     return true;
   } else if (message.action === 'save_path_labels') {
     savePathLabels(message.repoName, message.pathLabels)
