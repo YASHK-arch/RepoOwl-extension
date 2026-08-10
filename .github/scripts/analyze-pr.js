@@ -963,33 +963,44 @@ async function run() {
     console.warn('Error fetching repo labels:', err.message);
   }
 
-  // Auto-add (create if missing) specific triage labels for low confidence PRs.
-  // This ensures the repo always has these labels available for spam/slop handling.
-  const coreTriageLabels = {
+  // Load core triage labels from environment variables (injected by workflow YAML)
+  let coreTriageLabels = {};
+  try {
+    coreTriageLabels = JSON.parse(process.env.CORE_TRIAGE_LABELS || '{}');
+  } catch (err) {
+    console.warn('Could not parse CORE_TRIAGE_LABELS from environment, using defaults.');
+    coreTriageLabels = {
+      'spam': '⚠️ scam',
+      'invalid': '⚠️ invalid',
+      'ai-slop': '🚨 ai-slop',
+      'prompt-injection': '🚨 prompt-injection',
+      'needs-triage': 'needs-triage',
+      'duplicate': 'duplicate',
+      'possible-duplicate': 'possible-duplicate',
+      'security': 'security'
+    };
+  }
+
+  // Define hardcoded colors for these special labels to enforce if they exist
+  const coreTriageColors = {
     'spam': 'b60205',
     'invalid': 'e4e669',
     'ai-slop': 'f97316',
-    'Prompt Injection': 'd73a4a',
+    'prompt-injection': 'd73a4a',
     'needs-triage': 'e11d48',
     'duplicate': 'cfd3d7',
     'possible-duplicate': 'bfd4f2',
     'security': 'd73a4a'
   };
 
-  // 1. Add them to labelColorsToEnforce so they get created if they don't exist
-  // (We use Object.assign but we only do it if they aren't already set by path_labels to avoid overriding user's config)
-  for (const [triageLabel, color] of Object.entries(coreTriageLabels)) {
-    if (!labelColorsToEnforce[triageLabel]) {
-      labelColorsToEnforce[triageLabel] = color;
+
+  // 1. Enforce colors for the mapped labels (the actual names configured in the workflow)
+  for (const [key, actualLabelName] of Object.entries(coreTriageLabels)) {
+    if (coreTriageColors[key] && !labelColorsToEnforce[actualLabelName]) {
+      labelColorsToEnforce[actualLabelName] = coreTriageColors[key];
     }
   }
 
-  // 2. Add them to existingLabelNames so the LLM is allowed to suggest them
-  for (const label of Object.keys(coreTriageLabels)) {
-    if (!existingLabelNames.some(l => l.toLowerCase() === label.toLowerCase())) {
-      existingLabelNames.push(label);
-    }
-  }
 
   // 2c. Fast prompt-injection pre-screen
 
@@ -1272,15 +1283,6 @@ Rules for recommended_action:
 
 
 
-ALLOWED LABEL LIST (you MUST only choose from these, or leave the array empty):
-${existingLabelNames.length > 0 ? existingLabelNames.map(l => `"${l}"`).join(', ') : '(none defined - use empty array)'}
-
-Rules for suggested_labels (STRICT):
-- If is_spam=true OR is_prompt_injection=true: leave the array empty. The system will handle rejection labels.
-- If recommended_action="APPROVE": pick ALL relevant topic labels that EXACTLY match names in the allowed list. Do NOT invent labels.
-- If recommended_action="NEEDS_TRIAGE": use only ["needs-triage"] if it is in the allowed list.
-- If recommended_action="CLOSE_DUPLICATE": use only ["duplicate"] if it is in the allowed list.
-- If a fitting label does NOT exist in the allowed list, omit it entirely - do NOT create new label names.
 `;
 
 
@@ -1419,38 +1421,53 @@ Write a PR review using EXACTLY this format. Output only the review â no pr
 
 
 
-  // 6. Filter LLM-suggested labels and apply final logic
+  // 6. Strict Intersection Logic
   const finalLabels = ['repoowl-analyzed'];
-  const existingLabelSet = new Set(existingLabelNames.map(l => l.toLowerCase()));
+  
+  // Collect all valid allowed labels (from repo + extension config path labels)
+  const allowedLabelMap = new Map();
+  for (const l of existingLabelNames) {
+    allowedLabelMap.set(l.toLowerCase(), l);
+  }
+  for (const l of Object.keys(labelColorsToEnforce)) {
+    allowedLabelMap.set(l.toLowerCase(), l);
+  }
+
   const autoCloseThreshold = Math.max(triageConfig.auto_close_threshold ?? HARD_AUTO_CLOSE_FLOOR, HARD_AUTO_CLOSE_FLOOR);
 
   if (analysis.is_prompt_injection) {
-    finalLabels.push('🚨 prompt-injection', '⚠️ invalid');
+    finalLabels.push(coreTriageLabels['prompt-injection'] || '🚨 prompt-injection');
+    finalLabels.push(coreTriageLabels['invalid'] || '⚠️ invalid');
   } else if (analysis.is_spam) {
-    finalLabels.push('⚠️ scam', '⚠️ invalid');
+    finalLabels.push(coreTriageLabels['spam'] || '⚠️ scam');
+    finalLabels.push(coreTriageLabels['invalid'] || '⚠️ invalid');
   } else if (analysis.slop_score >= autoCloseThreshold) {
-    finalLabels.push('🚨 ai-slop', '⚠️ invalid');
+    finalLabels.push(coreTriageLabels['ai-slop'] || '🚨 ai-slop');
+    finalLabels.push(coreTriageLabels['invalid'] || '⚠️ invalid');
   } else {
-    // Good PR (or at least not outright rejected for spam/slop)
+    // 6a. Push hardcoded path labels (guaranteed to be correct)
     for (const lbl of labelsToAdd) {
       if (lbl !== 'repoowl-analyzed' && !finalLabels.includes(lbl)) finalLabels.push(lbl);
     }
-    for (const label of analysis.suggested_labels || []) {
-      if (existingLabelSet.has(label.toLowerCase()) && !finalLabels.includes(label)) {
-        finalLabels.push(label);
+    
+    // 6b. Intersect LLM contextual topics with allowedLabelMap
+    for (const topic of analysis.contextual_topics || []) {
+      const lowerTopic = topic.toLowerCase();
+      // Only if the LLM's suggested topic EXACTLY matches an allowed label (case-insensitive)
+      if (allowedLabelMap.has(lowerTopic)) {
+        const actualLabelName = allowedLabelMap.get(lowerTopic);
+        if (!finalLabels.includes(actualLabelName)) {
+          finalLabels.push(actualLabelName);
+        }
       }
     }
-  }
-
-  const hardcodedColors = {
-    '⚠️ invalid': 'e4e669',
-    '🚨 prompt-injection': 'd73a4a',
-    '⚠️ scam': 'b60205',
-    '🚨 ai-slop': 'f97316'
-  };
-  for (const lbl of finalLabels) {
-    if (hardcodedColors[lbl] && !labelColorsToEnforce[lbl]) {
-      labelColorsToEnforce[lbl] = hardcodedColors[lbl];
+    
+    if (analysis.recommended_action === 'NEEDS_TRIAGE') {
+      const tLabel = coreTriageLabels['needs-triage'] || 'needs-triage';
+      if (!finalLabels.includes(tLabel)) finalLabels.push(tLabel);
+    } else if (analysis.recommended_action === 'CLOSE_DUPLICATE') {
+      const dLabel = coreTriageLabels['duplicate'] || 'duplicate';
+      if (!finalLabels.includes(dLabel)) finalLabels.push(dLabel);
     }
   }
 
