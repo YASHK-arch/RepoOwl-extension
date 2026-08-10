@@ -9,7 +9,6 @@
   "permissions": [
     "storage",
     "activeTab",
-    "alarms",
     "identity"
   ],
   "host_permissions": [
