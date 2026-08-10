@@ -4,14 +4,13 @@ on:
   issues:
     types: [opened]
   schedule:
-    # Run every minute for testing logger
-    - cron: '* * * * *'
+    # Sweep for any missed issues every 6 hours
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 permissions:
   issues: read
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   analyze-issue:
@@ -19,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,16 +32,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           REPOSITORY: ${{ github.repository }}
-          # Only set on issues.opened — empty string on schedule/dispatch
+          # Only set on issues.opened Ã¢â¬â empty string on schedule/dispatch
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: node .github/scripts/analyze-issue.js
-
-      - name: Create Pull Request for Sync Logs
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update sync log [skip ci]"
-          branch: "chore/update-sync-logger"
-          title: "chore: update sync log"
-          body: "This PR updates the RepoOwl sync `logger.md` for debugging."
-          base: main
