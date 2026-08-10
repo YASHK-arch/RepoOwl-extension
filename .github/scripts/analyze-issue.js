@@ -1,9 +1,7 @@
 
-// RepoOwl Issue Analyzer — GitHub Actions Script
+// RepoOwl Issue Analyzer Ã¢â¬â GitHub Actions Script
 // Runs server-side so it works 24/7 regardless of whether the maintainer's browser is open.
 // Replicates the logic from extension/src/background.js: executeIssueSyncQueue (maintainer path only).
-
-const fs = require('fs');
 
 const GROQ_API_KEY    = process.env.GROQ_API_KEY;
 const GITHUB_TOKEN    = process.env.GITHUB_TOKEN;
@@ -18,7 +16,7 @@ const DELAY_MS   = 2000;
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// Ã¢ââ¬Ã¢ââ¬ Helpers Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
 
 async function askGroq(systemPrompt, userPrompt) {
   const response = await fetch(GROQ_URL, {
@@ -87,7 +85,7 @@ function parseIssueTemplateFields(body) {
   };
 }
 
-// ── Supabase REST helpers (no SDK needed — pure fetch) ─────────────────────
+// Ã¢ââ¬Ã¢ââ¬ Supabase REST helpers (no SDK needed Ã¢â¬â pure fetch) Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
 
 function supabaseHeaders() {
   return {
@@ -137,7 +135,7 @@ async function saveAnalysis(repo, issue, analysis) {
     const err = await res.text();
     throw new Error(`Supabase insert failed (${res.status}): ${err}`);
   }
-  console.log(`  ✓ Saved analysis for issue #${issue.number} (is_duplicate=${analysis.is_duplicate})`);
+  console.log(`  Ã¢Åâ Saved analysis for issue #${issue.number} (is_duplicate=${analysis.is_duplicate})`);
 }
 
 async function updateRegistryStats(repo, totalAnalyzed, duplicatesFound) {
@@ -157,7 +155,7 @@ async function updateRegistryStats(repo, totalAnalyzed, duplicatesFound) {
   }
 }
 
-// ── GitHub helpers ─────────────────────────────────────────────────────────
+// Ã¢ââ¬Ã¢ââ¬ GitHub helpers Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
 
 function ghHeaders() {
   return {
@@ -191,7 +189,7 @@ async function fetchAllOpenIssues(repo) {
   return issues;
 }
 
-// ── Core analysis logic ────────────────────────────────────────────────────
+// Ã¢ââ¬Ã¢ââ¬ Core analysis logic Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
 
 async function analyzeIssue(issue, history) {
   const fields = parseIssueTemplateFields(issue.body || '');
@@ -237,7 +235,7 @@ async function analyzeIssue(issue, history) {
   }
 }
 
-// ── Entry point ────────────────────────────────────────────────────────────
+// Ã¢ââ¬Ã¢ââ¬ Entry point Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
 
 async function run() {
   if (!GROQ_API_KEY || !GITHUB_TOKEN || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -255,7 +253,7 @@ async function run() {
   let issuesToProcess = [];
 
   if (ISSUE_NUMBER) {
-    // Triggered by issues.opened — process only the new issue
+    // Triggered by issues.opened Ã¢â¬â process only the new issue
     console.log(`Triggered by new issue #${ISSUE_NUMBER}. Fetching details...`);
     try {
       const issue = await fetchIssueFromGitHub(repo, parseInt(ISSUE_NUMBER, 10));
@@ -265,7 +263,7 @@ async function run() {
       process.exit(1);
     }
   } else {
-    // Triggered by schedule or workflow_dispatch — sweep all open issues
+    // Triggered by schedule or workflow_dispatch Ã¢â¬â sweep all open issues
     console.log('Running scheduled sweep of all open issues...');
     try {
       const allOpen = await fetchAllOpenIssues(repo);
@@ -285,7 +283,6 @@ async function run() {
 
   if (issuesToProcess.length === 0) {
     console.log('No issues to analyze. All caught up!');
-    logToMarkdown(0, 0, 0);
     process.exit(0);
   }
 
@@ -305,7 +302,7 @@ async function run() {
 
       await delay(DELAY_MS);
     } catch (e) {
-      console.error(`  ✗ Error analyzing issue #${issue.number}: ${e.message}`);
+      console.error(`  Ã¢Åâ Error analyzing issue #${issue.number}: ${e.message}`);
       // Continue with remaining issues rather than aborting the whole run
     }
   }
@@ -322,22 +319,6 @@ async function run() {
   }
 
   console.log(`\nIssue analysis complete. Analyzed: ${analyzedCount}, Duplicates found: ${duplicateCount}`);
-  logToMarkdown(issuesToProcess.length, analyzedCount, duplicateCount);
-}
-
-function logToMarkdown(pendingCount, analyzedCount, duplicateCount) {
-  try {
-    const timestamp = new Date().toISOString();
-    const logEntry = `| ${timestamp} | ${pendingCount} pending | ${analyzedCount} analyzed | ${duplicateCount} duplicates |\n`;
-    
-    if (!fs.existsSync('logger.md')) {
-      fs.writeFileSync('logger.md', '# Live Sync Logs\n\n| Timestamp | Pending | Analyzed | Duplicates |\n|---|---|---|---|\n');
-    }
-    fs.appendFileSync('logger.md', logEntry);
-    console.log('Appended to logger.md successfully.');
-  } catch (e) {
-    console.warn(`Could not append to logger.md: ${e.message}`);
-  }
 }
 
 run().catch(err => {
