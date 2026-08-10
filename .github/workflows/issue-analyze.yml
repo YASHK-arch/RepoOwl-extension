@@ -37,12 +37,11 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: node .github/scripts/analyze-issue.js
 
-      - name: Create Pull Request for Sync Logs
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: update sync log [skip ci]"
-          branch: "chore/update-sync-logger"
-          title: "chore: update sync log"
-          body: "This PR updates the RepoOwl sync `logger.md` for debugging."
-          base: main
+      - name: Commit Sync Logs
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add logger.md || true
+          git commit -m "chore: update sync log [skip ci]" || echo "No changes to commit"
+          git pull --rebase origin main || true
+          git push
