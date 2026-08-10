@@ -351,6 +351,34 @@ async function run() {
     console.warn('Error fetching repo labels:', err.message);
   }
 
+  // Auto-add (create if missing) specific triage labels for low confidence PRs.
+  // This ensures the repo always has these labels available for spam/slop handling.
+  const coreTriageLabels = {
+    'spam': 'b60205',
+    'invalid': 'e4e669',
+    'ai-slop': 'f97316',
+    'Prompt Injection': 'd73a4a',
+    'needs-triage': 'e11d48',
+    'duplicate': 'cfd3d7',
+    'possible-duplicate': 'bfd4f2',
+    'security': 'd73a4a'
+  };
+
+  // 1. Add them to labelColorsToEnforce so they get created if they don't exist
+  // (We use Object.assign but we only do it if they aren't already set by path_labels to avoid overriding user's config)
+  for (const [triageLabel, color] of Object.entries(coreTriageLabels)) {
+    if (!labelColorsToEnforce[triageLabel]) {
+      labelColorsToEnforce[triageLabel] = color;
+    }
+  }
+
+  // 2. Add them to existingLabelNames so the LLM is allowed to suggest them
+  for (const label of Object.keys(coreTriageLabels)) {
+    if (!existingLabelNames.some(l => l.toLowerCase() === label.toLowerCase())) {
+      existingLabelNames.push(label);
+    }
+  }
+
   // 2c. Fast prompt-injection pre-screen
   const injectionDetected = detectPromptInjection(prData.body) || detectPromptInjection(prData.title);
   if (injectionDetected) {
