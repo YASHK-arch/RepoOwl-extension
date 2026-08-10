@@ -1,503 +1,520 @@
+
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const PR_NUMBER = process.env.PR_NUMBER;
+const REPOSITORY = process.env.REPOSITORY; // format: owner/repo
+
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const MODEL_NAME = 'llama-3.3-70b-versatile';
+
+// ââ Guardrail floors â these are NEVER overridden by user config ââââââââââââ
+const HARD_AUTO_CLOSE_FLOOR = 90;   // slop/spam score must be >= this to auto-close
+const HARD_TRIAGE_FLOOR = 50;       // slop score >= this triggers needs-triage
+
+async function askGroq(prompt) {
+  const response = await fetch(GROQ_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: MODEL_NAME,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Groq API error: ${errorText}`);
+  }
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
+
+/**
+ * Parse the JSON triage block from the LLM's response.
+ * The model is instructed to wrap JSON in ```json ... ``` fences.
+ * Falls back to a safe NEEDS_TRIAGE object if parsing fails.
+ */
+function parseTriageJSON(rawOutput) {
+  try {
+    // Extract JSON from fenced code block
+    const fenceMatch = rawOutput.match(/```json\s*([\s\S]*?)```/i);
+    const jsonStr = fenceMatch ? fenceMatch[1] : rawOutput;
+    return JSON.parse(jsonStr.trim());
+  } catch (e) {
+    console.warn('Could not parse triage JSON from LLM output â defaulting to NEEDS_TRIAGE.', e.message);
+    console.warn('Raw LLM output was:', rawOutput.substring(0, 500));
+    return {
+      slop_score: 50,
+      is_spam: false,
+      is_prompt_injection: false,
+      duplicate_of_issue_id: null,
+      confidence_score: 50,
+      recommended_action: 'NEEDS_TRIAGE',
+      suggested_labels: ['needs-triage'],
+      summary_reason: 'Could not parse structured output from analyzer. Manual review required.'
+    };
+  }
+}
+
+/**
+ * Check if the PR description contains prompt injection patterns.
+ * This is a fast heuristic scan â the LLM also performs a deeper check.
+ */
+function detectPromptInjection(text) {
+  if (!text) return false;
+  const patterns = [
+    /ignore (all |previous |prior )?instructions/i,
+    /disregard (all |your |the )?/i,
+    /you are now/i,
+    /act as (a |an )?/i,
+    /new (system |persona |role|task)/i,
+    /<\/?system>/i,
+    /\[INST\]/i,
+    /###\s*(instruction|system|prompt)/i
+  ];
+  return patterns.some(p => p.test(text));
+}
+
+/**
+ * Execute the triage action: post comment, apply labels, optionally close PR.
+ * Uses raw fetch (no Octokit) to match the rest of the script's style.
+ */
+async function executeTriageAction(owner, repo, pullNumber, analysis, markdownReview, labelsToAdd, triageConfig, labelColorsToEnforce = {}) {
+  const {
+    recommended_action,
+    suggested_labels,
+    summary_reason,
+    slop_score,
+    is_spam,
+    is_prompt_injection,
+    duplicate_of_issue_id,
+    confidence_score
+  } = analysis;
+
+  // Threshold resolution: user config can LOWER the floor, but the hard floor always wins
+  const autoCloseThreshold = Math.max(
+    triageConfig.auto_close_threshold ?? HARD_AUTO_CLOSE_FLOOR,
+    HARD_AUTO_CLOSE_FLOOR
+  );
+  const triageThreshold = Math.max(
+    triageConfig.needs_triage_threshold ?? HARD_TRIAGE_FLOOR,
+    HARD_TRIAGE_FLOOR
+  );
+  const closeDuplicateThreshold = Math.max(
+    triageConfig.close_duplicate_threshold ?? HARD_AUTO_CLOSE_FLOOR,
+    HARD_AUTO_CLOSE_FLOOR
+  );
+  const possibleDuplicateThreshold = triageConfig.possible_duplicate_threshold ?? 60;
+
+  const ghHeaders = {
+    'Authorization': `Bearer ${GITHUB_TOKEN}`,
+    'Content-Type': 'application/json',
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+  const issuesBase = `https://api.github.com/repos/${owner}/${repo}/issues`;
+  const pullsBase  = `https://api.github.com/repos/${owner}/${repo}/pulls`;
+
+  let shouldClose = false;
+  let closingReason = '';
+  let commentBody = '';
+
+  // ââ Decision Matrix ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+  if (is_prompt_injection) {
+    // Immediate close â no score threshold needed
+    shouldClose = true;
+    closingReason = 'Prompt injection / malicious payload detected in PR description.';
+    suggested_labels.push('invalid', 'security');
+    console.log('Prompt injection detected â closing PR.');
+
+  } else if (is_spam || slop_score >= autoCloseThreshold) {
+    // High-confidence spam or AI slop
+    shouldClose = true;
+    closingReason = summary_reason;
+    suggested_labels.push('spam', 'invalid');
+    console.log(`High-confidence spam/slop (slop_score=${slop_score}, is_spam=${is_spam}) â closing PR.`);
+
+  } else if (duplicate_of_issue_id && confidence_score >= closeDuplicateThreshold) {
+    // High-confidence duplicate
+    shouldClose = true;
+    closingReason = `Duplicate of #${duplicate_of_issue_id}. ${summary_reason}`;
+    suggested_labels.push('duplicate');
+    console.log(`High-confidence duplicate of #${duplicate_of_issue_id} (confidence=${confidence_score}) â closing PR.`);
+
+  } else if (duplicate_of_issue_id && confidence_score >= possibleDuplicateThreshold) {
+    // Possible duplicate â flag but keep open
+    suggested_labels.push('needs-triage', 'possible-duplicate');
+    console.log(`Possible duplicate of #${duplicate_of_issue_id} (confidence=${confidence_score}) â flagging for maintainer review.`);
+
+  } else if (slop_score >= triageThreshold) {
+    // Ambiguous â needs human review
+    suggested_labels.push('needs-triage');
+    console.log(`Borderline slop score (${slop_score}) â flagging for maintainer review.`);
+  }
+
+  // ââ Merge all labels (deduplicated) âââââââââââââââââââââââââââââââââââââââ
+  for (const label of suggested_labels) {
+    if (!labelsToAdd.includes(label)) labelsToAdd.push(label);
+  }
+
+  // ââ Build comment âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  if (shouldClose) {
+    commentBody = [
+      `### :owl: RepoOwl PR Analysis`,
+      ``,
+      `**Action:** PR Closed Automatically`,
+      `**Reason:** ${closingReason}`,
+      ``,
+      `---`,
+      markdownReview || '',
+      ``,
+      `---`,
+      `*This PR was closed by RepoOwl's automated triage engine. If you believe this is a mistake, please contact a maintainer.*`
+    ].join('\n');
+  } else if (labelsToAdd.includes('needs-triage') || labelsToAdd.includes('possible-duplicate')) {
+    commentBody = [
+      `### :owl: RepoOwl PR Analysis`,
+      ``,
+      `**Note:** ${summary_reason}`,
+      ``,
+      `---`,
+      markdownReview || '',
+      ``,
+      `---`,
+      `*Flagged automatically via GitHub Actions*`
+    ].join('\n');
+  } else {
+    // Valid contribution â full review comment
+    commentBody = [
+      `### :owl: RepoOwl PR Analysis`,
+      ``,
+      markdownReview || summary_reason,
+      ``,
+      `---`,
+      `*Analyzed automatically via GitHub Actions*`
+    ].join('\n');
+  }
+
+  // ââ Post comment ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  console.log('Posting triage comment to GitHub...');
+  const commentRes = await fetch(`${issuesBase}/${pullNumber}/comments`, {
+    method: 'POST',
+    headers: ghHeaders,
+    body: JSON.stringify({ body: commentBody })
+  });
+  if (!commentRes.ok) {
+    console.error('Failed to post triage comment:', await commentRes.text());
+  }
+
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const PR_NUMBER = process.env.PR_NUMBER;
-const REPOSITORY = process.env.REPOSITORY; // format: owner/repo
-
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL_NAME = 'llama-3.3-70b-versatile';
-
-// ââ Guardrail floors â these are NEVER overridden by user config ââââââââââââ
-const HARD_AUTO_CLOSE_FLOOR = 90;   // slop/spam score must be >= this to auto-close
-const HARD_TRIAGE_FLOOR = 50;       // slop score >= this triggers needs-triage
-
-async function askGroq(prompt) {
-  const response = await fetch(GROQ_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${GROQ_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: MODEL_NAME,
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Groq API error: ${errorText}`);
-  }
-  const data = await response.json();
-  return data.choices[0].message.content;
-}
-
-/**
- * Parse the JSON triage block from the LLM's response.
- * The model is instructed to wrap JSON in ```json ... ``` fences.
- * Falls back to a safe NEEDS_TRIAGE object if parsing fails.
- */
-function parseTriageJSON(rawOutput) {
-  try {
-    // Extract JSON from fenced code block
-    const fenceMatch = rawOutput.match(/```json\s*([\s\S]*?)```/i);
-    const jsonStr = fenceMatch ? fenceMatch[1] : rawOutput;
-    return JSON.parse(jsonStr.trim());
-  } catch (e) {
-    console.warn('Could not parse triage JSON from LLM output â defaulting to NEEDS_TRIAGE.', e.message);
-    console.warn('Raw LLM output was:', rawOutput.substring(0, 500));
-    return {
-      slop_score: 50,
-      is_spam: false,
-      is_prompt_injection: false,
-      duplicate_of_issue_id: null,
-      confidence_score: 50,
-      recommended_action: 'NEEDS_TRIAGE',
-      suggested_labels: ['needs-triage'],
-      summary_reason: 'Could not parse structured output from analyzer. Manual review required.'
-    };
-  }
-}
-
-/**
- * Check if the PR description contains prompt injection patterns.
- * This is a fast heuristic scan â the LLM also performs a deeper check.
- */
-function detectPromptInjection(text) {
-  if (!text) return false;
-  const patterns = [
-    /ignore (all |previous |prior )?instructions/i,
-    /disregard (all |your |the )?/i,
-    /you are now/i,
-    /act as (a |an )?/i,
-    /new (system |persona |role|task)/i,
-    /<\/?system>/i,
-    /\[INST\]/i,
-    /###\s*(instruction|system|prompt)/i
-  ];
-  return patterns.some(p => p.test(text));
-}
-
-/**
- * Execute the triage action: post comment, apply labels, optionally close PR.
- * Uses raw fetch (no Octokit) to match the rest of the script's style.
- */
-async function executeTriageAction(owner, repo, pullNumber, analysis, markdownReview, labelsToAdd, triageConfig, labelColorsToEnforce = {}) {
-  const {
-    recommended_action,
-    suggested_labels,
-    summary_reason,
-    slop_score,
-    is_spam,
-    is_prompt_injection,
-    duplicate_of_issue_id,
-    confidence_score
-  } = analysis;
-
-  // Threshold resolution: user config can LOWER the floor, but the hard floor always wins
-  const autoCloseThreshold = Math.max(
-    triageConfig.auto_close_threshold ?? HARD_AUTO_CLOSE_FLOOR,
-    HARD_AUTO_CLOSE_FLOOR
-  );
-  const triageThreshold = Math.max(
-    triageConfig.needs_triage_threshold ?? HARD_TRIAGE_FLOOR,
-    HARD_TRIAGE_FLOOR
-  );
-  const closeDuplicateThreshold = Math.max(
-    triageConfig.close_duplicate_threshold ?? HARD_AUTO_CLOSE_FLOOR,
-    HARD_AUTO_CLOSE_FLOOR
-  );
-  const possibleDuplicateThreshold = triageConfig.possible_duplicate_threshold ?? 60;
-
-  const ghHeaders = {
-    'Authorization': `Bearer ${GITHUB_TOKEN}`,
-    'Content-Type': 'application/json',
-    'Accept': 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28'
-  };
-  const issuesBase = `https://api.github.com/repos/${owner}/${repo}/issues`;
-  const pullsBase  = `https://api.github.com/repos/${owner}/${repo}/pulls`;
-
-  let shouldClose = false;
-  let closingReason = '';
-  let commentBody = '';
-
-  // ââ Decision Matrix ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-
-  if (is_prompt_injection) {
-    // Immediate close â no score threshold needed
-    shouldClose = true;
-    closingReason = 'Prompt injection / malicious payload detected in PR description.';
-    suggested_labels.push('invalid', 'security');
-    console.log('Prompt injection detected â closing PR.');
-
-  } else if (is_spam || slop_score >= autoCloseThreshold) {
-    // High-confidence spam or AI slop
-    shouldClose = true;
-    closingReason = summary_reason;
-    suggested_labels.push('spam', 'invalid');
-    console.log(`High-confidence spam/slop (slop_score=${slop_score}, is_spam=${is_spam}) â closing PR.`);
-
-  } else if (duplicate_of_issue_id && confidence_score >= closeDuplicateThreshold) {
-    // High-confidence duplicate
-    shouldClose = true;
-    closingReason = `Duplicate of #${duplicate_of_issue_id}. ${summary_reason}`;
-    suggested_labels.push('duplicate');
-    console.log(`High-confidence duplicate of #${duplicate_of_issue_id} (confidence=${confidence_score}) â closing PR.`);
-
-  } else if (duplicate_of_issue_id && confidence_score >= possibleDuplicateThreshold) {
-    // Possible duplicate â flag but keep open
-    suggested_labels.push('needs-triage', 'possible-duplicate');
-    console.log(`Possible duplicate of #${duplicate_of_issue_id} (confidence=${confidence_score}) â flagging for maintainer review.`);
-
-  } else if (slop_score >= triageThreshold) {
-    // Ambiguous â needs human review
-    suggested_labels.push('needs-triage');
-    console.log(`Borderline slop score (${slop_score}) â flagging for maintainer review.`);
-  }
-
-  // ââ Merge all labels (deduplicated) âââââââââââââââââââââââââââââââââââââââ
-  for (const label of suggested_labels) {
-    if (!labelsToAdd.includes(label)) labelsToAdd.push(label);
-  }
-
-  // ââ Build comment âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  if (shouldClose) {
-    commentBody = [
-      `### :owl: RepoOwl PR Analysis`,
-      ``,
-      `**Action:** PR Closed Automatically`,
-      `**Reason:** ${closingReason}`,
-      ``,
-      `---`,
-      markdownReview || '',
-      ``,
-      `---`,
-      `*This PR was closed by RepoOwl's automated triage engine. If you believe this is a mistake, please contact a maintainer.*`
-    ].join('\n');
-  } else if (labelsToAdd.includes('needs-triage') || labelsToAdd.includes('possible-duplicate')) {
-    commentBody = [
-      `### :owl: RepoOwl PR Analysis`,
-      ``,
-      `**Note:** ${summary_reason}`,
-      ``,
-      `---`,
-      markdownReview || '',
-      ``,
-      `---`,
-      `*Flagged automatically via GitHub Actions*`
-    ].join('\n');
-  } else {
-    // Valid contribution â full review comment
-    commentBody = [
-      `### :owl: RepoOwl PR Analysis`,
-      ``,
-      markdownReview || summary_reason,
-      ``,
-      `---`,
-      `*Analyzed automatically via GitHub Actions*`
-    ].join('\n');
-  }
-
-  // ââ Post comment ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  console.log('Posting triage comment to GitHub...');
-  const commentRes = await fetch(`${issuesBase}/${pullNumber}/comments`, {
-    method: 'POST',
-    headers: ghHeaders,
-    body: JSON.stringify({ body: commentBody })
-  });
-  if (!commentRes.ok) {
-    console.error('Failed to post triage comment:', await commentRes.text());
-  }
-
-  // ââ Enforce Label Colors ââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // -- Enforce Label Colors (path_labels from repoowl.json only) -------
+  // NOTE: We only CREATE labels that do not exist yet - we NEVER update the
+  // color of an existing label. This preserves whatever colors the maintainer
+  // has assigned in the GitHub Labels UI (fixes issue #74).
   if (Object.keys(labelColorsToEnforce).length > 0) {
-    console.log('Enforcing custom label colors...');
+    console.log('Ensuring path-mapped labels exist (colors preserved if already created)...');
     for (const [labelName, colorHex] of Object.entries(labelColorsToEnforce)) {
       try {
         const getLabelRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/labels/${encodeURIComponent(labelName)}`, { headers: ghHeaders });
         if (getLabelRes.status === 404) {
+          // Label does not exist yet - create it with the configured color
           console.log(`  Creating label '${labelName}' with color #${colorHex}`);
           await fetch(`https://api.github.com/repos/${owner}/${repo}/labels`, {
             method: 'POST',
             headers: ghHeaders,
             body: JSON.stringify({ name: labelName, color: colorHex })
           });
-        } else if (getLabelRes.ok) {
-          const labelData = await getLabelRes.json();
-          if (labelData.color !== colorHex) {
-            console.log(`  Updating label '${labelName}' to color #${colorHex}`);
-            await fetch(`https://api.github.com/repos/${owner}/${repo}/labels/${encodeURIComponent(labelName)}`, {
-              method: 'PATCH',
-              headers: ghHeaders,
-              body: JSON.stringify({ color: colorHex })
-            });
-          }
+        } else {
+          // Label already exists - leave its color exactly as the maintainer set it
+          console.log(`  Label '${labelName}' already exists - preserving maintainer's color.`);
         }
       } catch (err) {
-        console.warn(`  Failed to enforce color for label '${labelName}':`, err.message);
+        console.warn(`  Failed to ensure label '${labelName}' exists:`, err.message);
       }
     }
   }
-
-  // ââ Apply labels ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  console.log(`Applying labels: [${labelsToAdd.join(', ')}]`);
-  const labelRes = await fetch(`${issuesBase}/${pullNumber}/labels`, {
-    method: 'POST',
-    headers: ghHeaders,
-    body: JSON.stringify({ labels: labelsToAdd })
-  });
-  if (!labelRes.ok) {
-    console.error('Failed to apply labels:', await labelRes.text());
-  }
-
-  // ââ Close PR if warranted âââââââââââââââââââââââââââââââââââââââââââââââââ
-  if (shouldClose) {
-    console.log(`Closing PR #${pullNumber}...`);
-    const closeRes = await fetch(`${pullsBase}/${pullNumber}`, {
-      method: 'PATCH',
-      headers: ghHeaders,
-      body: JSON.stringify({ state: 'closed' })
-    });
-    if (!closeRes.ok) {
-      console.error('Failed to close PR:', await closeRes.text());
-    } else {
-      console.log(`PR #${pullNumber} closed successfully.`);
-    }
-  }
-}
-
-async function run() {
-  if (!GROQ_API_KEY || !GITHUB_TOKEN) {
-    console.warn('Skipping RepoOwl PR Analysis: Missing GROQ_API_KEY or GITHUB_TOKEN secret. Please configure these in your repository secrets.');
-    process.exit(0);
-  }
-
-  const [owner, repo] = REPOSITORY.split('/');
-  console.log(`Starting RepoOwl Map-Reduce + Triage Analysis for PR #${PR_NUMBER} in ${REPOSITORY}...`);
-
-  // 1. Fetch PR Details
-  const prResponse = await fetch(`https://api.github.com/repos/${REPOSITORY}/pulls/${PR_NUMBER}`, {
-    headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
-  });
-  const prData = await prResponse.json();
-
-  // 2. Fetch PR Diffs
-  const diffResponse = await fetch(`https://api.github.com/repos/${REPOSITORY}/pulls/${PR_NUMBER}/files`, {
-    headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
-  });
-  const filesData = await diffResponse.json();
-
-  // 2b. Load repoowl.json â get path_labels AND triage_config
-  const labelsToAdd = ['repoowl-analyzed'];
-  let labelColorsToEnforce = {};
-  let triageConfig = {};
-  let repoContext = '';
-
+
+  // ââ Apply labels ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  console.log(`Applying labels: [${labelsToAdd.join(', ')}]`);
+  const labelRes = await fetch(`${issuesBase}/${pullNumber}/labels`, {
+    method: 'POST',
+    headers: ghHeaders,
+    body: JSON.stringify({ labels: labelsToAdd })
+  });
+  if (!labelRes.ok) {
+    console.error('Failed to apply labels:', await labelRes.text());
+  }
+
+  // ââ Close PR if warranted âââââââââââââââââââââââââââââââââââââââââââââââââ
+  if (shouldClose) {
+    console.log(`Closing PR #${pullNumber}...`);
+    const closeRes = await fetch(`${pullsBase}/${pullNumber}`, {
+      method: 'PATCH',
+      headers: ghHeaders,
+      body: JSON.stringify({ state: 'closed' })
+    });
+    if (!closeRes.ok) {
+      console.error('Failed to close PR:', await closeRes.text());
+    } else {
+      console.log(`PR #${pullNumber} closed successfully.`);
+    }
+  }
+}
+
+async function run() {
+  if (!GROQ_API_KEY || !GITHUB_TOKEN) {
+    console.warn('Skipping RepoOwl PR Analysis: Missing GROQ_API_KEY or GITHUB_TOKEN secret. Please configure these in your repository secrets.');
+    process.exit(0);
+  }
+
+  const [owner, repo] = REPOSITORY.split('/');
+  console.log(`Starting RepoOwl Map-Reduce + Triage Analysis for PR #${PR_NUMBER} in ${REPOSITORY}...`);
+
+  // 1. Fetch PR Details
+  const prResponse = await fetch(`https://api.github.com/repos/${REPOSITORY}/pulls/${PR_NUMBER}`, {
+    headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
+  });
+  const prData = await prResponse.json();
+
+  // 2. Fetch PR Diffs
+  const diffResponse = await fetch(`https://api.github.com/repos/${REPOSITORY}/pulls/${PR_NUMBER}/files`, {
+    headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
+  });
+  const filesData = await diffResponse.json();
+
+  // 2b. Load repoowl.json â get path_labels AND triage_config
+  const labelsToAdd = ['repoowl-analyzed'];
+  let labelColorsToEnforce = {};
+  let triageConfig = {};
+  let repoContext = '';
+
+  try {
+    const configRes = await fetch(
+      `https://api.github.com/repos/${REPOSITORY}/contents/repoowl.json?ref=main`,
+      { headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` } }
+    );
+    if (configRes.ok) {
+      const configData = await configRes.json();
+      const config = JSON.parse(Buffer.from(configData.content, 'base64').toString('utf8'));
+
+      // Path-based label routing
+      const pathLabels = config.path_labels || {};
+      const ruleEntries = Object.entries(pathLabels);
+      if (ruleEntries.length > 0) {
+        console.log(`Found ${ruleEntries.length} path-label rule(s) in repoowl.json.`);
+        for (const file of filesData) {
+          for (const [rulePath, ruleValue] of ruleEntries) {
+            let labelName = typeof ruleValue === 'string' ? ruleValue : ruleValue.label;
+            let labelColor = typeof ruleValue === 'string' ? null : ruleValue.color;
+            if (file.filename.startsWith(rulePath) && !labelsToAdd.includes(labelName)) {
+              console.log(`  Matched: '${file.filename}' label '${labelName}'`);
+              labelsToAdd.push(labelName);
+              if (labelColor) {
+                // Ensure no '#' in color for GitHub API
+                labelColorsToEnforce[labelName] = labelColor.replace('#', '');
+              }
+            }
+          }
+        }
+      }
+
+      // Triage config & repo context
+      triageConfig = config.triage_config || {};
+      repoContext = triageConfig.repo_context || '';
+      if (repoContext) {
+        console.log('Repo context loaded from repoowl.json.');
+      }
+    }
+  } catch (err) {
+    console.warn('Could not fetch repoowl.json:', err.message);
+  }
+
+  // 2c. Fast prompt-injection pre-screen
+  const injectionDetected = detectPromptInjection(prData.body) || detectPromptInjection(prData.title);
+  if (injectionDetected) {
+    console.log('Prompt injection pattern detected in PR head â escalating to LLM for confirmation.');
+  }
+
+  // 3. Check for Linked Issues
+  let linkedIssueContext = 'No linked issue detected.';
+  const issueMatch = prData.body ? prData.body.match(/(?:fix|fixes|resolves|closes)\s+#(\d+)/i) : null;
+
+  if (issueMatch) {
+    const issueNum = issueMatch[1];
+    console.log(`Detected linked issue #${issueNum}. Fetching context...`);
+    const issueRes = await fetch(`https://api.github.com/repos/${REPOSITORY}/issues/${issueNum}`, {
+      headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
+    });
+    if (issueRes.ok) {
+      const issueDetails = await issueRes.json();
+      linkedIssueContext = `Linked Issue Goal: ${issueDetails.title}\n${issueDetails.body}`;
+    }
+  }
+
+  // 4. MAP PHASE: Summarize individual files
+  const filteredFiles = filesData.filter(f =>
+    !f.filename.includes('package-lock.json') &&
+    !f.filename.endsWith('.svg') &&
+    f.patch
+  );
+
+  console.log(`Mapping ${filteredFiles.length} files...`);
+  const fileSummaries = [];
+
+  for (const file of filteredFiles) {
+    try {
+      console.log(`Summarizing ${file.filename}...`);
+      const mapPrompt = `
+        Briefly summarize what this specific file diff does in 2 sentences max.
+        File: ${file.filename}
+        Status: ${file.status}
+        Patch:
+        ${file.patch.substring(0, 10000)}
+      `;
+      const summary = await askGroq(mapPrompt);
+      fileSummaries.push(`- **${file.filename}**: ${summary}`);
+      await new Promise(r => setTimeout(r, 1000));
+    } catch (err) {
+      console.warn(`Could not summarize ${file.filename}:`, err.message);
+    }
+  }
+
+  // Safely escape PR body to prevent prompt injection bypassing the analysis
+  const safePrBody = (prData.body || 'None provided.')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  const repoContextBlock = repoContext
+    ? `\nRepository Context (provided by maintainer): ${repoContext}\n`
+    : '';
+
+  const codeChangesBlock = fileSummaries.length > 0 ? fileSummaries.join('\n') : 'No significant code changes found.';
+
+  // 5a. REDUCE PHASE CALL 1: Structured JSON triage (NO markdown content)
+  // Keeping markdown_review OUT of JSON prevents multiline/blockquote chars from breaking JSON.parse()
+  console.log('Phase 1: Getting structured triage JSON...');
+
+  const triagePrompt = `You are an expert, ruthless AI Code Reviewer and Spam Detector for RepoOwl.
+${repoContextBlock}
+PR Title: ${prData.title}
+PR Description: ${safePrBody}
+
+${linkedIssueContext}
+
+Code Changes Summaries (Map Phase):
+${codeChangesBlock}
+
+Your job is to triage this PR. Respond ONLY with a single valid JSON object wrapped in a \`\`\`json code block. Do NOT add any text, markdown, or formatting outside the code block. All string values must be properly JSON-escaped (no literal newlines inside strings).
+
+The JSON object MUST have EXACTLY these fields and no others:
+{
+  "slop_score": <integer 0-100>,
+  "is_spam": <boolean>,
+  "is_prompt_injection": <boolean>,
+  "duplicate_of_issue_id": <null or integer>,
+  "confidence_score": <integer 0-100>,
+  "recommended_action": <"CLOSE_SPAM" | "CLOSE_DUPLICATE" | "NEEDS_TRIAGE" | "APPROVE">,
+  "suggested_labels": <array of strings>,
+  "summary_reason": <single-sentence string>
+}
+
+Rules for recommended_action:
+- "CLOSE_SPAM" if slop_score >= 90 OR is_spam is true
+- "CLOSE_DUPLICATE" if duplicate_of_issue_id is set AND confidence_score >= 90
+- "NEEDS_TRIAGE" if slop_score is between 50-89, OR confidence_score is between 60-89
+- "APPROVE" otherwise
+`;
+
+  const rawTriageOutput = await askGroq(triagePrompt);
+  const analysis = parseTriageJSON(rawTriageOutput);
+
+  console.log(`Triage result: recommended_action=${analysis.recommended_action}, slop_score=${analysis.slop_score}, is_spam=${analysis.is_spam}, is_prompt_injection=${analysis.is_prompt_injection}`);
+
+  // 5b. REDUCE PHASE CALL 2: Generate markdown review (plain text, no JSON)
+  console.log('Phase 2: Generating markdown review...');
+
+  const reviewPrompt = `You are an expert AI Code Reviewer for RepoOwl. Write a PR review in plain Markdown.
+${repoContextBlock}
+PR Title: ${prData.title}
+PR Description: ${safePrBody}
+Triage Decision: ${analysis.recommended_action} (slop_score=${analysis.slop_score}, is_spam=${analysis.is_spam})
+Summary Reason: ${analysis.summary_reason}
+
+${linkedIssueContext}
+
+Code Changes:
+${codeChangesBlock}
+
+Write a PR review using EXACTLY this format. Output only the review â no preamble, no JSON:
+
+> **Slop Badge:** ${analysis.slop_score >= 50 || analysis.is_spam ? ':red_circle: AI Slop Detected' : ':green_circle: Code Matches Description'}
+>
+> **AI Slop Detection:** [1-2 sentence reasoning for the badge score of ${analysis.slop_score}/100]
+
+**Issue Resolution:** [Does the code actually solve the linked issue? If no linked issue, say so.]
+
+**Domain Impact:**
+- [bullet point for each component/area touched by this PR]
+
+**Breaking Changes:** [Yes/No and brief explanation]
+
+**Final Verdict:** [Approve OR Request Changes â one sentence justification]
+`;
+
+  let markdownReview = '';
+  try {
+    markdownReview = await askGroq(reviewPrompt);
+  } catch (err) {
+    console.warn('Could not generate markdown review:', err.message);
+    markdownReview = `> **Note:** Could not generate detailed review. Triage decision: ${analysis.recommended_action}. Reason: ${analysis.summary_reason}`;
+  }
+
+  // 6. Fetch existing repo labels and filter LLM suggestions to only those
+  //    that already exist. Prevents AI from inventing labels with grey colors
+  //    and overwriting the maintainer's custom label colors (fixes issue #74).
+  let existingLabelNames = new Set();
   try {
-    const configRes = await fetch(
-      `https://api.github.com/repos/${REPOSITORY}/contents/repoowl.json?ref=main`,
-      { headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` } }
+    const allLabelsRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/labels?per_page=100`,
+      { headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
     );
-    if (configRes.ok) {
-      const configData = await configRes.json();
-      const config = JSON.parse(Buffer.from(configData.content, 'base64').toString('utf8'));
-
-      // Path-based label routing
-      const pathLabels = config.path_labels || {};
-      const ruleEntries = Object.entries(pathLabels);
-      if (ruleEntries.length > 0) {
-        console.log(`Found ${ruleEntries.length} path-label rule(s) in repoowl.json.`);
-        for (const file of filesData) {
-          for (const [rulePath, ruleValue] of ruleEntries) {
-            let labelName = typeof ruleValue === 'string' ? ruleValue : ruleValue.label;
-            let labelColor = typeof ruleValue === 'string' ? null : ruleValue.color;
-            if (file.filename.startsWith(rulePath) && !labelsToAdd.includes(labelName)) {
-              console.log(`  Matched: '${file.filename}' label '${labelName}'`);
-              labelsToAdd.push(labelName);
-              if (labelColor) {
-                // Ensure no '#' in color for GitHub API
-                labelColorsToEnforce[labelName] = labelColor.replace('#', '');
-              }
-            }
-          }
-        }
-      }
-
-      // Triage config & repo context
-      triageConfig = config.triage_config || {};
-      repoContext = triageConfig.repo_context || '';
-      if (repoContext) {
-        console.log('Repo context loaded from repoowl.json.');
-      }
+    if (allLabelsRes.ok) {
+      const allLabels = await allLabelsRes.json();
+      existingLabelNames = new Set(allLabels.map(l => l.name.toLowerCase()));
+      console.log(`Fetched ${existingLabelNames.size} existing repo labels.`);
+    } else {
+      console.warn('Could not fetch repo labels - LLM-suggested labels will be skipped to be safe.');
     }
   } catch (err) {
-    console.warn('Could not fetch repoowl.json:', err.message);
+    console.warn('Error fetching repo labels:', err.message);
   }
 
-  // 2c. Fast prompt-injection pre-screen
-  const injectionDetected = detectPromptInjection(prData.body) || detectPromptInjection(prData.title);
-  if (injectionDetected) {
-    console.log('Prompt injection pattern detected in PR head â escalating to LLM for confirmation.');
-  }
-
-  // 3. Check for Linked Issues
-  let linkedIssueContext = 'No linked issue detected.';
-  const issueMatch = prData.body ? prData.body.match(/(?:fix|fixes|resolves|closes)\s+#(\d+)/i) : null;
-
-  if (issueMatch) {
-    const issueNum = issueMatch[1];
-    console.log(`Detected linked issue #${issueNum}. Fetching context...`);
-    const issueRes = await fetch(`https://api.github.com/repos/${REPOSITORY}/issues/${issueNum}`, {
-      headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
-    });
-    if (issueRes.ok) {
-      const issueDetails = await issueRes.json();
-      linkedIssueContext = `Linked Issue Goal: ${issueDetails.title}\n${issueDetails.body}`;
-    }
-  }
-
-  // 4. MAP PHASE: Summarize individual files
-  const filteredFiles = filesData.filter(f =>
-    !f.filename.includes('package-lock.json') &&
-    !f.filename.endsWith('.svg') &&
-    f.patch
-  );
-
-  console.log(`Mapping ${filteredFiles.length} files...`);
-  const fileSummaries = [];
-
-  for (const file of filteredFiles) {
-    try {
-      console.log(`Summarizing ${file.filename}...`);
-      const mapPrompt = `
-        Briefly summarize what this specific file diff does in 2 sentences max.
-        File: ${file.filename}
-        Status: ${file.status}
-        Patch:
-        ${file.patch.substring(0, 10000)}
-      `;
-      const summary = await askGroq(mapPrompt);
-      fileSummaries.push(`- **${file.filename}**: ${summary}`);
-      await new Promise(r => setTimeout(r, 1000));
-    } catch (err) {
-      console.warn(`Could not summarize ${file.filename}:`, err.message);
-    }
-  }
-
-  // Safely escape PR body to prevent prompt injection bypassing the analysis
-  const safePrBody = (prData.body || 'None provided.')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  const repoContextBlock = repoContext
-    ? `\nRepository Context (provided by maintainer): ${repoContext}\n`
-    : '';
-
-  const codeChangesBlock = fileSummaries.length > 0 ? fileSummaries.join('\n') : 'No significant code changes found.';
-
-  // 5a. REDUCE PHASE CALL 1: Structured JSON triage (NO markdown content)
-  // Keeping markdown_review OUT of JSON prevents multiline/blockquote chars from breaking JSON.parse()
-  console.log('Phase 1: Getting structured triage JSON...');
-
-  const triagePrompt = `You are an expert, ruthless AI Code Reviewer and Spam Detector for RepoOwl.
-${repoContextBlock}
-PR Title: ${prData.title}
-PR Description: ${safePrBody}
-
-${linkedIssueContext}
-
-Code Changes Summaries (Map Phase):
-${codeChangesBlock}
-
-Your job is to triage this PR. Respond ONLY with a single valid JSON object wrapped in a \`\`\`json code block. Do NOT add any text, markdown, or formatting outside the code block. All string values must be properly JSON-escaped (no literal newlines inside strings).
-
-The JSON object MUST have EXACTLY these fields and no others:
-{
-  "slop_score": <integer 0-100>,
-  "is_spam": <boolean>,
-  "is_prompt_injection": <boolean>,
-  "duplicate_of_issue_id": <null or integer>,
-  "confidence_score": <integer 0-100>,
-  "recommended_action": <"CLOSE_SPAM" | "CLOSE_DUPLICATE" | "NEEDS_TRIAGE" | "APPROVE">,
-  "suggested_labels": <array of strings>,
-  "summary_reason": <single-sentence string>
-}
-
-Rules for recommended_action:
-- "CLOSE_SPAM" if slop_score >= 90 OR is_spam is true
-- "CLOSE_DUPLICATE" if duplicate_of_issue_id is set AND confidence_score >= 90
-- "NEEDS_TRIAGE" if slop_score is between 50-89, OR confidence_score is between 60-89
-- "APPROVE" otherwise
-`;
-
-  const rawTriageOutput = await askGroq(triagePrompt);
-  const analysis = parseTriageJSON(rawTriageOutput);
-
-  console.log(`Triage result: recommended_action=${analysis.recommended_action}, slop_score=${analysis.slop_score}, is_spam=${analysis.is_spam}, is_prompt_injection=${analysis.is_prompt_injection}`);
-
-  // 5b. REDUCE PHASE CALL 2: Generate markdown review (plain text, no JSON)
-  console.log('Phase 2: Generating markdown review...');
-
-  const reviewPrompt = `You are an expert AI Code Reviewer for RepoOwl. Write a PR review in plain Markdown.
-${repoContextBlock}
-PR Title: ${prData.title}
-PR Description: ${safePrBody}
-Triage Decision: ${analysis.recommended_action} (slop_score=${analysis.slop_score}, is_spam=${analysis.is_spam})
-Summary Reason: ${analysis.summary_reason}
-
-${linkedIssueContext}
-
-Code Changes:
-${codeChangesBlock}
-
-Write a PR review using EXACTLY this format. Output only the review â no preamble, no JSON:
-
-> **Slop Badge:** ${analysis.slop_score >= 50 || analysis.is_spam ? ':red_circle: AI Slop Detected' : ':green_circle: Code Matches Description'}
->
-> **AI Slop Detection:** [1-2 sentence reasoning for the badge score of ${analysis.slop_score}/100]
-
-**Issue Resolution:** [Does the code actually solve the linked issue? If no linked issue, say so.]
-
-**Domain Impact:**
-- [bullet point for each component/area touched by this PR]
-
-**Breaking Changes:** [Yes/No and brief explanation]
-
-**Final Verdict:** [Approve OR Request Changes â one sentence justification]
-`;
-
-  let markdownReview = '';
-  try {
-    markdownReview = await askGroq(reviewPrompt);
-  } catch (err) {
-    console.warn('Could not generate markdown review:', err.message);
-    markdownReview = `> **Note:** Could not generate detailed review. Triage decision: ${analysis.recommended_action}. Reason: ${analysis.summary_reason}`;
-  }
-
-  // Ensure ALL suggested labels exist before applying them
-  const labelColors = {
-    'spam': 'b60205',
-    'invalid': 'e4e669',
-    'needs-triage': 'e11d48',
-    'ai-slop': 'f97316',
-    'duplicate': 'cfd3d7',
-    'possible-duplicate': 'bfd4f2',
-    'security': 'd73a4a',
-    'verified': '0075ca'
-  };
+  // Only apply LLM-suggested labels that already exist in the repo.
+  // Never auto-create labels from AI suggestions - that creates grey labels
+  // and wipes out the maintainer's custom colors.
   for (const label of analysis.suggested_labels || []) {
-    if (!labelColorsToEnforce[label]) {
-      labelColorsToEnforce[label] = labelColors[label] || 'd0d7de';
+    if (existingLabelNames.has(label.toLowerCase())) {
+      if (!labelsToAdd.includes(label)) {
+        labelsToAdd.push(label);
+        console.log(`  Using existing label '${label}' from AI suggestion.`);
+      }
+    } else {
+      console.log(`  Skipping AI-suggested label '${label}' - not found in repo labels.`);
     }
   }
 
-  // 6. Execute triage action (comment + labels + optional close)
+  // Execute triage action (comment + labels + optional close).
+  // labelColorsToEnforce only contains path_labels from repoowl.json,
+  // so no maintainer label colors will be overwritten.
   await executeTriageAction(owner, repo, PR_NUMBER, analysis, markdownReview, labelsToAdd, triageConfig, labelColorsToEnforce);
-
-  console.log('Analysis completed!');
-}
-
-run().catch(err => {
-  console.error('Workflow failed:', err);
-  process.exit(1);
-});
+
+  console.log('Analysis completed!');
+}
+
+run().catch(err => {
+  console.error('Workflow failed:', err);
+  process.exit(1);
+});
