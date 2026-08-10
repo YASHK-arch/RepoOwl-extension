@@ -1,76 +1,146 @@
 name: Issue Assignment Rules
+
 on:
   issues:
     types: [opened]
   issue_comment:
     types: [created]
+  schedule:
+    # Re-check queued assignment requests once per day.
+    - cron: '17 0 * * *'
+  workflow_dispatch:
 
 jobs:
-  assign-warning:
+  assign-issue-author:
     if: github.event_name == 'issues' && github.event.action == 'opened'
     runs-on: ubuntu-latest
     permissions:
       issues: write
     steps:
-      - name: Send Assignment Warning
+      - name: Assign the issue author
         uses: actions/github-script@v9
         with:
           script: |
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: "Thanks for opening this issue!\n\nA maintainer will assign it soon.\n\nPlease don't start working until assigned."
-            })
+            const issue = context.payload.issue;
 
-  auto-assign:
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                assignees: [issue.user.login],
+              });
+            } catch (error) {
+              core.warning(`Could not assign @${issue.user.login}: ${error.message}`);
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `@${issue.user.login}, GitHub could not assign you automatically. A maintainer can assign you manually.`,
+              });
+            }
+
+  acknowledge-assignment-request:
     if: github.event_name == 'issue_comment' && github.event.action == 'created' && !github.event.issue.pull_request
     runs-on: ubuntu-latest
     permissions:
       issues: write
     steps:
-      - name: Assign User on Request
+      - name: Queue a valid assignment request
         uses: actions/github-script@v9
         with:
           script: |
-            const comment = context.payload.comment.body.trim().toLowerCase();
+            const body = context.payload.comment.body.trim();
             const issue = context.payload.issue;
-            
-            // Check if comment is exactly '/assign me'
-            if (comment === '/assign me') {
-              // Check if the issue is already assigned
-              if (issue.assignees && issue.assignees.length > 0) {
-                await github.rest.issues.createComment({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: `Sorry @${context.actor}, this issue is already assigned to someone else.`
-                });
-                return;
-              }
 
-              // Try to assign the user
+            // Requests are retained as comments; the scheduled job selects the oldest one.
+            if (!/^\/assign\s+me$/i.test(body) || context.actor === issue.user.login) return;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `@${context.actor}, your assignment request is queued. It will be considered if @${issue.user.login} is inactive for 7 days and no pull request has been raised for this issue.`,
+            });
+
+  reassign-inactive-issues:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Reassign eligible issues
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const DAY = 24 * 60 * 60 * 1000;
+            const INACTIVITY_PERIOD = 7 * DAY;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            async function getOpenIssues() {
+              const issues = [];
+              for await (const response of github.paginate.iterator(github.rest.issues.listForRepo, {
+                owner, repo, state: 'open', per_page: 100,
+              })) {
+                // The Issues API also returns pull requests, which must not be processed.
+                issues.push(...response.data.filter((item) => !item.pull_request));
+              }
+              return issues;
+            }
+
+            async function hasLinkedPullRequest(issueNumber) {
+              for await (const response of github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
+                owner, repo, issue_number: issueNumber, per_page: 100,
+                headers: { accept: 'application/vnd.github+json' },
+              })) {
+                if (response.data.some((event) =>
+                  event.event === 'cross-referenced' && event.source?.issue?.pull_request
+                )) return true;
+              }
+              return false;
+            }
+
+            for (const issue of await getOpenIssues()) {
+              const author = issue.user.login;
+              const assignees = issue.assignees || [];
+
+              // Respect a maintainer's manual assignment. This workflow only takes over
+              // issues that are still assigned solely to their original author.
+              if (assignees.length !== 1 || assignees[0].login !== author) continue;
+              if (await hasLinkedPullRequest(issue.number)) continue;
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner, repo, issue_number: issue.number, per_page: 100,
+              });
+
+              // A comment from the original assignee resets their inactivity period.
+              const authorActivity = comments
+                .filter((comment) => comment.user?.login === author)
+                .map((comment) => new Date(comment.updated_at || comment.created_at).getTime());
+              const lastActivity = Math.max(new Date(issue.created_at).getTime(), ...authorActivity);
+              if (Date.now() - lastActivity < INACTIVITY_PERIOD) continue;
+
+              // Comments are returned oldest first. The first valid request wins.
+              const request = comments.find((comment) =>
+                comment.user?.login !== author && /^\/assign\s+me$/i.test(comment.body.trim())
+              );
+              if (!request) continue;
+
+              const newAssignee = request.user.login;
               try {
                 await github.rest.issues.addAssignees({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.issue.number,
-                  assignees: [context.actor]
+                  owner, repo, issue_number: issue.number, assignees: [newAssignee],
                 });
-                
+                await github.rest.issues.removeAssignees({
+                  owner, repo, issue_number: issue.number, assignees: [author],
+                });
                 await github.rest.issues.createComment({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: `Assigned to @${context.actor}! Happy contributing. 🚀`
+                  owner, repo, issue_number: issue.number,
+                  body: `@${author} has been inactive for 7 days with no linked pull request. This issue is now assigned to @${newAssignee}, the first contributor who requested it.`,
                 });
               } catch (error) {
-                console.log("Error assigning user:", error);
-                await github.rest.issues.createComment({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: `Sorry @${context.actor}, I couldn't assign you. Please ensure you have permissions or the repository is correctly configured.`
-                });
+                core.warning(`Could not reassign issue #${issue.number}: ${error.message}`);
               }
             }
