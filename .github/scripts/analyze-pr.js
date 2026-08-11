@@ -464,18 +464,10 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
 
 
   }
+    // Ambiguous — needs human review
 
 
-
-
-
-  // ââ Merge all labels (deduplicated) âââââââââââââââââââââââââââââââââââââââ
-
-
-  for (const label of suggested_labels) {
-
-
-    if (!labelsToAdd.includes(label)) labelsToAdd.push(label);
+    console.log(`Borderline slop score (${slop_score}) — flagging for maintainer review.`);
 
 
   }
@@ -484,7 +476,13 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
 
 
 
-  // ââ Build comment âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Merge all labels (deduplicated) ──────────────────────────────────
+  // The labels are already strictly intersected and merged by the caller (Phase 6),
+  // so we no longer blindly push suggested_labels here.
+
+
+
+  // ── Build comment ──────────────────────────────────────────────────────────────────────────
 
 
   if (shouldClose) {
@@ -565,7 +563,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
   } else {
 
 
-    // Valid contribution â full review comment
+    // Valid contribution — full review comment
 
 
     commentBody = [
@@ -598,7 +596,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
 
 
 
-  // ââ Post comment ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Post comment ──────────────────────────────────────────────────────────────────────────
 
 
   console.log('Posting triage comment to GitHub...');
@@ -692,7 +690,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
 
 
 
-  // ââ Close PR if warranted âââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Close PR if warranted ──────────────────────────────────────────────────────────────────
 
 
   if (shouldClose) {
@@ -803,7 +801,7 @@ async function run() {
 
 
 
-  // 2b. Load repoowl.json â get path_labels AND triage_config
+  // 2b. Load repoowl.json — get path_labels AND triage_config
 
 
   const labelsToAdd = ['repoowl-analyzed'];
@@ -1011,7 +1009,7 @@ async function run() {
   if (injectionDetected) {
 
 
-    console.log('Prompt injection pattern detected in PR head â escalating to LLM for confirmation.');
+    console.log('Prompt injection pattern detected in PR head — escalating to LLM for confirmation.');
 
 
   }
@@ -1258,6 +1256,8 @@ The JSON object MUST have EXACTLY these fields and no others:
 
 
   "suggested_labels": <array - ONLY pick from the ALLOWED LIST below, no other values>,
+
+
   "summary_reason": <single-sentence string>
 
 
@@ -1280,6 +1280,14 @@ Rules for recommended_action:
 
 
 - "APPROVE" otherwise
+
+
+
+
+ALLOWED LIST OF LABELS:
+
+
+${existingLabelNames.map(l => '- ' + l).join('\n')}
 
 
 
@@ -1450,8 +1458,8 @@ Write a PR review using EXACTLY this format. Output only the review â no pr
       if (lbl !== 'repoowl-analyzed' && !finalLabels.includes(lbl)) finalLabels.push(lbl);
     }
     
-    // 6b. Intersect LLM contextual topics with allowedLabelMap
-    for (const topic of analysis.contextual_topics || []) {
+    // 6b. Intersect LLM suggested labels with allowedLabelMap
+    for (const topic of analysis.suggested_labels || []) {
       const lowerTopic = topic.toLowerCase();
       // Only if the LLM's suggested topic EXACTLY matches an allowed label (case-insensitive)
       if (allowedLabelMap.has(lowerTopic)) {
