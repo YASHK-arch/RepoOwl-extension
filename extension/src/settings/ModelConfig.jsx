@@ -57,7 +57,7 @@ export function ModelConfig() {
         await chrome.storage.local.set({ [STORAGE_KEY]: keys });
       }
 
-      setStatus({ type: 'success', message: '✅ All keys verified and securely saved!' });
+      setStatus({ type: 'success', message: '✅ All keys verified and securely saved locally. They will be published to the Central Mediator when you add Tracked Repositories.' });
       setTimeout(() => setStatus({ type: '', message: '' }), 4000);
 
     } catch (err) {
@@ -70,10 +70,10 @@ export function ModelConfig() {
 
   return (
     <>
-      <div className="ro-panel-badge">Model Config</div>
-      <h1 className="ro-panel-title">Configure BYOK Pipeline</h1>
+      <div className="ro-panel-badge">Maintainer Config</div>
+      <h1 className="ro-panel-title">Maintainer Configuration</h1>
       <p className="ro-panel-desc">
-        Connect your Supabase database and Groq API key to power RepoOwl entirely in your browser.
+        Maintainers: Connect your Supabase database and Groq API key. Your keys will be securely synced to the Central Mediator to power zero-config discovery for your contributors.
       </p>
 
       {/* Database */}

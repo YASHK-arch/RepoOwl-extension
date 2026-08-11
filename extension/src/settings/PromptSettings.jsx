@@ -24,7 +24,7 @@ export function PromptSettings() {
     if (!(await isSupabaseConfigured())) {
       setStatus({
         type: 'error',
-        message: 'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+        message: 'Supabase is not configured. Please set up your connection in Model Config.',
       });
       return;
     }
@@ -80,7 +80,7 @@ export function PromptSettings() {
     if (!(await isSupabaseConfigured())) {
       setStatus({
         type: 'error',
-        message: 'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+        message: 'Supabase is not configured. Please set up your connection in Model Config.',
       });
       return;
     }
@@ -120,10 +120,10 @@ export function PromptSettings() {
 
   return (
     <>
-      <div className="ro-panel-badge">Model Config</div>
+      <div className="ro-panel-badge">Maintainer Config</div>
       <h1 className="ro-panel-title">Configure the model pipeline</h1>
       <p className="ro-panel-desc">
-        Set repository-specific LLM analysis instructions. The background worker uses this
+        Maintainers: Set repository-specific LLM analysis instructions. The background worker uses this
         prompt when processing issues; if none is saved, it falls back to the default
         template below.
       </p>

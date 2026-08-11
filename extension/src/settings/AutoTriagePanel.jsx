@@ -242,7 +242,7 @@ export function AutoTriagePanel() {
       {activeSubTab === 'triage' && (
         <>
           <p className="ro-panel-desc">
-            Configure RepoOwl's automated PR triage engine. These settings control when PRs are
+            <strong>Maintainers Only:</strong> Configure RepoOwl's automated PR triage engine. These settings control when PRs are
             auto-closed as spam, flagged for review, or detected as duplicates.
           </p>
 
@@ -516,7 +516,7 @@ export function AutoTriagePanel() {
       {activeSubTab === 'labels' && (
         <>
           <p className="ro-panel-desc">
-            Map folder paths to GitHub labels. When a PR touches a matching file, the label is applied automatically with the specified hex color.
+            <strong>Maintainers Only:</strong> Map folder paths to GitHub labels. When a PR touches a matching file, the label is applied automatically with the specified hex color.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

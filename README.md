@@ -1,5 +1,9 @@
 # RepoOwl 🦉
 
+[![Feature Requests](https://img.shields.io/github/issues/YASHK-arch/RepoOwl-extension/enhancement?label=feature-request%20issues&color=dfb317&style=flat-square)](https://github.com/YASHK-arch/RepoOwl-extension/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
+[![Bug Issues](https://img.shields.io/github/issues/YASHK-arch/RepoOwl-extension/bug?label=bug%20issues&color=dfb317&style=flat-square)](https://github.com/YASHK-arch/RepoOwl-extension/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
+[![Merged PRs](https://img.shields.io/github/issues-pr-closed-raw/YASHK-arch/RepoOwl-extension?label=merged&color=8957e5&style=flat-square)](https://github.com/YASHK-arch/RepoOwl-extension/pulls?q=is%3Apr+is%3Amerged)
+
 RepoOwl is an AI-powered GitHub extension that automates issue triage by identifying duplicates and surface technical insights in real-time. Designed to keep open-source repositories clean and organized.
 
 ---
