@@ -313,3 +313,129 @@
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ─── Rich summary renderer ──────────────────────────────────────────── */
+.ro-summary-rich {
+  margin: 0;
+  line-height: 1.7;
+  font-size: 13px;
+  color: #c9d1d9;
+  white-space: normal;
+}
+
+/* Inline code spans (`backtick`) */
+.ro-inline-code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 11.5px;
+  background: rgba(56, 139, 253, 0.1);
+  color: #79c0ff;
+  border: 1px solid rgba(56, 139, 253, 0.2);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* File path spans */
+.ro-filepath {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 11px;
+  background: rgba(110, 64, 201, 0.12);
+  color: #d2a8ff;
+  border: 1px solid rgba(110, 64, 201, 0.25);
+  border-radius: 4px;
+  padding: 1px 5px;
+  word-break: break-all;
+}
+
+/* Issue reference chips (#123) */
+.ro-issue-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #58a6ff;
+  background: rgba(56, 139, 253, 0.08);
+  border: 1px solid rgba(56, 139, 253, 0.25);
+  border-radius: 20px;
+  padding: 1px 7px;
+  text-decoration: none;
+  transition: background 0.1s;
+}
+.ro-issue-chip:hover {
+  background: rgba(56, 139, 253, 0.18);
+  text-decoration: none;
+}
+
+/* Keyword highlights */
+.ro-keyword {
+  border-radius: 3px;
+  padding: 0 3px;
+  font-style: normal;
+  font-weight: 600;
+}
+.ro-hl-danger {
+  background: rgba(248, 81, 73, 0.12);
+  color: #ff7b72;
+}
+.ro-hl-warn {
+  background: rgba(210, 153, 34, 0.12);
+  color: #e3b341;
+}
+.ro-hl-info {
+  background: rgba(56, 139, 253, 0.10);
+  color: #79c0ff;
+}
+.ro-hl-success {
+  background: rgba(63, 185, 80, 0.10);
+  color: #56d364;
+}
+
+/* ─── Predicted Affected Files ───────────────────────────────────────── */
+.ro-files-count {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  color: #58a6ff;
+  background: rgba(56, 139, 253, 0.12);
+  border: 1px solid rgba(56, 139, 253, 0.2);
+  border-radius: 20px;
+  padding: 1px 7px;
+}
+
+.ro-file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ro-file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 6px 10px;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.ro-file-item:hover {
+  border-color: rgba(56, 139, 253, 0.35);
+  background: rgba(56, 139, 253, 0.04);
+}
+
+.ro-file-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.ro-file-path {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 11.5px;
+  color: #d2a8ff;
+  word-break: break-all;
+  flex: 1;
+}
+

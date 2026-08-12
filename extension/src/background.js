@@ -340,6 +340,48 @@ async function fetchFromGitHub(repo, token) {
   return batch.filter((item) => !item.pull_request);
 }
 
+/**
+ * Fetches the flattened file tree of a repository from GitHub.
+ * Truncates to 500 paths to keep prompt sizes manageable.
+ * Returns a newline-separated string of file paths, or null on failure.
+ */
+async function fetchRepoFileTree(repo, token) {
+  try {
+    const headers = {
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    };
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    // Get the default branch HEAD SHA first
+    const repoRes = await fetch(`https://api.github.com/repos/${repo}`, { headers });
+    if (!repoRes.ok) return null;
+    const repoData = await repoRes.json();
+    const branch = repoData.default_branch || 'main';
+
+    const treeRes = await fetch(
+      `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`,
+      { headers }
+    );
+    if (!treeRes.ok) return null;
+
+    const treeData = await treeRes.json();
+    if (!treeData.tree) return null;
+
+    // Only include blobs (files), skip trees (dirs)
+    const filePaths = treeData.tree
+      .filter(item => item.type === 'blob')
+      .map(item => item.path)
+      // Exclude lock files, binaries, and generated assets
+      .filter(p => !/(node_modules|package-lock\.json|yarn\.lock|\.png|\.jpg|\.svg|\.ico|\.woff)/.test(p))
+      .slice(0, 500);
+
+    return filePaths.join('\n');
+  } catch {
+    return null;
+  }
+}
+
 async function fetchFromSupabase(repo, keys) {
   const supabase = await getSandboxClient();
   const { data, error } = await supabase
@@ -416,9 +458,12 @@ async function callGroqWithRetry(groq, options, retries = 3) {
   }
 }
 
-async function callGroqAPI(issue, history, apiKey) {
+async function callGroqAPI(issue, history, apiKey, repo, githubToken) {
   const groq = new Groq({ apiKey: apiKey, dangerouslyAllowBrowser: true });
   
+  // Fetch the repository file tree so the LLM can reason about affected files
+  const fileTree = await fetchRepoFileTree(repo, githubToken);
+
   // Format history to mimic the old schema structure for the shared prompt variables
   const historicalContextLog = history.map(h => `[Issue ID: #${h.issue_number}]\nTitle: ${h.title || 'Unknown Title'}\nTechnical Summary: ${h.analysis_summary}`).join('\n\n---\n\n');
   
@@ -434,26 +479,26 @@ async function callGroqAPI(issue, history, apiKey) {
     technical_metrics: templateFields.technical_metrics
   };
 
-  const variables = buildPromptVariables(mappedIssue, historicalContextLog);
+  const variables = buildPromptVariables(mappedIssue, historicalContextLog, fileTree);
   const prompt = renderPrompt(DEFAULT_PROMPT_TEMPLATE, variables);
+
+  const STRICT_SYSTEM_PROMPT = 'You are an expert GitHub triage AI and systems architect.\n' +
+    'Analyze the incoming GitHub issue against the repository file tree and historical issue context.\n' +
+    'DUPLICATE RULES (CRITICAL):\n' +
+    '  - Only set is_duplicate=true if the issue targets the EXACT same root cause or feature as a specific existing open issue.\n' +
+    '  - You MUST cite the matching issue number (e.g. "duplicate of #42") in analysis_summary when marking as duplicate.\n' +
+    '  - Do NOT mark as duplicate because issues share a topic area, feature domain, or keyword overlap.\n' +
+    '  - Do NOT label any issue as spam, noise, or invalid. Assume all submissions are legitimate.\n' +
+    '  - Default to is_duplicate=false when uncertain.\n' +
+    'AFFECTED FILES: Based on the repository file tree, identify up to 8 specific source files most likely to need changes.\n' +
+    'You must respond in valid JSON format matching this schema:\n' +
+    '{ "is_duplicate": boolean, "analysis_summary": "string", "affected_files": ["string"] }\n' +
+    'Ensure the JSON is well-formed.';
 
   const response = await callGroqWithRetry(groq, {
     messages: [
-      {
-        role: 'system',
-        content: 'You are an expert GitHub triage AI.\n' +
-                 'The user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\n' +
-                 'Do not assume any issues have been resolved, because they are all actively open.\n' +
-                 'Your job is to determine if the user\'s draft is a DUPLICATE of one of these specific OPEN issues.\n' +
-                 'If they are reporting a bug that already exists in this open list, flag it as a duplicate.\n' +
-                 'You must respond in valid JSON format matching this schema:\n' +
-                 '{ "is_duplicate": boolean, "analysis_summary": "string" }\n' +
-                 'Ensure the JSON is well-formed.'
-      },
-      {
-        role: 'user',
-        content: prompt
-      }
+      { role: 'system', content: STRICT_SYSTEM_PROMPT },
+      { role: 'user', content: prompt }
     ],
     model: 'llama-3.3-70b-versatile',
     temperature: 0.1,
@@ -477,6 +522,7 @@ async function saveToSupabase(repo, issue, analysis, keys) {
       issue_number: issue.number,
       is_duplicate: analysis.is_duplicate,
       analysis_summary: analysis.analysis_summary,
+      affected_files: analysis.affected_files ?? null,
       status: 'open'
     });
     
@@ -773,7 +819,7 @@ async function executeIssueSyncQueue(forceRepos = null) {
             h.title = matchingIssue.title;
           }
         });
-        const analysis = await callGroqAPI(issue, history, keys.groqApiKey);
+        const analysis = await callGroqAPI(issue, history, keys.groqApiKey, repo, keys.githubToken);
         await saveToSupabase(repo, issue, analysis, keys);
 
         currentAnalyzed++;
