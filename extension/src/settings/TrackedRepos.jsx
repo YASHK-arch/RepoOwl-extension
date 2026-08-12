@@ -15,6 +15,7 @@ export function TrackedRepos() {
   const [syncLogsPRs, setSyncLogsPRs] = useState([]);
   
   const [mediatorStatus, setMediatorStatus] = useState({});
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const fetchStatus = (repo) => {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -252,7 +253,17 @@ export function TrackedRepos() {
       </div>
 
       <div className="ro-section">
-        <h2 className="ro-section-title">Tracked Repositories List</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h2 className="ro-section-title" style={{ marginBottom: 0 }}>Tracked Repositories List</h2>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer', userSelect: 'none' }}>
+            <input 
+              type="checkbox" 
+              checked={isEditMode} 
+              onChange={(e) => setIsEditMode(e.target.checked)} 
+            />
+            Edit List
+          </label>
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {repos.map((repo) => {
 
@@ -329,7 +340,17 @@ export function TrackedRepos() {
                     >
                       {((installerVersions[repo] || 0) < INSTALLER_VERSION) ? '🚀 Re-initiate PR Analyzer' : '🚀 Initialize PR Analyzer'}
                     </button>
-
+                    
+                    {isEditMode && repo !== DEFAULT_REPO && (
+                      <button
+                        type="button"
+                        className="ro-btn ro-btn--secondary"
+                        style={{ color: '#cf222e', borderColor: 'rgba(207,34,46,0.3)', backgroundColor: '#ffebe9' }}
+                        onClick={() => handleDelete(repo)}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

@@ -826,6 +826,7 @@ async function executeIssueSyncQueue(forceRepos = null) {
         if (analysis.is_duplicate) {
           currentDuplicates++;
         }
+        processedSet.add(issue.number);
 
         // Mandatory 2-second delay
         await delay(DELAY_MS);
