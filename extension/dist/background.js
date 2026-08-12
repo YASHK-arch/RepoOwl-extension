@@ -12729,7 +12729,7 @@ async function Of(e, t, n, r, i, a) {
 	});
 	if (!u.ok) {
 		let e = await u.json();
-		throw Error(`Failed to push ${r}: ${e.message}`);
+		throw u.status === 404 || e.message === "Not Found" ? Error(`Failed to push ${r}: This repository is not owned by you. Workflow addition in this repo requires the owner's permission.`) : Error(`Failed to push ${r}: ${e.message}`);
 	}
 }
 async function kf(e, t, n, r, i, a = null) {
@@ -13238,7 +13238,7 @@ async function Zf(e = null) {
 				t && (e.title = t.title);
 			});
 			let a = await Wf(n, i, t.groqApiKey, e, t.githubToken);
-			await Gf(e, n, a, t), c++, a.is_duplicate && l++, await Mf(jf);
+			await Gf(e, n, a, t), c++, a.is_duplicate && l++, s.add(n.number), await Mf(jf);
 		} catch (t) {
 			let i = t.message || String(t);
 			r(`[${e}] Error processing issue #${n.number}: ${i}`);
