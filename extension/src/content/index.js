@@ -137,19 +137,20 @@ async function enableContributorDraftChecker(repoName, localGroqKey) {
       const variables = buildPromptVariables(mappedIssue, historicalContextLog);
       const prompt = renderPrompt(DEFAULT_PROMPT_TEMPLATE, variables);
 
+      const DRAFT_SYSTEM_PROMPT = 'You are an expert GitHub triage AI.\n' +
+        'The user is drafting a new issue. Review it against existing OPEN issues.\n' +
+        'DUPLICATE RULES (CRITICAL):\n' +
+        '  - Only set is_duplicate=true if the draft targets the EXACT same root cause or feature as a specific existing open issue.\n' +
+        '  - Do NOT mark as duplicate because the issues share a topic, domain, or keyword overlap.\n' +
+        '  - Do NOT label any issue as spam, noise, or invalid.\n' +
+        '  - Default to is_duplicate=false when uncertain.\n' +
+        'You must respond in valid JSON format matching this schema:\n' +
+        '{ "is_duplicate": boolean, "analysis_summary": "string", "affected_files": ["string"] }\n' +
+        'Ensure the JSON is well-formed.';
+
       const response = await groq.chat.completions.create({
         messages: [
-          {
-            role: 'system',
-            content: 'You are an expert GitHub triage AI.\n' +
-                     'The user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\n' +
-                     'Do not assume any issues have been resolved, because they are all actively open.\n' +
-                     'Your job is to determine if the user\'s draft is a DUPLICATE of one of these specific OPEN issues.\n' +
-                     'If they are reporting a bug that already exists in this open list, flag it as a duplicate.\n' +
-                     'You must respond in valid JSON format matching this schema:\n' +
-                     '{ "is_duplicate": boolean, "analysis_summary": "string" }\n' +
-                     'Ensure the JSON is well-formed.'
-          },
+          { role: 'system', content: DRAFT_SYSTEM_PROMPT },
           { role: 'user', content: prompt }
         ],
         model: 'llama-3.3-70b-versatile',
@@ -191,23 +192,43 @@ async function autoAnalyzeAndSaveToSandbox(repoName, issueNumber, localGroqKey, 
     const history = Array.from(insightsCache.byNumber.values()).slice(0, 50);
     const groq = new Groq({ apiKey: localGroqKey, dangerouslyAllowBrowser: true });
     const historicalContextLog = history.map(h => `Issue #${h.issue_number}:\n${h.analysis_summary}`).join('\n\n');
+
+    // Attempt to fetch the repo file tree for better affected-files prediction
+    let fileTree = null;
+    try {
+      const treeRes = await fetch(`https://api.github.com/repos/${repoName}/git/trees/HEAD?recursive=1`);
+      if (treeRes.ok) {
+        const treeData = await treeRes.json();
+        if (treeData.tree) {
+          fileTree = treeData.tree
+            .filter(item => item.type === 'blob')
+            .map(item => item.path)
+            .filter(p => !/(node_modules|package-lock\.json|yarn\.lock|\.png|\.jpg|\.svg|\.ico|\.woff)/.test(p))
+            .slice(0, 500)
+            .join('\n');
+        }
+      }
+    } catch { /* file tree is optional */ }
     
-    const variables = buildPromptVariables(mappedIssue, historicalContextLog);
+    const variables = buildPromptVariables(mappedIssue, historicalContextLog, fileTree);
     const prompt = renderPrompt(DEFAULT_PROMPT_TEMPLATE, variables);
+
+    const STRICT_SYSTEM_PROMPT = 'You are an expert GitHub triage AI and systems architect.\n' +
+      'Analyze the incoming GitHub issue against the repository file tree and historical issue context.\n' +
+      'DUPLICATE RULES (CRITICAL):\n' +
+      '  - Only set is_duplicate=true if the issue targets the EXACT same root cause or feature as a specific existing open issue.\n' +
+      '  - You MUST cite the matching issue number in analysis_summary when marking as duplicate.\n' +
+      '  - Do NOT mark as duplicate because issues share a topic area or keyword overlap.\n' +
+      '  - Do NOT label any issue as spam, noise, or invalid. Assume all submissions are legitimate.\n' +
+      '  - Default to is_duplicate=false when uncertain.\n' +
+      'AFFECTED FILES: Based on the repository file tree, identify up to 8 specific source files most likely to need changes.\n' +
+      'You must respond in valid JSON format matching this schema:\n' +
+      '{ "is_duplicate": boolean, "analysis_summary": "string", "affected_files": ["string"] }\n' +
+      'Ensure the JSON is well-formed.';
 
     const response = await groq.chat.completions.create({
       messages: [
-        {
-          role: 'system',
-          content: 'You are an expert GitHub triage AI.\n' +
-                   'The user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\n' +
-                   'Do not assume any issues have been resolved, because they are all actively open.\n' +
-                   'Your job is to determine if the user\'s draft is a DUPLICATE of one of these specific OPEN issues.\n' +
-                   'If they are reporting a bug that already exists in this open list, flag it as a duplicate.\n' +
-                   'You must respond in valid JSON format matching this schema:\n' +
-                   '{ "is_duplicate": boolean, "analysis_summary": "string" }\n' +
-                   'Ensure the JSON is well-formed.'
-        },
+        { role: 'system', content: STRICT_SYSTEM_PROMPT },
         { role: 'user', content: prompt }
       ],
       model: 'llama-3.3-70b-versatile',
@@ -222,9 +243,9 @@ async function autoAnalyzeAndSaveToSandbox(repoName, issueNumber, localGroqKey, 
         repo_name: repoName,
         issue_number: issueNumber,
         is_duplicate: analysis.is_duplicate,
-        analysis_summary: analysis.analysis_summary
+        analysis_summary: analysis.analysis_summary,
+        affected_files: analysis.affected_files ?? null
       });
-      // Optionally we could update the insightsCache here to reflect immediately, but refresh is fine.
     }
   } catch (err) {
     console.warn('RepoOwl auto-sandbox analysis failed:', err);

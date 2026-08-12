@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS issues (
   issue_number INT NOT NULL,
   is_duplicate BOOLEAN DEFAULT FALSE,
   analysis_summary TEXT,
+  affected_files JSONB,           -- Array of file paths predicted to be affected by this issue
   status TEXT DEFAULT 'open',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   UNIQUE(repo_name, issue_number)

@@ -24,10 +24,14 @@ export function renderPrompt(template, variables) {
 }
 
 /**
- * Builds the variable map for the default prompt template from an issue row
- * and a pre-formatted historical context string.
+ * Builds the variable map for the default prompt template from an issue row,
+ * a pre-formatted historical context string, and an optional repository file tree.
+ *
+ * @param {object} issue - The issue object with fields like title, primary_description, etc.
+ * @param {string} historicalContextLog - Pre-formatted string of past issue summaries.
+ * @param {string} [fileTree] - Optional flattened list of repo file paths (newline-separated).
  */
-export function buildPromptVariables(issue, historicalContextLog) {
+export function buildPromptVariables(issue, historicalContextLog, fileTree) {
   return {
     issue: {
       title: issue.title ?? '',
@@ -38,6 +42,7 @@ export function buildPromptVariables(issue, historicalContextLog) {
     },
     repository: {
       historical_context_log: historicalContextLog ?? '',
+      file_tree: fileTree ?? 'Repository file tree not available.',
     },
   };
 }

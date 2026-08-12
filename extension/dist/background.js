@@ -8808,7 +8808,7 @@ ns = H, rs = /* @__PURE__ */ new WeakMap(), ts = /* @__PURE__ */ new WeakSet(), 
 }, H.Groq = ns, H.DEFAULT_TIMEOUT = 6e4, H.GroqError = I, H.APIError = L, H.APIConnectionError = ha, H.APIConnectionTimeoutError = ga, H.APIUserAbortError = ma, H.NotFoundError = ba, H.ConflictError = xa, H.RateLimitError = Ca, H.BadRequestError = _a, H.AuthenticationError = va, H.InternalServerError = wa, H.PermissionDeniedError = ya, H.UnprocessableEntityError = Sa, H.toFile = lo, H.Completions = Eo, H.Chat = To, H.Embeddings = Do, H.Audio = yo, H.Models = ko, H.Batches = Co, H.Files = Oo;
 //#endregion
 //#region ../shared/prompts/defaultPrompt.js
-var as = "You are an expert open-source repository maintainer, systems architect, and technical analyst. Your sole responsibility is to analyze an incoming GitHub issue, extract its core technical context, and cross-reference it against existing historical context to identify duplicate or overlapping submissions.\n\nINCOMING ISSUE DATA\nThe incoming issue will belong to one of several templates (e.g., Bug, Feature, Security, Performance, Refactor, UI/UX, Docs, Test, Good First Issue). The following fields have been parsed from the submission (fields not applicable to this specific issue type will remain empty):\n\n1. Core Problem / Request:\n{{issue.primary_description}}\n\n2. Context & Reproduction:\n{{issue.context_steps}}\n\n3. Proposed Solution / Impact:\n{{issue.expected_outcome}}\n\n4. Technical Metrics & Environment:\n{{issue.technical_metrics}}\n\nHISTORICAL REPOSITORY CONTEXT\nThe following is an array of existing active or resolved issue IDs along with their previously computed summaries to check against for duplicates:\n{{repository.historical_context_log}}\n\nANALYSIS GUIDELINES\n- Determine the Scope:\n  - Bugs & Security: Isolate root causes (e.g., stack traces, bottlenecks, vulnerabilities).\n  - Features & UI: Analyze the architectural impact, DOM manipulations, or accessibility concerns.\n  - Performance & Refactor: Evaluate the proposed system modifications against current benchmarks.\n- Handle Incomplete Templates: Rely strictly on the fields provided. Do not invent missing facts or infer technical metrics if the user omitted them.\n- Trace Structural Links: Classify an issue as a duplicate ONLY if it targets the exact same code-path break, UI component failure, or architectural enhancement as a historical issue.\n\nOUTPUT COMPLIANCE CONTRACT\nYou MUST respond using a single, valid JSON object.\nDo NOT wrap the JSON inside markdown code blocks (such as ```json ... ```).\nDo NOT include any conversational introduction, sign-offs, or explanatory prose outside of the JSON keys.\nEnsure all quotes inside text strings are properly escaped to prevent parsing failures.\n\nYour response must strictly conform to the following schema structure:\n{\n  \"is_duplicate\": true,\n  \"analysis_summary\": \"Provide a thorough technical breakdown explaining why this issue is structurally linked to an existing issue, or if unique, a crisp summary of its core scope.\"\n}\n";
+var as = "You are an expert open-source repository maintainer, systems architect, and technical analyst. Your sole responsibility is to analyze an incoming GitHub issue, extract its core technical context, and cross-reference it against existing historical context to identify duplicate or overlapping submissions.\n\nINCOMING ISSUE DATA\nThe incoming issue will belong to one of several templates (e.g., Bug, Feature, Security, Performance, Refactor, UI/UX, Docs, Test, Good First Issue). The following fields have been parsed from the submission (fields not applicable to this specific issue type will remain empty):\n\n1. Core Problem / Request:\n{{issue.primary_description}}\n\n2. Context & Reproduction:\n{{issue.context_steps}}\n\n3. Proposed Solution / Impact:\n{{issue.expected_outcome}}\n\n4. Technical Metrics & Environment:\n{{issue.technical_metrics}}\n\nREPOSITORY FILE TREE\nThe following is the current file structure of the repository (up to 500 paths). Use this to identify which specific source files are most likely affected by this issue:\n{{repository.file_tree}}\n\nHISTORICAL REPOSITORY CONTEXT\nThe following is an array of existing active or resolved issue IDs along with their previously computed summaries to check against for duplicates:\n{{repository.historical_context_log}}\n\nANALYSIS GUIDELINES\n- Determine the Scope:\n  - Bugs & Security: Isolate root causes (e.g., stack traces, bottlenecks, vulnerabilities).\n  - Features & UI: Analyze the architectural impact, DOM manipulations, or accessibility concerns.\n  - Performance & Refactor: Evaluate the proposed system modifications against current benchmarks.\n- Handle Incomplete Templates: Rely strictly on the fields provided. Do not invent missing facts or infer technical metrics if the user omitted them.\n- Duplicate Detection Rules (CRITICAL — read carefully):\n  - An issue is a duplicate ONLY if it reports the EXACT SAME root cause or requests the EXACT SAME feature as a specific existing open issue.\n  - You MUST cite the matching issue number explicitly in your analysis_summary when marking as duplicate (e.g., \"This is a duplicate of #42 because both target the same X component failure\").\n  - Do NOT mark an issue as a duplicate merely because it is in the same feature domain, mentions similar terminology, or relates to the same subsystem.\n  - A refactor request, a new bug in a different code path, a UX improvement, or a new feature request is NOT a duplicate of a spam report or an unrelated open issue.\n  - Do NOT label any issue as \"spam\", \"noise\", \"invalid\", or \"off-topic\". Evaluate every submission as a legitimate technical issue.\n  - When in doubt, set is_duplicate to false. False negatives are far less harmful than false positives.\n- Affected Files: Based on the repository file tree and the issue's technical scope, list up to 8 specific source files most likely to require changes. Use exact paths as they appear in the file tree. If the file tree is unavailable, make reasonable inferences based on common project structures.\n\nOUTPUT COMPLIANCE CONTRACT\nYou MUST respond using a single, valid JSON object.\nDo NOT wrap the JSON inside markdown code blocks (such as ```json ... ```).\nDo NOT include any conversational introduction, sign-offs, or explanatory prose outside of the JSON keys.\nEnsure all quotes inside text strings are properly escaped to prevent parsing failures.\n\nYour response must strictly conform to the following schema structure:\n{\n  \"is_duplicate\": false,\n  \"analysis_summary\": \"Provide a thorough technical breakdown: if unique, explain the core technical scope, the component(s) targeted, and the expected impact. If a duplicate, cite the specific issue number and explain the exact structural overlap.\",\n  \"affected_files\": [\"path/to/file1.js\", \"path/to/file2.jsx\"]\n}\n";
 //#endregion
 //#region ../shared/utils/renderPrompt.js
 function os(e, t) {
@@ -8821,7 +8821,7 @@ function os(e, t) {
 		return i == null ? "" : String(i);
 	});
 }
-function ss(e, t) {
+function ss(e, t, n) {
 	return {
 		issue: {
 			title: e.title ?? "",
@@ -8830,7 +8830,10 @@ function ss(e, t) {
 			expected_outcome: e.expected_outcome ?? "",
 			technical_metrics: e.technical_metrics ?? ""
 		},
-		repository: { historical_context_log: t ?? "" }
+		repository: {
+			historical_context_log: t ?? "",
+			file_tree: n ?? "Repository file tree not available."
+		}
 	};
 }
 //#endregion
@@ -12774,12 +12777,12 @@ async function Af(e, t, n, r, i, a) {
 var jf = 2e3, Mf = (e) => new Promise((t) => setTimeout(t, e));
 chrome.runtime.onMessage.addListener((e, t, n) => {
 	if (e.action === "open_settings") chrome.runtime.openOptionsPage();
-	else if (e.action === "force_sync_issues") return Xf([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
+	else if (e.action === "force_sync_issues") return Zf([e.repoName]).then(() => n({ success: !0 })).catch((e) => n({ error: e.message })), !0;
 	else if (e.action === "add_repo") Nf(e.repoName).catch((e) => console.error("Error auto-publishing config:", e)), n({ success: !0 });
 	else if (e.action === "check_mediator_status") return Rf(e.repoName).then((e) => n(e)).catch((e) => n({ error: e.message })), !0;
 	else if (e.action === "initialize_repoowl_pr") {
 		let t = [], r = (e) => {
-			t.push(e), Jf("pr")(e);
+			t.push(e), Yf("pr")(e);
 		};
 		return chrome.storage.local.get(["repoOwlConfig"], (i) => {
 			let a = i.repoOwlConfig || {};
@@ -12972,10 +12975,27 @@ async function zf(e, t) {
 	return (await o.json()).filter((e) => !e.pull_request);
 }
 async function Bf(e, t) {
+	try {
+		let n = {
+			Accept: "application/vnd.github+json",
+			"X-GitHub-Api-Version": "2022-11-28"
+		};
+		t && (n.Authorization = `Bearer ${t}`);
+		let r = await fetch(`https://api.github.com/repos/${e}`, { headers: n });
+		if (!r.ok) return null;
+		let i = (await r.json()).default_branch || "main", a = await fetch(`https://api.github.com/repos/${e}/git/trees/${i}?recursive=1`, { headers: n });
+		if (!a.ok) return null;
+		let o = await a.json();
+		return o.tree ? o.tree.filter((e) => e.type === "blob").map((e) => e.path).filter((e) => !/(node_modules|package-lock\.json|yarn\.lock|\.png|\.jpg|\.svg|\.ico|\.woff)/.test(e)).slice(0, 500).join("\n") : null;
+	} catch {
+		return null;
+	}
+}
+async function Vf(e, t) {
 	let { data: n, error: r } = await (await ps()).from("issues").select("issue_number, analysis_summary").eq("repo_name", e).eq("status", "open").order("created_at", { ascending: !1 }).limit(50);
 	return r ? (console.error("Error fetching history:", r), []) : n || [];
 }
-function Vf(e) {
+function Hf(e) {
 	if (!e) return {};
 	let t = {}, n = /###\s+(.+?)(?:\r?\n)+([\s\S]*?)(?=###\s+|$)/g, r;
 	for (; (r = n.exec(e)) !== null;) {
@@ -13024,7 +13044,7 @@ function Vf(e) {
 		])
 	};
 }
-async function Hf(e, t, n = 3) {
+async function Uf(e, t, n = 3) {
 	for (let r = 0; r < n; r++) try {
 		return await e.chat.completions.create(t);
 	} catch (e) {
@@ -13034,38 +13054,39 @@ async function Hf(e, t, n = 3) {
 		} else throw e;
 	}
 }
-async function Uf(e, t, n) {
-	let r = new H({
+async function Wf(e, t, n, r, i) {
+	let a = new H({
 		apiKey: n,
 		dangerouslyAllowBrowser: !0
-	}), i = t.map((e) => `[Issue ID: #${e.issue_number}]\nTitle: ${e.title || "Unknown Title"}\nTechnical Summary: ${e.analysis_summary}`).join("\n\n---\n\n"), a = Vf(e.body || ""), o = (await Hf(r, {
+	}), o = await Bf(r, i), s = t.map((e) => `[Issue ID: #${e.issue_number}]\nTitle: ${e.title || "Unknown Title"}\nTechnical Summary: ${e.analysis_summary}`).join("\n\n---\n\n"), c = Hf(e.body || ""), l = (await Uf(a, {
 		messages: [{
 			role: "system",
-			content: "You are an expert GitHub triage AI.\nThe user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\nDo not assume any issues have been resolved, because they are all actively open.\nYour job is to determine if the user's draft is a DUPLICATE of one of these specific OPEN issues.\nIf they are reporting a bug that already exists in this open list, flag it as a duplicate.\nYou must respond in valid JSON format matching this schema:\n{ \"is_duplicate\": boolean, \"analysis_summary\": \"string\" }\nEnsure the JSON is well-formed."
+			content: "You are an expert GitHub triage AI and systems architect.\nAnalyze the incoming GitHub issue against the repository file tree and historical issue context.\nDUPLICATE RULES (CRITICAL):\n  - Only set is_duplicate=true if the issue targets the EXACT same root cause or feature as a specific existing open issue.\n  - You MUST cite the matching issue number (e.g. \"duplicate of #42\") in analysis_summary when marking as duplicate.\n  - Do NOT mark as duplicate because issues share a topic area, feature domain, or keyword overlap.\n  - Do NOT label any issue as spam, noise, or invalid. Assume all submissions are legitimate.\n  - Default to is_duplicate=false when uncertain.\nAFFECTED FILES: Based on the repository file tree, identify up to 8 specific source files most likely to need changes.\nYou must respond in valid JSON format matching this schema:\n{ \"is_duplicate\": boolean, \"analysis_summary\": \"string\", \"affected_files\": [\"string\"] }\nEnsure the JSON is well-formed."
 		}, {
 			role: "user",
 			content: os(as, ss({
 				issue_number: e.number,
 				title: e.title,
-				primary_description: a.primary_description || e.body || "No description provided.",
-				context_steps: a.context_steps,
-				expected_outcome: a.expected_outcome,
-				technical_metrics: a.technical_metrics
-			}, i))
+				primary_description: c.primary_description || e.body || "No description provided.",
+				context_steps: c.context_steps,
+				expected_outcome: c.expected_outcome,
+				technical_metrics: c.technical_metrics
+			}, s, o))
 		}],
 		model: "llama-3.3-70b-versatile",
 		temperature: .1,
 		response_format: { type: "json_object" }
 	})).choices[0]?.message?.content?.trim();
-	if (!o) throw Error("Groq API returned an empty response.");
-	return JSON.parse(o);
+	if (!l) throw Error("Groq API returned an empty response.");
+	return JSON.parse(l);
 }
-async function Wf(e, t, n, r) {
+async function Gf(e, t, n, r) {
 	let { error: i } = await (await ps()).from("issues").insert({
 		repo_name: e,
 		issue_number: t.number,
 		is_duplicate: n.is_duplicate,
 		analysis_summary: n.analysis_summary,
+		affected_files: n.affected_files ?? null,
 		status: "open"
 	});
 	if (i) {
@@ -13073,7 +13094,7 @@ async function Wf(e, t, n, r) {
 		throw console.error("Supabase insert error details:", e), Error(`Supabase insert failed: ${e}`);
 	}
 }
-async function Gf(e, t, n, r) {
+async function Kf(e, t, n, r) {
 	let { error: i } = await (await ps()).from("public_ecosystem_registry").upsert({
 		repo_name: e,
 		total_issues_analyzed: t,
@@ -13085,7 +13106,7 @@ async function Gf(e, t, n, r) {
 		throw console.error("Supabase registry update error details:", e), Error(`Registry update failed: ${e}`);
 	}
 }
-async function Kf(e, t, n) {
+async function qf(e, t, n) {
 	let { data: r, error: i } = await t.from("issues").select("issue_number").eq("repo_name", e).eq("status", "open");
 	if (i || !r) return;
 	let a = new Set(n.map((e) => e.number)), o = r.map((e) => e.issue_number).filter((e) => !a.has(e));
@@ -13095,14 +13116,14 @@ async function Kf(e, t, n) {
 		n && console.error("Error closing issues in Supabase:", n);
 	}
 }
-async function qf(e) {
+async function Jf(e) {
 	let t = await chrome.storage.local.get(["repoOwlConfig", "trackedRepositories"]), n = t.repoOwlConfig || {}, r = e || t.trackedRepositories || [];
 	return n.groqApiKey, n.supabaseUrl ||= "https://sdgazpgnenkammrlhjel.supabase.co", n.supabaseAnonKey ||= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZ2F6cGduZW5rYW1tcmxoamVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2Njc0NjksImV4cCI6MjA5OTI0MzQ2OX0.BLL0bYxbYH8-hIe1BFErCvpWbdirjvAWh9t3sw7od3I", {
 		keys: n,
 		repos: r
 	};
 }
-function Jf(e) {
+function Yf(e) {
 	return (t) => {
 		try {
 			if (typeof chrome < "u" && chrome.runtime) {
@@ -13119,7 +13140,7 @@ function Jf(e) {
 		console.log(`[${e}] ${t}`);
 	};
 }
-async function Yf(e, t, n) {
+async function Xf(e, t, n) {
 	let r = !1, i = null, a = await fetch(`https://api.github.com/repos/${e}`, { headers: {
 		Accept: "application/vnd.github+json",
 		"X-GitHub-Api-Version": "2022-11-28",
@@ -13142,8 +13163,8 @@ async function Yf(e, t, n) {
 		currentUserLogin: i
 	};
 }
-async function Xf(e = null) {
-	let { keys: t, repos: n } = await qf(e), r = Jf("issue");
+async function Zf(e = null) {
+	let { keys: t, repos: n } = await Jf(e), r = Yf("issue");
 	if (!t.groqApiKey || !t.supabaseUrl) {
 		r("RepoOwl: API Keys not configured. Skipping sync.");
 		return;
@@ -13158,7 +13179,7 @@ async function Xf(e = null) {
 		r(`\n[${e}] Starting issue sync...`);
 		let n = !1, i = null;
 		try {
-			let a = await Yf(e, t, r);
+			let a = await Xf(e, t, r);
 			if (!a) continue;
 			if (n = a.isMaintainer, i = a.currentUserLogin, n) {
 				r(`[${e}] Confirmed Maintainer. Fetching issues...`);
@@ -13206,18 +13227,18 @@ async function Xf(e = null) {
 			r(`[${e}] Error during issue fetching: ${t.message}`);
 			continue;
 		}
-		n && await Kf(e, a, o);
+		n && await qf(e, a, o);
 		let u = o.filter((e) => !s.has(e.number));
 		n ? r(`[${e}] ${s.size} already processed. ${u.length} issues need processing.`) : i ? (u = u.filter((e) => e.user && e.user.login === i), r(`[${e}] Found ${u.length} unprocessed issues authored by you.`)) : (r(`[${e}] Could not determine your GitHub username, skipping sandbox processing.`), u = []);
 		for (let n of u) try {
 			r(`[${e}] Processing issue #${n.number}...`);
-			let i = await Bf(e, t);
+			let i = await Vf(e, t);
 			i.forEach((e) => {
 				let t = o.find((t) => t.number === e.issue_number);
 				t && (e.title = t.title);
 			});
-			let a = await Uf(n, i, t.groqApiKey);
-			await Wf(e, n, a, t), c++, a.is_duplicate && l++, await Mf(jf);
+			let a = await Wf(n, i, t.groqApiKey, e, t.githubToken);
+			await Gf(e, n, a, t), c++, a.is_duplicate && l++, await Mf(jf);
 		} catch (t) {
 			let i = t.message || String(t);
 			r(`[${e}] Error processing issue #${n.number}: ${i}`);
@@ -13234,7 +13255,7 @@ async function Xf(e = null) {
 			let t = (await chrome.storage.local.get([`hub_cache_${e}`]))[`hub_cache_${e}`] || [], n = new Set(t.map((e) => e.issue_number));
 			s.forEach((e) => n.add(e)), d = n.size, f = l + t.filter((e) => e.is_duplicate).length;
 		}
-		await Gf(e, d, f, t), r(`[${e}] Issue Sync complete. Total Analyzed: ${d}, Duplicates: ${f}`);
+		await Kf(e, d, f, t), r(`[${e}] Issue Sync complete. Total Analyzed: ${d}, Duplicates: ${f}`);
 	}
 }
 //#endregion

@@ -7,7 +7,7 @@ async function fetchFromClient(client, repositoryFullName) {
   try {
     const { data, error } = await client
       .from('issues')
-      .select('id, issue_number, is_duplicate, analysis_summary')
+      .select('id, issue_number, is_duplicate, analysis_summary, affected_files')
       .eq('repo_name', repositoryFullName);
 
     if (error) {
@@ -69,7 +69,7 @@ async function fetchSingleFromClient(client, repositoryFullName, issueNumber) {
   try {
     const { data, error } = await client
       .from('issues')
-      .select('id, issue_number, is_duplicate, analysis_summary')
+      .select('id, issue_number, is_duplicate, analysis_summary, affected_files')
       .eq('repo_name', repositoryFullName)
       .eq('issue_number', issueNumber)
       .maybeSingle();
