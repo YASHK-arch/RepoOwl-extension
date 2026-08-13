@@ -1,14 +1,23 @@
 
-// RepoOwl Issue Analyzer Ã¢â¬â GitHub Actions Script
+// RepoOwl Issue Analyzer — GitHub Actions Script
 // Runs server-side so it works 24/7 regardless of whether the maintainer's browser is open.
 // Replicates the logic from extension/src/background.js: executeIssueSyncQueue (maintainer path only).
 
-const GROQ_API_KEY    = process.env.GROQ_API_KEY;
-const GITHUB_TOKEN    = process.env.GITHUB_TOKEN;
-const SUPABASE_URL    = process.env.SUPABASE_URL;
+const GROQ_API_KEY     = process.env.GROQ_API_KEY;
+const GITHUB_TOKEN     = process.env.GITHUB_TOKEN;
+const SUPABASE_URL     = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const REPOSITORY      = process.env.REPOSITORY;   // format: owner/repo
-const ISSUE_NUMBER    = process.env.ISSUE_NUMBER; // set on issues.opened; empty on schedule
+const REPOSITORY       = process.env.REPOSITORY;    // format: owner/repo
+const ISSUE_NUMBER     = process.env.ISSUE_NUMBER;  // set on issues.opened; empty on schedule
+const COMMENT_BODY     = process.env.COMMENT_BODY || '';
+const COMMENT_AUTHOR   = process.env.COMMENT_AUTHOR || '';
+const COMMENT_ISSUE_NUMBER = process.env.COMMENT_ISSUE_NUMBER || '';
+const ISSUE_AUTHOR     = process.env.ISSUE_AUTHOR || '';
+
+// ── Configurable timers ─────────────────────────────────────────────────────
+// ANALYSIS_DELAY_SECONDS: buffer to allow issue author to finish editing before analysis.
+// Set to 0 for immediate (testing). Increase to e.g. 300 for a 5-minute inactivity gate.
+const ANALYSIS_DELAY_SECONDS = parseInt(process.env.ANALYSIS_DELAY_SECONDS || '0', 10);
 
 const GROQ_URL   = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL_NAME = 'llama-3.3-70b-versatile';
@@ -16,7 +25,7 @@ const DELAY_MS   = 2000;
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
-// Ã¢ââ¬Ã¢ââ¬ Helpers Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+// ── Helpers ─────────────────────────────────────────────────────────────────
 
 async function askGroq(systemPrompt, userPrompt) {
   const response = await fetch(GROQ_URL, {
@@ -85,7 +94,7 @@ function parseIssueTemplateFields(body) {
   };
 }
 
-// Ã¢ââ¬Ã¢ââ¬ Supabase REST helpers (no SDK needed Ã¢â¬â pure fetch) Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+// ── Supabase REST helpers (no SDK needed — pure fetch) ───────────────────────
 
 function supabaseHeaders() {
   return {
@@ -121,7 +130,7 @@ async function saveAnalysis(repo, issue, analysis) {
   const url = `${SUPABASE_URL}/rest/v1/issues`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { ...supabaseHeaders(), 'Prefer': 'resolution=ignore-duplicates' },
+    headers: { ...supabaseHeaders(), 'Prefer': 'resolution=merge-duplicates' },
     body: JSON.stringify({
       repo_name: repo,
       issue_number: issue.number,
@@ -135,7 +144,7 @@ async function saveAnalysis(repo, issue, analysis) {
     const err = await res.text();
     throw new Error(`Supabase insert failed (${res.status}): ${err}`);
   }
-  console.log(`  Ã¢Åâ Saved analysis for issue #${issue.number} (is_duplicate=${analysis.is_duplicate})`);
+  console.log(`  ✓ Saved analysis for issue #${issue.number} (is_duplicate=${analysis.is_duplicate})`);
 }
 
 async function updateRegistryStats(repo, totalAnalyzed, duplicatesFound) {
@@ -155,7 +164,7 @@ async function updateRegistryStats(repo, totalAnalyzed, duplicatesFound) {
   }
 }
 
-// Ã¢ââ¬Ã¢ââ¬ GitHub helpers Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+// ── GitHub helpers ───────────────────────────────────────────────────────────
 
 function ghHeaders() {
   return {
@@ -189,7 +198,221 @@ async function fetchAllOpenIssues(repo) {
   return issues;
 }
 
-// Ã¢ââ¬Ã¢ââ¬ Core analysis logic Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+/**
+ * Checks if a user has already used /analyze on this issue (for throttling contributors).
+ */
+async function hasUserAlreadyUsedAnalyze(repo, issueNumber, username) {
+  const url = `https://api.github.com/repos/${repo}/issues/${issueNumber}/comments?per_page=100`;
+  const res = await fetch(url, { headers: ghHeaders() });
+  if (!res.ok) return false;
+  const comments = await res.json();
+  return comments.some(c =>
+    c.user?.login === username &&
+    c.body?.trim().startsWith('/analyze') &&
+    c.id !== parseInt(process.env.COMMENT_ID || '0', 10)
+  );
+}
+
+/**
+ * Checks if the user is a collaborator/maintainer on the repo.
+ */
+async function isRepoMaintainer(repo, username) {
+  const res = await fetch(`https://api.github.com/repos/${repo}/collaborators/${username}/permission`, {
+    headers: ghHeaders()
+  });
+  if (!res.ok) return false;
+  const data = await res.json();
+  return ['admin', 'maintain', 'write'].includes(data.permission);
+}
+
+// ── Post-analysis GitHub actions ────────────────────────────────────────────
+
+/**
+ * Posts the AI analysis report as a comment on the issue.
+ */
+async function postAnalysisComment(repo, issue, analysis) {
+  const [owner, repoName] = repo.split('/');
+  const dupNote = analysis.is_duplicate
+    ? '\n\n> ⚠️ **Duplicate detected.** See duplicate notice below.'
+    : '';
+
+  const body = `<!-- repoowl-analysis -->
+## 🦉 RepoOwl Analysis Report
+
+${analysis.analysis_summary}${dupNote}
+
+---
+<sub>Powered by RepoOwl · Groq LLaMA 3.3 · <code>llama-3.3-70b-versatile</code></sub>`;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/issues/${issue.number}/comments`, {
+    method: 'POST',
+    headers: ghHeaders(),
+    body: JSON.stringify({ body })
+  });
+
+  if (!res.ok) {
+    console.warn(`Could not post analysis comment: ${await res.text()}`);
+  } else {
+    console.log(`  ✓ Posted analysis comment on issue #${issue.number}`);
+  }
+}
+
+/**
+ * Posts a duplicate-specific bot comment.
+ */
+async function postDuplicateComment(repo, issue, analysis) {
+  // Try to extract a referenced issue number like "#42" from the summary
+  const refMatch = analysis.analysis_summary?.match(/#(\d+)/);
+  const refIssue = refMatch ? `#${refMatch[1]}` : 'an existing issue';
+
+  const body = `<!-- repoowl-duplicate -->
+> 🔁 **It appears to be a duplicate of ${refIssue}.** Wait for the maintainer's review.
+>
+> After the issue gets assigned, only then start working on it.`;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/issues/${issue.number}/comments`, {
+    method: 'POST',
+    headers: ghHeaders(),
+    body: JSON.stringify({ body })
+  });
+
+  if (!res.ok) {
+    console.warn(`Could not post duplicate comment: ${await res.text()}`);
+  } else {
+    console.log(`  ✓ Posted duplicate notice on issue #${issue.number}`);
+  }
+}
+
+/**
+ * Assigns the issue to its original author.
+ */
+async function assignIssueToAuthor(repo, issue) {
+  const author = issue.user?.login;
+  if (!author) return;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/issues/${issue.number}/assignees`, {
+    method: 'POST',
+    headers: ghHeaders(),
+    body: JSON.stringify({ assignees: [author] })
+  });
+
+  if (!res.ok) {
+    console.warn(`Could not assign issue #${issue.number} to @${author}: ${await res.text()}`);
+  } else {
+    console.log(`  ✓ Assigned issue #${issue.number} to @${author}`);
+  }
+}
+
+/**
+ * Posts a confirmation comment for authentic, non-duplicate issues.
+ */
+async function postAuthenticComment(repo, issue) {
+  const author = issue.user?.login || 'contributor';
+  const body = `<!-- repoowl-authentic -->
+> ✅ **Authentic issue confirmed.** @${author}, this has been verified as a genuine issue and has been assigned to you.
+>
+> You have **7 days** to work on this issue before it may be reassigned. Good luck! 🚀`;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/issues/${issue.number}/comments`, {
+    method: 'POST',
+    headers: ghHeaders(),
+    body: JSON.stringify({ body })
+  });
+
+  if (!res.ok) {
+    console.warn(`Could not post authentic comment: ${await res.text()}`);
+  } else {
+    console.log(`  ✓ Posted authentic confirmation on issue #${issue.number}`);
+  }
+}
+
+/**
+ * Ensures a GitHub label exists (creates it if not), using a deterministic
+ * color derived from the label name so the same label always gets the same color.
+ */
+async function ensureLabelExists(repo, labelName) {
+  // Check if label exists
+  const checkRes = await fetch(
+    `https://api.github.com/repos/${repo}/labels/${encodeURIComponent(labelName)}`,
+    { headers: ghHeaders() }
+  );
+
+  if (checkRes.ok) {
+    const existing = await checkRes.json();
+    return existing.color; // label exists, return its color
+  }
+
+  // Generate a deterministic HSL-based hex color from the label name
+  let hash = 0;
+  for (let i = 0; i < labelName.length; i++) {
+    hash = labelName.charCodeAt(i) + ((hash << 5) - hash);
+    hash |= 0;
+  }
+  const hue = Math.abs(hash) % 360;
+  // Convert HSL(hue, 60%, 60%) to hex
+  const h = hue / 360, s = 0.6, l = 0.6;
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  const toHex = (t) => {
+    const c = t < 0 ? t + 1 : t > 1 ? t - 1 : t;
+    const val = c < 1/6 ? p + (q - p) * 6 * c
+      : c < 1/2 ? q
+      : c < 2/3 ? p + (q - p) * (2/3 - c) * 6
+      : p;
+    return Math.round(val * 255).toString(16).padStart(2, '0');
+  };
+  const color = `${toHex(h + 1/3)}${toHex(h)}${toHex(h - 1/3)}`;
+
+  // Create the label
+  const createRes = await fetch(`https://api.github.com/repos/${repo}/labels`, {
+    method: 'POST',
+    headers: ghHeaders(),
+    body: JSON.stringify({ name: labelName, color, description: `RepoOwl contextual label` })
+  });
+
+  if (!createRes.ok) {
+    console.warn(`Could not create label "${labelName}": ${await createRes.text()}`);
+  } else {
+    console.log(`  ✓ Created label "${labelName}" (#${color})`);
+  }
+  return color;
+}
+
+/**
+ * Adds contextual labels to an issue. Creates labels if they don't exist.
+ * Labels are AI-generated based on the issue context, not keyword extraction.
+ */
+async function addContextualLabels(repo, issue, analysis) {
+  const labels = analysis.contextual_labels;
+  if (!Array.isArray(labels) || labels.length === 0) return;
+
+  const validLabels = labels
+    .filter(l => typeof l === 'string' && l.trim().length > 0)
+    .slice(0, 3) // max 3 contextual labels
+    .map(l => l.trim().toLowerCase());
+
+  if (validLabels.length === 0) return;
+
+  // Ensure all labels exist in the repo
+  for (const label of validLabels) {
+    await ensureLabelExists(repo, label);
+  }
+
+  // Apply labels to the issue
+  const res = await fetch(`https://api.github.com/repos/${repo}/issues/${issue.number}/labels`, {
+    method: 'POST',
+    headers: ghHeaders(),
+    body: JSON.stringify({ labels: validLabels })
+  });
+
+  if (!res.ok) {
+    console.warn(`Could not apply labels to issue #${issue.number}: ${await res.text()}`);
+  } else {
+    console.log(`  ✓ Applied contextual labels [${validLabels.join(', ')}] to issue #${issue.number}`);
+  }
+}
+
+// ── Core analysis logic ──────────────────────────────────────────────────────
 
 async function analyzeIssue(issue, history) {
   const fields = parseIssueTemplateFields(issue.body || '');
@@ -201,12 +424,21 @@ async function analyzeIssue(issue, history) {
 
   const systemPrompt =
     `You are an expert GitHub triage AI.\n` +
-    `The user is drafting a new issue. I am providing you with a list of currently OPEN issues in this repository.\n` +
-    `Do not assume any issues have been resolved, because they are all actively open.\n` +
-    `Your job is to determine if the user's draft is a DUPLICATE of one of these specific OPEN issues.\n` +
-    `If they are reporting a bug that already exists in this open list, flag it as a duplicate.\n` +
+    `Your task is to analyze a GitHub issue and produce a structured triage report.\n\n` +
+    `DUPLICATE RULES (CRITICAL):\n` +
+    `  - Only set is_duplicate=true if the issue targets the EXACT same root cause or feature as a specific existing open issue.\n` +
+    `  - You MUST cite the matching issue number (e.g. "duplicate of #42") in analysis_summary when marking as duplicate.\n` +
+    `  - Do NOT mark as duplicate because issues share a topic area or keyword overlap.\n` +
+    `  - Do NOT label any issue as spam, noise, or invalid. Assume all submissions are legitimate.\n` +
+    `  - Default to is_duplicate=false when uncertain.\n\n` +
+    `CONTEXTUAL LABELS (CRITICAL):\n` +
+    `  - Generate exactly 3 meaningful, contextually appropriate labels for this issue.\n` +
+    `  - Labels must describe the functional area, severity, or domain of the problem — NOT just keywords extracted from the text.\n` +
+    `  - Examples of GOOD labels: "authentication", "performance-regression", "data-integrity", "ux-feedback", "api-contract".\n` +
+    `  - Examples of BAD labels: "issue", "bug", "problem", "fix", "error" — these are too generic.\n` +
+    `  - Labels should be lowercase, hyphen-separated, and 1-3 words max.\n\n` +
     `You must respond in valid JSON format matching this schema:\n` +
-    `{ "is_duplicate": boolean, "analysis_summary": "string" }\n` +
+    `{ "is_duplicate": boolean, "analysis_summary": "string", "contextual_labels": ["string", "string", "string"] }\n` +
     `Ensure the JSON is well-formed.`;
 
   const userPrompt =
@@ -235,7 +467,7 @@ async function analyzeIssue(issue, history) {
   }
 }
 
-// Ã¢ââ¬Ã¢ââ¬ Entry point Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬Ã¢ââ¬
+// ── Entry point ──────────────────────────────────────────────────────────────
 
 async function run() {
   if (!GROQ_API_KEY || !GITHUB_TOKEN || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -249,11 +481,53 @@ async function run() {
   const repo = REPOSITORY;
   console.log(`RepoOwl Issue Analyzer starting for ${repo}...`);
 
-  // Determine which issues to process
+  // ── Optional inactivity delay (configurable via ANALYSIS_DELAY_SECONDS) ──
+  if (ANALYSIS_DELAY_SECONDS > 0) {
+    console.log(`Waiting ${ANALYSIS_DELAY_SECONDS}s for issue author to finish editing...`);
+    await delay(ANALYSIS_DELAY_SECONDS * 1000);
+  }
+
+  // ── Determine trigger type ───────────────────────────────────────────────
+  const isCommentTrigger = COMMENT_BODY.trim().startsWith('/analyze');
   let issuesToProcess = [];
 
-  if (ISSUE_NUMBER) {
-    // Triggered by issues.opened Ã¢â¬â process only the new issue
+  if (isCommentTrigger) {
+    // /analyze comment trigger — any user can trigger, but contributors are limited to once per issue
+    const issueNum = parseInt(COMMENT_ISSUE_NUMBER, 10);
+    if (!issueNum) {
+      console.warn('Could not determine issue number from comment trigger. Skipping.');
+      process.exit(0);
+    }
+
+    const isMaintainer = await isRepoMaintainer(repo, COMMENT_AUTHOR);
+
+    if (!isMaintainer) {
+      // Contributors: check if they have already used /analyze on this issue
+      const alreadyUsed = await hasUserAlreadyUsedAnalyze(repo, issueNum, COMMENT_AUTHOR);
+      if (alreadyUsed) {
+        console.log(`@${COMMENT_AUTHOR} has already used /analyze on issue #${issueNum}. Skipping (contributor limit).`);
+        // Post a polite notice
+        await fetch(`https://api.github.com/repos/${repo}/issues/${issueNum}/comments`, {
+          method: 'POST',
+          headers: ghHeaders(),
+          body: JSON.stringify({
+            body: `> ℹ️ @${COMMENT_AUTHOR}, you have already triggered \`/analyze\` on this issue. Contributors can only use this command once per issue. A maintainer may re-run analysis at any time.`
+          })
+        });
+        process.exit(0);
+      }
+    }
+
+    console.log(`Triggered by /analyze comment from @${COMMENT_AUTHOR} on issue #${issueNum} (isMaintainer=${isMaintainer})`);
+    try {
+      const issue = await fetchIssueFromGitHub(repo, issueNum);
+      issuesToProcess = [issue];
+    } catch (e) {
+      console.error(`Failed to fetch issue #${issueNum}: ${e.message}`);
+      process.exit(1);
+    }
+  } else if (ISSUE_NUMBER) {
+    // Triggered by issues.opened — process only the new issue
     console.log(`Triggered by new issue #${ISSUE_NUMBER}. Fetching details...`);
     try {
       const issue = await fetchIssueFromGitHub(repo, parseInt(ISSUE_NUMBER, 10));
@@ -263,13 +537,12 @@ async function run() {
       process.exit(1);
     }
   } else {
-    // Triggered by schedule or workflow_dispatch Ã¢â¬â sweep all open issues
+    // Triggered by schedule or workflow_dispatch — sweep all open issues
     console.log('Running scheduled sweep of all open issues...');
     try {
       const allOpen = await fetchAllOpenIssues(repo);
       console.log(`Found ${allOpen.length} open issues on GitHub.`);
 
-      // Deduplicate: skip already-analyzed issues
       const analyzedSet = await getAlreadyAnalyzedIssueNumbers(repo);
       console.log(`${analyzedSet.size} issues already analyzed in Supabase.`);
 
@@ -286,7 +559,7 @@ async function run() {
     process.exit(0);
   }
 
-  // Analyze each pending issue
+  // ── Analyze each pending issue ───────────────────────────────────────────
   let analyzedCount = 0;
   let duplicateCount = 0;
 
@@ -295,19 +568,34 @@ async function run() {
     try {
       const history = await getRecentHistory(repo);
       const analysis = await analyzeIssue(issue, history);
+
+      // Save to Supabase (idempotent — resolution=ignore-duplicates)
       await saveAnalysis(repo, issue, analysis);
 
       analyzedCount++;
       if (analysis.is_duplicate) duplicateCount++;
 
+      // ── Post analysis report comment ──────────────────────────────
+      await postAnalysisComment(repo, issue, analysis);
+
+      // ── Branch on duplicate vs authentic ─────────────────────────
+      if (analysis.is_duplicate) {
+        await postDuplicateComment(repo, issue, analysis);
+      } else {
+        // Authentic issue: assign to author, confirm, add contextual labels
+        await assignIssueToAuthor(repo, issue);
+        await postAuthenticComment(repo, issue);
+        await addContextualLabels(repo, issue, analysis);
+      }
+
       await delay(DELAY_MS);
     } catch (e) {
-      console.error(`  Ã¢Åâ Error analyzing issue #${issue.number}: ${e.message}`);
+      console.error(`  ✗ Error analyzing issue #${issue.number}: ${e.message}`);
       // Continue with remaining issues rather than aborting the whole run
     }
   }
 
-  // Update global registry stats
+  // ── Update global registry stats ──────────────────────────────────────────
   try {
     const totalInDb = (await getAlreadyAnalyzedIssueNumbers(repo)).size;
     const historyAll = await getRecentHistory(repo);
