@@ -3,18 +3,24 @@ name: RepoOwl Issue Analyzer
 on:
   issues:
     types: [opened]
+  issue_comment:
+    types: [created]
   schedule:
     # Sweep for any missed issues every 6 hours
     - cron: '0 */6 * * *'
   workflow_dispatch:
 
 permissions:
-  issues: read
+  issues: write
   contents: read
 
 jobs:
   analyze-issue:
     runs-on: ubuntu-latest
+    # Skip if triggered by a comment that is NOT the /analyze command
+    if: |
+      github.event_name != 'issue_comment' ||
+      (startsWith(github.event.comment.body, '/analyze') && !github.event.issue.pull_request)
 
     steps:
       - name: Checkout Repository
@@ -32,6 +38,15 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           REPOSITORY: ${{ github.repository }}
-          # Only set on issues.opened Ã¢â¬â empty string on schedule/dispatch
+          # Set on issues.opened — empty string on schedule/dispatch
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+          # Set when triggered by /analyze comment
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+          COMMENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          # Configurable inactivity delay in seconds (0 = run immediately).
+          # Increase this to e.g. 300 when you want a 5-minute buffer for issue edits.
+          ANALYSIS_DELAY_SECONDS: '0'
         run: node .github/scripts/analyze-issue.js

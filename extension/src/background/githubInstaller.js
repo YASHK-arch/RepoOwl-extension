@@ -73,6 +73,9 @@ async function pushFile(token, owner, repo, path, contentStr, commitMessage) {
 
   if (!pushRes.ok) {
     const err = await pushRes.json();
+    if (pushRes.status === 404 || err.message === 'Not Found') {
+      throw new Error(`Failed to push ${path}: This repository is not owned by you. Workflow addition in this repo requires the owner's permission.`);
+    }
     throw new Error(`Failed to push ${path}: ${err.message}`);
   }
 }
