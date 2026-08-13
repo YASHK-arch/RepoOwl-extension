@@ -136,6 +136,7 @@ async function saveAnalysis(repo, issue, analysis) {
       issue_number: issue.number,
       is_duplicate: analysis.is_duplicate,
       analysis_summary: analysis.analysis_summary,
+      affected_files: analysis.affected_files ?? null,
       status: 'open'
     })
   });
@@ -196,6 +197,27 @@ async function fetchAllOpenIssues(repo) {
     page++;
   }
   return issues;
+}
+
+/**
+ * Fetches a truncated list of files in the repository to provide as context.
+ */
+async function fetchRepoFileTree(repo) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/git/trees/HEAD?recursive=1`, { headers: ghHeaders() });
+    if (!res.ok) return '';
+    const data = await res.json();
+    if (!data.tree) return '';
+    return data.tree
+      .filter(item => item.type === 'blob')
+      .map(item => item.path)
+      .filter(p => !/(node_modules|package-lock\.json|yarn\.lock|\.png|\.jpg|\.svg|\.ico|\.woff)/.test(p))
+      .slice(0, 500)
+      .join('\n');
+  } catch (e) {
+    console.warn(`Could not fetch file tree: ${e.message}`);
+    return '';
+  }
 }
 
 /**
@@ -414,7 +436,7 @@ async function addContextualLabels(repo, issue, analysis) {
 
 // ── Core analysis logic ──────────────────────────────────────────────────────
 
-async function analyzeIssue(issue, history) {
+async function analyzeIssue(issue, history, fileTree) {
   const fields = parseIssueTemplateFields(issue.body || '');
 
   const historicalLog = history
@@ -437,8 +459,11 @@ async function analyzeIssue(issue, history) {
     `  - Examples of GOOD labels: "authentication", "performance-regression", "data-integrity", "ux-feedback", "api-contract".\n` +
     `  - Examples of BAD labels: "issue", "bug", "problem", "fix", "error" — these are too generic.\n` +
     `  - Labels should be lowercase, hyphen-separated, and 1-3 words max.\n\n` +
+    `AFFECTED FILES:\n` +
+    `  - Based on the repository file tree, identify up to 8 specific source files most likely to need changes to resolve this issue.\n` +
+    `  - Return their paths exactly as they appear in the file tree.\n\n` +
     `You must respond in valid JSON format matching this schema:\n` +
-    `{ "is_duplicate": boolean, "analysis_summary": "string", "contextual_labels": ["string", "string", "string"] }\n` +
+    `{ "is_duplicate": boolean, "analysis_summary": "string", "contextual_labels": ["string", "string", "string"], "affected_files": ["string"] }\n` +
     `Ensure the JSON is well-formed.`;
 
   const userPrompt =
@@ -448,7 +473,8 @@ async function analyzeIssue(issue, history) {
     `2. Context & Reproduction:\n${fields.context_steps || 'N/A'}\n\n` +
     `3. Proposed Solution / Impact:\n${fields.expected_outcome || 'N/A'}\n\n` +
     `4. Technical Metrics & Environment:\n${fields.technical_metrics || 'N/A'}\n\n` +
-    `HISTORICAL REPOSITORY CONTEXT\n${historicalLog}`;
+    `HISTORICAL REPOSITORY CONTEXT\n${historicalLog}\n\n` +
+    `REPOSITORY FILE TREE\n${fileTree || 'Not available.'}`;
 
   // Retry up to 3 times on rate limit
   for (let attempt = 1; attempt <= 3; attempt++) {
@@ -563,11 +589,13 @@ async function run() {
   let analyzedCount = 0;
   let duplicateCount = 0;
 
+  const fileTree = await fetchRepoFileTree(repo);
+
   for (const issue of issuesToProcess) {
     console.log(`\nAnalyzing issue #${issue.number}: "${issue.title}"...`);
     try {
       const history = await getRecentHistory(repo);
-      const analysis = await analyzeIssue(issue, history);
+      const analysis = await analyzeIssue(issue, history, fileTree);
 
       // Save to Supabase (idempotent — resolution=ignore-duplicates)
       await saveAnalysis(repo, issue, analysis);
