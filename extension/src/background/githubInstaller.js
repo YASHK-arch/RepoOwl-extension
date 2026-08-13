@@ -139,34 +139,43 @@ export async function initializeRepoOwl(repoFullName, githubPat, groqApiKey, bro
   
   const token = await getGitHubToken(githubPat);
 
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
   // 1. Push PR Analyzer Workflow
   broadcast?.('Pushing PR analyzer workflow...');
   await pushFile(token, owner, repo, '.github/workflows/repoowl-analyze.yml', WORKFLOW_YAML, 'Initialize RepoOwl PR Analyzer Action');
+  await delay(1000);
   
   // 2. Push PR Analyzer Script
   broadcast?.('Pushing PR analyzer script...');
   await pushFile(token, owner, repo, '.github/scripts/analyze-pr.js', SCRIPT_JS, 'Add RepoOwl Map-Reduce script');
+  await delay(1000);
 
   // 3. Push Issue Analyzer Workflow
   broadcast?.('Pushing Issue analyzer workflow...');
   await pushFile(token, owner, repo, '.github/workflows/issue-analyze.yml', ISSUE_WORKFLOW_YAML, 'Initialize RepoOwl Issue Analyzer Action');
+  await delay(1000);
 
   // 4. Push Issue Analyzer Script
   broadcast?.('Pushing Issue analyzer script...');
   await pushFile(token, owner, repo, '.github/scripts/analyze-issue.js', ISSUE_SCRIPT_JS, 'Add RepoOwl Issue Analyzer script');
+  await delay(1000);
 
   // 5. Push GROQ_API_KEY secret (and cache the public key for reuse)
   broadcast?.('Uploading GROQ_API_KEY secret...');
   let keyData = await pushSecret(token, owner, repo, 'GROQ_API_KEY', groqApiKey);
+  await delay(1000);
 
   // 6. Push Supabase secrets (reuse the cached public key to avoid an extra API call)
   if (supabaseUrl) {
     broadcast?.('Uploading SUPABASE_URL secret...');
     await pushSecret(token, owner, repo, 'SUPABASE_URL', supabaseUrl, keyData);
+    await delay(1000);
   }
   if (supabaseAnonKey) {
     broadcast?.('Uploading SUPABASE_ANON_KEY secret...');
     await pushSecret(token, owner, repo, 'SUPABASE_ANON_KEY', supabaseAnonKey, keyData);
+    await delay(1000);
   }
 
   return true;
