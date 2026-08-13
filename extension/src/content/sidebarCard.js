@@ -14,6 +14,7 @@ const CARD_ID = 'repoowl-sidebar-card';
 async function getKeys() {
   let supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? '';
   let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
+  let githubToken = '';
   
   if (typeof chrome !== 'undefined' && chrome.storage) {
     const result = await new Promise(r => chrome.storage.local.get(['repoOwlConfig'], r));
@@ -21,8 +22,11 @@ async function getKeys() {
       supabaseUrl = result.repoOwlConfig.supabaseUrl;
       supabaseAnonKey = result.repoOwlConfig.supabaseAnonKey;
     }
+    if (result.repoOwlConfig?.githubToken) {
+      githubToken = result.repoOwlConfig.githubToken;
+    }
   }
-  return { supabaseUrl, supabaseAnonKey };
+  return { supabaseUrl, supabaseAnonKey, githubToken };
 }
 
 /* ─── Styles ─────────────────────────────────────────────────────────── */
@@ -140,6 +144,7 @@ const CARD_CSS = `
   text-decoration: none;
   box-sizing: border-box;
   transition: background 0.12s;
+  margin-top: 6px;
 }
 .ro-sc-link:hover {
   background: var(--color-canvas-subtle, #f6f8fa);
@@ -152,7 +157,87 @@ const CARD_CSS = `
   text-align: center;
   padding: 6px 0 10px;
 }
+.ro-sc-copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-accent-muted, rgba(9,105,218,0.4));
+  background: var(--color-accent-subtle, #ddf4ff);
+  color: var(--color-accent-fg, #0969da);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.12s, opacity 0.12s;
+  margin-top: 6px;
+  font-family: inherit;
+}
+.ro-sc-copy-btn:hover:not(:disabled) {
+  background: var(--color-accent-emphasis, #0969da);
+  color: #ffffff;
+  border-color: transparent;
+}
+.ro-sc-copy-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 `;
+
+/* ─── Issue page detection ──────────────────────────────────────────── */
+/**
+ * Returns { repoFullName, issueNumber } if we are on an issue detail page,
+ * otherwise returns null.
+ */
+function getIssuePageContext() {
+  const m = window.location.pathname.match(/^\/([^/]+)\/([^/]+)\/issues\/(\d+)\/?$/);
+  if (!m) return null;
+  return { repoFullName: `${m[1]}/${m[2]}`, issueNumber: parseInt(m[3], 10) };
+}
+
+/**
+ * Fetches the analysis summary for the current issue from Supabase.
+ */
+async function fetchIssueSummaryFromSupabase(repoFullName, issueNumber, keys) {
+  if (!keys.supabaseUrl || !keys.supabaseAnonKey) return null;
+  try {
+    const url = `${keys.supabaseUrl}/rest/v1/issues?repo_name=eq.${encodeURIComponent(repoFullName)}&issue_number=eq.${issueNumber}&select=analysis_summary,is_duplicate&limit=1`;
+    const res = await fetch(url, {
+      headers: {
+        apikey: keys.supabaseAnonKey,
+        Authorization: `Bearer ${keys.supabaseAnonKey}`,
+      },
+    });
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return rows && rows.length > 0 ? rows[0] : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Posts the analysis report as a comment on the GitHub issue via the API.
+ */
+async function postAnalysisAsComment(repoFullName, issueNumber, summary, isDuplicate, pat) {
+  const dupNote = isDuplicate ? '\n\n> ⚠️ **This issue was flagged as a possible duplicate.**' : '';
+  const body = `<!-- repoowl-sidebar-report -->\n## 🦉 RepoOwl Analysis Report\n\n${summary}${dupNote}\n\n---\n<sub>Posted from RepoOwl sidebar · Groq LLaMA 3.3</sub>`;
+
+  const res = await fetch(`https://api.github.com/repos/${repoFullName}/issues/${issueNumber}/comments`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${pat}`,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ body }),
+  });
+  return res.ok;
+}
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 function getRepoFromPath() {
@@ -225,6 +310,13 @@ function findSidebarTarget() {
 
 function buildCard(stats, repoFullName, keys) {
   const configured = !!(keys.supabaseUrl && keys.supabaseAnonKey);
+  const issueCtx = getIssuePageContext();
+  // Only show the copy button on issue detail pages for the same repo
+  const showCopyBtn = !!(
+    issueCtx &&
+    issueCtx.repoFullName === repoFullName &&
+    keys.githubToken
+  );
 
   let statsHtml;
   if (!configured || stats === null) {
@@ -258,6 +350,13 @@ function buildCard(stats, repoFullName, keys) {
     ? `<span class="ro-sc-badge-active">Active</span>`
     : `<span class="ro-sc-badge-pending">Setup needed</span>`;
 
+  const copyBtnHtml = showCopyBtn
+    ? `<button class="ro-sc-copy-btn" id="ro-sc-copy-btn" type="button">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>
+        Copy Report as GitHub Comment
+      </button>`
+    : '';
+
   const wrapper = document.createElement('div');
   wrapper.id = CARD_ID;
 
@@ -279,6 +378,7 @@ function buildCard(stats, repoFullName, keys) {
       </svg>
       Settings &amp; Insights &rarr;
     </a>
+    ${copyBtnHtml}
   `;
 
   const btn = wrapper.querySelector('.ro-sc-settings-btn');
@@ -286,6 +386,62 @@ function buildCard(stats, repoFullName, keys) {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       chrome.runtime.sendMessage({ action: 'open_settings' });
+    });
+  }
+
+  // ── Copy Report as GitHub Comment button ────────────────────────────
+  const copyBtn = wrapper.querySelector('#ro-sc-copy-btn');
+  if (copyBtn && issueCtx) {
+    copyBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      copyBtn.disabled = true;
+      copyBtn.textContent = 'Fetching report…';
+
+      try {
+        // Re-fetch keys in case they changed
+        const freshKeys = await getKeys();
+        const row = await fetchIssueSummaryFromSupabase(issueCtx.repoFullName, issueCtx.issueNumber, freshKeys);
+
+        if (!row || !row.analysis_summary) {
+          copyBtn.textContent = '⚠️ No analysis yet';
+          setTimeout(() => { copyBtn.disabled = false; copyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg> Copy Report as GitHub Comment'; }, 3000);
+          return;
+        }
+
+        if (!freshKeys.githubToken) {
+          copyBtn.textContent = '⚠️ No GitHub PAT configured';
+          setTimeout(() => { copyBtn.disabled = false; copyBtn.innerHTML = 'Copy Report as GitHub Comment'; }, 3000);
+          return;
+        }
+
+        copyBtn.textContent = 'Posting comment…';
+        const ok = await postAnalysisAsComment(
+          issueCtx.repoFullName,
+          issueCtx.issueNumber,
+          row.analysis_summary,
+          row.is_duplicate,
+          freshKeys.githubToken
+        );
+
+        if (ok) {
+          copyBtn.textContent = '✓ Comment posted!';
+          copyBtn.style.background = 'var(--color-success-subtle, #dafbe1)';
+          copyBtn.style.color = 'var(--color-success-fg, #1a7f37)';
+          copyBtn.style.borderColor = 'var(--color-success-muted, #82e298)';
+        } else {
+          copyBtn.textContent = '✗ Failed — check PAT permissions';
+        }
+        setTimeout(() => {
+          copyBtn.disabled = false;
+          copyBtn.style.background = '';
+          copyBtn.style.color = '';
+          copyBtn.style.borderColor = '';
+          copyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg> Copy Report as GitHub Comment';
+        }, 4000);
+      } catch (err) {
+        copyBtn.textContent = `✗ Error: ${err.message}`;
+        setTimeout(() => { copyBtn.disabled = false; copyBtn.textContent = 'Copy Report as GitHub Comment'; }, 4000);
+      }
     });
   }
 
