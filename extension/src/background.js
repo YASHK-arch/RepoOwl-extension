@@ -42,8 +42,43 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(() => sendResponse({ success: true }))
       .catch(err => sendResponse({ error: err.message }));
     return true;
+  } else if (message.action === 'check_user_role') {
+    checkUserRole(message.repoName)
+      .then(res => sendResponse(res))
+      .catch(err => sendResponse({ isMaintainer: false, error: err.message }));
+    return true;
   }
 });
+
+/**
+ * Checks whether the authenticated GitHub user has push or admin access
+ * to the given repository, which determines maintainer vs contributor role.
+ * @param {string} repo - "owner/repo" format
+ * @returns {{ isMaintainer: boolean }}
+ */
+async function checkUserRole(repo) {
+  const storage = await chrome.storage.local.get(['repoOwlConfig']);
+  const keys = storage.repoOwlConfig || {};
+  const pat = keys.githubToken;
+
+  if (!pat) return { isMaintainer: false };
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        Authorization: `Bearer ${pat}`
+      }
+    });
+    if (!res.ok) return { isMaintainer: false };
+    const data = await res.json();
+    const isMaintainer = !!(data.permissions?.push || data.permissions?.admin);
+    return { isMaintainer };
+  } catch (e) {
+    return { isMaintainer: false, error: e.message };
+  }
+}
 
 async function handleNewRepoAdded(repo) {
   const storage = await chrome.storage.local.get(['repoOwlConfig']);

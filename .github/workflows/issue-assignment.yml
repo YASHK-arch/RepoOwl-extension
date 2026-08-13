@@ -1,8 +1,6 @@
 name: Issue Assignment Rules
 
 on:
-  issues:
-    types: [opened]
   issue_comment:
     types: [created]
   schedule:
@@ -11,35 +9,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  assign-issue-author:
-    if: github.event_name == 'issues' && github.event.action == 'opened'
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-    steps:
-      - name: Assign the issue author
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const issue = context.payload.issue;
-
-            try {
-              await github.rest.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                assignees: [issue.user.login],
-              });
-            } catch (error) {
-              core.warning(`Could not assign @${issue.user.login}: ${error.message}`);
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: `@${issue.user.login}, GitHub could not assign you automatically. A maintainer can assign you manually.`,
-              });
-            }
-
   acknowledge-assignment-request:
     if: github.event_name == 'issue_comment' && github.event.action == 'created' && !github.event.issue.pull_request
     runs-on: ubuntu-latest
