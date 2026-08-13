@@ -12767,10 +12767,10 @@ async function kf(e, t, n, r, i, a = null) {
 async function Af(e, t, n, r, i, a) {
 	let [o, s] = e.split("/");
 	if (!n) throw Error("GROQ_API_KEY is not set in extension options.");
-	let c = await Df(t);
-	r?.("Pushing PR analyzer workflow..."), await Of(c, o, s, ".github/workflows/repoowl-analyze.yml", bf, "Initialize RepoOwl PR Analyzer Action"), r?.("Pushing PR analyzer script..."), await Of(c, o, s, ".github/scripts/analyze-pr.js", xf, "Add RepoOwl Map-Reduce script"), r?.("Pushing Issue analyzer workflow..."), await Of(c, o, s, ".github/workflows/issue-analyze.yml", wf, "Initialize RepoOwl Issue Analyzer Action"), r?.("Pushing Issue analyzer script..."), await Of(c, o, s, ".github/scripts/analyze-issue.js", Tf, "Add RepoOwl Issue Analyzer script"), r?.("Uploading GROQ_API_KEY secret...");
-	let l = await kf(c, o, s, "GROQ_API_KEY", n);
-	return i && (r?.("Uploading SUPABASE_URL secret..."), await kf(c, o, s, "SUPABASE_URL", i, l)), a && (r?.("Uploading SUPABASE_ANON_KEY secret..."), await kf(c, o, s, "SUPABASE_ANON_KEY", a, l)), !0;
+	let c = await Df(t), l = (e) => new Promise((t) => setTimeout(t, e));
+	r?.("Pushing PR analyzer workflow..."), await Of(c, o, s, ".github/workflows/repoowl-analyze.yml", bf, "Initialize RepoOwl PR Analyzer Action"), await l(1e3), r?.("Pushing PR analyzer script..."), await Of(c, o, s, ".github/scripts/analyze-pr.js", xf, "Add RepoOwl Map-Reduce script"), await l(1e3), r?.("Pushing Issue analyzer workflow..."), await Of(c, o, s, ".github/workflows/issue-analyze.yml", wf, "Initialize RepoOwl Issue Analyzer Action"), await l(1e3), r?.("Pushing Issue analyzer script..."), await Of(c, o, s, ".github/scripts/analyze-issue.js", Tf, "Add RepoOwl Issue Analyzer script"), await l(1e3), r?.("Uploading GROQ_API_KEY secret...");
+	let u = await kf(c, o, s, "GROQ_API_KEY", n);
+	return await l(1e3), i && (r?.("Uploading SUPABASE_URL secret..."), await kf(c, o, s, "SUPABASE_URL", i, u), await l(1e3)), a && (r?.("Uploading SUPABASE_ANON_KEY secret..."), await kf(c, o, s, "SUPABASE_ANON_KEY", a, u), await l(1e3)), !0;
 }
 //#endregion
 //#region src/background.js
