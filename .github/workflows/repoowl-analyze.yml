@@ -16,7 +16,7 @@ jobs:
     # Only run if it's a PR creation OR if the comment contains exactly "/analyze" (or "/analyse")
     if: >
       github.event_name == 'pull_request_target' ||
-      (github.event.issue.pull_request && (contains(github.event.comment.body, '/analyze') || contains(github.event.comment.body, '/analyse')))
+      (github.event.issue.pull_request && github.event.sender.login != 'github-actions[bot]' && (startsWith(github.event.comment.body, '/analyze') || startsWith(github.event.comment.body, '/analyse')))
 
     runs-on: ubuntu-latest
 
