@@ -96,86 +96,84 @@ function FlowBox({ label, sub, color, icon: Icon }) {
 
 // ─── Individual feature cards ────────────────────────────────────
 
-function BYOKCard() {
+function MediatorCard() {
   return (
     <Card accent={C.accent} minH={230}>
       <div className="flex items-center gap-3 mb-3.5">
         <CardIcon color={C.accent}><Key className="w-5 h-5" style={{ color: C.accent }} /></CardIcon>
         <div>
-          <div className="font-bold text-[15px]" style={{ color: C.textPrimary }}>BYOK Architecture</div>
-          <div className="text-xs" style={{ color: C.textSecondary }}>Your key, your control</div>
+          <div className="font-bold text-[15px]" style={{ color: C.textPrimary }}>3-Layer Mediator</div>
+          <div className="text-xs" style={{ color: C.textSecondary }}>Zero-config contributor discovery</div>
         </div>
       </div>
       <p className="text-xs leading-[1.55] mb-4" style={{ color: C.textSecondary }}>
-        Bring your own API key. RepoOwl never proxies your credentials — they stay encrypted in your browser.
+        Contributors no longer paste manual API keys. The extension auto-discovers the maintainer's connection via a central registry.
       </p>
       <CodeBlock lines={[
-        ['// Key stored in chrome.storage.local', C.textSecondary],
-        ['await chrome.storage.local.set({', C.textPrimary],
-        ['  apiKey: encrypt(key)', C.accent],
-        ['});', C.textPrimary],
+        ['// Auto-resolve maintainer config', C.textSecondary],
+        ['const connection = await', C.textPrimary],
+        ['  registry.discover(repoOwner);', C.accent],
       ]} />
     </Card>
   );
 }
 
-function DualLayerCard() {
+function LiveSyncCard() {
   return (
     <Card accent={C.blue} minH={230}>
       <CardIcon color={C.blue}><Layers className="w-5 h-5" style={{ color: C.blue }} /></CardIcon>
-      <div className="mt-3.5 mb-1.5 font-bold text-[15px]" style={{ color: C.textPrimary }}>Dual-Layer Sync</div>
+      <div className="mt-3.5 mb-1.5 font-bold text-[15px]" style={{ color: C.textPrimary }}>Live Sync Tracking</div>
       <p className="text-xs leading-[1.5] mb-4" style={{ color: C.textSecondary }}>
-        Issues indexed in your Hub, analyzed in the Sandbox.
+        Maintainers can force sync keys to the mediator and track real-time registration status directly from the UI.
       </p>
-      <FlowBox label="Hub (IndexedDB)" sub="Persistent issue store" color={C.blue} icon={Layers} />
+      <FlowBox label="Maintainer Node" sub="Pushes encrypted keys" color={C.blue} icon={Layers} />
       <div className="flex justify-center my-1.5">
         <ArrowDown className="w-3.5 h-3.5" style={{ color: C.border }} />
       </div>
-      <FlowBox label="Sandbox (Worker)" sub="Isolated AI runtime" color={C.green} icon={Shield} />
+      <FlowBox label="Central Registry" sub="Broadcasts to contributors" color={C.green} icon={Shield} />
     </Card>
   );
 }
 
-function SupabaseCard() {
+function SupabaseRLSCard() {
   return (
     <Card accent={C.green} minH={230}>
       <div className="flex items-center gap-3 mb-3.5">
         <CardIcon color={C.green}><Zap className="w-5 h-5" style={{ color: C.green }} /></CardIcon>
-        <span className="font-bold text-[15px]" style={{ color: C.textPrimary }}>Supabase Native</span>
+        <span className="font-bold text-[15px]" style={{ color: C.textPrimary }}>Secure RLS & Schema</span>
       </div>
       <p className="text-xs leading-[1.55] mb-4" style={{ color: C.textSecondary }}>
-        Serverless RLS policies and real-time sync — no backend code to maintain.
+        Idempotent SQL schema with robust Row-Level Security ensuring seamless and secure read/write capabilities across roles.
       </p>
       <CodeBlock lines={[
-        ['-- Row Level Security', C.textSecondary],
-        ['CREATE POLICY "user_owns_data"', C.textPrimary],
+        ['-- Idempotent RLS Policy', C.textSecondary],
+        ['CREATE POLICY "secure_read_write"', C.textPrimary],
         ['  ON issues FOR ALL', C.textPrimary],
-        ['  USING (auth.uid() = user_id);', C.green],
+        ['  USING (role = current_role);', C.green],
       ]} />
     </Card>
   );
 }
 
-function OmniPromptCard() {
+function GroqLlamaCard() {
   return (
     <Card accent={C.purple} minH={230}>
       <div className="flex items-center gap-3 mb-4">
         <CardIcon color={C.purple}><Brain className="w-5 h-5" style={{ color: C.purple }} /></CardIcon>
         <div>
-          <div className="font-bold text-[15px]" style={{ color: C.textPrimary }}>Omni-Prompt Engine</div>
-          <div className="text-xs" style={{ color: C.textSecondary }}>Structured JSON schema</div>
+          <div className="font-bold text-[15px]" style={{ color: C.textPrimary }}>Llama 3.3 Versatile</div>
+          <div className="text-xs" style={{ color: C.textSecondary }}>Powered by Groq API</div>
         </div>
       </div>
       <CodeBlock lines={[
         ['{', C.border],
         ['  "model": "llama3.3",', C.textPrimary],
-        ['  "task": "duplicate_detect",', C.textPrimary],
-        ['  "threshold": 0.85,', C.accent],
-        ['  "privacy_mode": true', C.green],
+        ['  "provider": "Groq",', C.textPrimary],
+        ['  "speed": "instant",', C.accent],
         ['}', C.border],
       ]} />
       <p className="text-xs leading-[1.55] mt-3.5" style={{ color: C.textSecondary }}>
-        Plug in any OpenAI-compatible API. The prompt schema adapts automatically to your model's context window.
+        Semantic analysis uses Llama 3 to understand the true meaning of issues, operating seamlessly via blazing-fast Groq inference.
       </p>
     </Card>
   );
@@ -249,14 +247,14 @@ export default function BentoSection() {
 
         {/* 2-col bento grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <BYOKCard />
-          <DualLayerCard />
+          <MediatorCard />
+          <LiveSyncCard />
         </div>
 
         {/* 2-col bento grid row 2 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SupabaseCard />
-          <OmniPromptCard />
+          <SupabaseRLSCard />
+          <GroqLlamaCard />
         </div>
       </div>
     </section>
