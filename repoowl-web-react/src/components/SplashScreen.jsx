@@ -27,15 +27,12 @@ export default function SplashScreen({ onDone }) {
 
     setTimeout(() => {
       if (mounted) {
-        setExiting(true);
-        setTimeout(onDone, 1300);
+        onDone();
       }
     }, 6600);
 
     return () => { mounted = false; };
   }, [onDone]);
-
-  if (exiting) return null; // We can let React unmount it, or fade it out
 
   return (
     <div id="owl-loader" className={`${stepClass} ${exiting ? 'exit' : ''}`}>
