@@ -1,16 +1,45 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function CustomCursor() {
-  const [pos, setPos] = useState({ x: -100, y: -100 });
-  const [flap, setFlap] = useState(false);
+  const cursorRef = useRef(null);
+  const wingsUpRef = useRef(null);
+  const wingsDownRef = useRef(null);
+  const pupilLeftRef = useRef(null);
+  const pupilRightRef = useRef(null);
+
+  const px = 3; // Pixel size scale
+  const w = 6 * px;
+  const h = 8 * px;
 
   useEffect(() => {
+    let flap = false;
     let flapInterval = setInterval(() => {
-      setFlap(f => !f);
+      flap = !flap;
+      if (wingsUpRef.current && wingsDownRef.current) {
+        wingsUpRef.current.style.display = flap ? 'block' : 'none';
+        wingsDownRef.current.style.display = flap ? 'none' : 'block';
+      }
     }, 200);
 
     const onMouseMove = (e) => {
-      setPos({ x: e.clientX, y: e.clientY });
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${e.clientX - w / 2}px, ${e.clientY - h / 2}px, 0)`;
+      }
+      
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      const dx = cx - e.clientX;
+      const dy = cy - e.clientY;
+      
+      const pxOffset = dx > 0 ? 1 : 0;
+      const pyOffset = dy > 0 ? 1 : 0;
+
+      if (pupilLeftRef.current && pupilRightRef.current) {
+        pupilLeftRef.current.setAttribute('x', (1 + pxOffset) * px);
+        pupilLeftRef.current.setAttribute('y', (2 + pyOffset) * px);
+        pupilRightRef.current.setAttribute('x', (4 + pxOffset) * px);
+        pupilRightRef.current.setAttribute('y', (2 + pyOffset) * px);
+      }
     };
 
     window.addEventListener('mousemove', onMouseMove);
@@ -20,18 +49,6 @@ export default function CustomCursor() {
     };
   }, []);
 
-  // Determine look direction (looking at the center of the screen)
-  const cx = window.innerWidth / 2;
-  const cy = window.innerHeight / 2;
-  const dx = cx - pos.x;
-  const dy = cy - pos.y;
-  
-  // If dx > 0, center is to the right of the mouse, so look right
-  const pxOffset = dx > 0 ? 1 : 0;
-  const pyOffset = dy > 0 ? 1 : 0;
-
-  // The 8x6 matrix
-  // 0=empty, 1=orange, 2=white, 4=beak
   const body = [
     [0, 1, 1, 1, 1, 0],
     [1, 1, 1, 1, 1, 1],
@@ -43,10 +60,6 @@ export default function CustomCursor() {
     [0, 1, 0, 0, 1, 0],
   ];
 
-  const px = 3; // Pixel size scale
-  const w = 6 * px;
-  const h = 8 * px;
-
   const getColor = (val) => {
     if (val === 1) return '#FF5722';
     if (val === 2) return '#FFFFFF';
@@ -56,17 +69,18 @@ export default function CustomCursor() {
 
   return (
     <div
+      ref={cursorRef}
       style={{
         position: 'fixed',
-        left: pos.x,
-        top: pos.y,
+        left: 0,
+        top: 0,
         pointerEvents: 'none',
-        zIndex: 9999,
-        transform: `translate(-${w / 2}px, -${h / 2}px)`,
+        zIndex: 99999,
+        transform: `translate3d(-100px, -100px, 0)`,
+        willChange: 'transform'
       }}
     >
       <svg width={w + 2 * px} height={h} style={{ overflow: 'visible' }}>
-        {/* We shift everything by +px in X to leave room for the left wing */}
         <g transform={`translate(${px}, 0)`}>
           {body.map((row, y) =>
             row.map((val, x) => {
@@ -84,24 +98,18 @@ export default function CustomCursor() {
             })
           )}
           
-          {/* Pupils */}
-          <rect x={(1 + pxOffset) * px} y={(2 + pyOffset) * px} width={px} height={px} fill="#000000" />
-          <rect x={(4 + pxOffset) * px} y={(2 + pyOffset) * px} width={px} height={px} fill="#000000" />
+          <rect ref={pupilLeftRef} x={1 * px} y={2 * px} width={px} height={px} fill="#000000" />
+          <rect ref={pupilRightRef} x={4 * px} y={2 * px} width={px} height={px} fill="#000000" />
 
-          {/* Wings */}
-          {flap ? (
-            // Wings up
-            <>
-              <rect x={-1 * px} y={3 * px} width={px} height={2 * px} fill="#FF5722" />
-              <rect x={6 * px} y={3 * px} width={px} height={2 * px} fill="#FF5722" />
-            </>
-          ) : (
-            // Wings down
-            <>
-              <rect x={-1 * px} y={5 * px} width={px} height={2 * px} fill="#FF5722" />
-              <rect x={6 * px} y={5 * px} width={px} height={2 * px} fill="#FF5722" />
-            </>
-          )}
+          <g ref={wingsUpRef} style={{ display: 'none' }}>
+            <rect x={-1 * px} y={3 * px} width={px} height={2 * px} fill="#FF5722" />
+            <rect x={6 * px} y={3 * px} width={px} height={2 * px} fill="#FF5722" />
+          </g>
+
+          <g ref={wingsDownRef} style={{ display: 'block' }}>
+            <rect x={-1 * px} y={5 * px} width={px} height={2 * px} fill="#FF5722" />
+            <rect x={6 * px} y={5 * px} width={px} height={2 * px} fill="#FF5722" />
+          </g>
         </g>
       </svg>
     </div>
