@@ -57,7 +57,7 @@ export function AboutPanel() {
               ['Version', '0.1.0'],
               ['Supabase', isSupabaseConfigured() ? '✅ Configured' : '⚠️ Not configured'],
               ['Provider', 'Groq'],
-              ['Model', import.meta.env.VITE_GROQ_MODEL ?? 'llama-3.3-70b-versatile'],
+              ['Model', import.meta.env.VITE_GROQ_MODEL ?? 'llama-3.3-70b-specdec'],
             ].map(([key, val]) => (
               <tr
                 key={key}

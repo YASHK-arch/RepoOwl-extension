@@ -189,7 +189,7 @@ DUPLICATE DRAFT DETECTION (new issue page):
 |---|---|
 | Extension Runtime | Chrome Manifest V3, Service Worker |
 | UI | React 18, JSX, Vite |
-| AI Model | Groq Cloud — `llama-3.3-70b-versatile` |
+| AI Model | Groq Cloud — `llama-3.3-70b-specdec` |
 | Database | Supabase (PostgreSQL), Row Level Security |
 | Shared Utilities | `@repoowl/shared` (local workspace package) |
 | Build Tool | Vite (4 separate build configs) |
