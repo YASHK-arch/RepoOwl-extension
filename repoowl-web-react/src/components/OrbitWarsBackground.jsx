@@ -121,19 +121,21 @@ export default function OrbitWarsBackground() {
 
       drawGrid(ctx, logicalW, logicalH);
 
-      // Lower opacity for just the game layer so the grid stays bright
-      ctx.globalAlpha = 0.2;
+      // Increase opacity for the game layer to make orbits more visible
+      ctx.globalAlpha = 0.35;
 
       const state = stateRef.current;
       if (state) {
-        // Calculate scaling to fit the 1000x1000 board into the view.
-        // We want it to cover the screen.
-        const scale = Math.max(logicalW, logicalH) / 1000;
+        // Use window.innerHeight so the scale is based on the viewport,
+        // preventing the game from becoming massively upscaled on tall scrolling pages.
+        const vh = window.innerHeight || logicalH;
+        const scale = Math.max(logicalW, vh) / 1000;
         
         ctx.save();
-        // Center the 1000x1000 board in the canvas
+        // Center the 1000x1000 board horizontally, and vertically relative to the viewport (vh)
+        // so the sun appears in the center of the screen when scrolled to the top.
         const offsetX = (logicalW - 1000 * scale) / 2;
-        const offsetY = (logicalH - 1000 * scale) / 2;
+        const offsetY = (vh - 1000 * scale) / 2;
         
         ctx.translate(offsetX, offsetY);
         ctx.scale(scale, scale);
