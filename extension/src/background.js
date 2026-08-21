@@ -535,7 +535,7 @@ async function callGroqAPI(issue, history, apiKey, repo, githubToken) {
       { role: 'system', content: STRICT_SYSTEM_PROMPT },
       { role: 'user', content: prompt }
     ],
-    model: 'llama-3.3-70b-versatile',
+    model: 'qwen-2.5-32b',
     temperature: 0.1,
     response_format: { type: 'json_object' }
   });
