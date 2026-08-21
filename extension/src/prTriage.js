@@ -108,7 +108,7 @@ export async function processPullRequestMapReduce(repo, pr, keys) {
     try {
       const res = await callGroqWithRetry(groq, {
         messages: [{ role: 'user', content: prompt }],
-        model: 'llama-3.3-70b-specdec',
+        model: 'llama-3.3-70b-versatile',
         temperature: 0.1
       });
       const summary = res.choices[0]?.message?.content?.trim();
@@ -159,7 +159,7 @@ Respond STRICTLY with this JSON schema:
 
   const res = await callGroqWithRetry(groq, {
     messages: [{ role: 'user', content: reducePrompt }],
-    model: 'llama-3.3-70b-specdec',
+    model: 'llama-3.3-70b-versatile',
     temperature: 0.1,
     response_format: { type: 'json_object' }
   });
