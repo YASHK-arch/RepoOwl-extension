@@ -19,7 +19,7 @@ const REPOSITORY = process.env.REPOSITORY; // format: owner/repo
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 
-const MODEL_NAME = 'llama-3.3-70b-versatile';
+const MODEL_NAME = 'qwen/qwen3.6-27b';
 
 
 

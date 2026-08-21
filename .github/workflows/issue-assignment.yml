@@ -1,6 +1,8 @@
 name: Issue Assignment Rules
 
 on:
+  issues:
+    types: [opened, labeled, unlabeled]
   issue_comment:
     types: [created]
   schedule:
@@ -9,6 +11,47 @@ on:
   workflow_dispatch:
 
 jobs:
+  # ── Auto-assign author on issue open (if labels are clean) ──────────────────
+  auto-assign-on-open:
+    if: >
+      github.event_name == 'issues' &&
+      (github.event.action == 'opened' ||
+       github.event.action == 'labeled' ||
+       github.event.action == 'unlabeled')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Assign author if no exclusion labels
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const EXCLUSION_LABELS = ['needs-triage', 'spam', 'duplicate'];
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(l => l.name.toLowerCase());
+            const hasExclusionLabel = labels.some(l => EXCLUSION_LABELS.includes(l));
+
+            if (hasExclusionLabel) {
+              core.info(`Issue #${issue.number} has an exclusion label — skipping auto-assign.`);
+              return;
+            }
+
+            // Check if the author is already an assignee
+            const alreadyAssigned = issue.assignees.some(a => a.login === issue.user.login);
+            if (alreadyAssigned) {
+              core.info(`Author @${issue.user.login} is already assigned — no action needed.`);
+              return;
+            }
+
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              assignees: [issue.user.login],
+            });
+            core.info(`Auto-assigned issue #${issue.number} to its author @${issue.user.login}.`);
+
+  # ── Queue a /assign me request from a non-author ────────────────────────────
   acknowledge-assignment-request:
     if: github.event_name == 'issue_comment' && github.event.action == 'created' && !github.event.issue.pull_request
     runs-on: ubuntu-latest
