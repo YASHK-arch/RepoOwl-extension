@@ -195,7 +195,7 @@ export default function BentoSection() {
       className="w-full px-5 md:px-12 py-16 md:py-24 relative overflow-hidden"
       style={{ borderTop: '1px solid #E0DDD8' }}
     >
-      <AsciiArtBackground color="#1A1A1A" opacity={0.04} />
+      <AsciiArtBackground color="#1A1A1A" opacity={0.12} />
       <div className="max-w-[1100px] mx-auto relative z-10">
         {/* Section heading */}
         <div className="text-center mb-14">
