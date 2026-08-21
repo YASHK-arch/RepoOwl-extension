@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
-import DottedBackground from './DottedBackground';
-import TriageDemo from './TriageDemo';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // ─── Real SVG brand logos ─────────────────────────────────────────
 const GitHubLogo = () => (
@@ -104,17 +103,22 @@ export default function FeatureSlider() {
   return (
     <div className="w-full relative py-16 md:py-20 overflow-hidden" style={{ borderTop: '1px solid #E8E5E0', minHeight: 420 }}>
       
-      {/* WebGL Dot Grid Background */}
-      <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.7 }}>
-        <DottedBackground 
-          bgColor="transparent" 
-          colors={["rgba(139, 110, 87, 0.08)", "rgba(139, 110, 87, 0.18)"]}
-          cellSize={30}
-          frequency={3}
-          speed={2}
-          gamma={2}
-        />
-      </div>
+      <style>{`
+        @keyframes moveDotGrid {
+          from { background-position: 0px 0px; }
+          to { background-position: 24px 24px; }
+        }
+      `}</style>
+      
+      {/* Animated Dot Grid Background */}
+      <div 
+        className="absolute inset-0 pointer-events-none" 
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1.5px, transparent 1.5px)',
+          backgroundSize: '24px 24px',
+          animation: 'moveDotGrid 5s linear infinite',
+        }}
+      />
       
       {/* Section Header */}
       <div className="relative z-10 text-center mb-12 px-5">
@@ -126,11 +130,75 @@ export default function FeatureSlider() {
         </p>
       </div>
 
-      {/* Triage Demo Container */}
-      <div className="relative w-full px-5 pb-8 flex justify-center">
-        <TriageDemo />
-      </div>
+      <div className="relative w-full" style={{
+        maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+      }}>
+        {/* Nav Buttons */}
+        <button
+          onClick={scrollLeft}
+          aria-label="Scroll left"
+          className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow-md transition-all border border-[#E8E5E0]"
+        >
+          <ChevronLeft className="w-4 h-4 text-[#1A1A1A]" strokeWidth={2} />
+        </button>
+        <button
+          onClick={scrollRight}
+          aria-label="Scroll right"
+          className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow-md transition-all border border-[#E8E5E0]"
+        >
+          <ChevronRight className="w-4 h-4 text-[#1A1A1A]" strokeWidth={2} />
+        </button>
 
+
+
+        {/* Scroll Container */}
+        <div
+          ref={scrollRef}
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 pt-1"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            paddingLeft: '10%',
+            paddingRight: '10%',
+          }}
+        >
+          <style>{`div::-webkit-scrollbar { display: none; }`}</style>
+
+          {FEATURES.map((feature, idx) => (
+            <div
+              key={idx}
+              className="snap-center shrink-0 flex flex-col bg-white border border-[#E8E5E0] rounded-2xl hover:shadow-md transition-shadow duration-200"
+              style={{
+                width: 'clamp(280px, 38vw, 420px)',
+                padding: '28px 28px 24px',
+              }}
+            >
+              {/* Logo */}
+              <div className="mb-5">
+                <feature.Logo />
+              </div>
+
+              {/* Title */}
+              <h3 className="text-[17px] font-semibold text-[#1A1A1A] mb-2.5 leading-snug">
+                {feature.title}
+              </h3>
+
+              {/* Description */}
+              <p className="text-[13.5px] text-[#6B6A67] leading-[1.65] flex-grow">
+                {feature.desc}
+              </p>
+
+              {/* Tag */}
+              <div className="mt-8 pt-5 border-t border-[#F0EDE8]">
+                <span className="text-[10px] font-semibold text-[#9A9896] uppercase tracking-[1.2px]">
+                  {feature.tag}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
