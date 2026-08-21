@@ -96,13 +96,16 @@ body {
   font-size: 12px;
   color: #656d76;
   line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ─── Divider ────────────────────────────────────────── */
 .ro-divider {
   height: 1px;
   background: #d0d7de;
-  margin: 0 -20px;
+  margin: 0 -16px;
 }
 
 /* ─── Pill row ───────────────────────────────────────── */
