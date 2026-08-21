@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Folder } from 'lucide-react';
 import img1 from '../assets/1.png';
+import img3 from '../assets/3.png';
 import img2 from '../assets/2.png';
 
 export default function IdeMockup() {
@@ -30,16 +31,21 @@ export default function IdeMockup() {
           </div>
         </div>
 
-        {/* Content Body - Side by Side Images */}
-        <div className="flex flex-col md:flex-row w-full bg-[#F6F8FA]">
-          {/* Left Image */}
-          <div className="w-full md:w-1/2 flex items-center justify-center p-4 border-b md:border-b-0 md:border-r border-[#E8E5E0]">
-            <img src={img1} alt="Triage Step 1" className="w-full object-contain rounded-md shadow-sm border border-[#E1E4E8]" />
+        {/* Content Body - Stacked Images */}
+        <div className="flex flex-col w-full bg-[#F6F8FA]">
+          {/* First Image */}
+          <div className="w-full flex items-center justify-center p-4 md:p-6 border-b border-[#E8E5E0]">
+            <img src={img1} alt="Triage Step 1" className="w-full h-auto object-contain rounded-md shadow-sm border border-[#E1E4E8]" />
           </div>
-          
-          {/* Right Image */}
-          <div className="w-full md:w-1/2 flex items-center justify-center p-4">
-            <img src={img2} alt="Triage Step 2" className="w-full object-contain rounded-md shadow-sm border border-[#E1E4E8]" />
+
+          {/* Second Image (Newly Uploaded) */}
+          <div className="w-full flex items-center justify-center px-8 md:px-16 py-8 md:py-12 border-b border-[#E8E5E0]">
+            <img src={img3} alt="Triage Step 2" className="w-full h-auto object-contain rounded-lg shadow-2xl border border-[#30363D]" />
+          </div>
+
+          {/* Third Image */}
+          <div className="w-full flex items-center justify-center p-4 md:p-6">
+            <img src={img2} alt="Triage Step 3" className="w-full h-auto object-contain rounded-md shadow-sm border border-[#E1E4E8]" />
           </div>
         </div>
       </div>
