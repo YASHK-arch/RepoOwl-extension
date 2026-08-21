@@ -1,26 +1,4 @@
 {
   "supabaseUrl": "https://sibuxeelgnsosfwraywn.supabase.co",
-  "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpYnV4ZWVsZ25zb3Nmd3JheXduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NDUxNzYsImV4cCI6MjEwMjEyMTE3Nn0.Bj7Y3RYoBo2fxy86lUdALF38L3OQX4ypJ2gQKBOTdh0",
-  "path_labels": {
-    "repoowl-web-react/": {
-      "label": "landing-page",
-      "color": "#d71da6"
-    },
-    "supabase/": {
-      "label": "backend",
-      "color": "#000000"
-    },
-    "shared/": {
-      "label": "core-shared",
-      "color": "#780387"
-    },
-    "extension/": {
-      "label": "extension",
-      "color": "#0969da"
-    },
-    ".github/": {
-      "label": "automation",
-      "color": "#09dc0d"
-    }
-  }
+  "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpYnV4ZWVsZ25zb3Nmd3JheXduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NDUxNzYsImV4cCI6MjEwMjEyMTE3Nn0.Bj7Y3RYoBo2fxy86lUdALF38L3OQX4ypJ2gQKBOTdh0"
 }
