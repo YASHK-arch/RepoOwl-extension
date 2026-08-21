@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import VantaTrunkBackground from './VantaTrunkBackground';
 
 // ─── Real SVG brand logos ─────────────────────────────────────────
 const GitHubLogo = () => (
@@ -101,13 +102,16 @@ export default function FeatureSlider() {
   const scrollRight = () => scrollRef.current?.scrollBy({ left: 440, behavior: 'smooth' });
 
   return (
-    <div className="w-full relative py-16 md:py-20 overflow-hidden" style={{ borderTop: '1px solid #E8E5E0' }}>
+    <div className="w-full relative py-16 md:py-20 overflow-hidden" style={{ borderTop: '1px solid #E8E5E0', minHeight: 420 }}>
+      {/* Vanta Trunk animated background */}
+      <VantaTrunkBackground />
+      
       {/* Section Header */}
       <div className="relative z-10 text-center mb-12 px-5">
-        <h2 className="text-3xl md:text-[40px] font-bold tracking-[-1px] text-[#1A1A1A] leading-tight">
+        <h2 className="text-3xl md:text-[40px] font-bold tracking-[-1px] text-[#FFFFFF] leading-tight drop-shadow-sm">
           Features that work where you do
         </h2>
-        <p className="mt-3 text-[15px] text-[#6B6A67] max-w-[520px] mx-auto leading-relaxed">
+        <p className="mt-3 text-[15px] text-[#D0D0D0] max-w-[520px] mx-auto leading-relaxed">
           Open a GitHub repo, let the AI scan, and get duplicate flags in seconds — all in your browser.
         </p>
       </div>
@@ -120,7 +124,7 @@ export default function FeatureSlider() {
           className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full transition-colors"
           style={{ background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.4)' }}
         >
-          <ChevronLeft className="w-4 h-4 text-[#1A1A1A]" strokeWidth={2} />
+          <ChevronLeft className="w-4 h-4 text-[#FFFFFF]" strokeWidth={2} />
         </button>
         <button
           onClick={scrollRight}
@@ -128,7 +132,7 @@ export default function FeatureSlider() {
           className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full transition-colors"
           style={{ background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.4)' }}
         >
-          <ChevronRight className="w-4 h-4 text-[#1A1A1A]" strokeWidth={2} />
+          <ChevronRight className="w-4 h-4 text-[#FFFFFF]" strokeWidth={2} />
         </button>
 
 
