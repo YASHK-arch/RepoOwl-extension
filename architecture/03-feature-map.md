@@ -76,7 +76,7 @@ FOR EACH tracked repository:
            a. Supabase: SELECT last 50 analysis_summaries (history)
            b. Shared: buildPromptVariables(issue, history)
            c. Shared: renderPrompt(DEFAULT_PROMPT_TEMPLATE, variables)
-           d. Groq API: POST chat.completions (llama-3.3-70b-versatile)
+           d. Groq API: POST chat.completions (llama-3.3-70b-specdec)
               temperature: 0.1, response_format: json_object
            e. Parse JSON: { is_duplicate: bool, analysis_summary: string }
            f. Supabase: INSERT into `issues`
@@ -133,7 +133,7 @@ Attach blur listener to <textarea id="issue_body">
        │     renderPrompt(DEFAULT_PROMPT_TEMPLATE, variables)
        │
        ├── Groq API call (in browser, dangerouslyAllowBrowser: true)
-       │     model: llama-3.3-70b-versatile
+       │     model: llama-3.3-70b-specdec
        │
        └── If is_duplicate === true:
              Inject red warning <div id="repoowl-duplicate-warning">

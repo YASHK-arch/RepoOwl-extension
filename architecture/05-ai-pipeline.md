@@ -21,7 +21,7 @@ RepoOwl calls the Groq API in **two distinct contexts**:
 │     └── autoAnalyzeAndSaveToSandbox()    — single-issue analysis  │
 │                                                                   │
 │  All calls use:                                                   │
-│    Model:   llama-3.3-70b-versatile                               │
+│    Model:   llama-3.3-70b-specdec                               │
 │    Temp:    0.1 (near-deterministic for JSON output)              │
 │    Format:  response_format: { type: 'json_object' }             │
 └───────────────────────────────────────────────────────────────────┘
@@ -194,7 +194,7 @@ const groq = new Groq({
 })
 
 groq.chat.completions.create({
-  model: 'llama-3.3-70b-versatile',
+  model: 'llama-3.3-70b-specdec',
   temperature: 0.1,                     // Low = deterministic JSON output
   response_format: { type: 'json_object' }  // Forces JSON mode
 })
