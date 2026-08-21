@@ -11,26 +11,21 @@ export default function NavBar() {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-[18px]">
-      <div
-        className="h-16 px-6 flex items-center transition-all duration-220"
-        style={{
-          background: scrolled ? 'rgba(13,17,23,0.88)' : 'rgba(13,17,23,0.55)',
-          borderBottom: scrolled ? '1px solid #30363D' : '1px solid transparent',
-        }}
-      >
+    <div
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      style={{
+        background: scrolled ? 'rgba(240, 237, 232, 0.85)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(0,0,0,0.08)' : 'none',
+      }}
+    >
+      <div className="h-16 px-6 md:px-10 flex items-center max-w-[1200px] mx-auto">
         {/* Logo */}
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{
-              background: '#FF5722',
-              boxShadow: '0 0 12px rgba(255,87,34,0.4)',
-            }}
-          >
-            <img src="/assets/OWL.svg" alt="RepoOwl" className="w-[22px] h-[22px]" />
+          <div className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#1A1A1A]">
+            <img src="/assets/OWL.svg" alt="RepoOwl" className="w-[18px] h-[18px]" />
           </div>
-          <span className="font-bold text-lg tracking-[-0.3px]" style={{ color: '#F0F6FC' }}>
+          <span className="font-semibold text-[15px] tracking-[-0.3px] text-[#1A1A1A]">
             RepoOwl
           </span>
         </div>
@@ -44,19 +39,10 @@ export default function NavBar() {
         {/* CTA */}
         <a
           href="https://github.com/YASHK-arch/RepoOwl-extension/releases/download/v0.1.1-client-side-overhaul/RepoOwl_v0.1.1.zip"
-          className="ml-auto md:ml-7 px-[18px] py-[9px] rounded-[10px] font-semibold text-[13px] text-white flex items-center gap-2 transition-all duration-180"
-          style={{ background: '#FF5722' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255,87,34,0.85)';
-            e.currentTarget.style.boxShadow = '0 0 20px rgba(255,87,34,0.45)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#FF5722';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
+          className="ml-auto md:ml-7 px-4 py-2 font-semibold text-[13px] text-white bg-[#1A1A1A] rounded-lg flex items-center gap-2 hover:bg-[#333] transition-colors duration-150"
         >
-          <Download className="w-[15px] h-[15px]" />
-          Download .zip
+          <Download className="w-[13px] h-[13px]" strokeWidth={2.5} />
+          Download
         </a>
       </div>
     </div>
@@ -64,14 +50,10 @@ export default function NavBar() {
 }
 
 function NavLink({ href, children }) {
-  const [hovered, setHovered] = useState(false);
   return (
     <a
       href={href}
-      className="text-sm font-medium transition-colors duration-150"
-      style={{ color: hovered ? '#F0F6FC' : '#8B949E' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="text-sm font-medium text-[#6B6A67] hover:text-[#1A1A1A] transition-colors duration-150"
     >
       {children}
     </a>

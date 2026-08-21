@@ -68,7 +68,7 @@ export default function AsciiDonut({ opacity = 0.15 }) {
         fontSize: '10px',
         lineHeight: '1.1',
         letterSpacing: '1.2px',
-        color: '#8B949E',
+        color: '#1A1A1A',
         opacity,
         margin: 0,
         padding: 0,

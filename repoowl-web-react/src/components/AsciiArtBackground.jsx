@@ -12,7 +12,7 @@ import React, { useEffect, useRef, useState } from 'react';
  *   color   – CSS colour string, default '#8B949E'
  *   opacity – 0–1, default 0.2
  */
-export default function AsciiArtBackground({ color = '#8B949E', opacity = 0.2 }) {
+export default function AsciiArtBackground({ color = '#000000', opacity = 0.08 }) {
   const containerRef = useRef(null);
   const preRef = useRef(null);
   const [art, setArt] = useState('');
