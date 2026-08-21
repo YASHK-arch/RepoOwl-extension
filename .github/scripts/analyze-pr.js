@@ -37,60 +37,45 @@ const HARD_TRIAGE_FLOOR = 50;       // slop score >= this triggers needs-triage
 
 
 
-async function askGroq(prompt) {
+async function askGroq(prompt, retries = 5, defaultDelayMs = 10000) {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    const response = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: MODEL_NAME,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
 
-
-  const response = await fetch(GROQ_URL, {
-
-
-    method: 'POST',
-
-
-    headers: {
-
-
-      'Authorization': `Bearer ${GROQ_API_KEY}`,
-
-
-      'Content-Type': 'application/json'
-
-
-    },
-
-
-    body: JSON.stringify({
-
-
-      model: MODEL_NAME,
-
-
-      messages: [{ role: "user", content: prompt }]
-
-
-    })
-
-
-  });
-
-
-  if (!response.ok) {
-
+    if (response.ok) {
+      const data = await response.json();
+      return data.choices[0].message.content;
+    }
 
     const errorText = await response.text();
 
+    // Handle Rate Limits (HTTP 429)
+    if (response.status === 429 && attempt < retries - 1) {
+      let waitTime = defaultDelayMs;
+      // Extract exact wait time from Groq error message: "Please try again in 14.4225s"
+      const match = errorText.match(/try again in ([\d\.]+)s/);
+      if (match && match[1]) {
+        waitTime = Math.ceil(parseFloat(match[1])) * 1000 + 1500; // add 1.5s buffer
+      } else {
+        waitTime = defaultDelayMs * Math.pow(2, attempt); // Fallback to exponential backoff
+      }
+      
+      console.warn(`[Attempt ${attempt + 1}/${retries}] Rate limit hit. Waiting ${waitTime / 1000}s before retrying...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      continue;
+    }
 
-    throw new Error(`Groq API error: ${errorText}`);
-
-
+    throw new Error(`Groq API error (Status ${response.status}): ${errorText}`);
   }
-
-
-  const data = await response.json();
-
-
-  return data.choices[0].message.content;
-
-
 }
 
 
