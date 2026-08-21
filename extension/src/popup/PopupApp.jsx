@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
+import { launchGitHubOAuth, launchSupabaseOAuth, finalizeSupabaseProject } from '../lib/oauth.js';
 import './popup.css';
 
 function EcosystemAnalytics({ keys }) {
@@ -120,6 +121,173 @@ async function fetchStatsForRepo(repo, supabaseUrl, supabaseAnonKey) {
   }
 }
 
+function ConfigurationModal({ onClose, onComplete, initialConfig }) {
+  const [step, setStep] = useState(1); // 1 = GitHub, 2 = Supabase, 3 = Groq
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
+  // Local config state for the modal
+  const [modalConfig, setModalConfig] = useState(initialConfig);
+  
+  // Project picker state
+  const [projectPickerState, setProjectPickerState] = useState(null); // { accessToken, projects }
+
+  const persistConfig = async (partial) => {
+    const merged = { ...modalConfig, ...partial };
+    setModalConfig(merged);
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      await chrome.storage.local.set({ repoOwlConfig: merged });
+    }
+    return merged;
+  };
+
+  const handleConnectGitHub = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { githubToken, githubLogin, avatarUrl } = await launchGitHubOAuth();
+      await persistConfig({ githubToken, githubLogin, githubAvatarUrl: avatarUrl });
+      setStep(2);
+    } catch (err) {
+      setError(`GitHub OAuth failed: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConnectSupabase = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { accessToken, projects } = await launchSupabaseOAuth();
+      if (projects.length === 0) {
+        throw new Error('No Supabase projects found in your account.');
+      }
+      if (projects.length === 1) {
+        await handleProjectSelected({ accessToken, project: projects[0] });
+      } else {
+        setProjectPickerState({ accessToken, projects });
+        setLoading(false); // Wait for user to pick
+      }
+    } catch (err) {
+      setError(`Supabase OAuth failed: ${err.message}`);
+      setLoading(false);
+    }
+  };
+
+  const handleProjectSelected = async ({ accessToken, project }) => {
+    setProjectPickerState(null);
+    setLoading(true);
+    setError('');
+    try {
+      const { supabaseUrl, supabaseAnonKey } = await finalizeSupabaseProject(accessToken, project.id);
+      await persistConfig({ supabaseUrl, supabaseAnonKey, supabasePAT: '' });
+      setStep(3);
+    } catch (err) {
+      setError(`Provisioning failed: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveGroq = async () => {
+    if (!modalConfig.groqApiKey?.trim()) {
+      setError('Groq API Key is required.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await persistConfig({}); // Save current modalConfig
+      onComplete(modalConfig); // Pass back up and close
+    } catch (err) {
+      setError(`Save failed: ${err.message}`);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="ro-modal-overlay">
+      <div className="ro-modal-card">
+        <div className="ro-modal-header">
+          <h2 className="ro-modal-title">Initial Setup</h2>
+          <button className="ro-modal-close" onClick={onClose} aria-label="Close">✕</button>
+        </div>
+        
+        <div className="ro-stepper">
+          <div className={`ro-step ${step > 1 ? 'completed' : step === 1 ? 'active' : ''}`} />
+          <div className={`ro-step ${step > 2 ? 'completed' : step === 2 ? 'active' : ''}`} />
+          <div className={`ro-step ${step === 3 ? 'active' : ''}`} />
+        </div>
+        
+        <div className="ro-modal-content">
+          {error && (
+            <div style={{ color: '#ff7b72', fontSize: '12px', background: 'rgba(255,123,114,0.1)', padding: '8px', borderRadius: '6px' }}>
+              {error}
+            </div>
+          )}
+
+          {step === 1 && (
+            <>
+              <p className="ro-modal-text">Connect your GitHub account to allow RepoOwl to analyze PRs and issues.</p>
+              <div className="ro-modal-actions">
+                <button className="ro-btn ro-btn--primary" onClick={handleConnectGitHub} disabled={loading}>
+                  {loading ? 'Connecting...' : 'Connect GitHub'}
+                </button>
+              </div>
+            </>
+          )}
+
+          {step === 2 && !projectPickerState && (
+            <>
+              <p className="ro-modal-text">Connect your Supabase account to store analysis data. We will auto-initialize the database schema.</p>
+              <div className="ro-modal-actions">
+                <button className="ro-btn ro-btn--primary" onClick={handleConnectSupabase} disabled={loading}>
+                  {loading ? 'Connecting...' : 'Connect Supabase'}
+                </button>
+              </div>
+            </>
+          )}
+
+          {step === 2 && projectPickerState && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <p className="ro-modal-text">Select a project to initialize:</p>
+              <div style={{ maxHeight: '150px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {projectPickerState.projects.map(p => (
+                  <button key={p.id} onClick={() => handleProjectSelected({ accessToken: projectPickerState.accessToken, project: p })}
+                    style={{ background: '#0d1117', border: '1px solid #30363d', padding: '8px', borderRadius: '6px', color: '#c9d1d9', textAlign: 'left', cursor: 'pointer' }}>
+                    <strong>{p.name}</strong> <br/> <span style={{ fontSize: '11px', color: '#8b949e' }}>{p.id}</span>
+                  </button>
+                ))}
+              </div>
+              <button className="ro-btn ro-btn--ghost" onClick={() => setProjectPickerState(null)}>Cancel</button>
+            </div>
+          )}
+
+          {step === 3 && (
+            <>
+              <p className="ro-modal-text">Enter your Groq API key for AI analysis. Get a free key at console.groq.com.</p>
+              <input 
+                type="password" 
+                placeholder="gsk_..." 
+                className="ro-input"
+                value={modalConfig.groqApiKey || ''}
+                onChange={e => setModalConfig({ ...modalConfig, groqApiKey: e.target.value })}
+                style={{ marginBottom: '8px' }}
+              />
+              <div className="ro-modal-actions">
+                <button className="ro-btn ro-btn--primary" onClick={handleSaveGroq} disabled={loading}>
+                  {loading ? 'Saving...' : 'Save & Finish'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function PopupApp() {
   const [currentRepo, setCurrentRepo] = useState(null);
   const [stats, setStats] = useState(null);
@@ -130,20 +298,19 @@ export function PopupApp() {
     supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY ?? ''
   });
 
+  const [showConfigModal, setShowConfigModal] = useState(false);
+
   useEffect(() => {
     if (typeof chrome !== 'undefined' && chrome.storage) {
       chrome.storage.local.get(['repoOwlConfig'], (result) => {
-        if (result.repoOwlConfig?.supabaseUrl && result.repoOwlConfig?.supabaseAnonKey) {
-          setConfig({
-            supabaseUrl: result.repoOwlConfig.supabaseUrl,
-            supabaseAnonKey: result.repoOwlConfig.supabaseAnonKey
-          });
+        if (result.repoOwlConfig) {
+          setConfig(prev => ({ ...prev, ...result.repoOwlConfig }));
         }
       });
     }
   }, []);
 
-  const configured = !!(config.supabaseUrl && config.supabaseAnonKey);
+  const configured = !!(config.supabaseUrl && config.supabaseAnonKey && config.githubToken && config.groqApiKey);
   
   const ecosystemKeys = useMemo(() => ({ supabaseUrl: config.supabaseUrl, supabaseAnonKey: config.supabaseAnonKey }), [config.supabaseUrl, config.supabaseAnonKey]);
 
@@ -282,25 +449,50 @@ export function PopupApp() {
 
       {/* Action buttons */}
       <div className="ro-actions">
-        <button
-          id="ro-btn-github"
-          type="button"
-          className="ro-btn ro-btn--primary"
-          onClick={openGitHub}
-        >
-          <GitHubIcon />
-          {currentRepo ? 'Issues' : 'GitHub'}
-        </button>
-        <button
-          id="ro-btn-settings"
-          type="button"
-          className="ro-btn ro-btn--ghost"
-          onClick={openSettings}
-        >
-          <SettingsIcon />
-          Settings
-        </button>
+        {!configured && (
+          <button
+            type="button"
+            className="ro-btn ro-btn--primary"
+            style={{ width: '100%', marginBottom: '8px', justifyContent: 'center' }}
+            onClick={() => setShowConfigModal(true)}
+          >
+            Configure Extension
+          </button>
+        )}
+        <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+          <button
+            id="ro-btn-github"
+            type="button"
+            className="ro-btn ro-btn--primary"
+            style={{ flex: 1, justifyContent: 'center' }}
+            onClick={openGitHub}
+          >
+            <GitHubIcon />
+            {currentRepo ? 'Issues' : 'GitHub'}
+          </button>
+          <button
+            id="ro-btn-settings"
+            type="button"
+            className="ro-btn ro-btn--ghost"
+            style={{ flex: 1, justifyContent: 'center' }}
+            onClick={openSettings}
+          >
+            <SettingsIcon />
+            Settings
+          </button>
+        </div>
       </div>
+
+      {showConfigModal && (
+        <ConfigurationModal 
+          initialConfig={config}
+          onClose={() => setShowConfigModal(false)}
+          onComplete={(newConfig) => {
+            setConfig(newConfig);
+            setShowConfigModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }
