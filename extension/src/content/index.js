@@ -153,7 +153,7 @@ async function enableContributorDraftChecker(repoName, localGroqKey) {
           { role: 'system', content: DRAFT_SYSTEM_PROMPT },
           { role: 'user', content: prompt }
         ],
-        model: 'qwen-2.5-32b',
+        model: 'llama-3.3-70b-versatile',
         temperature: 0.1,
         response_format: { type: 'json_object' }
       });
@@ -231,7 +231,7 @@ async function autoAnalyzeAndSaveToSandbox(repoName, issueNumber, localGroqKey, 
         { role: 'system', content: STRICT_SYSTEM_PROMPT },
         { role: 'user', content: prompt }
       ],
-      model: 'qwen-2.5-32b',
+      model: 'llama-3.3-70b-versatile',
       temperature: 0.1,
       response_format: { type: 'json_object' }
     });
