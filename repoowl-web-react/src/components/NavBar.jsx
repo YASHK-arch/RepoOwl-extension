@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download } from 'lucide-react';
+import { Download, Github } from 'lucide-react';
 
 export default function NavBar() {
   const [scrolled, setScrolled] = useState(false);
@@ -19,13 +19,13 @@ export default function NavBar() {
         borderBottom: scrolled ? '1px solid rgba(0,0,0,0.08)' : 'none',
       }}
     >
-      <div className="h-16 px-6 md:px-10 flex items-center max-w-[1200px] mx-auto">
+      <div className="h-16 px-6 md:px-12 w-full flex items-center mx-auto">
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 flex items-center justify-center rounded-lg bg-[#1A1A1A]">
-            <img src="/assets/OWL.svg" alt="RepoOwl" className="w-[18px] h-[18px]" />
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#1A1A1A]">
+            <img src="/assets/OWL.svg" alt="RepoOwl" className="w-[26px] h-[26px]" />
           </div>
-          <span className="font-semibold text-[15px] tracking-[-0.3px] text-[#1A1A1A]">
+          <span className="font-bold text-[24px] tracking-[-0.6px] text-[#1A1A1A]">
             RepoOwl
           </span>
         </div>
@@ -33,7 +33,10 @@ export default function NavBar() {
         {/* Desktop nav links */}
         <div className="ml-auto hidden md:flex items-center gap-7">
           <NavLink href="#features">Features</NavLink>
-          <NavLink href="https://github.com/YASHK-arch/RepoOwl-extension.git">GitHub</NavLink>
+          <NavLink href="https://github.com/YASHK-arch/RepoOwl-extension.git">
+            <Github className="w-[15px] h-[15px]" strokeWidth={2.5} />
+            GitHub
+          </NavLink>
         </div>
 
         {/* CTA */}
@@ -53,7 +56,7 @@ function NavLink({ href, children }) {
   return (
     <a
       href={href}
-      className="text-sm font-medium text-[#6B6A67] hover:text-[#1A1A1A] transition-colors duration-150"
+      className="flex items-center gap-1.5 text-sm font-medium text-[#6B6A67] hover:text-[#1A1A1A] transition-colors duration-150"
     >
       {children}
     </a>

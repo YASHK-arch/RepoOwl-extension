@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import DottedBackground from './DottedBackground';
 
 // ─── Real SVG brand logos ─────────────────────────────────────────
 const GitHubLogo = () => (
@@ -102,23 +103,17 @@ export default function FeatureSlider() {
 
   return (
     <div className="w-full relative py-16 md:py-20 overflow-hidden" style={{ borderTop: '1px solid #E8E5E0', minHeight: 420 }}>
-      
-      <style>{`
-        @keyframes moveDotGrid {
-          from { background-position: 0px 0px; }
-          to { background-position: 24px 24px; }
-        }
-      `}</style>
-      
-      {/* Animated Dot Grid Background */}
-      <div 
-        className="absolute inset-0 pointer-events-none" 
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1.5px, transparent 1.5px)',
-          backgroundSize: '24px 24px',
-          animation: 'moveDotGrid 5s linear infinite',
-        }}
-      />
+      {/* WebGL Dot Grid Background */}
+      <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.7 }}>
+        <DottedBackground 
+          bgColor="transparent" 
+          colors={["rgba(139, 110, 87, 0.08)", "rgba(139, 110, 87, 0.18)"]}
+          cellSize={30}
+          frequency={3}
+          speed={2}
+          gamma={2}
+        />
+      </div>
       
       {/* Section Header */}
       <div className="relative z-10 text-center mb-12 px-5">
