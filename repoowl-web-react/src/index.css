@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-background: #F0EDE8;
+  --color-surface: #FFFFFF;
+  --color-border: #E0DDD8;
+  --color-accent: #1A1A1A;
+  --color-accent-yellow: #F5E642;
+  --color-accent-blue: #2F81F7;
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #6B6A67;
+  --color-text-muted: #9A9896;
+  --color-terminal-green: #3FB950;
+  --color-terminal-yellow: #D29922;
+  --color-terminal-red: #DA3633;
+  --color-purple: #8B5CF6;
+  --font-family-sans: 'Inter', sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-sans);
+    -webkit-font-smoothing: antialiased;
+    /* Subtle dot grid — matches OpenHands aesthetic */
+    background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}

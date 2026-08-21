@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g transform="translate(3, 0)">
+    <!-- Body -->
+    <rect x="3" y="0" width="3" height="3" fill="#FF5722"/>
+    <rect x="6" y="0" width="3" height="3" fill="#FF5722"/>
+    <rect x="9" y="0" width="3" height="3" fill="#FF5722"/>
+    <rect x="12" y="0" width="3" height="3" fill="#FF5722"/>
+    
+    <rect x="0" y="3" width="3" height="3" fill="#FF5722"/>
+    <rect x="3" y="3" width="3" height="3" fill="#FF5722"/>
+    <rect x="6" y="3" width="3" height="3" fill="#FF5722"/>
+    <rect x="9" y="3" width="3" height="3" fill="#FF5722"/>
+    <rect x="12" y="3" width="3" height="3" fill="#FF5722"/>
+    <rect x="15" y="3" width="3" height="3" fill="#FF5722"/>
+    
+    <rect x="0" y="6" width="3" height="3" fill="#FF5722"/>
+    <rect x="3" y="6" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="6" y="6" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="9" y="6" width="3" height="3" fill="#FF5722"/>
+    <rect x="12" y="6" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="15" y="6" width="3" height="3" fill="#FFFFFF"/>
+    
+    <rect x="0" y="9" width="3" height="3" fill="#FF5722"/>
+    <rect x="3" y="9" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="6" y="9" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="9" y="9" width="3" height="3" fill="#FF5722"/>
+    <rect x="12" y="9" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="15" y="9" width="3" height="3" fill="#FFFFFF"/>
+    
+    <rect x="0" y="12" width="3" height="3" fill="#FF5722"/>
+    <rect x="3" y="12" width="3" height="3" fill="#FF5722"/>
+    <rect x="6" y="12" width="3" height="3" fill="#FFAB40"/>
+    <rect x="9" y="12" width="3" height="3" fill="#FFAB40"/>
+    <rect x="12" y="12" width="3" height="3" fill="#FF5722"/>
+    <rect x="15" y="12" width="3" height="3" fill="#FF5722"/>
+    
+    <rect x="0" y="15" width="3" height="3" fill="#FF5722"/>
+    <rect x="3" y="15" width="3" height="3" fill="#FF5722"/>
+    <rect x="6" y="15" width="3" height="3" fill="#FF5722"/>
+    <rect x="9" y="15" width="3" height="3" fill="#FF5722"/>
+    <rect x="12" y="15" width="3" height="3" fill="#FF5722"/>
+    <rect x="15" y="15" width="3" height="3" fill="#FF5722"/>
+    
+    <rect x="0" y="18" width="3" height="3" fill="#FF5722"/>
+    <rect x="3" y="18" width="3" height="3" fill="#FF5722"/>
+    <rect x="6" y="18" width="3" height="3" fill="#FF5722"/>
+    <rect x="9" y="18" width="3" height="3" fill="#FF5722"/>
+    <rect x="12" y="18" width="3" height="3" fill="#FF5722"/>
+    <rect x="15" y="18" width="3" height="3" fill="#FF5722"/>
+    
+    <rect x="3" y="21" width="3" height="3" fill="#FF5722"/>
+    <rect x="12" y="21" width="3" height="3" fill="#FF5722"/>
+    
+    <!-- Pupils (centered) -->
+    <rect x="4.5" y="7.5" width="3" height="3" fill="#000000"/>
+    <rect x="13.5" y="7.5" width="3" height="3" fill="#000000"/>
+    
+    <!-- Wings down -->
+    <rect x="-3" y="15" width="3" height="6" fill="#FF5722"/>
+    <rect x="18" y="15" width="3" height="6" fill="#FF5722"/>
+  </g>
+</svg>
