@@ -88,43 +88,43 @@ export default function SplashScreen({ onDone }) {
 
           <path className="owl-wings tr-op hide-on-final"
             d="M 60 280 L 70 110 L 210 200 L 250 230 L 290 200 L 430 110 L 440 280"
-            fill="none" stroke="#ffffff" strokeWidth="32"
+            fill="none" stroke="#000000" strokeWidth="32"
             strokeLinecap="round" strokeLinejoin="round" />
 
-          <circle className="eye-circle tr-op hide-on-final" cx="150" cy="300" r="90" fill="#1a1f2e" stroke="#ffffff" strokeWidth="32" />
-          <circle className="eye-circle tr-op hide-on-final" cx="350" cy="300" r="90" fill="#1a1f2e" stroke="#ffffff" strokeWidth="32" />
+          <circle className="eye-circle tr-op hide-on-final" cx="150" cy="300" r="90" fill="#ffffff" stroke="#000000" strokeWidth="32" />
+          <circle className="eye-circle tr-op hide-on-final" cx="350" cy="300" r="90" fill="#ffffff" stroke="#000000" strokeWidth="32" />
           
           <circle className="eye-orange tr-op hide-on-final" cx="150" cy="300" r="90" fill="rgba(255,87,34,0.15)" />
           <circle className="eye-orange tr-op hide-on-final" cx="350" cy="300" r="90" fill="rgba(255,87,34,0.15)" />
 
           <g className="pupils tr-op hide-on-final">
-            <circle className="pupil-white tr-op" cx="150" cy="300" r="30" fill="#ffffff" />
-            <circle className="pupil-white tr-op" cx="350" cy="300" r="30" fill="#ffffff" />
+            <circle className="pupil-white tr-op" cx="150" cy="300" r="30" fill="#000000" />
+            <circle className="pupil-white tr-op" cx="350" cy="300" r="30" fill="#000000" />
             
             <circle className="pupil-yellow tr-op" cx="150" cy="300" r="30" fill="#facc15" filter="url(#glow-yellow)" />
             <circle className="pupil-yellow tr-op" cx="350" cy="300" r="30" fill="#facc15" filter="url(#glow-yellow)" />
           </g>
 
-          <line className="brow-L tr-op hide-on-final" x1="90" y1="195" x2="185" y2="225" stroke="#ffffff" strokeWidth="18" strokeLinecap="round" />
-          <line className="brow-R tr-op hide-on-final" x1="410" y1="195" x2="315" y2="225" stroke="#ffffff" strokeWidth="18" strokeLinecap="round" />
+          <line className="brow-L tr-op hide-on-final" x1="90" y1="195" x2="185" y2="225" stroke="#000000" strokeWidth="18" strokeLinecap="round" />
+          <line className="brow-R tr-op hide-on-final" x1="410" y1="195" x2="315" y2="225" stroke="#000000" strokeWidth="18" strokeLinecap="round" />
 
-          <path className="code-eye tr-op hide-on-final" d="M 170 255 L 120 300 L 170 345" fill="none" stroke="#ffffff" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" />
-          <path className="code-eye tr-op hide-on-final" d="M 330 255 L 380 300 L 330 345" fill="none" stroke="#ffffff" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="code-eye tr-op hide-on-final" d="M 170 255 L 120 300 L 170 345" fill="none" stroke="#000000" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" />
+          <path className="code-eye tr-op hide-on-final" d="M 330 255 L 380 300 L 330 345" fill="none" stroke="#000000" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" />
 
-          <path className="beak-normal tr-op hide-on-final" d="M 240 330 L 260 330 L 250 345 Z" fill="#ffffff" />
-          <line className="mouth-angry tr-op hide-on-final" x1="210" y1="370" x2="290" y2="370" stroke="#ffffff" strokeWidth="20" strokeLinecap="round" />
+          <path className="beak-normal tr-op hide-on-final" d="M 240 330 L 260 330 L 250 345 Z" fill="#000000" />
+          <line className="mouth-angry tr-op hide-on-final" x1="210" y1="370" x2="290" y2="370" stroke="#000000" strokeWidth="20" strokeLinecap="round" />
           <path className="beak-final tr-op hide-on-final" d="M 215 320 L 285 320 L 250 385 Z" fill="#000000" stroke="#000000" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
 
-          <line className="owl-foot tr-op hide-on-final" x1="275" y1="415" x2="225" y2="465" stroke="#ffffff" strokeWidth="32" strokeLinecap="round" />
+          <line className="owl-foot tr-op hide-on-final" x1="275" y1="415" x2="225" y2="465" stroke="#000000" strokeWidth="32" strokeLinecap="round" />
 
           <g className="owl-final tr-op">
-            <g stroke="#ffffff" strokeLinecap="round" strokeLinejoin="round">
+            <g stroke="#000000" strokeLinecap="round" strokeLinejoin="round">
               <path d="M 60 280 L 70 110 L 210 200 L 250 230 L 290 200 L 430 110 L 440 280" fill="none" strokeWidth="32"/>
-              <circle cx="150" cy="300" r="90" fill="#1a1f2e" strokeWidth="32"/>
-              <circle cx="350" cy="300" r="90" fill="#1a1f2e" strokeWidth="32"/>
+              <circle cx="150" cy="300" r="90" fill="#ffffff" strokeWidth="32"/>
+              <circle cx="350" cy="300" r="90" fill="#ffffff" strokeWidth="32"/>
               <path d="M 170 255 L 120 300 L 170 345" fill="none" strokeWidth="32"/>
               <path d="M 330 255 L 380 300 L 330 345" fill="none" strokeWidth="32"/>
-              <path d="M 215 320 L 285 320 L 250 385 Z" fill="#ffffff" strokeWidth="16"/>
+              <path d="M 215 320 L 285 320 L 250 385 Z" fill="#000000" strokeWidth="16"/>
               <line x1="275" y1="415" x2="225" y2="465" strokeWidth="32"/>
             </g>
           </g>

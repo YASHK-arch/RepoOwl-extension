@@ -1,0 +1,13 @@
+<div class="toolbar"><div class="pill"><span class="lbl">Glass</span><input id="amp" type="range" min="0" max="1.5" value="0.5" step="0.01" /><span id="ampVal" class="val">0.50</span></div><div class="pill"><span class="lbl">Chromatic</span><input id="chrom" type="range" min="0" max="2" value="0.6" step="0.01" /><span id="chromVal" class="val">0.60</span></div><div class="pill"><span class="lbl">Breath</span><input id="speed" type="range" min="0" max="4" value="1.0" step="0.01" /><span id="speedVal" class="val">1.00</span></div><label class="chk"><input id="animate" type="checkbox" checked /><span>Animate</span></label></div><div class="side"><div class="card"><div class="row"><label>Cell</label><input id="cell" type="range" min="8" max="200" value="56" /></div><div class="hint">Scroll: change Cell • Drag: pan • Double-click: toggle wireframe </div></div><div class="card"><div class="tabs"><button id="tabImg" class="tab">Image</button><button id="tabVid" class="tab active">Video</button></div><div id="imgPane" class="pane" style="display: none"><label class="url"><span>Image URL</span><input id="imgUrl"
+type="text"
+placeholder="Paste CORS-enabled image URL"
+/><button id="loadImg" type="button">Load</button></label></div><div id="vidPane" class="pane"><label class="url"><span>Video URL</span><input id="vidUrl"
+type="text"
+placeholder="Paste CORS-enabled mp4/webm URL"
+/><button id="loadVid" type="button">Load</button></label><div class="row small"><button id="playPause" type="button">Pause</button><label class="row"
+><input id="loop" type="checkbox" checked />Loop</label><label class="row"
+><input id="mute" type="checkbox" checked />Muted</label></div></div></div></div><div class="shape-switch" role="group" aria-label="Cell shape"><div class="seg"><button class="seg-btn active" data-shape="0" title="Hex" aria-label="Hex"><svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><polygon points="12,3 19,7 19,17 12,21 5,17 5,7" /></svg></button><button class="seg-btn" data-shape="1" title="Square" aria-label="Square"><svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2" /></svg></button><button class="seg-btn" data-shape="2" title="Diamond" aria-label="Diamond"><svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><polygon points="12,4 20,12 12,20 4,12" /></svg></button><button class="seg-btn"
+data-shape="3"
+title="Triangle"
+aria-label="Triangle"
+><svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><polygon points="12,4 20,18 4,18" /></svg></button><button class="seg-btn" data-shape="4" title="Circle" aria-label="Circle"><svg viewBox="0 0 24 24" class="ico" aria-hidden="true"><circle cx="12" cy="12" r="8" /></svg></button></div></div><canvas id="c"></canvas>

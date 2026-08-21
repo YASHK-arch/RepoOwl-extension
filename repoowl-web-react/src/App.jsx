@@ -4,9 +4,9 @@ import SplashScreen from './components/SplashScreen';
 import HeroSection from './components/HeroSection';
 import MetricBanner from './components/MetricBanner';
 import BentoSection from './components/BentoSection';
-import CtaFooter from './components/CtaFooter';
 import OrbitWarsBackground from './components/OrbitWarsBackground';
-import CustomCursor from './components/CustomCursor';
+import CtaFooter from './components/CtaFooter';
+import FeatureSlider from './components/FeatureSlider';
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
@@ -21,7 +21,6 @@ export default function App() {
 
   return (
     <>
-      <CustomCursor />
       {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
       <div
         className={`min-h-screen relative overflow-x-hidden transition-opacity duration-700 ${
@@ -30,12 +29,13 @@ export default function App() {
       >
         <NavBar />
         <main className="flex flex-col items-center w-full">
-          <div className="w-full relative flex justify-center">
+          <div className="w-full relative flex justify-center overflow-hidden">
             <OrbitWarsBackground />
-            <div className="pt-16 w-full max-w-[1200px] px-5 md:px-12">
+            <div className="pt-16 w-full max-w-[1200px] px-5 md:px-12 relative z-10">
               <HeroSection />
             </div>
           </div>
+          <FeatureSlider />
           <MetricBanner />
           <BentoSection />
           <CtaFooter />

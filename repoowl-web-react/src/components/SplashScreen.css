@@ -1,7 +1,7 @@
 /* ΓöÇΓöÇ Loader shell ΓöÇΓöÇ */
 #owl-loader {
   position: fixed; inset: 0;
-  background-color: #0D1117;
+  background-color: #F4F4F0;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   z-index: 9999;
@@ -26,7 +26,7 @@
   position: absolute;
   width: 140px; height: 140px;
   border-radius: 50%;
-  border: 40px solid #FF7043;
+  border: 40px solid #000000;
   opacity: 0;
   pointer-events: none;
   will-change: transform, opacity;
@@ -42,8 +42,8 @@
 /* ΓöÇΓöÇ Brand row ΓöÇΓöÇ */
 .owl-brand {
   margin-top: 28px;
-  font-size: 26px; font-weight: 800;
-  color: #F0F6FC; letter-spacing: -0.5px;
+  font-size: 32px; font-weight: 800;
+  color: #111111; letter-spacing: -0.5px;
   opacity: 0; will-change: opacity, transform;
   transform: translateY(12px);
   transition: opacity 0.6s ease, transform 0.6s ease;
@@ -53,7 +53,7 @@
 
 .owl-sub {
   margin-top: 5px;
-  font-size: 12px; color: #8B949E;
+  font-size: 14px; font-weight: 700; color: #4A4A4A;
   opacity: 0; will-change: opacity;
   transition: opacity 0.6s ease 0.15s;
   font-family: 'Inter', sans-serif;
@@ -62,8 +62,9 @@
 
 /* ΓöÇΓöÇ Shimmer bar ΓöÇΓöÇ */
 .owl-bar-wrap {
-  width: 200px; height: 2px;
-  background: rgba(48,54,61,0.7);
+  width: 200px; height: 4px;
+  background: #FFFFFF;
+  border: 2px solid #000000;
   border-radius: 99px;
   margin-top: 36px; overflow: hidden;
   opacity: 0; transition: opacity 0.6s ease 0.3s;

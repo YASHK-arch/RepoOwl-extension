@@ -1,4 +1,5 @@
 import React from 'react';
+import WebGLBackground from './WebGLBackground';
 
 const ITEMS = [
   { value: '100%', label: 'Client-Side' },
@@ -10,49 +11,54 @@ const ITEMS = [
 export default function MetricBanner() {
   return (
     <div
-      className="w-full py-9 md:py-12 px-5 md:px-12"
+      className="w-full relative overflow-hidden"
       style={{
-        borderTop: '1px solid #30363D',
-        borderBottom: '1px solid #30363D',
-        background: 'linear-gradient(to right, #0D1117, #0F1318, #0D1117)',
+        background: '#F0EDE8',
+        borderTop: '1px solid rgba(0,0,0,0.08)',
+        borderBottom: '1px solid rgba(0,0,0,0.08)',
       }}
     >
-      <div className="max-w-[1200px] mx-auto">
-        {/* Mobile: stack */}
-        <div className="flex flex-col gap-6 md:hidden items-center">
-          {ITEMS.map((item) => (
-            <MetricItem key={item.label} {...item} />
-          ))}
-        </div>
+      <WebGLBackground style={{ opacity: 0.6 }} />
+      
+      {/* Neutral overlay with dot-grid pattern */}
+      <div 
+        className="absolute inset-0 pointer-events-none" 
+        style={{
+          backgroundColor: 'rgba(245, 235, 215, 0.65)', /* Pale wheatish/warm cream overlay */
+          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }}
+      />
 
-        {/* Desktop: row with dividers */}
-        <div className="hidden md:flex items-center justify-evenly">
+      <div className="relative z-10 max-w-[760px] mx-auto px-5 py-16 md:py-20 text-center">
+        {/* Heading */}
+        <h2 className="text-2xl md:text-[32px] font-bold tracking-[-0.5px] text-[#1A1A1A] mb-3">
+          Built for privacy. Designed for speed.
+        </h2>
+        <p className="text-[14px] md:text-[15px] text-[#3A3A3A] leading-relaxed mb-12 max-w-[560px] mx-auto">
+          RepoOwl runs entirely in your browser. No accounts, no servers, no monthly bill.
+          Just open a GitHub repo and start triaging.
+        </p>
+
+        {/* Stats row */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-0">
           {ITEMS.map((item, i) => (
-            <React.Fragment key={item.label}>
-              <MetricItem {...item} />
+            <div key={item.label} className="flex items-center">
+              <div className="flex flex-col items-center px-8">
+                <span className="text-[28px] md:text-[34px] font-bold tracking-[-0.5px] text-[#1A1A1A]">
+                  {item.value}
+                </span>
+                <span className="text-[10px] font-semibold text-[#3A3A3A] uppercase tracking-[1.2px] mt-1">
+                  {item.label}
+                </span>
+              </div>
               {i < ITEMS.length - 1 && (
-                <div className="h-10 w-px" style={{ background: '#30363D' }} />
+                <div className="hidden sm:block h-8 w-px bg-black/20" />
               )}
-            </React.Fragment>
+            </div>
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-function MetricItem({ value, label }) {
-  return (
-    <div className="flex flex-col items-center">
-      <span
-        className="text-[28px] font-extrabold tracking-[-0.5px]"
-        style={{ color: '#F0F6FC' }}
-      >
-        {value}
-      </span>
-      <span className="text-[13px] mt-1" style={{ color: '#8B949E' }}>
-        {label}
-      </span>
     </div>
   );
 }
