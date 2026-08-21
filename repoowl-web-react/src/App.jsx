@@ -4,6 +4,7 @@ import SplashScreen from './components/SplashScreen';
 import HeroSection from './components/HeroSection';
 import MetricBanner from './components/MetricBanner';
 import BentoSection from './components/BentoSection';
+import ContributorsSection from './components/ContributorsSection';
 import OrbitWarsBackground from './components/OrbitWarsBackground';
 import CtaFooter from './components/CtaFooter';
 import FeatureSlider from './components/FeatureSlider';
@@ -38,6 +39,7 @@ export default function App() {
           <FeatureSlider />
           <MetricBanner />
           <BentoSection />
+          <ContributorsSection />
           <CtaFooter />
         </main>
       </div>

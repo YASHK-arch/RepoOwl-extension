@@ -135,7 +135,7 @@ export default function OrbitWarsBackground() {
         // Center the 1000x1000 board horizontally, and vertically relative to the viewport (vh)
         // so the sun appears in the center of the screen when scrolled to the top.
         const offsetX = (logicalW - 1000 * scale) / 2;
-        const offsetY = (vh - 1000 * scale) / 2;
+        const offsetY = (vh - 1000 * scale) / 2 + 100;
         
         ctx.translate(offsetX, offsetY);
         ctx.scale(scale, scale);
@@ -274,11 +274,18 @@ export default function OrbitWarsBackground() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: -1, objectFit: 'cover' }}
-      aria-hidden="true"
-    />
+    <div className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: -1 }}>
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full"
+        style={{ objectFit: 'cover' }}
+        aria-hidden="true"
+      />
+      {/* Cloud-like fade beneath the navbar */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-48"
+        style={{ background: 'linear-gradient(to bottom, rgba(240, 237, 232, 1) 0%, rgba(240, 237, 232, 0.8) 30%, transparent 100%)' }}
+      />
+    </div>
   );
 }
