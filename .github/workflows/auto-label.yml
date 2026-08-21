@@ -12,3 +12,15 @@ jobs:
       - uses: actions/labeler@v7
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Comment on PR
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '👋 Thanks for raising this PR! Our auto-labeller has scanned your changes, and a maintainer will review them shortly.'
+            })
