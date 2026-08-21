@@ -287,10 +287,26 @@ export default function WebGLBackground({ style = {} }) {
     };
     canvas.addEventListener('click', handleClick);
 
+    // ── Intersection Observer (Performance) ───────────────────────
+    let isVisible = false;
+    let rafId = null;
+
+    const observer = new IntersectionObserver((entries) => {
+      isVisible = entries[0].isIntersecting;
+      if (isVisible && !rafId) {
+        rafId = requestAnimationFrame(draw);
+      }
+    }, { threshold: 0 });
+    observer.observe(canvas);
+
     // ── Render loop ───────────────────────────────────────────────
-    let rafId;
     const draw = (tms) => {
+      if (!isVisible) {
+        rafId = null;
+        return; // Break loop when not visible
+      }
       rafId = requestAnimationFrame(draw);
+      
       resize();
       const t = tms * 0.001;
 
@@ -299,8 +315,6 @@ export default function WebGLBackground({ style = {} }) {
         gl.bindTexture(gl.TEXTURE_2D, tex);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
       }
-
-
 
       gl.useProgram(prog);
       gl.uniform2f(uRes, canvas.width, canvas.height);
@@ -323,7 +337,6 @@ export default function WebGLBackground({ style = {} }) {
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     };
-    rafId = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(rafId);

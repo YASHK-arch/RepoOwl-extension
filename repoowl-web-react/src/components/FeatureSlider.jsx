@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import VantaTrunkBackground from './VantaTrunkBackground';
 
 // ─── Real SVG brand logos ─────────────────────────────────────────
 const GitHubLogo = () => (
@@ -103,8 +102,6 @@ export default function FeatureSlider() {
 
   return (
     <div className="w-full relative py-16 md:py-20 overflow-hidden" style={{ borderTop: '1px solid #E8E5E0', minHeight: 420 }}>
-      {/* Vanta Trunk animated background */}
-      <VantaTrunkBackground />
       
       {/* Section Header */}
       <div className="relative z-10 text-center mb-12 px-5">
