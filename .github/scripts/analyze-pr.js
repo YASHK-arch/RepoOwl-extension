@@ -619,20 +619,24 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
 
 
   // -- Enforce Label Colors --------------------------------------------
-  if (Object.keys(labelColorsToEnforce).length > 0) {
+  const allLabelsToCheck = new Set([...Object.keys(labelColorsToEnforce), ...labelsToAdd]);
+  
+  if (allLabelsToCheck.size > 0) {
     console.log('Ensuring labels exist with correct colors...');
-    for (const [labelName, colorHex] of Object.entries(labelColorsToEnforce)) {
+    for (const labelName of allLabelsToCheck) {
       try {
         const getLabelRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/labels/${encodeURIComponent(labelName)}`, { headers: ghHeaders });
         if (getLabelRes.status === 404) {
+          const colorHex = labelColorsToEnforce[labelName] || Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
           console.log(`  Creating label '${labelName}' with color #${colorHex}`);
           await fetch(`https://api.github.com/repos/${owner}/${repo}/labels`, {
             method: 'POST',
             headers: ghHeaders,
             body: JSON.stringify({ name: labelName, color: colorHex })
           });
-        } else if (getLabelRes.ok) {
+        } else if (getLabelRes.ok && labelColorsToEnforce[labelName]) {
           const labelData = await getLabelRes.json();
+          const colorHex = labelColorsToEnforce[labelName];
           if (labelData.color !== colorHex) {
             console.log(`  Label '${labelName}' already exists - updating color to #${colorHex} per settings.`);
             await fetch(`https://api.github.com/repos/${owner}/${repo}/labels/${encodeURIComponent(labelName)}`, {
