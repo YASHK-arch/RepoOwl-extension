@@ -149,7 +149,7 @@ export default function OrbitWarsBackground() {
           ctx.beginPath();
           ctx.setLineDash([2, 6]);
           ctx.ellipse(state.sun.x, state.sun.y, 150 * 1.8, 150, 0, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)'; // higher opacity
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.9)'; // higher opacity
           ctx.stroke();
           ctx.beginPath();
           ctx.ellipse(state.sun.x, state.sun.y, 280 * 1.8, 280, 0, 0, Math.PI * 2);
@@ -164,7 +164,7 @@ export default function OrbitWarsBackground() {
             ctx.beginPath();
             ctx.setLineDash([4, 4]);
             ctx.arc(p.x, p.y, p.radius + 4, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
             ctx.lineWidth = 1;
             ctx.stroke();
             ctx.setLineDash([]);
