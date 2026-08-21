@@ -1168,9 +1168,17 @@ async function run() {
 
 
 
-  const codeChangesBlock = fileSummaries.length > 0 ? fileSummaries.join('\n') : 'No significant code changes found.';
+  let codeChangesBlock = fileSummaries.length > 0 ? fileSummaries.join('\n') : 'No significant code changes found.';
 
 
+
+  // Truncate codeChangesBlock to prevent hitting API token limits (8000 TPM limit on free tier)
+  // ~12000 chars is roughly 3000 tokens. This leaves room for the prompt and output response.
+  const MAX_CHANGES_LENGTH = 12000;
+  if (codeChangesBlock.length > MAX_CHANGES_LENGTH) {
+    codeChangesBlock = codeChangesBlock.substring(0, MAX_CHANGES_LENGTH) + '\n\n...[TRUNCATED FOR LENGTH: PR contains too many changes to fully analyze under API limits]...';
+    console.warn(`Code changes block exceeded ${MAX_CHANGES_LENGTH} chars. Truncated to avoid rate limits (413 errors).`);
+  }
 
 
 
