@@ -13096,7 +13096,7 @@ async function Gf(e, t, n, r, i) {
 				technical_metrics: c.technical_metrics
 			}, s, o))
 		}],
-		model: "qwen-2.5-32b",
+		model: "llama-3.3-70b-versatile",
 		temperature: .1,
 		response_format: { type: "json_object" }
 	})).choices[0]?.message?.content?.trim();
