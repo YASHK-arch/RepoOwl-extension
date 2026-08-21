@@ -53,7 +53,10 @@ async function askGroq(prompt, retries = 5, defaultDelayMs = 10000) {
 
     if (response.ok) {
       const data = await response.json();
-      return data.choices[0].message.content;
+      const raw = data.choices[0].message.content;
+      // Qwen3 models emit a <think>...</think> chain-of-thought block by default.
+      // Strip it so internal reasoning never leaks into GitHub comments.
+      return raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
     }
 
     const errorText = await response.text();
