@@ -11,7 +11,7 @@ const REPOSITORY      = process.env.REPOSITORY;   // format: owner/repo
 const ISSUE_NUMBER    = process.env.ISSUE_NUMBER; // set on issues.opened; empty on schedule
 
 const GROQ_URL   = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL_NAME = 'llama-3.3-70b-versatile';
+const MODEL_NAME = 'qwen-2.5-32b';
 const DELAY_MS   = 2000;
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms));

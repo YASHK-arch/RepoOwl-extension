@@ -19,7 +19,7 @@ const REPOSITORY = process.env.REPOSITORY; // format: owner/repo
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 
-const MODEL_NAME = 'qwen/qwen3.6-27b';
+const MODEL_NAME = 'qwen-2.5-32b';
 
 
 
