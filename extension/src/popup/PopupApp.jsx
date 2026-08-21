@@ -567,7 +567,7 @@ export function PopupApp() {
       <div className="ro-divider" />
 
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #d0d7de', margin: '0 16px 16px 16px' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid #d0d7de', margin: '0 -16px 16px -16px', padding: '0 16px' }}>
         <button 
           onClick={() => setActiveTab('current')} 
           style={{ flex: 1, padding: '8px', background: 'none', border: 'none', borderBottom: activeTab === 'current' ? '2px solid #0969da' : 'none', fontWeight: activeTab === 'current' ? 'bold' : 'normal', cursor: 'pointer', color: activeTab === 'current' ? '#24292f' : '#57606a' }}
