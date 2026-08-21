@@ -103,33 +103,51 @@ export default function FeatureSlider() {
   return (
     <div className="w-full relative py-16 md:py-20 overflow-hidden" style={{ borderTop: '1px solid #E8E5E0', minHeight: 420 }}>
       
+      <style>{`
+        @keyframes moveDotGrid {
+          from { background-position: 0px 0px; }
+          to { background-position: 24px 24px; }
+        }
+      `}</style>
+      
+      {/* Animated Dot Grid Background */}
+      <div 
+        className="absolute inset-0 pointer-events-none" 
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.08) 1.5px, transparent 1.5px)',
+          backgroundSize: '24px 24px',
+          animation: 'moveDotGrid 5s linear infinite',
+        }}
+      />
+      
       {/* Section Header */}
       <div className="relative z-10 text-center mb-12 px-5">
-        <h2 className="text-3xl md:text-[40px] font-bold tracking-[-1px] text-[#FFFFFF] leading-tight drop-shadow-sm">
+        <h2 className="text-3xl md:text-[40px] font-bold tracking-[-1px] text-[#1A1A1A] leading-tight drop-shadow-sm">
           Features that work where you do
         </h2>
-        <p className="mt-3 text-[15px] text-[#D0D0D0] max-w-[520px] mx-auto leading-relaxed">
+        <p className="mt-3 text-[15.5px] text-[#8B6E57] max-w-[520px] mx-auto leading-relaxed">
           Open a GitHub repo, let the AI scan, and get duplicate flags in seconds — all in your browser.
         </p>
       </div>
 
-      <div className="relative w-full">
+      <div className="relative w-full" style={{
+        maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+      }}>
         {/* Nav Buttons */}
         <button
           onClick={scrollLeft}
           aria-label="Scroll left"
-          className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full transition-colors"
-          style={{ background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.4)' }}
+          className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow-md transition-all border border-[#E8E5E0]"
         >
-          <ChevronLeft className="w-4 h-4 text-[#FFFFFF]" strokeWidth={2} />
+          <ChevronLeft className="w-4 h-4 text-[#1A1A1A]" strokeWidth={2} />
         </button>
         <button
           onClick={scrollRight}
           aria-label="Scroll right"
-          className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full transition-colors"
-          style={{ background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,0.4)' }}
+          className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow-md transition-all border border-[#E8E5E0]"
         >
-          <ChevronRight className="w-4 h-4 text-[#FFFFFF]" strokeWidth={2} />
+          <ChevronRight className="w-4 h-4 text-[#1A1A1A]" strokeWidth={2} />
         </button>
 
 
