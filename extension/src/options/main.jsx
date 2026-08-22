@@ -1,4 +1,4 @@
-import { StrictMode, useState } from 'react';
+import { StrictMode, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { ModelConfig } from '../settings/ModelConfig.jsx';
@@ -6,6 +6,7 @@ import { PromptSettings } from '../settings/PromptSettings.jsx';
 import { AboutPanel } from '../settings/AboutPanel.jsx';
 import { TrackedRepos } from '../settings/TrackedRepos.jsx';
 import { AutoTriagePanel } from '../settings/AutoTriagePanel.jsx';
+import { ConfigurationModal } from '../settings/ConfigurationModal.jsx';
 import './styles.css';
 
 const REPO_URL = 'https://github.com/YASHK-arch/RepoOwl-extension';
@@ -61,6 +62,36 @@ function OwlIcon() {
 
 function OptionsApp() {
   const [activeTab, setActiveTab] = useState('model');
+  const [isSetup, setIsSetup] = useState(false);
+  const [setupConfig, setSetupConfig] = useState(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('setup') === 'true') {
+      setIsSetup(true);
+      if (typeof chrome !== 'undefined' && chrome.storage) {
+        chrome.storage.local.get(['repoOwlConfig'], (res) => {
+          setSetupConfig(res.repoOwlConfig || {});
+        });
+      } else {
+        setSetupConfig({});
+      }
+    }
+  }, []);
+
+  if (isSetup) {
+    if (!setupConfig) return null; // loading
+    return (
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', background: '#f6f8fa', alignItems: 'center', justifyContent: 'center' }}>
+        <ConfigurationModal 
+           initialConfig={setupConfig} 
+           onClose={() => window.close()} 
+           onComplete={() => window.close()} 
+           isSetupWindow={true}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="ro-layout">
