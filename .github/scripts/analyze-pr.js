@@ -1081,65 +1081,45 @@ async function run() {
 
 
 
-  console.log(`Mapping ${filteredFiles.length} files...`);
+  // Batch files into at most MAP_BATCH_COUNT blocks so the map phase makes
+  // at most 5 Groq calls instead of one per file, and pace the calls to stay
+  // under the model's rate limits.
+  const MAP_BATCH_COUNT = 5;
+  const PER_FILE_PATCH_CHARS = 2000;
+  const MAP_BATCH_DELAY_MS = 8000;
 
+  const batchSize = Math.max(1, Math.ceil(filteredFiles.length / MAP_BATCH_COUNT));
+  const fileBatches = [];
+  for (let i = 0; i < filteredFiles.length; i += batchSize) {
+    fileBatches.push(filteredFiles.slice(i, i + batchSize));
+  }
+
+  console.log(`Mapping ${filteredFiles.length} files in ${fileBatches.length} batched block(s)...`);
 
   const fileSummaries = [];
 
-
-
-
-
-  for (const file of filteredFiles) {
-
-
+  for (let b = 0; b < fileBatches.length; b++) {
+    const batch = fileBatches[b];
     try {
-
-
-      console.log(`Summarizing ${file.filename}...`);
-
-
+      console.log(`Summarizing block ${b + 1}/${fileBatches.length} (${batch.map(f => f.filename).join(', ')})...`);
+      const filesBlock = batch.map(f =>
+        `File: ${f.filename}\nStatus: ${f.status}\nPatch:\n${f.patch.substring(0, PER_FILE_PATCH_CHARS)}`
+      ).join('\n\n---\n\n');
       const mapPrompt = `
+        For EACH file below, return exactly one line in this format: "- **<filename>**: <summary>".
+        The summary must describe what that file's diff does in 2 sentences max. Do not add anything else.
 
-
-        Briefly summarize what this specific file diff does in 2 sentences max.
-
-
-        File: ${file.filename}
-
-
-        Status: ${file.status}
-
-
-        Patch:
-
-
-        ${file.patch.substring(0, 10000)}
-
-
+        ${filesBlock}
       `;
-
-
       const summary = await askGroq(mapPrompt);
-
-
-      fileSummaries.push(`- **${file.filename}**: ${summary}`);
-
-
-      await new Promise(r => setTimeout(r, 1000));
-
-
+      fileSummaries.push(summary);
+      if (b < fileBatches.length - 1) {
+        await new Promise(r => setTimeout(r, MAP_BATCH_DELAY_MS));
+      }
     } catch (err) {
-
-
-      console.warn(`Could not summarize ${file.filename}:`, err.message);
-
-
+      console.warn(`Could not summarize block ${b + 1}:`, err.message);
     }
-
-
   }
-
 
 
 
@@ -1192,6 +1172,8 @@ async function run() {
 
 
   console.log('Phase 1: Getting structured triage JSON...');
+  // Pace the reduce phase to stay under the model's rate limits.
+  await new Promise(r => setTimeout(r, MAP_BATCH_DELAY_MS));
 
 
 
@@ -1310,6 +1292,7 @@ Rules for recommended_action:
 
 
   console.log('Phase 2: Generating markdown review...');
+  await new Promise(r => setTimeout(r, MAP_BATCH_DELAY_MS));
 
 
 
