@@ -535,12 +535,12 @@ async function callGroqAPI(issue, history, apiKey, repo, githubToken) {
       { role: 'system', content: STRICT_SYSTEM_PROMPT },
       { role: 'user', content: prompt }
     ],
-    model: import.meta.env.VITE_GROQ_MODEL || 'llama-3.3-70b-versatile',
+    model: import.meta.env.VITE_GROQ_MODEL || 'qwen/qwen3.6-27b',
     temperature: 0.1,
     response_format: { type: 'json_object' }
   });
 
-  const text = response.choices[0]?.message?.content?.trim();
+  const text = response.choices[0]?.message?.content?.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
   if (!text) {
     throw new Error('Groq API returned an empty response.');
   }

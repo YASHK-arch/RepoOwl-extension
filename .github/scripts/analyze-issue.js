@@ -11,7 +11,7 @@ const REPOSITORY      = process.env.REPOSITORY;   // format: owner/repo
 const ISSUE_NUMBER    = process.env.ISSUE_NUMBER; // set on issues.opened; empty on schedule
 
 const GROQ_URL   = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL_NAME = 'llama-3.3-70b-versatile';
+const MODEL_NAME = 'qwen/qwen3.6-27b';
 const DELAY_MS   = 2000;
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
@@ -42,7 +42,7 @@ async function askGroq(systemPrompt, userPrompt) {
   }
 
   const data = await response.json();
-  const text = data.choices[0]?.message?.content?.trim();
+  const text = data.choices[0]?.message?.content?.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
   if (!text) throw new Error('Groq returned an empty response.');
   return JSON.parse(text);
 }

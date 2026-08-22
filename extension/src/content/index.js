@@ -153,11 +153,11 @@ async function enableContributorDraftChecker(repoName, localGroqKey) {
           { role: 'system', content: DRAFT_SYSTEM_PROMPT },
           { role: 'user', content: prompt }
         ],
-        model: import.meta.env.VITE_GROQ_MODEL || 'llama-3.3-70b-versatile',
+        model: import.meta.env.VITE_GROQ_MODEL || 'qwen/qwen3.6-27b',
         temperature: 0.1,
         response_format: { type: 'json_object' }
       });
-      const text = response.choices[0]?.message?.content?.trim();
+      const text = response.choices[0]?.message?.content?.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
       if (text) {
         const analysis = JSON.parse(text);
         if (analysis.is_duplicate) {
@@ -231,12 +231,12 @@ async function autoAnalyzeAndSaveToSandbox(repoName, issueNumber, localGroqKey, 
         { role: 'system', content: STRICT_SYSTEM_PROMPT },
         { role: 'user', content: prompt }
       ],
-      model: import.meta.env.VITE_GROQ_MODEL || 'llama-3.3-70b-versatile',
+      model: import.meta.env.VITE_GROQ_MODEL || 'qwen/qwen3.6-27b',
       temperature: 0.1,
       response_format: { type: 'json_object' }
     });
 
-    const text = response.choices[0]?.message?.content?.trim();
+    const text = response.choices[0]?.message?.content?.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
     if (text) {
       const analysis = JSON.parse(text);
       await sandboxClient.from('issues').insert({
