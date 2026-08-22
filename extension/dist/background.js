@@ -13168,10 +13168,10 @@ async function rp(e, t, n, r, i) {
 				technical_metrics: c.technical_metrics
 			}, s, o))
 		}],
-		model: "llama-3.3-70b-versatile",
+		model: "qwen/qwen3.6-27b",
 		temperature: .1,
 		response_format: { type: "json_object" }
-	})).choices[0]?.message?.content?.trim();
+	})).choices[0]?.message?.content?.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
 	if (!l) throw Error("Groq API returned an empty response.");
 	return JSON.parse(l);
 }
