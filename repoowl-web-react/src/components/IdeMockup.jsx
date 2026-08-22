@@ -241,7 +241,7 @@ function Scene2({ active }) {
             className="flex bg-[#F85149]/10 border-l-2 border-[#F85149] text-[#FFA198]"
           >
             <span className="w-8 text-right mr-4 opacity-50">22</span>
-            <span><span className="text-[#F85149] mr-2">-</span>const MODEL_NAME = 'llama-3.3-70b-versatile';</span>
+            <span><span className="text-[#F85149] mr-2">-</span>const MODEL_NAME = 'llama3-70b-8192';</span>
           </motion.div>
           
           <motion.div
