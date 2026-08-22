@@ -535,7 +535,7 @@ async function callGroqAPI(issue, history, apiKey, repo, githubToken) {
       { role: 'system', content: STRICT_SYSTEM_PROMPT },
       { role: 'user', content: prompt }
     ],
-    model: import.meta.env.VITE_GROQ_MODEL || 'llama3-70b-8192',
+    model: import.meta.env.VITE_GROQ_MODEL || 'llama-3.3-70b-versatile',
     temperature: 0.1,
     response_format: { type: 'json_object' }
   });
