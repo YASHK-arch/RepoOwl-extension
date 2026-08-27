@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Key, Layers, Zap, Brain, Shield, GitBranch, CheckCircle, ArrowDown, ChevronRight,
+  Key, Layers, Zap, Brain, Shield, GitBranch, CheckCircle, ChevronRight,
+  AlertTriangle, Eye, GitPullRequest, Repeat2, ArrowDown,
 } from 'lucide-react';
 import AsciiArtBackground from './AsciiArtBackground';
 
@@ -18,16 +19,18 @@ const C = {
   yellowText: '#CA8A04',
   purple: '#F5F3FF',
   purpleText: '#8B5CF6',
+  red: '#FEF2F2',
+  redText: '#DA3633',
   textPrimary: '#1A1A1A',
   textSecondary: '#6B6A67',
   textMuted: '#9A9896',
 };
 
 // ─── Bento Card shell ───────────────────────────────────────────
-function Card({ minH = 200, children }) {
+function Card({ minH = 200, children, className = '' }) {
   return (
     <div
-      className="p-6 bg-white rounded-2xl border border-[#E8E5E0] hover:shadow-md transition-shadow duration-200"
+      className={`p-6 bg-white rounded-2xl border border-[#E8E5E0] hover:shadow-md transition-shadow duration-200 ${className}`}
       style={{ minHeight: minH }}
     >
       {children}
@@ -85,12 +88,13 @@ function MediatorCard() {
       <div className="font-semibold text-[15px] text-[#1A1A1A] mb-1">3-Layer Mediator</div>
       <div className="text-xs text-[#6B6A67] mb-3">Zero-config contributor discovery</div>
       <p className="text-xs leading-[1.6] mb-4 text-[#6B6A67]">
-        Contributors no longer paste manual API keys. The extension auto-discovers the maintainer's connection via a central registry.
+        Contributors never paste API keys. The extension auto-discovers the maintainer's Supabase connection via a shared Central Mediator registry — fully automatic.
       </p>
       <CodeBlock lines={[
-        ['// Auto-resolve maintainer config', C.textMuted],
-        ['const connection = await', C.textSecondary],
-        ['  registry.discover(repoOwner);', C.blueText],
+        ['// Zero-config discovery', C.textMuted],
+        ['const hub = await registry', C.textSecondary],
+        ['  .discover(repoOwner);', C.blueText],
+        ['// fallback: repoowl.json', C.textMuted],
       ]} />
     </Card>
   );
@@ -102,7 +106,7 @@ function LiveSyncCard() {
       <CardIcon bg={C.blue}><Layers className="w-5 h-5" style={{ color: C.blueText }} /></CardIcon>
       <div className="font-semibold text-[15px] text-[#1A1A1A] mb-3">Live Sync Tracking</div>
       <p className="text-xs leading-[1.5] mb-4 text-[#6B6A67]">
-        Maintainers can force sync keys to the mediator and track real-time registration status directly from the UI.
+        Maintainers force-sync keys to the mediator and track real-time contributor registration status directly from the Settings UI.
       </p>
       <FlowBox label="Maintainer Node" sub="Pushes encrypted keys" bg={C.blue} icon={Layers} iconColor={C.blueText} />
       <div className="flex justify-center my-2">
@@ -113,13 +117,72 @@ function LiveSyncCard() {
   );
 }
 
+function PRSlopCard() {
+  return (
+    <Card minH={230}>
+      <CardIcon bg={C.red}><GitPullRequest className="w-5 h-5" style={{ color: C.redText }} /></CardIcon>
+      <div className="font-semibold text-[15px] text-[#1A1A1A] mb-1">PR Slop Detection</div>
+      <div className="text-xs text-[#6B6A67] mb-3">AI-generated code & off-topic PRs flagged</div>
+      <p className="text-xs leading-[1.6] mb-4 text-[#6B6A67]">
+        LLaMA evaluates PR diffs against title, description, and linked issues — flagging AI-generated "slop", off-topic changes, and unresolved issues.
+      </p>
+      <CodeBlock lines={[
+        ['{', C.textMuted],
+        ['  "is_slop": true,', C.redText],
+        ['  "severity": "high",', C.textSecondary],
+        ['  "labels": ["ai-generated"]', C.purpleText],
+        ['}', C.textMuted],
+      ]} />
+    </Card>
+  );
+}
+
+function GroqLlamaCard() {
+  return (
+    <Card minH={230}>
+      <CardIcon bg={C.purple}><Brain className="w-5 h-5" style={{ color: C.purpleText }} /></CardIcon>
+      <div className="font-semibold text-[15px] text-[#1A1A1A] mb-1">LLaMA 3.3 70B</div>
+      <div className="text-xs text-[#6B6A67] mb-4">llama-3.3-70b-specdec · Groq Cloud</div>
+      <CodeBlock lines={[
+        ['{', C.textMuted],
+        ['  "model": "llama-3.3-70b-specdec",', C.textSecondary],
+        ['  "temperature": 0.1,', C.purpleText],
+        ['  "response_format": "json_object"', C.blueText],
+        ['}', C.textMuted],
+      ]} />
+      <p className="text-xs leading-[1.6] mt-3 text-[#6B6A67]">
+        Near-deterministic JSON output. Understands issue <em>meaning</em> — not just keywords — via Groq's blazing-fast speculative decoding inference.
+      </p>
+    </Card>
+  );
+}
+
+function DraftCheckerCard() {
+  return (
+    <Card minH={230}>
+      <CardIcon bg={C.green}><Eye className="w-5 h-5" style={{ color: C.greenText }} /></CardIcon>
+      <div className="font-semibold text-[15px] text-[#1A1A1A] mb-1">Real-Time Draft Checker</div>
+      <div className="text-xs text-[#6B6A67] mb-3">Duplicate warning before you submit</div>
+      <p className="text-xs leading-[1.6] mb-4 text-[#6B6A67]">
+        As contributors type a new issue, RepoOwl silently queries the last 50 open issues and injects a red warning banner in the GitHub UI — before the issue is even filed.
+      </p>
+      <div className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] p-3 flex gap-2 items-start">
+        <AlertTriangle className="w-3.5 h-3.5 text-[#DA3633] mt-0.5 flex-shrink-0" />
+        <div className="text-[11px] text-[#DA3633] font-medium leading-relaxed">
+          Similar open issue detected: <span className="font-mono">#142</span> — "Auth token refresh loop"
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 function SupabaseRLSCard() {
   return (
     <Card minH={230}>
       <CardIcon bg={C.green}><Zap className="w-5 h-5" style={{ color: C.greenText }} /></CardIcon>
       <div className="font-semibold text-[15px] text-[#1A1A1A] mb-3">Secure RLS & Schema</div>
       <p className="text-xs leading-[1.6] mb-4 text-[#6B6A67]">
-        Idempotent SQL schema with robust Row-Level Security ensuring seamless and secure read/write capabilities across roles.
+        Idempotent SQL schema with robust Row-Level Security across Maintainer Hub and Contributor Sandbox Supabase projects. Handles both roles seamlessly.
       </p>
       <CodeBlock lines={[
         ['-- Idempotent RLS Policy', C.textMuted],
@@ -131,22 +194,23 @@ function SupabaseRLSCard() {
   );
 }
 
-function GroqLlamaCard() {
+function AutomationCard() {
   return (
-    <Card minH={230}>
-      <CardIcon bg={C.purple}><Brain className="w-5 h-5" style={{ color: C.purpleText }} /></CardIcon>
-      <div className="font-semibold text-[15px] text-[#1A1A1A] mb-1">Llama 3.3 Versatile</div>
-      <div className="text-xs text-[#6B6A67] mb-4">Powered by Groq API</div>
-      <CodeBlock lines={[
-        ['{', C.textMuted],
-        ['  "model": "llama3.3",', C.textSecondary],
-        ['  "provider": "Groq",', C.textSecondary],
-        ['  "speed": "instant",', C.purpleText],
-        ['}', C.textMuted],
-      ]} />
-      <p className="text-xs leading-[1.6] mt-3 text-[#6B6A67]">
-        Semantic analysis uses Llama 3 to understand the true meaning of issues, operating via blazing-fast Groq inference.
-      </p>
+    <Card minH={140} className="col-span-1 md:col-span-2">
+      <div className="flex flex-wrap gap-3 items-start justify-between">
+        <div>
+          <CardIcon bg={C.purple}><Repeat2 className="w-5 h-5" style={{ color: C.purpleText }} /></CardIcon>
+          <div className="font-semibold text-[15px] text-[#1A1A1A] mb-1">7 GitHub Actions Workflows</div>
+          <p className="text-xs leading-[1.6] text-[#6B6A67] max-w-[500px]">
+            Auto-install via the extension UI. Covers issue analysis, PR slop detection, auto-labeling, contributor assignment, stale management, welcome messages, and post-merge status updates.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-1">
+          {['issue-analyze', 'repoowl-analyze', 'auto-label', 'issue-assignment', 'pr-merged', 'welcome', 'stale'].map(w => (
+            <span key={w} className="font-mono text-[10px] px-2 py-1 rounded-md bg-[#F5F3FF] text-[#8B5CF6] border border-[#EDE9FE]">{w}.yml</span>
+          ))}
+        </div>
+      </div>
     </Card>
   );
 }
@@ -155,7 +219,7 @@ function GroqLlamaCard() {
 const HOW_STEPS = [
   { icon: GitBranch, label: 'Open a GitHub Repo', bg: C.blue, iconColor: C.blueText },
   { label: '→', arrow: true },
-  { icon: Brain, label: 'AI Scans Issues', bg: C.yellow, iconColor: C.yellowText },
+  { icon: Brain, label: 'LLaMA 3.3 Scans Issues', bg: C.yellow, iconColor: C.yellowText },
   { label: '→', arrow: true },
   { icon: CheckCircle, label: 'Duplicates Flagged', bg: C.green, iconColor: C.greenText },
 ];
@@ -221,9 +285,20 @@ export default function BentoSection() {
         </div>
 
         {/* 2-col bento grid row 2 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <DraftCheckerCard />
+          <PRSlopCard />
+        </div>
+
+        {/* 2-col bento grid row 3 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <SupabaseRLSCard />
           <GroqLlamaCard />
+        </div>
+
+        {/* Full-width automation card */}
+        <div className="grid grid-cols-1 gap-4">
+          <AutomationCard />
         </div>
       </div>
     </div>
