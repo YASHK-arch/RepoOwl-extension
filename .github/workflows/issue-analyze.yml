@@ -32,6 +32,6 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           REPOSITORY: ${{ github.repository }}
-          # Only set on issues.opened ÃÂ¢Ã¢ÂÂ¬Ã¢ÂÂ empty string on schedule/dispatch
+          # Only set on issues.opened - empty string on schedule/dispatch
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: node .github/scripts/analyze-issue.js
