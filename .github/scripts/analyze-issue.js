@@ -140,10 +140,33 @@ async function saveAnalysis(repo, issue, analysis) {
 }
 
 
+function getLabelColor(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+  return "000000".substring(0, 6 - c.length) + c;
+}
+
 async function addContextualLabels(repo, issue, analysis) {
   if (!analysis.contextual_labels || !Array.isArray(analysis.contextual_labels) || analysis.contextual_labels.length === 0) {
     return;
   }
+  
+  for (const label of analysis.contextual_labels) {
+    const color = getLabelColor(label);
+    const labelUrl = `https://api.github.com/repos/${repo}/labels`;
+    await fetch(labelUrl, {
+      method: 'POST',
+      headers: ghHeaders(),
+      body: JSON.stringify({
+        name: label,
+        color: color
+      })
+    });
+  }
+
   const url = `https://api.github.com/repos/${repo}/issues/${issue.number}/labels`;
   const res = await fetch(url, {
     method: 'POST',
@@ -172,7 +195,7 @@ affected_files:
 ${(analysis.affected_files || []).map(f => `  - ${f}`).join('\n')}
 `;
 
-  const body = `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/icons/icon128.png" width="30" height="30" /> **RepoOwl Issue Analysis**\n\n\`\`\`yaml\n${yamlContent}\n\`\`\``;
+  const body = `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;" /> **RepoOwl Issue Analysis**\n\n\`\`\`yaml\n${yamlContent}\n\`\`\``;
 
   const res = await fetch(url, {
     method: 'POST',
