@@ -17,5 +17,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'ð Thanks for raising this issue!\n\nA maintainer will review it shortly. Please do **not** start working on it until you have been assigned â our auto-assignment bot will assign you if your issue passes triage, or a maintainer may assign you manually.'
+              body: '👋 Thanks for raising this issue!\n\nA maintainer will review it shortly. Please do **not** start working on it until you have been assigned — our auto-assignment bot will assign you if your issue passes triage, or a maintainer may assign you manually.'
             });
