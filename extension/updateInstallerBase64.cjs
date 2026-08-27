@@ -6,6 +6,12 @@ const pairs = [
   ['SCRIPT_JS_B64', '../.github/scripts/analyze-pr.js'],
   ['ISSUE_WORKFLOW_YAML_B64', '../.github/workflows/issue-analyze.yml'],
   ['ISSUE_SCRIPT_JS_B64', '../.github/scripts/analyze-issue.js'],
+  ['WELCOME_WORKFLOW_YAML_B64', '../.github/workflows/welcome.yml'],
+  ['ISSUE_ASSIGNMENT_WORKFLOW_YAML_B64', '../.github/workflows/issue-assignment.yml'],
+  ['AUTO_LABEL_WORKFLOW_YAML_B64', '../.github/workflows/auto-label.yml'],
+  ['PR_MERGED_WORKFLOW_YAML_B64', '../.github/workflows/pr-merged.yml'],
+  ['STALE_WORKFLOW_YAML_B64', '../.github/workflows/stale.yml'],
+  ['LABELER_YML_B64', '../.github/labeler.yml'],
 ];
 
 const installerPath = path.join(__dirname, 'src/background/githubInstaller.js');
