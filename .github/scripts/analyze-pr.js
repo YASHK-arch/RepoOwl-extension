@@ -1334,7 +1334,12 @@ ${codeChangesBlock}
 
 
 
-Write a PR review using EXACTLY this format. Output only the review â no preamble, no JSON:
+CRITICAL OUTPUT RULES — MUST FOLLOW EXACTLY:
+- Do NOT include any thinking, reasoning, planning, or analysis steps in your response.
+- Do NOT include any preamble, introduction, numbered lists, or draft/refinement sections.
+- Do NOT write "Here's a thinking process", "Let me analyze", "Draft Output", "Map Input", or anything similar.
+- Begin your response IMMEDIATELY with the "> **Slop Badge:**" line. Nothing before it.
+- Output ONLY the final formatted review and nothing else.
 
 
 
@@ -1388,7 +1393,17 @@ Write a PR review using EXACTLY this format. Output only the review â no pr
   try {
 
 
-    markdownReview = await askGroq(reviewPrompt);
+    const rawReview = await askGroq(reviewPrompt);
+
+    // Post-process guard: strip any thinking preamble the model emitted outside
+    // its <think> block (e.g. "Here's a thinking process: ..."). The review
+    // must begin with the > **Slop Badge:** blockquote anchor.
+    const anchorMatch = rawReview.match(/(\u003e\s*\*\*Slop Badge:[\s\S]*)/i);
+    markdownReview = anchorMatch ? anchorMatch[1].trim() : rawReview.trim();
+
+    if (!anchorMatch) {
+      console.warn('Warning: LLM review did not start at the expected anchor. Using full output as fallback.');
+    }
 
 
   } catch (err) {
