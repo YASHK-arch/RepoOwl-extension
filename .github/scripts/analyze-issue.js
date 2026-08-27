@@ -127,7 +127,7 @@ async function saveAnalysis(repo, issue, analysis) {
       issue_number: issue.number,
       is_duplicate: analysis.is_duplicate,
       analysis_summary: analysis.analysis_summary,
-      affected_files: analysis.affected_files ?? null,
+        affected_files: analysis.affected_files ?? null,
       status: 'open'
     })
   });
@@ -137,6 +137,26 @@ async function saveAnalysis(repo, issue, analysis) {
     throw new Error(`Supabase insert failed (${res.status}): ${err}`);
   }
   console.log(`  ÃÂ¢ÃÂÃ¢ÂÂ Saved analysis for issue #${issue.number} (is_duplicate=${analysis.is_duplicate})`);
+}
+
+
+async function addContextualLabels(repo, issue, analysis) {
+  if (!analysis.contextual_labels || !Array.isArray(analysis.contextual_labels) || analysis.contextual_labels.length === 0) {
+    return;
+  }
+  const url = `https://api.github.com/repos/${repo}/issues/${issue.number}/labels`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: ghHeaders(),
+    body: JSON.stringify({
+      labels: analysis.contextual_labels
+    })
+  });
+  if (!res.ok) {
+    console.warn(`  - Failed to add labels to issue #${issue.number}: ${await res.text()}`);
+  } else {
+    console.log(`  - Added labels: ${analysis.contextual_labels.join(', ')}`);
+  }
 }
 
 async function updateRegistryStats(repo, totalAnalyzed, duplicatesFound) {
@@ -192,82 +212,25 @@ async function fetchAllOpenIssues(repo) {
 
 // ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ Core analysis logic ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬
 
-async function analyzeIssue(issue, history, fileTree) {
-  const fields = parseIssueTemplateFields(issue.body || '');
 
-      affected_files: analysis.affected_files ?? null,
-      status: 'open'
-    })
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Supabase insert failed (${res.status}): ${err}`);
-  }
-  console.log(`  ÃƒÂ¢Ã…Â“Ã¢Â€Âœ Saved analysis for issue #${issue.number} (is_duplicate=${analysis.is_duplicate})`);
-}
-
-async function updateRegistryStats(repo, totalAnalyzed, duplicatesFound) {
-  const url = `${SUPABASE_URL}/rest/v1/public_ecosystem_registry`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { ...supabaseHeaders(), 'Prefer': 'resolution=merge-duplicates' },
-    body: JSON.stringify({
-      repo_name: repo,
-      total_issues_analyzed: totalAnalyzed,
-      duplicates_found: duplicatesFound,
-      last_updated: new Date().toISOString()
-    })
-  });
-  if (!res.ok) {
-    console.warn(`Registry update failed: ${await res.text()}`);
+async function fetchRepoFileTree(repo) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/git/trees/main?recursive=1`, { headers: ghHeaders() });
+    if (!res.ok) return '';
+    const data = await res.json();
+    return data.tree.filter(t => t.type === 'blob').map(t => t.path).join('\n');
+  } catch (e) {
+    return '';
   }
 }
-
-// ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ GitHub helpers ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬
-
-function ghHeaders() {
-  return {
-    'Authorization': `Bearer ${GITHUB_TOKEN}`,
-    'Accept': 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28'
-  };
-}
-
-async function fetchIssueFromGitHub(repo, issueNumber) {
-  const res = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, { headers: ghHeaders() });
-  if (!res.ok) throw new Error(`GitHub API error fetching issue #${issueNumber}: ${await res.text()}`);
-  const issue = await res.json();
-  if (issue.pull_request) throw new Error(`#${issueNumber} is a pull request, not an issue.`);
-  return issue;
-}
-
-async function fetchAllOpenIssues(repo) {
-  const issues = [];
-  let page = 1;
-  while (true) {
-    const url = `https://api.github.com/repos/${repo}/issues?state=open&per_page=100&page=${page}&direction=asc`;
-    const res = await fetch(url, { headers: ghHeaders() });
-    if (!res.ok) throw new Error(`GitHub API error listing issues: ${await res.text()}`);
-    const batch = await res.json();
-    const realIssues = batch.filter(i => !i.pull_request);
-    issues.push(...realIssues);
-    if (batch.length < 100) break;
-    page++;
-  }
-  return issues;
-}
-
-// ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ Core analysis logic ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬ÃƒÂ¢Ã¢Â€Â Ã¢Â‚Â¬
 
 async function analyzeIssue(issue, history, fileTree) {
   const fields = parseIssueTemplateFields(issue.body || '');
 
   const historicalLog = history
-    .filter(h => h.issue_number !== issue.number) // exclude self
+    .filter(h => h.issue_number !== issue.number)
     .map(h => `[Issue ID: #${h.issue_number}]\nTechnical Summary: ${h.analysis_summary}`)
     .join('\n\n---\n\n') || 'No historical issues to compare against.';
-
   const systemPrompt =
     `You are an expert GitHub triage AI.\n` +
     `Your task is to analyze a GitHub issue and produce a structured triage report.\n\n` +
@@ -287,10 +250,10 @@ async function analyzeIssue(issue, history, fileTree) {
     `  - Based on the repository file tree, identify up to 8 specific source files most likely to need changes to resolve this issue.\n` +
     `  - Return their paths exactly as they appear in the file tree.\n\n` +
     `You must respond in valid JSON format matching this schema:\n` +
-    `{ "is_duplicate": boolean, "analysis_summary": "string", "contextual_labels": ["string", "string", "string"], "affected_files": ["string"] }\n` +
+    `{ "is_duplicate": boolean, "analysis_summary": "string", "contextual_labels": ["string"], "affected_files": ["string"] }\n` +
     `Ensure the JSON is well-formed.`;
 
-    const userPrompt =
+  const userPrompt =
     `INCOMING ISSUE DATA\n` +
     `Issue #${issue.number}: ${issue.title}\n\n` +
     `1. Core Problem / Request:\n${fields.primary_description || issue.body || 'No description provided.'}\n\n` +
@@ -298,7 +261,8 @@ async function analyzeIssue(issue, history, fileTree) {
     `3. Proposed Solution / Impact:\n${fields.expected_outcome || 'N/A'}\n\n` +
     `4. Technical Metrics & Environment:\n${fields.technical_metrics || 'N/A'}\n\n` +
     `HISTORICAL REPOSITORY CONTEXT\n${historicalLog}\n\n` +
-    `REPOSITORY FILE TREE\n${fileTree || 'Not available.'}`;
+    `REPOSITORY FILE TREE\n${fileTree || 'Not available.'}` +
+    `HISTORICAL REPOSITORY CONTEXT\n${historicalLog}`;
 
   // Retry up to 3 times on rate limit
   for (let attempt = 1; attempt <= 3; attempt++) {
