@@ -9,14 +9,23 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      - name: Generate token (if using GitHub App)
+        id: generate-token
+        if: secrets.REPOOWL_APP_ID != '' && secrets.REPOOWL_PRIVATE_KEY != ''
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.REPOOWL_APP_ID }}
+          private-key: ${{ secrets.REPOOWL_PRIVATE_KEY }}
+
       - uses: actions/labeler@v7
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          repo-token: "${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}"
 
       - name: Comment on PR
         if: github.event.action == 'opened'
         uses: actions/github-script@v9
         with:
+          github-token: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
