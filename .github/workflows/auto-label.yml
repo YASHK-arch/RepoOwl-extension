@@ -22,5 +22,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'ð Thanks for raising this PR! Our auto-labeller has scanned your changes, and a maintainer will review them shortly.'
+              body: '👋 Thanks for raising this PR! Our auto-labeller has scanned your changes, and a maintainer will review them shortly.'
             })
