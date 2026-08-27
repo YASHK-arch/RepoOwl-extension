@@ -20,5 +20,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'ð Merged! Thanks for contributing to RepoOwl.\n\nIf the project has been useful to you, a â­ star on the repo is the easiest way to support it â it helps RepoOwl get discovered by more developers.\n\nKeep an eye on open issues for your next contribution!'
+              body: '🎉 Merged! Thanks for contributing to RepoOwl.\n\nIf the project has been useful to you, a ⭐ star on the repo is the easiest way to support it — it helps RepoOwl get discovered by more developers.\n\nKeep an eye on open issues for your next contribution!'
             })
