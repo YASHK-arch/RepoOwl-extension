@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # ── Auto-assign author on issue open (if labels are clean) ──────────────────
+  # -- Auto-assign author on issue open (if labels are clean) ------------------
   auto-assign-on-open:
     if: >
       github.event_name == 'issues' &&
@@ -32,14 +32,14 @@ jobs:
             const hasExclusionLabel = labels.some(l => EXCLUSION_LABELS.includes(l));
 
             if (hasExclusionLabel) {
-              core.info(`Issue #${issue.number} has an exclusion label — skipping auto-assign.`);
+              core.info(`Issue #${issue.number} has an exclusion label -- skipping auto-assign.`);
               return;
             }
 
             // Check if the author is already an assignee
             const alreadyAssigned = issue.assignees.some(a => a.login === issue.user.login);
             if (alreadyAssigned) {
-              core.info(`Author @${issue.user.login} is already assigned — no action needed.`);
+              core.info(`Author @${issue.user.login} is already assigned -- no action needed.`);
               return;
             }
 
@@ -51,7 +51,7 @@ jobs:
             });
             core.info(`Auto-assigned issue #${issue.number} to its author @${issue.user.login}.`);
 
-  # ── Queue a /assign me request from a non-author ────────────────────────────
+  # -- Queue a /assign me request from a non-author ----------------------------
   acknowledge-assignment-request:
     if: github.event_name == 'issue_comment' && github.event.action == 'created' && !github.event.issue.pull_request
     runs-on: ubuntu-latest
