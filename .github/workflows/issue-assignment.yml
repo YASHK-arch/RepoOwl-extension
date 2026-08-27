@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # ── Auto-assign author on issue open (if labels are clean) ──────────────────
+  # -- Auto-assign author on issue open (if labels are clean) ------------------
   auto-assign-on-open:
     if: >
       github.event_name == 'issues' &&
@@ -22,9 +22,18 @@ jobs:
     permissions:
       issues: write
     steps:
+      - name: Generate token (if using GitHub App)
+        id: generate-token
+        if: secrets.REPOOWL_APP_ID != '' && secrets.REPOOWL_PRIVATE_KEY != ''
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.REPOOWL_APP_ID }}
+          private-key: ${{ secrets.REPOOWL_PRIVATE_KEY }}
+
       - name: Assign author if no exclusion labels
         uses: actions/github-script@v9
         with:
+          github-token: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
             const EXCLUSION_LABELS = ['needs-triage', 'spam', 'duplicate'];
             const issue = context.payload.issue;
@@ -32,14 +41,14 @@ jobs:
             const hasExclusionLabel = labels.some(l => EXCLUSION_LABELS.includes(l));
 
             if (hasExclusionLabel) {
-              core.info(`Issue #${issue.number} has an exclusion label — skipping auto-assign.`);
+              core.info(`Issue #${issue.number} has an exclusion label -- skipping auto-assign.`);
               return;
             }
 
             // Check if the author is already an assignee
             const alreadyAssigned = issue.assignees.some(a => a.login === issue.user.login);
             if (alreadyAssigned) {
-              core.info(`Author @${issue.user.login} is already assigned — no action needed.`);
+              core.info(`Author @${issue.user.login} is already assigned -- no action needed.`);
               return;
             }
 
@@ -51,16 +60,25 @@ jobs:
             });
             core.info(`Auto-assigned issue #${issue.number} to its author @${issue.user.login}.`);
 
-  # ── Queue a /assign me request from a non-author ────────────────────────────
+  # -- Queue a /assign me request from a non-author ----------------------------
   acknowledge-assignment-request:
     if: github.event_name == 'issue_comment' && github.event.action == 'created' && !github.event.issue.pull_request
     runs-on: ubuntu-latest
     permissions:
       issues: write
     steps:
+      - name: Generate token (if using GitHub App)
+        id: generate-token
+        if: secrets.REPOOWL_APP_ID != '' && secrets.REPOOWL_PRIVATE_KEY != ''
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.REPOOWL_APP_ID }}
+          private-key: ${{ secrets.REPOOWL_PRIVATE_KEY }}
+
       - name: Queue a valid assignment request
         uses: actions/github-script@v9
         with:
+          github-token: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
             const body = context.payload.comment.body.trim();
             const issue = context.payload.issue;
@@ -82,9 +100,18 @@ jobs:
       issues: write
       pull-requests: read
     steps:
+      - name: Generate token (if using GitHub App)
+        id: generate-token
+        if: secrets.REPOOWL_APP_ID != '' && secrets.REPOOWL_PRIVATE_KEY != ''
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.REPOOWL_APP_ID }}
+          private-key: ${{ secrets.REPOOWL_PRIVATE_KEY }}
+
       - name: Reassign eligible issues
         uses: actions/github-script@v9
         with:
+          github-token: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
             const DAY = 24 * 60 * 60 * 1000;
             const INACTIVITY_PERIOD = 7 * DAY;

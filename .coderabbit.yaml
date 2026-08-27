@@ -1,5 +1,0 @@
-# .coderabbit.yaml
-# Disable CodeRabbit automatic reviews for this repository
-reviews:
-  auto_review:
-    enabled: false
