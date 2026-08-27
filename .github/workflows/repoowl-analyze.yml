@@ -35,5 +35,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
           REPOSITORY: ${{ github.repository }}
-          CORE_TRIAGE_LABELS: '{"spam":"⚠️ scam","invalid":"⚠️ invalid","ai-slop":"🚨 ai-slop","prompt-injection":"🚨 prompt-injection","needs-triage":"needs-triage","duplicate":"duplicate","possible-duplicate":"possible-duplicate","security":"security"}'
+          CORE_TRIAGE_LABELS: '{"spam":"spam","invalid":"invalid","ai-slop":"ai-slop","prompt-injection":"prompt-injection","needs-triage":"needs-triage","duplicate":"duplicate","possible-duplicate":"possible-duplicate","security":"security"}'
         run: node .github/scripts/analyze-pr.js
