@@ -21,18 +21,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Generate token (if using GitHub App)
-        id: generate-token
-        if: secrets.REPOOWL_APP_ID != '' && secrets.REPOOWL_PRIVATE_KEY != ''
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.REPOOWL_APP_ID }}
-          private-key: ${{ secrets.REPOOWL_PRIVATE_KEY }}
-
       - name: Checkout Repository
         uses: actions/checkout@v7
         with:
-          token: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -42,7 +34,7 @@ jobs:
       - name: Run RepoOwl PR Analysis
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
           REPOSITORY: ${{ github.repository }}
           CORE_TRIAGE_LABELS: '{"spam":"spam","invalid":"invalid","ai-slop":"ai-slop","prompt-injection":"prompt-injection","needs-triage":"needs-triage","duplicate":"duplicate","possible-duplicate":"possible-duplicate","security":"security"}'
