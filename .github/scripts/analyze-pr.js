@@ -384,7 +384,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
   if (is_prompt_injection) {
 
     commentBody = [
-      `### :owl: RepoOwl PR Analysis`,
+      `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;"> ### RepoOwl PR Analysis`,
       ``,
       `> :rotating_light: **Security Notice:** This PR appears to contain a prompt injection or malicious payload pattern in its description. It has been flagged for maintainer security review.`,
       ``,
@@ -401,7 +401,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
   } else if (is_spam || slop_score >= 90) {
 
     commentBody = [
-      `### :owl: RepoOwl PR Analysis`,
+      `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;"> ### RepoOwl PR Analysis`,
       ``,
       `> :warning: **Quality Notice:** This PR has been flagged as potential AI-generated slop or spam (slop score: ${slop_score}/100). A maintainer will review it.`,
       ``,
@@ -420,7 +420,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
     // There are other open PRs for the same issue — inform the contributor
     const relatedPRList = relatedPRs.map(pr => `- #${pr.number}: [${pr.title}](${pr.html_url})`).join('\n');
     commentBody = [
-      `### :owl: RepoOwl PR Analysis`,
+      `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;"> ### RepoOwl PR Analysis`,
       ``,
       `> :information_source: **Heads up!** There ${relatedPRs.length === 1 ? 'is already another open PR' : `are already ${relatedPRs.length} other open PRs`} addressing issue #${linkedIssueNumber}:`,
       ``,
@@ -438,7 +438,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
   } else if (labelsToAdd.includes('needs-triage') || labelsToAdd.includes('possible-duplicate')) {
 
     commentBody = [
-      `### :owl: RepoOwl PR Analysis`,
+      `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;"> ### RepoOwl PR Analysis`,
       ``,
       `**Note:** ${summary_reason}`,
       ``,
@@ -453,7 +453,7 @@ async function executeTriageAction(owner, repo, pullNumber, analysis, markdownRe
 
     // Valid contribution — full review comment
     commentBody = [
-      `### :owl: RepoOwl PR Analysis`,
+      `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;"> ### RepoOwl PR Analysis`,
       ``,
       markdownReview || summary_reason,
       ``,

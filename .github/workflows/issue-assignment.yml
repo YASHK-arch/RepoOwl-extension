@@ -22,18 +22,10 @@ jobs:
     permissions:
       issues: write
     steps:
-      - name: Generate token (if using GitHub App)
-        id: generate-token
-        if: secrets.REPOOWL_APP_ID != '' && secrets.REPOOWL_PRIVATE_KEY != ''
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.REPOOWL_APP_ID }}
-          private-key: ${{ secrets.REPOOWL_PRIVATE_KEY }}
-
       - name: Assign author if no exclusion labels
         uses: actions/github-script@v9
         with:
-          github-token: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const EXCLUSION_LABELS = ['needs-triage', 'spam', 'duplicate'];
             const issue = context.payload.issue;
@@ -67,18 +59,10 @@ jobs:
     permissions:
       issues: write
     steps:
-      - name: Generate token (if using GitHub App)
-        id: generate-token
-        if: secrets.REPOOWL_APP_ID != '' && secrets.REPOOWL_PRIVATE_KEY != ''
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.REPOOWL_APP_ID }}
-          private-key: ${{ secrets.REPOOWL_PRIVATE_KEY }}
-
       - name: Queue a valid assignment request
         uses: actions/github-script@v9
         with:
-          github-token: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const body = context.payload.comment.body.trim();
             const issue = context.payload.issue;
@@ -90,7 +74,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
-              body: `@${context.actor}, your assignment request is queued. It will be considered if @${issue.user.login} is inactive for 7 days and no pull request has been raised for this issue.`,
+              body: `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;"> **RepoOwl:** @${context.actor}, your assignment request is queued. It will be considered if @${issue.user.login} is inactive for 7 days and no pull request has been raised for this issue.`,
             });
 
   reassign-inactive-issues:
@@ -100,18 +84,10 @@ jobs:
       issues: write
       pull-requests: read
     steps:
-      - name: Generate token (if using GitHub App)
-        id: generate-token
-        if: secrets.REPOOWL_APP_ID != '' && secrets.REPOOWL_PRIVATE_KEY != ''
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.REPOOWL_APP_ID }}
-          private-key: ${{ secrets.REPOOWL_PRIVATE_KEY }}
-
       - name: Reassign eligible issues
         uses: actions/github-script@v9
         with:
-          github-token: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const DAY = 24 * 60 * 60 * 1000;
             const INACTIVITY_PERIOD = 7 * DAY;
@@ -177,7 +153,7 @@ jobs:
                 });
                 await github.rest.issues.createComment({
                   owner, repo, issue_number: issue.number,
-                  body: `@${author} has been inactive for 7 days with no linked pull request. This issue is now assigned to @${newAssignee}, the first contributor who requested it.`,
+                  body: `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;"> **RepoOwl:** @${author} has been inactive for 7 days with no linked pull request. This issue is now assigned to @${newAssignee}, the first contributor who requested it.`,
                 });
               } catch (error) {
                 core.warning(`Could not reassign issue #${issue.number}: ${error.message}`);

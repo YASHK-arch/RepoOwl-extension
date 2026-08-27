@@ -9,22 +9,14 @@ jobs:
     permissions:
       issues: write
     steps:
-      - name: Generate token (if using GitHub App)
-        id: generate-token
-        if: secrets.REPOOWL_APP_ID != '' && secrets.REPOOWL_PRIVATE_KEY != ''
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.REPOOWL_APP_ID }}
-          private-key: ${{ secrets.REPOOWL_PRIVATE_KEY }}
-
       - name: Thank the issue author
         uses: actions/github-script@v9
         with:
-          github-token: ${{ steps.generate-token.outputs.token || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: ' Thanks for raising this issue!\n\nA maintainer will review it shortly. Please do **not** start working on it until you have been assigned -- our auto-assignment bot will assign you if your issue passes triage, or a maintainer may assign you manually.'
+              body: '<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;"> **RepoOwl:** Thanks for raising this issue!\n\nA maintainer will review it shortly. Please do **not** start working on it until you have been assigned -- our auto-assignment bot will assign you if your issue passes triage, or a maintainer may assign you manually.'
             });
