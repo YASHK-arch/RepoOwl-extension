@@ -1,5 +1,5 @@
 
-// RepoOwl Issue Analyzer ÃÂ¢Ã¢ÂÂ¬Ã¢ÂÂ GitHub Actions Script
+// RepoOwl Issue Analyzer â€” GitHub Actions Script
 // Runs server-side so it works 24/7 regardless of whether the maintainer's browser is open.
 // Replicates the logic from extension/src/background.js: executeIssueSyncQueue (maintainer path only).
 
@@ -16,7 +16,7 @@ const DELAY_MS   = 2000;
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
-// ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ Helpers ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬
+// â€”â€”â€”â€”â€” Helpers â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
 
 async function askGroq(systemPrompt, userPrompt) {
   const response = await fetch(GROQ_URL, {
@@ -85,7 +85,7 @@ function parseIssueTemplateFields(body) {
   };
 }
 
-// ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ Supabase REST helpers (no SDK needed ÃÂ¢Ã¢ÂÂ¬Ã¢ÂÂ pure fetch) ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬
+// â€”â€”â€”â€”â€” Supabase REST helpers (no SDK needed â€” pure fetch) â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
 
 function supabaseHeaders() {
   return {
@@ -97,14 +97,19 @@ function supabaseHeaders() {
 }
 
 async function getAlreadyAnalyzedIssueNumbers(repo) {
-  const url = `${SUPABASE_URL}/rest/v1/issues?repo_name=eq.${encodeURIComponent(repo)}&select=issue_number`;
+  // Only skip issues that have a COMPLETE analysis (analysis_summary is set).
+  // Issues with a partial row (failed mid-run) will be re-processed.
+  const url = `${SUPABASE_URL}/rest/v1/issues?repo_name=eq.${encodeURIComponent(repo)}&select=issue_number,analysis_summary`;
   const res = await fetch(url, { headers: supabaseHeaders() });
   if (!res.ok) {
     console.warn(`Could not fetch analyzed issues from Supabase: ${await res.text()}`);
     return new Set();
   }
   const rows = await res.json();
-  return new Set(rows.map(r => r.issue_number));
+  return new Set(
+    rows.filter(r => r.analysis_summary && r.analysis_summary.trim() !== '')
+        .map(r => r.issue_number)
+  );
 }
 
 async function getRecentHistory(repo) {
@@ -118,16 +123,17 @@ async function getRecentHistory(repo) {
 }
 
 async function saveAnalysis(repo, issue, analysis) {
+  // Use upsert (merge-duplicates) so re-runs complete any half-baked rows.
   const url = `${SUPABASE_URL}/rest/v1/issues`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { ...supabaseHeaders(), 'Prefer': 'resolution=ignore-duplicates' },
+    headers: { ...supabaseHeaders(), 'Prefer': 'resolution=merge-duplicates' },
     body: JSON.stringify({
       repo_name: repo,
       issue_number: issue.number,
       is_duplicate: analysis.is_duplicate,
       analysis_summary: analysis.analysis_summary,
-        affected_files: analysis.affected_files ?? null,
+      affected_files: analysis.affected_files ?? null,
       status: 'open'
     })
   });
@@ -136,9 +142,8 @@ async function saveAnalysis(repo, issue, analysis) {
     const err = await res.text();
     throw new Error(`Supabase insert failed (${res.status}): ${err}`);
   }
-  console.log(`  ÃÂ¢ÃÂÃ¢ÂÂ Saved analysis for issue #${issue.number} (is_duplicate=${analysis.is_duplicate})`);
+  console.log(`  âœ” Saved analysis for issue #${issue.number} (is_duplicate=${analysis.is_duplicate})`);
 }
-
 
 function getLabelColor(str) {
   let hash = 0;
@@ -153,17 +158,14 @@ async function addContextualLabels(repo, issue, analysis) {
   if (!analysis.contextual_labels || !Array.isArray(analysis.contextual_labels) || analysis.contextual_labels.length === 0) {
     return;
   }
-  
+
   for (const label of analysis.contextual_labels) {
     const color = getLabelColor(label);
     const labelUrl = `https://api.github.com/repos/${repo}/labels`;
     await fetch(labelUrl, {
       method: 'POST',
       headers: ghHeaders(),
-      body: JSON.stringify({
-        name: label,
-        color: color
-      })
+      body: JSON.stringify({ name: label, color: color })
     });
   }
 
@@ -171,9 +173,7 @@ async function addContextualLabels(repo, issue, analysis) {
   const res = await fetch(url, {
     method: 'POST',
     headers: ghHeaders(),
-    body: JSON.stringify({
-      labels: analysis.contextual_labels
-    })
+    body: JSON.stringify({ labels: analysis.contextual_labels })
   });
   if (!res.ok) {
     console.warn(`  - Failed to add labels to issue #${issue.number}: ${await res.text()}`);
@@ -182,10 +182,9 @@ async function addContextualLabels(repo, issue, analysis) {
   }
 }
 
-
 async function postAnalysisComment(repo, issue, analysis) {
   const url = `https://api.github.com/repos/${repo}/issues/${issue.number}/comments`;
-  
+
   const yamlContent = `is_duplicate: ${analysis.is_duplicate}
 analysis_summary: |
   ${analysis.analysis_summary.replace(/\n/g, '\n  ')}
@@ -227,7 +226,7 @@ async function updateRegistryStats(repo, totalAnalyzed, duplicatesFound) {
   }
 }
 
-// ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ GitHub helpers ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬
+// â€”â€”â€”â€”â€” GitHub helpers â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
 
 function ghHeaders() {
   return {
@@ -261,8 +260,7 @@ async function fetchAllOpenIssues(repo) {
   return issues;
 }
 
-// ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ Core analysis logic ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬
-
+// â€”â€”â€”â€”â€” Core analysis logic â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
 
 async function fetchRepoFileTree(repo) {
   try {
@@ -282,6 +280,7 @@ async function analyzeIssue(issue, history, fileTree) {
     .filter(h => h.issue_number !== issue.number)
     .map(h => `[Issue ID: #${h.issue_number}]\nTechnical Summary: ${h.analysis_summary}`)
     .join('\n\n---\n\n') || 'No historical issues to compare against.';
+
   const systemPrompt =
     `You are an expert GitHub triage AI.\n` +
     `Your task is to analyze a GitHub issue and produce a structured triage report.\n\n` +
@@ -312,19 +311,29 @@ async function analyzeIssue(issue, history, fileTree) {
     `3. Proposed Solution / Impact:\n${fields.expected_outcome || 'N/A'}\n\n` +
     `4. Technical Metrics & Environment:\n${fields.technical_metrics || 'N/A'}\n\n` +
     `HISTORICAL REPOSITORY CONTEXT\n${historicalLog}\n\n` +
-    `REPOSITORY FILE TREE\n${fileTree || 'Not available.'}` +
-    `HISTORICAL REPOSITORY CONTEXT\n${historicalLog}`;
+    `REPOSITORY FILE TREE\n${fileTree || 'Not available.'}`;
 
-  // Retry up to 3 times on rate limit
+  // Retry up to 3 times â€” handles rate limits (429) and JSON validation failures (400).
+  // On attempt 2+, the file tree is stripped to reduce token load.
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      return await askGroq(systemPrompt, userPrompt);
+      const promptToUse = attempt > 1
+        ? userPrompt.replace(/\nREPOSITORY FILE TREE[\s\S]*$/, '')
+        : userPrompt;
+      return await askGroq(systemPrompt, promptToUse);
     } catch (e) {
-      if (attempt < 3 && e.message.includes('429')) {
-        const waitMatch = e.message.match(/try again in ([\d.]+)s/);
-        const wait = waitMatch ? Math.ceil(parseFloat(waitMatch[1]) * 1000) + 500 : 8000;
-        console.warn(`  Rate limited. Waiting ${wait}ms before retry ${attempt + 1}/3...`);
-        await delay(wait);
+      const is429 = e.message.includes('429');
+      const is400Json = e.message.includes('400') && e.message.includes('json_validate_failed');
+      if (attempt < 3 && (is429 || is400Json)) {
+        if (is429) {
+          const waitMatch = e.message.match(/try again in ([\d.]+)s/);
+          const wait = waitMatch ? Math.ceil(parseFloat(waitMatch[1]) * 1000) + 500 : 8000;
+          console.warn(`  Rate limited. Waiting ${wait}ms before retry ${attempt + 1}/3...`);
+          await delay(wait);
+        } else {
+          console.warn(`  Groq JSON validation error. Retrying ${attempt + 1}/3 with simplified prompt...`);
+          await delay(2000);
+        }
       } else {
         throw e;
       }
@@ -332,7 +341,7 @@ async function analyzeIssue(issue, history, fileTree) {
   }
 }
 
-// ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ Entry point ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬ÃÂ¢Ã¢ÂÂÃ¢ÂÂ¬
+// â€”â€”â€”â€”â€” Entry point â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”
 
 async function run() {
   if (!GROQ_API_KEY || !GITHUB_TOKEN || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -350,7 +359,7 @@ async function run() {
   let issuesToProcess = [];
 
   if (ISSUE_NUMBER) {
-    // Triggered by issues.opened ÃÂ¢Ã¢ÂÂ¬Ã¢ÂÂ process only the new issue
+    // Triggered by issues.opened â€” process only the new issue
     console.log(`Triggered by new issue #${ISSUE_NUMBER}. Fetching details...`);
     try {
       const issue = await fetchIssueFromGitHub(repo, parseInt(ISSUE_NUMBER, 10));
@@ -360,15 +369,16 @@ async function run() {
       process.exit(1);
     }
   } else {
-    // Triggered by schedule or workflow_dispatch ÃÂ¢Ã¢ÂÂ¬Ã¢ÂÂ sweep all open issues
+    // Triggered by schedule or workflow_dispatch â€” sweep all open issues
     console.log('Running scheduled sweep of all open issues...');
     try {
       const allOpen = await fetchAllOpenIssues(repo);
       console.log(`Found ${allOpen.length} open issues on GitHub.`);
 
-      // Deduplicate: skip already-analyzed issues
+      // Skip issues that already have a complete analysis in Supabase.
+      // Issues with partial rows (failed mid-run) are re-processed.
       const analyzedSet = await getAlreadyAnalyzedIssueNumbers(repo);
-      console.log(`${analyzedSet.size} issues already analyzed in Supabase.`);
+      console.log(`${analyzedSet.size} issues fully analyzed in Supabase.`);
 
       issuesToProcess = allOpen.filter(i => !analyzedSet.has(i.number));
       console.log(`${issuesToProcess.length} issues pending analysis.`);
@@ -403,7 +413,7 @@ async function run() {
 
       await delay(DELAY_MS);
     } catch (e) {
-      console.error(`  ÃÂ¢ÃÂÃ¢ÂÂ Error analyzing issue #${issue.number}: ${e.message}`);
+      console.error(`  âœ– Error analyzing issue #${issue.number}: ${e.message}`);
       // Continue with remaining issues rather than aborting the whole run
     }
   }
