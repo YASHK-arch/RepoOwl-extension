@@ -183,9 +183,24 @@ export function TrackedRepos() {
         }
         
         const groqApiKey = keys.groqApiKey || import.meta.env.VITE_GROQ_API_KEY;
+
+        // Warn if Supabase creds are missing — the issue analyzer workflow requires them.
+        // Without these, analyze-issue.js will exit(0) silently on the target repo.
+        const missingSupabase = !keys.supabaseUrl || !keys.supabaseAnonKey;
+        if (missingSupabase) {
+          setStatus({
+            type: 'error',
+            message: `⚠️ SUPABASE_URL or SUPABASE_ANON_KEY is not set in Model Configuration. The issue analyzer will be installed but won't run until you add these secrets to ${repo} manually or set them in the extension and Re-configure again.`
+          });
+          // Don't block — let them configure the rest of the workflows anyway.
+        }
+
         try {
-          setStatus({ type: '', message: `Configuring RepoOwl for ${repo}...` });
-          setSyncLogsPRs([`--- Initiated RepoOwl Setup for ${repo} ---`]);
+          if (!missingSupabase) setStatus({ type: '', message: `Configuring RepoOwl for ${repo}...` });
+          setSyncLogsPRs([
+            `--- Initiated RepoOwl Setup for ${repo} ---`,
+            ...(missingSupabase ? ['⚠️  SUPABASE_URL / SUPABASE_ANON_KEY not found in extension config — issue analyzer secrets will NOT be pushed. Set them in Model Configuration and Re-configure to fix.'] : [])
+          ]);
           
           chrome.runtime.sendMessage({ action: 'initialize_repoowl_pr', repoName: repo, githubPat: pat, groqApiKey: groqApiKey }, (response) => {
             if (chrome.runtime.lastError) {
@@ -194,7 +209,10 @@ export function TrackedRepos() {
               return;
             }
             if (response && response.success) {
-              setStatus({ type: 'success', message: `Successfully configured RepoOwl in ${repo}!` });
+              setStatus({ type: missingSupabase ? 'error' : 'success', message: missingSupabase
+                ? `⚠️ Configured RepoOwl in ${repo} (scripts & workflows pushed), but SUPABASE secrets were NOT set. Issue analysis will silently skip until you add them.`
+                : `Successfully configured RepoOwl in ${repo}!`
+              });
               if (response.version !== undefined) {
                 chrome.storage.local.get(['repoOwlInstallerVersions'], (res) => {
                   const versions = res.repoOwlInstallerVersions || {};
@@ -231,12 +249,16 @@ export function TrackedRepos() {
     }
   };
 
+
   // ── Per-repo badge & button rendering ────────────────────────────────
   const renderRepoActions = (repo) => {
     const isMaintainer = roleStatus[repo]?.isMaintainer;
     const inMediator   = mediatorStatus[repo];
-    const isConfigured = (installerVersions[repo] || 0) >= INSTALLER_VERSION;
-    const needsUpdate  = (installerVersions[repo] || 0) < INSTALLER_VERSION && (installerVersions[repo] || 0) > 0;
+    const storedVersion = installerVersions[repo] ?? 0;
+    const isConfigured = storedVersion >= INSTALLER_VERSION;
+    // needsUpdate = version is outdated OR repo appears configured (mediator-synced) but
+    // version was never recorded (configured before versioning existed → stored as 0).
+    const needsUpdate  = storedVersion < INSTALLER_VERSION && (storedVersion > 0 || inMediator);
     const roleResolved = repo in roleStatus; // have we received the API response yet?
 
     // ── Maintainer path ──────────────────────────────────────────────
