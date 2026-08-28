@@ -1,37 +1,226 @@
-# RepoOwl 🦉
+<div align="center">
 
-[![Feature Requests](https://img.shields.io/github/issues/YASHK-arch/RepoOwl-extension/enhancement?label=feature-request%20issues&color=dfb317&style=flat-square)](https://github.com/YASHK-arch/RepoOwl-extension/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
-[![Bug Issues](https://img.shields.io/github/issues/YASHK-arch/RepoOwl-extension/bug?label=bug%20issues&color=dfb317&style=flat-square)](https://github.com/YASHK-arch/RepoOwl-extension/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
-[![Merged PRs](https://img.shields.io/github/issues-pr-closed-raw/YASHK-arch/RepoOwl-extension?label=merged&color=8957e5&style=flat-square)](https://github.com/YASHK-arch/RepoOwl-extension/pulls?q=is%3Apr+is%3Amerged)
+<img src="./logo/banner.png" alt="RepoOwl" width="420" />
 
-RepoOwl is an AI-powered GitHub extension that automates issue triage by identifying duplicates and surface technical insights in real-time. Designed to keep open-source repositories clean and organized.
+**AI-powered issue triage & PR analysis, injected natively into GitHub.**
+
+RepoOwl is a Chrome extension + GitHub Actions suite that uses **Qwen 3.6 27B (via Groq)** to automatically detect duplicate issues, score PR quality, and surface actionable technical insights — directly inside the GitHub UI, in real time.
+
+[![⭐ Stars](https://img.shields.io/github/stars/YASHK-arch/RepoOwl-extension?label=%E2%AD%90%20Stars&style=flat-square&color=dfb317)](https://github.com/YASHK-arch/RepoOwl-extension/stargazers)
+[![🍴 Forks](https://img.shields.io/github/forks/YASHK-arch/RepoOwl-extension?label=%F0%9F%8D%B4%20Forks&style=flat-square&color=4a9eff)](https://github.com/YASHK-arch/RepoOwl-extension/forks)
+[![Issues](https://img.shields.io/github/issues/YASHK-arch/RepoOwl-extension?style=flat-square&color=e3624b)](https://github.com/YASHK-arch/RepoOwl-extension/issues)
+[![Open PRs](https://img.shields.io/github/issues-pr/YASHK-arch/RepoOwl-extension?label=open+PRs&style=flat-square&color=2da44e)](https://github.com/YASHK-arch/RepoOwl-extension/pulls?q=is%3Apr+is%3Aopen)
+[![Closed PRs](https://img.shields.io/github/issues-pr-closed/YASHK-arch/RepoOwl-extension?label=closed+PRs&style=flat-square&color=e3624b)](https://github.com/YASHK-arch/RepoOwl-extension/pulls?q=is%3Apr+is%3Aclosed+is%3Aunmerged)
+[![Merged PRs](https://img.shields.io/github/issues-pr-closed-raw/YASHK-arch/RepoOwl-extension?label=merged+PRs&style=flat-square&color=8957e5)](https://github.com/YASHK-arch/RepoOwl-extension/pulls?q=is%3Apr+is%3Amerged)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](./LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0-green?style=flat-square)](./extension/package.json)
+
+<br />
+
+[**Landing Page**](https://repoowl.vercel.app) · [**Report a Bug**](https://github.com/YASHK-arch/RepoOwl-extension/issues/new?template=bug_report.yml) · [**Request a Feature**](https://github.com/YASHK-arch/RepoOwl-extension/issues/new?template=feature_request.yml) · [**Good First Issues**](https://github.com/YASHK-arch/RepoOwl-extension/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+
+</div>
 
 ---
 
-## ✨ What's New in v0.1.1 (Client-Side Overhaul)
+## Overview
 
-* **3-Layer Central Mediator Architecture:** Completely eliminated manual environment configuration for contributors.
-* **Zero-Config Contributor Discovery:** Contributors no longer need to ask for or paste manual keys; the extension automatically discovers the maintainer's Supabase connection via the central mediator registry.
-* **Maintainer Live Sync Tracking:** Maintainers can force sync their keys to the mediator and track real-time registration status directly from the extension UI.
-* **Idempotent SQL Schema & Secure RLS:** Enhanced database configurations with robust Row-Level Security ensuring seamless and secure read/write capabilities across roles.
+Managing a busy open-source repository is hard. Duplicate issues pile up. PRs carry hidden AI-generated slop. Triage takes hours.
+
+RepoOwl solves this at **two layers**:
+
+1. **Chrome Extension** — Injects AI-generated badges, sidebars, and insight panels directly into the GitHub DOM (Manifest V3). No page refresh needed. Looks and feels like a native GitHub feature.
+2. **GitHub Actions** — Runs analysis server-side on every new issue/PR. Posts structured triage comments, applies labels, and writes results to a Supabase database that the extension reads from.
+
+The two layers share a **Central Mediator Registry** — a Supabase Edge Function that lets any contributor's browser automatically discover the maintainer's Supabase configuration without requiring manual key sharing.
 
 ---
 
-## 🎯 Why RepoOwl?
+## ✨ Features
 
-Managing large-scale repositories often leads to a deluge of duplicate issues and complex technical debt. RepoOwl acts as your first-line triager:
+### For Contributors
+- 🔵 **Duplicate Badges** — Issue list shows color-coded "Duplicate" / "Possible Duplicate" badges per issue
+- 📋 **AI Sidebar Card** — Every issue page shows a floating card with: duplicate status, AI analysis summary, and predicted affected files
+- 🔀 **PR Insights Panel** — Pull request pages display slop detection score, issue resolution coverage, domain impact, and recommended labels
+- 🔍 **Insights Overlay** — Click the RepoOwl popup for a full repository overview with all tracked issues and their statuses
+- ⚡ **Zero-Config Discovery** — Contributors don't need to paste any keys; the extension auto-discovers configuration via the central registry
 
-* **Semantic Analysis:** Uses Llama 3 to understand the *meaning* of issues, not just keywords.
-* **Non-Destructive UI:** Injected directly into the GitHub native DOM—looks and feels like a first-party GitHub feature.
-* **Automated Workflow:** Uses Supabase Webhooks to process issues the moment they are opened.
+### For Maintainers
+- 🤖 **Automated Issue Analysis** — GitHub Action fires on every `issues: opened` event and on a 6-hour sweep cron; runs Qwen 3.6 27B analysis and writes results to Supabase
+- 🧹 **PR Triage Action** — Analyzes every new PR for AI-generated content, issue resolution, domain impact; posts a structured triage comment
+- 🏷️ **Auto-Labeling** — Automatically applies labels (`duplicate`, `possible-duplicate`, `needs-triage`, `spam`, `ai-slop`, etc.) based on AI confidence scores
+- 📌 **Path-Based Label Rules** — Define custom file path → label mappings in `repoowl.json` (e.g., all PRs touching `src/auth/**` get the `auth` label)
+- 👤 **Smart Issue Assignment** — Auto-assigns issue authors (unless the issue is flagged as spam/duplicate) with a `/assign` command for contributors
+- 🟢 **Stale Issue Management** — Marks and closes stale issues automatically
+- 🛡️ **Prompt Injection Guard** — Detects and flags issues containing prompt injection attempts
+- 🔑 **OAuth Setup Flow** — 3-step in-extension wizard (GitHub OAuth → Supabase OAuth → Groq key) with one-click database provisioning
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        CONTRIBUTOR'S BROWSER                    │
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │              Chrome Extension (Manifest V3)              │   │
+│  │                                                          │   │
+│  │  content.js ──► badgeInjector   (issue list badges)     │   │
+│  │             ──► sidebarCard     (per-issue sidebar)      │   │
+│  │             ──► prDetailInjector (PR triage panel)       │   │
+│  │             ──► InsightsOverlay (full repo overlay)      │   │
+│  │                                                          │   │
+│  │  background.js ──► githubInstaller (GitHub Actions       │   │
+│  │                     installer into target repo)          │   │
+│  │                                                          │   │
+│  │  popup/  ──► React popup with settings & sync status    │   │
+│  │  settings/ ──► TrackedRepos, AutoTriagePanel,           │   │
+│  │               ConfigurationModal (OAuth wizard)          │   │
+│  └──────────────────┬──────────────────────────────────────┘   │
+└─────────────────────│───────────────────────────────────────────┘
+                      │ reads insights
+                      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     SUPABASE (MAINTAINER'S PROJECT)             │
+│                                                                 │
+│  Tables:                                                        │
+│   issues            – per-issue AI analysis results            │
+│   pull_requests     – per-PR triage results                    │
+│   public_ecosystem_registry – global stats across all repos    │
+│                                                                 │
+│  Edge Functions (Central Hub):                                  │
+│   /registry         – maintainer registration & key discovery  │
+│   /supabase-provision – auto-provision DB schema via Mgmt API  │
+│   /github-oauth     – GitHub OAuth PKCE token exchange         │
+│   /supabase-oauth   – Supabase OAuth token exchange            │
+└─────────────────────────────────────────────────────────────────┘
+                      ▲ writes analysis
+                      │
+┌─────────────────────────────────────────────────────────────────┐
+│                      GITHUB ACTIONS (CI)                        │
+│                                                                 │
+│  issue-analyze.yml  ──► analyze-issue.js                       │
+│    Trigger: issues.opened + 6h cron sweep                      │
+│    Uses: Groq (Qwen 3.6 27B), Supabase, GitHub API             │
+│    Outputs: duplicate flag, analysis summary, affected files   │
+│                                                                 │
+│  repoowl-analyze.yml ──► analyze-pr.js                         │
+│    Trigger: pull_request_target + /analyze command             │
+│    Uses: Groq (Qwen 3.6 27B), GitHub API                       │
+│    Outputs: slop score, issue resolution, domain impact,       │
+│             recommended labels, triage comment                 │
+│                                                                 │
+│  Other workflows: auto-label, issue-assignment,                │
+│                   welcome, stale, pr-merged                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Design Decisions
+
+- **Dual-Layer Supabase Fetch**: The extension queries both the maintainer's *sandbox* Supabase project and the *central hub* project simultaneously. Hub results cascade-override sandbox results, ensuring contributors always get the most authoritative data.
+- **Non-Destructive DOM Injection**: All UI elements are injected alongside GitHub's native DOM using `MutationObserver`. No page elements are overwritten; RepoOwl additions are visually styled to blend in.
+- **Zero-Config Contributor Model**: Contributors install the extension and browse a tracked repo — no keys, no setup. The `registry` Edge Function returns the public `supabase_url` and `supabase_anon_key` for the repo automatically.
+- **Prompt Injection Guard**: The AI analysis pipeline detects and flags issues containing adversarial prompt injections before they can influence LLM output.
 
 ---
 
 ## 🛠 Tech Stack
 
-* **Inference:** Groq API (Llama 3.3 Versatile)
-* **Backend:** Supabase Edge Functions & PostgreSQL
-* **Frontend:** Chrome Extension (Manifest V3, Vite, React)
+| Layer | Technology |
+|---|---|
+| **Chrome Extension** | Manifest V3, React 19, Vite 8, `@supabase/supabase-js` |
+| **AI Inference** | Groq API — Qwen 3.6 27B (`qwen/qwen3.6-27b`) |
+| **Database & Auth** | Supabase (PostgreSQL + Row-Level Security + Edge Functions) |
+| **Edge Functions** | Deno (TypeScript), deployed on Supabase |
+| **GitHub Automation** | GitHub Actions (7 workflows), `actions/github-script` |
+| **Landing Page** | React 19, Vite 8, TailwindCSS v4, Framer Motion, OGL (WebGL) |
+| **Monorepo** | npm Workspaces (`shared`, `extension`) |
+| **Cryptography** | `libsodium-wrappers` (for secret encryption before storage) |
+
+---
+
+## 📁 Project Structure
+
+```
+RepoOwl-extension/
+│
+├── extension/                  # Chrome Extension (Manifest V3)
+│   ├── manifest.json           # Extension manifest with permissions & CSP
+│   ├── src/
+│   │   ├── background/
+│   │   │   └── githubInstaller.js    # Installs GitHub Actions workflows into target repos
+│   │   ├── content/
+│   │   │   ├── index.js              # Main content script — bootstraps everything
+│   │   │   ├── badgeInjector.js      # Injects duplicate badges on issue list pages
+│   │   │   ├── sidebarCard.js        # Floating sidebar card on individual issue pages
+│   │   │   ├── fetchIssueInsights.js # Dual-layer Supabase fetcher (hub + sandbox cascade)
+│   │   │   ├── issueDetailInjector.js# Injects AI summary on issue detail pages
+│   │   │   └── prDetailInjector.js   # Injects PR triage panel
+│   │   ├── overlay/
+│   │   │   ├── InsightsOverlay.jsx   # Full-repo insights overlay (React)
+│   │   │   └── OverlayRoot.jsx       # Shadow DOM mount for the overlay
+│   │   ├── popup/
+│   │   │   └── PopupApp.jsx          # Extension popup UI (repo stats, sync buttons)
+│   │   ├── settings/
+│   │   │   ├── ConfigurationModal.jsx# 3-step OAuth setup wizard
+│   │   │   ├── TrackedRepos.jsx      # Manage tracked repos, mediator sync status
+│   │   │   ├── AutoTriagePanel.jsx   # Configure triage thresholds & path-label rules
+│   │   │   ├── ModelConfig.jsx       # AI model & prompt configuration
+│   │   │   └── PromptSettings.jsx    # Custom prompt template editor
+│   │   └── lib/
+│   │       ├── supabase.js           # Supabase client factory (sandbox + hub)
+│   │       ├── oauth.js              # GitHub & Supabase OAuth flows
+│   │       ├── githubContext.js      # GitHub page URL/DOM parser
+│   │       └── schema.js            # DB schema constants for provisioning
+│   └── vite.*.config.js             # Separate Vite configs for each bundle target
+│
+├── shared/                     # @repoowl/shared — npm workspace package
+│   ├── prompts/
+│   │   └── defaultPrompt.js          # System-default Qwen 3.6 27B prompt template
+│   ├── schemas/
+│   │   └── groqResponseSchema.js     # JSON schema for Groq response validation
+│   └── utils/
+│       ├── renderPrompt.js           # Template variable renderer
+│       └── formatHistoricalContext.js# Formats historical issues for prompt context
+│
+├── supabase/                   # Supabase Edge Functions & config
+│   ├── config.toml
+│   ├── functions/
+│   │   ├── registry/           # Maintainer registration & contributor key discovery
+│   │   ├── supabase-provision/ # One-click DB schema provisioning via Management API
+│   │   ├── github-oauth/       # GitHub OAuth token exchange
+│   │   ├── supabase-oauth/     # Supabase OAuth token exchange
+│   │   └── _shared/            # Shared schema SQL embedded in Edge Functions
+│   └── migrations/             # SQL migration files
+│
+├── repoowl-web-react/          # Marketing landing page (separate Vite app)
+│   └── src/
+│       └── components/         # HeroSection, BentoSection, SetupSection, etc.
+│
+├── .github/
+│   ├── workflows/
+│   │   ├── issue-analyze.yml         # AI issue analysis (fires on issue open + 6h cron)
+│   │   ├── repoowl-analyze.yml       # AI PR analysis (fires on PR open + /analyze)
+│   │   ├── issue-assignment.yml      # Auto-assign + /assign command
+│   │   ├── auto-label.yml            # Path-based auto-labeling
+│   │   ├── welcome.yml               # Welcome message for first-time contributors
+│   │   ├── stale.yml                 # Stale issue management
+│   │   └── pr-merged.yml             # Post-merge actions
+│   ├── scripts/
+│   │   ├── analyze-issue.js          # Core issue analysis Node.js script
+│   │   └── analyze-pr.js             # Core PR analysis Node.js script
+│   └── ISSUE_TEMPLATE/               # 10 structured issue templates
+│
+├── database-schema.sql         # Full idempotent SQL schema (issues, pull_requests, registry)
+├── repoowl.json                # Per-repo config: Supabase keys + path-label rules
+├── .env.example                # Template for all required environment variables
+├── package.json                # Root npm workspace config
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── CODE_OF_CONDUCT.md
+└── LICENSE                     # Apache-2.0
+```
 
 ---
 
@@ -39,74 +228,398 @@ Managing large-scale repositories often leads to a deluge of duplicate issues an
 
 ### Prerequisites
 
-* Node.js (v18+)
-* A Supabase Project
-* A Groq API Key
+- **Node.js** v18+
+- **npm** v9+  
+- A **Supabase** project ([free tier](https://supabase.com) is sufficient)
+- A **Groq** API key ([console.groq.com/keys](https://console.groq.com/keys))
+- **Chrome** (or any Chromium-based browser)
 
-### Extension Setup
+---
 
-1. Clone the repository:
+### Option A: Maintainer Setup (Full Setup — own AI triage on your repo)
+
+This gets you automated AI triage running on your GitHub repository.
+
+#### 1. Clone & Install
+
 ```bash
 git clone https://github.com/YASHK-arch/RepoOwl-extension.git
 cd RepoOwl-extension
-
-```
-
-
-2. Install dependencies:
-```bash
 npm install
-
 ```
 
+#### 2. Configure environment variables
 
-3. Load the `extension/` folder into Chrome:
-* Navigate to `chrome://extensions/`
-* Enable **Developer mode**
-* Click **Load unpacked** and select the `/extension` directory.
-
-
-
-### Backend Setup
-
-1. Deploy the Edge Function:
 ```bash
-supabase functions deploy github-webhook
-
+cp .env.example .env
+# Then edit .env with your actual values (see Configuration section below)
 ```
 
+#### 3. Set up your Supabase database
 
-2. Configure your GitHub Webhook to point to your new Supabase function URL.
+Run the full schema against your Supabase project:
+
+```bash
+# Via Supabase CLI (recommended)
+npx supabase db push
+
+# Or manually: paste the contents of database-schema.sql
+# into your Supabase Dashboard → SQL Editor
+```
+
+#### 4. Deploy the Edge Functions
+
+```bash
+npx supabase functions deploy registry
+npx supabase functions deploy supabase-provision
+npx supabase functions deploy github-oauth
+npx supabase functions deploy supabase-oauth
+
+# Set Edge Function secrets
+npx supabase secrets set \
+  GITHUB_CLIENT_SECRET=your_github_oauth_secret \
+  SUPABASE_OAUTH_CLIENT_SECRET=your_supabase_oauth_secret
+```
+
+#### 5. Add GitHub Actions secrets to your target repository
+
+In your repo → **Settings → Secrets and variables → Actions**, add:
+
+| Secret | Value |
+|---|---|
+| `GROQ_API_KEY` | Your Groq API key |
+| `SUPABASE_URL` | Your Supabase project URL |
+| `SUPABASE_ANON_KEY` | Your Supabase anon key |
+
+The GitHub Actions workflows in `.github/workflows/` will automatically pick these up.
+
+#### 6. Build and load the extension
+
+```bash
+cd extension
+npm run build
+```
+
+Then in Chrome:
+1. Navigate to `chrome://extensions/`
+2. Enable **Developer mode** (top-right toggle)
+3. Click **Load unpacked**
+4. Select the `extension/dist/` folder
+
+#### 7. Configure the extension via the OAuth wizard
+
+Click the RepoOwl 🦉 icon in your toolbar → go to **Settings → Configuration**. The 3-step wizard will guide you through:
+1. **GitHub OAuth** — authorizes repo access
+2. **Supabase OAuth** — connects to your project (auto-provisions the database schema)
+3. **Groq AI** — paste your API key
+
+---
+
+### Option B: Contributor Setup (Read-Only — view AI insights on any tracked repo)
+
+No backend needed. The extension auto-discovers the maintainer's configuration.
+
+1. Clone and build the extension (steps 1, 6 above)
+2. Load it into Chrome (step 6 above)
+3. Browse to any GitHub repo tracked by RepoOwl
+4. The extension will auto-discover the Supabase config via the central registry and start showing badges and insights immediately
+
+---
+
+### Running the Landing Page Locally
+
+```bash
+cd repoowl-web-react
+npm install
+npm run dev
+# Opens at http://localhost:5173
+```
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables (`.env`)
+
+> ⚠️ **Never commit actual secrets. Copy `.env.example` → `.env` and fill in your values.**
+
+| Variable | Description |
+|---|---|
+| `SUPABASE_URL` | Your Supabase project URL (used by server-side scripts) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server-side only — **never expose to the browser**) |
+| `VITE_SUPABASE_URL` | Supabase URL exposed to the extension build |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key (public, read-only safe) |
+| `GROQ_API_KEY` | Groq API key (used by GitHub Actions) |
+| `VITE_GROQ_API_KEY` | Groq API key (used by the extension for client-side AI calls) |
+| `GITHUB_TOKEN` | GitHub PAT for the GitHub Actions worker |
+| `VITE_GITHUB_CLIENT_ID` | GitHub OAuth App Client ID (public — safe to commit) |
+| `VITE_SUPABASE_OAUTH_CLIENT_ID` | Supabase OAuth App Client ID (public — safe to commit) |
+| `VITE_HUB_EDGE_FUNCTION_BASE_URL` | Base URL for the Central Hub Edge Functions (defaults to `VITE_SUPABASE_URL/functions/v1`) |
+
+### Per-Repo Config (`repoowl.json`)
+
+Commit a `repoowl.json` file to the **root of your target repository** to configure path-based auto-labeling:
+
+```json
+{
+  "supabaseUrl": "https://your-project.supabase.co",
+  "supabaseAnonKey": "your-anon-key",
+  "path_labels": {
+    "src/auth/**": { "label": "auth", "color": "#e11d48" },
+    "docs/**": { "label": "documentation", "color": "#0969da" },
+    "src/api/**": "api"
+  }
+}
+```
+
+### Auto-Triage Thresholds (Extension Settings)
+
+Configurable from the extension **Settings → Auto Triage** panel:
+
+| Setting | Default | Description |
+|---|---|---|
+| `needs_triage_threshold` | 50% | Confidence above which the `needs-triage` label is applied |
+| `possible_duplicate_threshold` | 60% | Confidence above which `possible-duplicate` is applied |
+| `auto_close_threshold` | 90% | Confidence above which the issue is auto-closed as duplicate |
+| `close_duplicate_threshold` | 90% | Confidence above which a duplicate is closed |
+| `prompt_injection_guard` | `true` | Whether to detect & flag prompt injection attempts |
+
+---
+
+## 🗄️ Database Schema
+
+Four tables with Row-Level Security enabled:
+
+```sql
+-- Issue AI analysis results (per-repo)
+issues (
+  id, repo_name, issue_number,
+  is_duplicate BOOLEAN,
+  analysis_summary TEXT,
+  affected_files JSONB,  -- Array of predicted affected file paths
+  status TEXT,
+  created_at
+)
+
+-- PR triage results (per-repo)
+pull_requests (
+  id, repo_name, pr_number,
+  slop_detection JSONB,
+  issue_resolution JSONB,
+  domain_impact JSONB,
+  recommended_labels JSONB,
+  created_at
+)
+
+-- Global ecosystem stats (cross-repo dashboard)
+public_ecosystem_registry (
+  repo_name PRIMARY KEY,
+  total_issues_analyzed INT,
+  duplicates_found INT,
+  maintainer_handle TEXT,
+  last_updated
+)
+
+-- Central mediator: maps repo → Supabase credentials for contributor discovery
+registry (
+  owner TEXT, repo TEXT,  -- composite PK
+  supabase_url TEXT,
+  supabase_anon_key TEXT,
+  created_at
+)
+```
+
+**RLS Policies**: Public read on all tables. Writes via authenticated/anon role for issues and PRs. Registry writes are managed exclusively by the `registry` Edge Function using the service role key.
+
+---
+
+## 🤖 GitHub Actions Workflows
+
+### `issue-analyze.yml` — Issue Analysis
+
+**Triggers**: `issues: [opened]` + scheduled sweep every 6 hours  
+**Script**: `.github/scripts/analyze-issue.js`
+
+1. Fetches full issue body and parses it using the structured template fields
+2. Retrieves repository file tree (up to 500 paths) for context
+3. Fetches historical issue summaries from Supabase as duplicate context
+4. Sends to Groq (`qwen/qwen3.6-27b`) with the default prompt template
+5. Writes `{ is_duplicate, analysis_summary, affected_files }` to Supabase
+6. Applies labels (`duplicate`, `possible-duplicate`, `needs-triage`) based on result
+
+### `repoowl-analyze.yml` — PR Triage
+
+**Triggers**: `pull_request_target: [opened, ready_for_review]` + `/analyze` comment  
+**Script**: `.github/scripts/analyze-pr.js`
+
+1. Fetches PR diff, title, body, and linked issues
+2. Runs Qwen 3.6 27B analysis for: slop detection score, issue resolution, domain impact
+3. Recommends labels based on file paths changed
+4. Posts a structured triage comment to the PR
+5. Writes results to the `pull_requests` Supabase table
+
+### Other Workflows
+
+| Workflow | Trigger | Description |
+|---|---|---|
+| `issue-assignment.yml` | `issues`, `issue_comment` | Auto-assigns author; handles `/assign` command |
+| `auto-label.yml` | `pull_request_target` | Applies path-based labels from `repoowl.json` |
+| `welcome.yml` | First issue/PR from a user | Posts a welcome message to first-time contributors |
+| `stale.yml` | Scheduled | Marks and closes stale issues after inactivity |
+| `pr-merged.yml` | `pull_request: closed` (merged) | Post-merge acknowledgement actions |
+
+---
+
+## 🧪 Testing
+
+### Extension Tests
+
+```bash
+cd extension
+npm test
+# Runs: node --test test/**/*.test.js
+```
+
+### Web App Linting
+
+```bash
+cd repoowl-web-react
+npm run lint
+# Uses oxlint for fast linting
+```
+
+### Manual Extension Testing
+
+1. Build: `cd extension && npm run build`
+2. Load unpacked from `extension/dist/` in `chrome://extensions`
+3. Navigate to `https://github.com/YASHK-arch/Triage-Sandbox/issues` to see live badges
+4. Open the popup and check the sync status panel
+
+### End-to-End (Playwright, Web App)
+
+```bash
+cd repoowl-web-react
+npx playwright test
+```
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [CONTRIBUTING.md](https://www.google.com/search?q=link-to-file) for guidelines.
+We welcome all contributions! Please read the full [`CONTRIBUTING.md`](./contributing.md) before opening a PR.
 
-1. Fork the repository.
-2. Create your feature branch (`git checkout -b feat/amazing-feature`).
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`).
-4. Push to the branch (`git push origin feat/amazing-feature`).
-5. Open a **Pull Request**.
+**Quick start:**
+
+1. **Fork** this repository
+2. **Clone** your fork:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/RepoOwl-extension.git
+   cd RepoOwl-extension
+   npm install
+   ```
+3. **Add upstream remote:**
+   ```bash
+   git remote add upstream https://github.com/YASHK-arch/RepoOwl-extension.git
+   ```
+4. **Create a branch** following the naming convention:
+   - `feature/<name>` — new features
+   - `bug/<name>` — bug fixes
+   - `docs/<name>` — documentation
+   - `refactor/<name>` — code refactoring
+   - `test/<name>` — adding/updating tests
+5. **Make your changes**, then run tests and lint
+6. **Commit** using [Conventional Commits](https://www.conventionalcommits.org/):
+   - `feat:` · `fix:` · `docs:` · `refactor:` · `style:` · `test:`
+7. **Sync with upstream** before pushing:
+   ```bash
+   git pull upstream main
+   ```
+8. **Open a Pull Request** — fill out the PR template completely
+
+Pick a [good first issue](https://github.com/YASHK-arch/RepoOwl-extension/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) if you're just getting started!
+
+### Issue Templates
+
+We have 10 structured issue templates to guide submissions:
+
+| Template | Use for |
+|---|---|
+| `bug_report` | Something is broken |
+| `feature_request` | New capability request |
+| `good_first_issue` | Beginner-friendly tasks |
+| `documentation` | Docs improvements |
+| `performance` | Speed / memory regressions |
+| `refactor` | Code quality improvements |
+| `security` | Security concerns (use `SECURITY.md` for private disclosures) |
+| `ui_improvement` | Visual / UX changes |
+| `test_coverage` | Missing or failing tests |
 
 ---
 
-## Contributors
+## 🗺️ Roadmap
 
-Thanks to everyone who has helped build RepoOwl. Want to see your avatar here? Pick a [good first issue](https://github.com/YASHK-arch/RepoOwl-extension/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and join in.
+- [x] Chrome Extension (Manifest V3) with badge injection
+- [x] Groq + Qwen 3.6 27B (`qwen/qwen3.6-27b`) issue duplicate detection
+- [x] GitHub Actions issue analysis pipeline
+- [x] GitHub Actions PR triage pipeline
+- [x] Central Mediator Registry (zero-config contributor discovery)
+- [x] 3-step OAuth configuration wizard
+- [x] One-click Supabase database provisioning
+- [x] Prompt injection detection & guarding
+- [x] Path-based auto-labeling (`repoowl.json`)
+- [x] Dual-layer Supabase fetch with cascade merge
+- [x] React landing page (`repoowl-web-react`)
+- [ ] Firefox / Edge extension support
+- [ ] Webhook-based real-time issue analysis (replacing polling)
+- [ ] Multi-repo analytics dashboard
+- [ ] Custom AI model support (beyond Groq)
+- [ ] VSCode extension integration
+- [ ] Public Chrome Web Store listing
+
+---
+
+## 🔒 Security
+
+Please **do not** open a public GitHub issue to report a security vulnerability.
+
+Instead:
+- Use the **GitHub Security Advisory** feature in this repository, or
+- Email the maintainers directly
+
+We will acknowledge receipt within **48 hours**, provide an initial assessment within **1 week**, and deliver a fix within **1–3 weeks** depending on severity.
+
+See [`SECURITY.md`](./SECURITY.md) for the full disclosure policy.
+
+---
+
+## 👥 Contributors
+
+Thanks to everyone who has helped build RepoOwl. Want to see your avatar here? Pick a [good first issue](https://github.com/YASHK-arch/RepoOwl-extension/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and send a PR.
 
 <div align="center">
-
-<a href="https://github.com/YASHK-arch/RepoOwl-extension/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=YASHK-arch/RepoOwl-extension" alt="RepoOwl contributors" />
-</a>
-
+  <a href="https://github.com/YASHK-arch/RepoOwl-extension/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=YASHK-arch/RepoOwl-extension" alt="RepoOwl contributors" />
+  </a>
 </div>
+
+---
+
+## 🙏 Acknowledgements
+
+- [**Groq**](https://groq.com) — blazing-fast LLM inference powering the analysis pipeline
+- [**Supabase**](https://supabase.com) — database, auth, and edge functions in one platform
+- [**Qwen 3.6 27B**](https://huggingface.co/Qwen/Qwen3-27B) by Alibaba Cloud — the underlying language model (`qwen/qwen3.6-27b` via Groq)
+- [**contrib.rocks**](https://contrib.rocks) — contributor avatar grid
+- [**Framer Motion**](https://www.framer.com/motion/) & [**OGL**](https://oframe.github.io/ogl/) — landing page animations
 
 ---
 
 ## 📜 License
 
-Distributed under the Apache-2.0 License. See `LICENSE` for more information.
+Distributed under the **Apache-2.0 License**. See [`LICENSE`](./LICENSE) for full terms.
 
+---
+
+<div align="center">
+  <sub>Built with 🦉 by the RepoOwl community</sub>
+</div>

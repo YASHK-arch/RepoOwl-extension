@@ -142,10 +142,10 @@ async function enableContributorDraftChecker(repoName, localGroqKey) {
         'DUPLICATE RULES (CRITICAL):\n' +
         '  - Only set is_duplicate=true if the draft targets the EXACT same root cause or feature as a specific existing open issue.\n' +
         '  - Do NOT mark as duplicate because the issues share a topic, domain, or keyword overlap.\n' +
-        '  - Do NOT label any issue as spam, noise, or invalid.\n' +
-        '  - Default to is_duplicate=false when uncertain.\n' +
+        '  - If the issue appears to be spam, ai-generated slop, or completely invalid/unrelated to the project, set "is_spam" to true.\n' +
+        '  - Default to is_duplicate=false and is_spam=false when uncertain.\n\n' +
         'You must respond in valid JSON format matching this schema:\n' +
-        '{ "is_duplicate": boolean, "analysis_summary": "string", "affected_files": ["string"] }\n' +
+        '{ "is_duplicate": boolean, "is_spam": boolean, "analysis_summary": "string", "affected_files": ["string"] }\n' +
         'Ensure the JSON is well-formed.';
 
       const response = await groq.chat.completions.create({
@@ -219,11 +219,11 @@ async function autoAnalyzeAndSaveToSandbox(repoName, issueNumber, localGroqKey, 
       '  - Only set is_duplicate=true if the issue targets the EXACT same root cause or feature as a specific existing open issue.\n' +
       '  - You MUST cite the matching issue number in analysis_summary when marking as duplicate.\n' +
       '  - Do NOT mark as duplicate because issues share a topic area or keyword overlap.\n' +
-      '  - Do NOT label any issue as spam, noise, or invalid. Assume all submissions are legitimate.\n' +
-      '  - Default to is_duplicate=false when uncertain.\n' +
+      '  - If the issue appears to be spam, ai-generated slop, or completely invalid/unrelated to the project, set "is_spam" to true.\n' +
+      '  - Default to is_duplicate=false and is_spam=false when uncertain.\n' +
       'AFFECTED FILES: Based on the repository file tree, identify up to 8 specific source files most likely to need changes.\n' +
       'You must respond in valid JSON format matching this schema:\n' +
-      '{ "is_duplicate": boolean, "analysis_summary": "string", "affected_files": ["string"] }\n' +
+      '{ "is_duplicate": boolean, "is_spam": boolean, "analysis_summary": "string", "affected_files": ["string"] }\n' +
       'Ensure the JSON is well-formed.';
 
     const response = await groq.chat.completions.create({
@@ -238,13 +238,14 @@ async function autoAnalyzeAndSaveToSandbox(repoName, issueNumber, localGroqKey, 
 
     const text = response.choices[0]?.message?.content?.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
     if (text) {
-      const analysis = JSON.parse(text);
+      const n = JSON.parse(text);
+      const summaryWithSpam = n.is_spam ? '[SPAM_DETECTED] ' + n.analysis_summary : n.analysis_summary;
       await sandboxClient.from('issues').insert({
         repo_name: repoName,
         issue_number: issueNumber,
-        is_duplicate: analysis.is_duplicate,
-        analysis_summary: analysis.analysis_summary,
-        affected_files: analysis.affected_files ?? null
+        is_duplicate: n.is_duplicate,
+        analysis_summary: summaryWithSpam,
+        affected_files: n.affected_files ?? null
       });
     }
   } catch (err) {
