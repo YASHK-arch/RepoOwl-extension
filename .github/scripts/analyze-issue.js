@@ -288,8 +288,8 @@ async function analyzeIssue(issue, history, fileTree) {
     `  - Only set is_duplicate=true if the issue targets the EXACT same root cause or feature as a specific existing open issue.\n` +
     `  - You MUST cite the matching issue number (e.g. "duplicate of #42") in analysis_summary when marking as duplicate.\n` +
     `  - Do NOT mark as duplicate because issues share a topic area or keyword overlap.\n` +
-    `  - Do NOT label any issue as spam, noise, or invalid. Assume all submissions are legitimate.\n` +
-    `  - Default to is_duplicate=false when uncertain.\n\n` +
+    `  - If the issue appears to be spam, ai-generated slop, or completely invalid/unrelated to the project, set "is_spam" to true.\n` +
+    `  - Default to is_duplicate=false and is_spam=false when uncertain.\n\n` +
     `CONTEXTUAL LABELS:\n` +
     `  - Generate exactly 3 meaningful, contextually appropriate labels for this issue.\n` +
     `  - Labels must describe the functional area, severity, or domain of the problem NOT just keywords extracted from the text.\n` +
@@ -300,7 +300,7 @@ async function analyzeIssue(issue, history, fileTree) {
     `  - Based on the repository file tree, identify up to 8 specific source files most likely to need changes to resolve this issue.\n` +
     `  - Return their paths exactly as they appear in the file tree.\n\n` +
     `You must respond in valid JSON format matching this schema:\n` +
-    `{ "is_duplicate": boolean, "analysis_summary": "string", "contextual_labels": ["string"], "affected_files": ["string"] }\n` +
+    `{ "is_duplicate": boolean, "is_spam": boolean, "analysis_summary": "string", "contextual_labels": ["string"], "affected_files": ["string"] }\n` +
     `Ensure the JSON is well-formed.`;
 
   const userPrompt =
@@ -404,6 +404,18 @@ async function run() {
     try {
       const history = await getRecentHistory(repo);
       const analysis = await analyzeIssue(issue, history, fileTree);
+      
+      if (!analysis.contextual_labels) analysis.contextual_labels = [];
+      
+      if (analysis.is_spam) {
+        analysis.analysis_summary = '[SPAM_DETECTED] ' + analysis.analysis_summary;
+        analysis.contextual_labels.push('spam', 'needs-triage');
+      }
+      
+      if (analysis.is_duplicate) {
+        analysis.contextual_labels.push('needs-triage');
+      }
+      
       await saveAnalysis(repo, issue, analysis);
       await addContextualLabels(repo, issue, analysis);
       await postAnalysisComment(repo, issue, analysis);

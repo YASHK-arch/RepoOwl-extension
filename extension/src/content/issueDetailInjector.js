@@ -72,7 +72,16 @@ export function observeIssueDetail(
 
   const runScan = () => {
     const insight = insightsCache.byNumber.get(issueNumber);
-    const status = insight?.is_processed && insight?.context ? 'ready' : 'pending';
+    const isDuplicate = insight?.is_processed === true && insight?.is_duplicate === true;
+    const isSpam = insight?.is_processed === true && insight?.analysis_summary?.includes('[SPAM_DETECTED]');
+    let status = 'pending';
+    if (isSpam) {
+      status = 'spam';
+    } else if (isDuplicate) {
+      status = 'duplicate';
+    } else if (insight?.is_processed) {
+      status = 'ready';
+    }
     injectIssueDetailBadge(issueNumber, status, onBadgeClick);
   };
 

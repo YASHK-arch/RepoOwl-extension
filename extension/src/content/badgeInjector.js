@@ -36,13 +36,19 @@ export function createBadge(issueNumber, status, duplicateIds = []) {
   const el = document.createElement('span');
   el.setAttribute(BADGE_ATTR, String(issueNumber));
 
-  if (status === 'duplicate') {
+  if (status === 'spam') {
+    el.className = 'repoowl-badge repoowl-badge--duplicate'; // reuse red styling
+    el.innerHTML = `<span class="repoowl-badge__icon">🚨</span> Spam / Invalid`;
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('aria-label', `Spam or invalid issue. Click for details.`);
+  } else if (status === 'duplicate') {
     el.className = 'repoowl-badge repoowl-badge--duplicate';
     el.innerHTML = `<span class="repoowl-badge__icon">⚠️</span> Duplicate`;
     el.setAttribute('role', 'button');
     el.setAttribute('tabindex', '0');
     el.setAttribute('aria-label', `Duplicate issue. Click for details.`);
-  } else if (status === 'duplicate_right') {
+  } else if (status === 'duplicate_right' || status === 'spam_right') {
     el.className = 'repoowl-badge repoowl-badge--duplicate-right';
     el.innerHTML = `<span class="repoowl-badge__icon">⚠️</span> Duplicate`;
     el.setAttribute('role', 'button');
@@ -173,13 +179,14 @@ export function injectBadge(row, issueNumber, insight, onBadgeClick) {
   }
 
   const isDuplicate = insight?.is_processed === true && insight?.is_duplicate === true;
+  const isSpam = insight?.is_processed === true && insight?.analysis_summary?.includes('[SPAM_DETECTED]');
 
-  const isReady = insight?.is_processed === true && !isDuplicate;
+  const isReady = insight?.is_processed === true && !isDuplicate && !isSpam;
 
-  if (isDuplicate) {
+  if (isDuplicate || isSpam) {
     const leftTarget = findLeftTarget(row);
     if (leftTarget) {
-      const badge = createBadge(issueNumber, 'duplicate');
+      const badge = createBadge(issueNumber, isSpam ? 'spam' : 'duplicate');
       badge.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); onBadgeClick(issueNumber); });
       badge.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onBadgeClick(issueNumber); } });
       
@@ -192,8 +199,8 @@ export function injectBadge(row, issueNumber, insight, onBadgeClick) {
       }
     }
     
-    // Inject placeholder duplicate badge on the right so comments box doesn't shift
-    const rightBadge = createBadge(issueNumber, 'duplicate_right');
+    // Inject placeholder duplicate/spam badge on the right so comments box doesn't shift
+    const rightBadge = createBadge(issueNumber, isSpam ? 'spam_right' : 'duplicate_right');
     rightBadge.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); onBadgeClick(issueNumber); });
     rightBadge.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onBadgeClick(issueNumber); } });
     
