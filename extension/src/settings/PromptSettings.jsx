@@ -119,83 +119,119 @@ export function PromptSettings() {
   }
 
   return (
-    <>
-      <div className="ro-panel-badge">Maintainer Config</div>
-      <h1 className="ro-panel-title">Configure the model pipeline</h1>
-      <p className="ro-panel-desc">
-        Maintainers: Set repository-specific LLM analysis instructions. The background worker uses this
-        prompt when processing issues; if none is saved, it falls back to the default
-        template below.
-      </p>
+    <div style={{ position: 'relative' }}>
+      {/* ── Under Development overlay ───────────────────────────────────── */}
+      {/* "Under Development" pill — top-right corner, always on top */}
+      <span style={{
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '5px',
+        padding: '3px 10px',
+        background: '#fff8e1',
+        color: '#b45309',
+        border: '1px solid #f59e0b',
+        borderRadius: '20px',
+        fontSize: '11px',
+        fontWeight: 700,
+        letterSpacing: '0.03em',
+        textTransform: 'uppercase',
+        zIndex: 10,
+        userSelect: 'none',
+        pointerEvents: 'none',
+      }}>
+        🚧 Under Development
+      </span>
 
-      {/* Repository field */}
-      <div className="ro-section">
-        <h2 className="ro-section-title">Repository</h2>
-        <p className="ro-section-desc">
-          Enter the repository in <code>owner/repo</code> format to load or save a
-          custom prompt.
+      {/* Freeze layer — blocks all interaction, dims the content */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 5,
+        cursor: 'not-allowed',
+        borderRadius: '6px',
+      }} aria-hidden="true" />
+
+      {/* Actual panel content — visible but frozen */}
+      <div style={{
+        opacity: 0.45,
+        pointerEvents: 'none',
+        userSelect: 'none',
+        filter: 'grayscale(40%)',
+      }}>
+        <div className="ro-panel-badge">Maintainer Config</div>
+        <h1 className="ro-panel-title">Configure the model pipeline</h1>
+        <p className="ro-panel-desc">
+          Maintainers: Set repository-specific LLM analysis instructions. The background worker uses this
+          prompt when processing issues; if none is saved, it falls back to the default
+          template below.
         </p>
-        <div className="ro-field">
-          <label htmlFor="ro-repository" className="ro-label">
-            Repository (owner/repo)
-          </label>
-          <input
-            id="ro-repository"
-            className="ro-input"
-            type="text"
-            placeholder="e.g. octocat/Hello-World"
-            value={repositoryFullName}
-            onChange={(event) => setRepositoryFullName(event.target.value)}
-          />
+
+        {/* Repository field */}
+        <div className="ro-section">
+          <h2 className="ro-section-title">Repository</h2>
+          <p className="ro-section-desc">
+            Enter the repository in <code>owner/repo</code> format to load or save a
+            custom prompt.
+          </p>
+          <div className="ro-field">
+            <label htmlFor="ro-repository" className="ro-label">
+              Repository (owner/repo)
+            </label>
+            <input
+              id="ro-repository"
+              className="ro-input"
+              type="text"
+              placeholder="e.g. octocat/Hello-World"
+              value={repositoryFullName}
+              readOnly
+            />
+          </div>
+        </div>
+
+        {/* Prompt template */}
+        <div className="ro-section">
+          <h2 className="ro-section-title">Analysis Prompt Template</h2>
+          <p className="ro-section-desc">
+            Customise the instructions sent to the LLM for each issue. Use the default
+            template as a starting point.
+          </p>
+          <div className="ro-field">
+            <label htmlFor="ro-prompt-template" className="ro-label">
+              Prompt Template
+            </label>
+            <textarea
+              id="ro-prompt-template"
+              className="ro-textarea"
+              value={prompt}
+              readOnly
+              spellCheck={false}
+            />
+          </div>
+
+          <div className="ro-actions">
+            <button
+              id="ro-save-prompt"
+              type="button"
+              className="ro-btn ro-btn--primary"
+              disabled
+            >
+              Save Prompt
+            </button>
+            <button
+              id="ro-reset-prompt"
+              type="button"
+              className="ro-btn ro-btn--secondary"
+              disabled
+            >
+              Reset to Default
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Prompt template */}
-      <div className="ro-section">
-        <h2 className="ro-section-title">Analysis Prompt Template</h2>
-        <p className="ro-section-desc">
-          Customise the instructions sent to the LLM for each issue. Use the default
-          template as a starting point.
-        </p>
-        <div className="ro-field">
-          <label htmlFor="ro-prompt-template" className="ro-label">
-            Prompt Template
-          </label>
-          <textarea
-            id="ro-prompt-template"
-            className="ro-textarea"
-            value={prompt}
-            onChange={(event) => setPrompt(event.target.value)}
-            disabled={isLoading}
-            spellCheck={false}
-          />
-        </div>
-
-        <div className="ro-actions">
-          <button
-            id="ro-save-prompt"
-            type="button"
-            className="ro-btn ro-btn--primary"
-            onClick={handleSave}
-            disabled={isSaving || isLoading}
-          >
-            {isSaving ? 'Saving…' : 'Save Prompt'}
-          </button>
-          <button
-            id="ro-reset-prompt"
-            type="button"
-            className="ro-btn ro-btn--secondary"
-            onClick={handleResetToDefault}
-            disabled={isLoading}
-          >
-            Reset to Default
-          </button>
-        </div>
-
-        {status.message ? (
-          <p className={`ro-status ro-status--${status.type}`}>{status.message}</p>
-        ) : null}
-      </div>
-    </>
+    </div>
   );
 }
+

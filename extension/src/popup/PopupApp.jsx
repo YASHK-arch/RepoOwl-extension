@@ -292,7 +292,7 @@ export function PopupApp() {
             </div>
             <div className="ro-pill">
               <span className="ro-pill__label">Model</span>
-              <span className="ro-pill__value">LLaMA 3.3</span>
+              <span className="ro-pill__value">Qwen 3.6 27B</span>
             </div>
           </div>
         </>

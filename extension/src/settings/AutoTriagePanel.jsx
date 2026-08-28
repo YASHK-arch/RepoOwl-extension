@@ -240,7 +240,45 @@ export function AutoTriagePanel() {
       </div>
 
       {activeSubTab === 'triage' && (
-        <>
+        <div style={{ position: 'relative' }}>
+          {/* ── Under Development overlay ───────────────────────────────────── */}
+          <span style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            padding: '3px 10px',
+            background: '#fff8e1',
+            color: '#b45309',
+            border: '1px solid #f59e0b',
+            borderRadius: '20px',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.03em',
+            textTransform: 'uppercase',
+            zIndex: 10,
+            userSelect: 'none',
+            pointerEvents: 'none',
+          }}>
+            🚧 Under Development
+          </span>
+
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 5,
+            cursor: 'not-allowed',
+            borderRadius: '6px',
+          }} aria-hidden="true" />
+
+          <div style={{
+            opacity: 0.45,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            filter: 'grayscale(40%)',
+          }}>
           <p className="ro-panel-desc">
             <strong>Maintainers Only:</strong> Configure RepoOwl's automated PR triage engine. These settings control when PRs are
             auto-closed as spam, flagged for review, or detected as duplicates.
@@ -260,7 +298,7 @@ export function AutoTriagePanel() {
               id="repo-context"
               className="ro-input"
               rows={4}
-              placeholder="e.g. This is a Chrome extension for AI-powered GitHub repository analysis. It uses Groq LLMs to triage PRs, sync issues, and provide code review automation."
+              placeholder="e.g. This is a Chrome extension for AI-powered GitHub repository analysis. It uses Qwen 3.6 27B (via Groq) to triage PRs, sync issues, and provide code review automation."
               value={config.repo_context}
               onChange={e => updateField('repo_context', e.target.value)}
               style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit', fontSize: '13px' }}
@@ -510,7 +548,8 @@ export function AutoTriagePanel() {
               </tbody>
             </table>
           </div>
-        </>
+        </div>
+      </div>
       )}
 
       {activeSubTab === 'labels' && (
