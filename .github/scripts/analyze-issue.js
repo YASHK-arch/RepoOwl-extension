@@ -127,7 +127,7 @@ async function saveAnalysis(repo, issue, analysis) {
       issue_number: issue.number,
       is_duplicate: analysis.is_duplicate,
       analysis_summary: analysis.analysis_summary,
-        affected_files: analysis.affected_files ?? null,
+      affected_files: analysis.affected_files ?? null,
       status: 'open'
     })
   });
@@ -140,10 +140,33 @@ async function saveAnalysis(repo, issue, analysis) {
 }
 
 
+function getLabelColor(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+  return "000000".substring(0, 6 - c.length) + c;
+}
+
 async function addContextualLabels(repo, issue, analysis) {
   if (!analysis.contextual_labels || !Array.isArray(analysis.contextual_labels) || analysis.contextual_labels.length === 0) {
     return;
   }
+  
+  for (const label of analysis.contextual_labels) {
+    const color = getLabelColor(label);
+    const labelUrl = `https://api.github.com/repos/${repo}/labels`;
+    await fetch(labelUrl, {
+      method: 'POST',
+      headers: ghHeaders(),
+      body: JSON.stringify({
+        name: label,
+        color: color
+      })
+    });
+  }
+
   const url = `https://api.github.com/repos/${repo}/issues/${issue.number}/labels`;
   const res = await fetch(url, {
     method: 'POST',
@@ -172,7 +195,7 @@ affected_files:
 ${(analysis.affected_files || []).map(f => `  - ${f}`).join('\n')}
 `;
 
-  const body = `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/icons/icon128.png" width="30" height="30" /> **RepoOwl Issue Analysis**\n\n\`\`\`yaml\n${yamlContent}\n\`\`\``;
+  const body = `<img src="https://raw.githubusercontent.com/YASHK-arch/RepoOwl-extension/main/extension/public/icons/logo128.png" width="28" height="28" align="left" style="margin-right: 8px;" /> **RepoOwl Issue Analysis**\n\n\`\`\`yaml\n${yamlContent}\n\`\`\``;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -289,8 +312,7 @@ async function analyzeIssue(issue, history, fileTree) {
     `3. Proposed Solution / Impact:\n${fields.expected_outcome || 'N/A'}\n\n` +
     `4. Technical Metrics & Environment:\n${fields.technical_metrics || 'N/A'}\n\n` +
     `HISTORICAL REPOSITORY CONTEXT\n${historicalLog}\n\n` +
-    `REPOSITORY FILE TREE\n${fileTree || 'Not available.'}` +
-    `HISTORICAL REPOSITORY CONTEXT\n${historicalLog}`;
+    `REPOSITORY FILE TREE\n${fileTree || 'Not available.'}`;
 
   // Retry up to 3 times on rate limit
   for (let attempt = 1; attempt <= 3; attempt++) {
