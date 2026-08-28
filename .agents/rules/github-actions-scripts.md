@@ -6,6 +6,35 @@ must be checked **before committing any change** to those paths.
 
 ---
 
+## 0  CRITICAL: Re-configure Sync (Always Do This First)
+
+The extension's **Re-configure** button in the Tracked Repositories panel
+deploys scripts to tracked repos (e.g. `YASHK-arch/Triage-Sandbox`) by
+decoding Base64 blobs embedded in `githubInstaller.js`.
+
+**Every time `analyze-issue.js` is changed, you MUST also:**
+
+1. Re-encode the file to Base64:
+   ```powershell
+   $content = Get-Content -Raw -Path ".github\scripts\analyze-issue.js"
+   $bytes = [System.Text.Encoding]::UTF8.GetBytes($content)
+   $b64 = [Convert]::ToBase64String($bytes)
+   ```
+2. Replace `ISSUE_SCRIPT_JS_B64` in
+   `extension/src/background/githubInstaller.js` with the new Base64 string.
+3. Bump `INSTALLER_VERSION` (integer) by 1 in the same file and add a comment
+   describing the change. This triggers the "Update Required" / "Re-configure"
+   badge on repos still running the old version.
+4. Commit **both files** together.
+
+Similarly, if `analyze-pr.js` changes → update `SCRIPT_JS_B64`.
+If any workflow YAML changes → update `WORKFLOW_YAML_B64` or
+`ISSUE_WORKFLOW_YAML_B64` accordingly.
+
+**Failure to do this means Re-configure will overwrite your fix with the old code.**
+
+---
+
 ## 1  Mixed Line-Ending (CRLF / LF) Contamination
 
 Both `analyze-issue.js` and `analyze-pr.js` were originally written with
