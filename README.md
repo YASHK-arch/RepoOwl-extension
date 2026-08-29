@@ -59,61 +59,38 @@ The two layers share a **Central Mediator Registry** — a Supabase Edge Functio
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        CONTRIBUTOR'S BROWSER                    │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │              Chrome Extension (Manifest V3)              │   │
-│  │                                                          │   │
-│  │  content.js ──► badgeInjector   (issue list badges)     │   │
-│  │             ──► sidebarCard     (per-issue sidebar)      │   │
-│  │             ──► prDetailInjector (PR triage panel)       │   │
-│  │             ──► InsightsOverlay (full repo overlay)      │   │
-│  │                                                          │   │
-│  │  background.js ──► githubInstaller (GitHub Actions       │   │
-│  │                     installer into target repo)          │   │
-│  │                                                          │   │
-│  │  popup/  ──► React popup with settings & sync status    │   │
-│  │  settings/ ──► TrackedRepos, AutoTriagePanel,           │   │
-│  │               ConfigurationModal (OAuth wizard)          │   │
-│  └──────────────────┬──────────────────────────────────────┘   │
-└─────────────────────│───────────────────────────────────────────┘
-                      │ reads insights
-                      ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     SUPABASE (MAINTAINER'S PROJECT)             │
-│                                                                 │
-│  Tables:                                                        │
-│   issues            – per-issue AI analysis results            │
-│   pull_requests     – per-PR triage results                    │
-│   public_ecosystem_registry – global stats across all repos    │
-│                                                                 │
-│  Edge Functions (Central Hub):                                  │
-│   /registry         – maintainer registration & key discovery  │
-│   /supabase-provision – auto-provision DB schema via Mgmt API  │
-│   /github-oauth     – GitHub OAuth PKCE token exchange         │
-│   /supabase-oauth   – Supabase OAuth token exchange            │
-└─────────────────────────────────────────────────────────────────┘
-                      ▲ writes analysis
-                      │
-┌─────────────────────────────────────────────────────────────────┐
-│                      GITHUB ACTIONS (CI)                        │
-│                                                                 │
-│  issue-analyze.yml  ──► analyze-issue.js                       │
-│    Trigger: issues.opened + 6h cron sweep                      │
-│    Uses: Groq (Qwen 3.6 27B), Supabase, GitHub API             │
-│    Outputs: duplicate flag, analysis summary, affected files   │
-│                                                                 │
-│  repoowl-analyze.yml ──► analyze-pr.js                         │
-│    Trigger: pull_request_target + /analyze command             │
-│    Uses: Groq (Qwen 3.6 27B), GitHub API                       │
-│    Outputs: slop score, issue resolution, domain impact,       │
-│             recommended labels, triage comment                 │
-│                                                                 │
-│  Other workflows: auto-label, issue-assignment,                │
-│                   welcome, stale, pr-merged                    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Browser ["🖥️ CONTRIBUTOR'S BROWSER"]
+        subgraph Extension ["Chrome Extension (Manifest V3)"]
+            C["content.js"] --- C_Details["• badgeInjector (issue badges)<br/>• sidebarCard (per-issue)<br/>• prDetailInjector (PR triage)<br/>• InsightsOverlay (full repo)"]
+            B["background.js"] --- B_Details["• githubInstaller (actions setup)"]
+            U["UI (popup/ & settings/)"] --- U_Details["• TrackedRepos & AutoTriage<br/>• ConfigurationModal (OAuth)"]
+        end
+    end
+
+    subgraph Backend ["🗄️ SUPABASE (MAINTAINER'S PROJECT)"]
+        subgraph Tables ["Database Tables"]
+            T1[("issues")]
+            T2[("pull_requests")]
+            T3[("public_ecosystem_registry")]
+        end
+        subgraph Edge ["Edge Functions (Central Hub)"]
+            E1["/registry"]
+            E2["/supabase-provision"]
+            E3["/github-oauth<br/>/supabase-oauth"]
+        end
+    end
+
+    subgraph Actions ["🤖 GITHUB ACTIONS (CI)"]
+        A1["issue-analyze.yml (analyze-issue.js)"]
+        A2["repoowl-analyze.yml (analyze-pr.js)"]
+        A3["Other: auto-label, assignment, stale, welcome"]
+    end
+
+    Browser -- "Reads insights & discovers keys" --> Backend
+    Actions -- "Writes analysis results" --> Backend
+    Actions -. "Inference requests" .-> GROQ["🧠 Groq API (Qwen 3.6 27B)"]
 ```
 
 ### Key Design Decisions
