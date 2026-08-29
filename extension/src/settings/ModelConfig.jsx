@@ -447,14 +447,7 @@ export function ModelConfig() {
         </div>
       </div>
 
-      {/* ── Developer Info ── */}
-      {redirectUrl && (
-        <div className="ro-section" style={{ opacity: 0.7 }}>
-          <h2 className="ro-section-title" style={{ fontSize: '12px' }}>OAuth Redirect URL (for app setup)</h2>
-          <code style={{ fontSize: '11px', wordBreak: 'break-all', color: '#8b949e' }}>{redirectUrl}</code>
-          <p className="ro-help">Paste this as the Authorization Callback URL in your GitHub &amp; Supabase OAuth App settings.</p>
-        </div>
-      )}
+
 
       {/* ── Save ── */}
       <div className="ro-actions">

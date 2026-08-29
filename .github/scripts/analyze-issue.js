@@ -122,6 +122,18 @@ async function getRecentHistory(repo) {
   return await res.json();
 }
 
+async function getTotalDuplicates(repo) {
+  const url = `${SUPABASE_URL}/rest/v1/issues?repo_name=eq.${encodeURIComponent(repo)}&is_duplicate=eq.true&select=issue_number`;
+  const res = await fetch(url, { headers: supabaseHeaders() });
+  if (!res.ok) {
+    console.warn(`Could not fetch total duplicates: ${await res.text()}`);
+    return 0;
+  }
+  const rows = await res.json();
+  return rows.length;
+}
+
+
 async function saveAnalysis(repo, issue, analysis) {
   // Use upsert (merge-duplicates) so re-runs complete any half-baked rows.
   const url = `${SUPABASE_URL}/rest/v1/issues`;
@@ -421,8 +433,7 @@ async function run() {
   // Update global registry stats
   try {
     const totalInDb = (await getAlreadyAnalyzedIssueNumbers(repo)).size;
-    const historyAll = await getRecentHistory(repo);
-    const totalDuplicates = historyAll.filter(h => h.is_duplicate).length;
+    const totalDuplicates = await getTotalDuplicates(repo);
     await updateRegistryStats(repo, totalInDb, totalDuplicates);
     console.log(`\nRegistry updated: total=${totalInDb}, duplicates=${totalDuplicates}`);
   } catch (e) {
