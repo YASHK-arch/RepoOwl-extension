@@ -51,8 +51,10 @@ serve(async (req) => {
     }
 
     const apiKeys = await keysRes.json();
-    // The keys response is an array: [{ name: 'anon', api_key: '...' }, { name: 'service_role', api_key: '...' }]
-    const anonKey = apiKeys.find((k: any) => k.name === "anon")?.api_key;
+    // The keys response is an array. Depending on Supabase version, it could use `type: 'anon'` or `name: 'anon'` or `name: 'Anon Key'`.
+    const anonKey = apiKeys.find((k: any) => 
+      k.type === "anon" || (k.name && k.name.toLowerCase().includes("anon"))
+    )?.api_key;
 
     if (!anonKey) {
       return new Response(
