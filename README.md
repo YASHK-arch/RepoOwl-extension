@@ -13,7 +13,7 @@ RepoOwl is a Chrome extension + GitHub Actions suite that uses **Qwen 3.6 27B (v
 [![Closed PRs](https://img.shields.io/github/issues-pr-closed/YASHK-arch/RepoOwl-extension?label=closed+PRs&style=flat-square&color=e3624b)](https://github.com/YASHK-arch/RepoOwl-extension/pulls?q=is%3Apr+is%3Aclosed+is%3Aunmerged)
 [![Merged PRs](https://img.shields.io/github/issues-pr-closed-raw/YASHK-arch/RepoOwl-extension?label=merged+PRs&style=flat-square&color=8957e5)](https://github.com/YASHK-arch/RepoOwl-extension/pulls?q=is%3Apr+is%3Amerged)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-green?style=flat-square)](./extension/package.json)
+[![Version](https://img.shields.io/badge/version-1.0.0-green?style=flat-square)](./extension/package.json)
 
 <br />
 
@@ -145,10 +145,10 @@ class node_github,node_groq toneRose
 
 ### Key Design Decisions
 
-- **Dual-Layer Supabase Fetch**: The extension queries both the maintainer's *sandbox* Supabase project and the *central hub* project simultaneously. Hub results cascade-override sandbox results, ensuring contributors always get the most authoritative data.
-- **Non-Destructive DOM Injection**: All UI elements are injected alongside GitHub's native DOM using `MutationObserver`. No page elements are overwritten; RepoOwl additions are visually styled to blend in.
-- **Zero-Config Contributor Model**: Contributors install the extension and browse a tracked repo — no keys, no setup. The `registry` Edge Function returns the public `supabase_url` and `supabase_anon_key` for the repo automatically.
-- **Prompt Injection Guard**: The AI analysis pipeline detects and flags issues containing adversarial prompt injections before they can influence LLM output.
+- **Asynchronous Compute Delegation (GitHub Actions)**: Instead of the Chrome extension or a centralized API performing heavy LLM inference, all AI processing is delegated to the maintainer's GitHub Actions environment. This completely eliminates client-side rate limits, keeps API keys (Groq) fully secure within GitHub Secrets, and ensures the maintainer retains control over API costs and quotas.
+- **Decentralized Tenant Storage**: RepoOwl avoids a monolithic, centralized database. Instead, each maintainer provisions their own Supabase backend. This guarantees strict data sovereignty—maintainers fully own their issue data, PR metadata, and authentication rules via their own Row-Level Security (RLS) policies.
+- **Central Mediator Pattern (Zero-Config Discovery)**: To bridge the decentralized storage model with a seamless contributor experience, the system uses a single centralized Edge Function (`/registry`). The extension queries this registry with the current GitHub repository URL to dynamically resolve the maintainer's specific Supabase endpoint and public anon key at runtime. Contributors never need to paste keys.
+- **Resilient UI Integration via MutationObserver**: GitHub is a complex SPA (Single Page Application) that frequently mutates the DOM via Turbo. Rather than overriding React roots, the extension injects its UI components (badges, sidebars) into isolated DOM nodes using `MutationObserver`, ensuring the native GitHub experience is never destructively modified or broken by React state conflicts.
 
 ---
 
@@ -268,7 +268,13 @@ Use this method if you want to install RepoOwl on your own GitHub repository to 
 4. Enable **Developer mode** (top-right corner).
 5. Click **Load unpacked** and select the unzipped folder.
 
-#### 2. Configure via the Setup Wizard
+#### 2. Enable Anonymous Sign-ins in Supabase
+RepoOwl allows external contributors to read AI insights without forcing them to log in. To allow this:
+1. Go to your [Supabase Dashboard](https://supabase.com/dashboard).
+2. Open your project and navigate to **Authentication > Providers**.
+3. Find **Anonymous Sign-ins** and toggle it to **Enabled**.
+
+#### 3. Configure via the Setup Wizard
 1. Click the RepoOwl 🦉 icon in your browser toolbar.
 2. The UI will guide you through a simple 3-step setup:
    - **GitHub Connect**: Authorizes RepoOwl to read your repository and install the background workflows.
@@ -336,53 +342,6 @@ Commit a `repoowl.json` file to the **root of your target repository** to config
 }
 ```
 
-
-## 🗄️ Database Schema
-
-Four tables with Row-Level Security enabled:
-
-```sql
--- Issue AI analysis results (per-repo)
-issues (
-  id, repo_name, issue_number,
-  is_duplicate BOOLEAN,
-  analysis_summary TEXT,
-  affected_files JSONB,  -- Array of predicted affected file paths
-  status TEXT,
-  created_at
-)
-
--- PR triage results (per-repo)
-pull_requests (
-  id, repo_name, pr_number,
-  slop_detection JSONB,
-  issue_resolution JSONB,
-  domain_impact JSONB,
-  recommended_labels JSONB,
-  created_at
-)
-
--- Global ecosystem stats (cross-repo dashboard)
-public_ecosystem_registry (
-  repo_name PRIMARY KEY,
-  total_issues_analyzed INT,
-  duplicates_found INT,
-  maintainer_handle TEXT,
-  last_updated
-)
-
--- Central mediator: maps repo → Supabase credentials for contributor discovery
-registry (
-  owner TEXT, repo TEXT,  -- composite PK
-  supabase_url TEXT,
-  supabase_anon_key TEXT,
-  created_at
-)
-```
-
-**RLS Policies**: Public read on all tables. Writes via authenticated/anon role for issues and PRs. Registry writes are managed exclusively by the `registry` Edge Function using the service role key.
-
----
 
 ## 🤖 GitHub Actions Workflows
 
@@ -471,7 +430,7 @@ We have 10 structured issue templates to guide submissions:
 | `ui_improvement` | Visual / UX changes |
 | `test_coverage` | Missing or failing tests |
 
----
+<!-- ---
 
 ## 🗺️ Roadmap
 
@@ -491,7 +450,7 @@ We have 10 structured issue templates to guide submissions:
 - [ ] Multi-repo analytics dashboard
 - [ ] Custom AI model support (beyond Groq)
 - [ ] VSCode extension integration
-- [ ] Public Chrome Web Store listing
+- [ ] Public Chrome Web Store listing -->
 
 ---
 
