@@ -226,111 +226,65 @@ RepoOwl-extension/
 
 ## 🚀 Getting Started
 
-### Prerequisites
+RepoOwl's setup is entirely streamlined through the Chrome Extension UI. There is no need for manual database migrations or copying YAML files—the extension handles it all!
 
-- **Node.js** v18+
-- **npm** v9+  
-- A **Supabase** project ([free tier](https://supabase.com) is sufficient)
-- A **Groq** API key ([console.groq.com/keys](https://console.groq.com/keys))
-- **Chrome** (or any Chromium-based browser)
+Choose one of the paths below based on your needs:
+
+### Option A: Testing / Using the Extension (Recommended)
+
+Use this method if you want to install RepoOwl on your own GitHub repository to analyze issues and PRs.
+
+#### 1. Download & Install
+1. Download the latest `repoowl-production-release.zip` from the [Releases page](https://github.com/YASHK-arch/RepoOwl-extension/releases) (or build it locally).Th extension zip can be downloaded directly from the landing vercel deployed page too  --> https://repoowl-extension.vercel.app/
+2. Unzip the downloaded file.
+3. Open your browser and navigate to `chrome://extensions/`.
+4. Enable **Developer mode** (top-right corner).
+5. Click **Load unpacked** and select the unzipped folder.
+
+#### 2. Configure via the Setup Wizard
+1. Click the RepoOwl 🦉 icon in your browser toolbar.
+2. The UI will guide you through a simple 3-step setup:
+   - **GitHub Connect**: Authorizes RepoOwl to read your repository and install the background workflows.
+   - **Supabase Connect**: Connects to your free Supabase project and **automatically provisions the required database tables** using the Management API.
+   - **Groq API**: Paste your Groq API key (get one [here](https://console.groq.com/keys)).
+
+#### 3. One-Click Repository Installation
+1. Navigate to your GitHub repository in your browser.
+2. Open the RepoOwl side panel (by clicking the extension icon).
+3. The extension will automatically detect your repository and ask you to configure the required AI Triage GitHub Actions workflows into your repo's `.github/workflows/` directory.
+
+You're done! RepoOwl is now monitoring your repository.
 
 ---
 
-### Option A: Maintainer Setup (Full Setup — own AI triage on your repo)
+### Option B: Local Development
 
-This gets you automated AI triage running on your GitHub repository.
+Use this method if you want to modify the extension's code or develop new features.
 
 #### 1. Clone & Install
-
 ```bash
 git clone https://github.com/YASHK-arch/RepoOwl-extension.git
 cd RepoOwl-extension
 npm install
 ```
 
-#### 2. Configure environment variables
-
-```bash
-cp .env.example .env
-# Then edit .env with your actual values (see Configuration section below)
-```
-
-#### 3. Set up your Supabase database
-
-Run the full schema against your Supabase project:
-
-```bash
-# Via Supabase CLI (recommended)
-npx supabase db push
-
-# Or manually: paste the contents of database-schema.sql
-# into your Supabase Dashboard → SQL Editor
-```
-
-#### 4. Deploy the Edge Functions
-
-```bash
-npx supabase functions deploy registry
-npx supabase functions deploy supabase-provision
-npx supabase functions deploy github-oauth
-npx supabase functions deploy supabase-oauth
-
-# Set Edge Function secrets
-npx supabase secrets set \
-  GITHUB_CLIENT_SECRET=your_github_oauth_secret \
-  SUPABASE_OAUTH_CLIENT_SECRET=your_supabase_oauth_secret
-```
-
-#### 5. Add GitHub Actions secrets to your target repository
-
-In your repo → **Settings → Secrets and variables → Actions**, add:
-
-| Secret | Value |
-|---|---|
-| `GROQ_API_KEY` | Your Groq API key |
-| `SUPABASE_URL` | Your Supabase project URL |
-| `SUPABASE_ANON_KEY` | Your Supabase anon key |
-
-The GitHub Actions workflows in `.github/workflows/` will automatically pick these up.
-
-#### 6. Build and load the extension
-
+#### 2. Build the Extension
 ```bash
 cd extension
 npm run build
 ```
 
-Then in Chrome:
+#### 3. Load into Chrome
 1. Navigate to `chrome://extensions/`
-2. Enable **Developer mode** (top-right toggle)
-3. Click **Load unpacked**
-4. Select the `extension/dist/` folder
+2. Enable **Developer mode**
+3. Click **Load unpacked** and select the `extension/dist/` folder.
 
-#### 7. Configure the extension via the OAuth wizard
+Whenever you make changes to the extension code, run `npm run build` again and click the "Refresh" icon on the extension in `chrome://extensions/`.
 
-Click the RepoOwl 🦉 icon in your toolbar → go to **Settings → Configuration**. The 3-step wizard will guide you through:
-1. **GitHub OAuth** — authorizes repo access
-2. **Supabase OAuth** — connects to your project (auto-provisions the database schema)
-3. **Groq AI** — paste your API key
-
----
-
-### Option B: Contributor Setup (Read-Only — view AI insights on any tracked repo)
-
-No backend needed. The extension auto-discovers the maintainer's configuration.
-
-1. Clone and build the extension (steps 1, 6 above)
-2. Load it into Chrome (step 6 above)
-3. Browse to any GitHub repo tracked by RepoOwl
-4. The extension will auto-discover the Supabase config via the central registry and start showing badges and insights immediately
-
----
-
-### Running the Landing Page Locally
-
+#### 4. Running the Landing Page Locally
+If you wish to modify the marketing landing page:
 ```bash
 cd repoowl-web-react
-npm install
 npm run dev
 # Opens at http://localhost:5173
 ```
@@ -338,23 +292,6 @@ npm run dev
 ---
 
 ## ⚙️ Configuration
-
-### Environment Variables (`.env`)
-
-> ⚠️ **Never commit actual secrets. Copy `.env.example` → `.env` and fill in your values.**
-
-| Variable | Description |
-|---|---|
-| `SUPABASE_URL` | Your Supabase project URL (used by server-side scripts) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server-side only — **never expose to the browser**) |
-| `VITE_SUPABASE_URL` | Supabase URL exposed to the extension build |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anon key (public, read-only safe) |
-| `GROQ_API_KEY` | Groq API key (used by GitHub Actions) |
-| `VITE_GROQ_API_KEY` | Groq API key (used by the extension for client-side AI calls) |
-| `GITHUB_TOKEN` | GitHub PAT for the GitHub Actions worker |
-| `VITE_GITHUB_CLIENT_ID` | GitHub OAuth App Client ID (public — safe to commit) |
-| `VITE_SUPABASE_OAUTH_CLIENT_ID` | Supabase OAuth App Client ID (public — safe to commit) |
-| `VITE_HUB_EDGE_FUNCTION_BASE_URL` | Base URL for the Central Hub Edge Functions (defaults to `VITE_SUPABASE_URL/functions/v1`) |
 
 ### Per-Repo Config (`repoowl.json`)
 
@@ -372,19 +309,6 @@ Commit a `repoowl.json` file to the **root of your target repository** to config
 }
 ```
 
-### Auto-Triage Thresholds (Extension Settings)
-
-Configurable from the extension **Settings → Auto Triage** panel:
-
-| Setting | Default | Description |
-|---|---|---|
-| `needs_triage_threshold` | 50% | Confidence above which the `needs-triage` label is applied |
-| `possible_duplicate_threshold` | 60% | Confidence above which `possible-duplicate` is applied |
-| `auto_close_threshold` | 90% | Confidence above which the issue is auto-closed as duplicate |
-| `close_duplicate_threshold` | 90% | Confidence above which a duplicate is closed |
-| `prompt_injection_guard` | `true` | Whether to detect & flag prompt injection attempts |
-
----
 
 ## 🗄️ Database Schema
 
@@ -468,41 +392,7 @@ registry (
 | `stale.yml` | Scheduled | Marks and closes stale issues after inactivity |
 | `pr-merged.yml` | `pull_request: closed` (merged) | Post-merge acknowledgement actions |
 
----
 
-## 🧪 Testing
-
-### Extension Tests
-
-```bash
-cd extension
-npm test
-# Runs: node --test test/**/*.test.js
-```
-
-### Web App Linting
-
-```bash
-cd repoowl-web-react
-npm run lint
-# Uses oxlint for fast linting
-```
-
-### Manual Extension Testing
-
-1. Build: `cd extension && npm run build`
-2. Load unpacked from `extension/dist/` in `chrome://extensions`
-3. Navigate to `https://github.com/YASHK-arch/Triage-Sandbox/issues` to see live badges
-4. Open the popup and check the sync status panel
-
-### End-to-End (Playwright, Web App)
-
-```bash
-cd repoowl-web-react
-npx playwright test
-```
-
----
 
 ## 🤝 Contributing
 

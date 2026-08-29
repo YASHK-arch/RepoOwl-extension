@@ -47,10 +47,10 @@ const SupabaseLogo = () => (
   </svg>
 );
 
-const LlamaLogo = () => (
+const QwenLogo = () => (
   <svg viewBox="0 0 80 80" width="36" height="36">
     <rect width="80" height="80" rx="16" fill="#1B3A5C"/>
-    <text x="40" y="54" textAnchor="middle" fill="white" fontSize="28" fontWeight="bold" fontFamily="monospace">🦙</text>
+    <text x="40" y="54" textAnchor="middle" fill="white" fontSize="28" fontWeight="bold" fontFamily="monospace">Q</text>
   </svg>
 );
 
@@ -63,21 +63,21 @@ const ShieldCheckLogo = () => (
 // ─── Feature data with real logo components ───────────────────────
 const FEATURES = [
   {
-    title: 'GitHub duplicate detection',
-    desc: 'Watch any public repository for new issues, run client-side semantic similarity search with Llama 3, and flag duplicates before they pile up.',
-    tag: 'AI TRIAGE',
+    title: 'Automated PR Triage',
+    desc: 'Analyzes every new PR for AI-generated slop, issue resolution, domain impact, and posts a structured triage comment.',
+    tag: 'PULL REQUESTS',
     Logo: GitHubLogo,
   },
   {
-    title: 'Powered by Groq + Llama 3.3',
+    title: 'Powered by Groq + Qwen 3.6 27B',
     desc: 'Blazing-fast inference via Groq API. Your issue text is semantically understood — not just keyword-matched — for dramatically higher accuracy.',
     tag: 'AI ENGINE',
     Logo: GroqLogo,
   },
   {
-    title: 'Chrome extension, zero install',
-    desc: 'Drop the .zip into Chrome extensions, pin it, and you\'re done. No Node, no server, no config files. Works on any GitHub repo page instantly.',
-    tag: 'BROWSER NATIVE',
+    title: 'Path-Based Auto-Labeling',
+    desc: 'Define custom file path to label mappings in repoowl.json (e.g., all PRs touching src/auth/** get the auth label) for automatic categorization.',
+    tag: 'AUTO-TAGGING',
     Logo: ChromeLogo,
   },
   {
@@ -87,9 +87,9 @@ const FEATURES = [
     Logo: SupabaseLogo,
   },
   {
-    title: 'Privacy-first, $0 server cost',
-    desc: 'All AI inference runs client-side. Your issue data never leaves your browser. No telemetry, no cloud processing, no monthly bill.',
-    tag: 'PRIVACY',
+    title: 'Zero-config contributor discovery',
+    desc: 'Contributors don\'t need to paste any keys; the extension auto-discovers configuration via a central registry. No manual setup required.',
+    tag: 'ONBOARDING',
     Logo: ShieldCheckLogo,
   },
 ];
@@ -102,12 +102,12 @@ export default function FeatureSlider() {
   const scrollRight = () => scrollRef.current?.scrollBy({ left: 440, behavior: 'smooth' });
 
   return (
-    <div className="w-full relative py-16 md:py-20 overflow-hidden" style={{ borderTop: '1px solid #E8E5E0', minHeight: 420 }}>
+    <div className="w-full relative py-16 md:py-20 overflow-hidden" style={{ borderTop: '4px solid #000', minHeight: 420, backgroundColor: '#ffffff' }}>
       {/* WebGL Dot Grid Background */}
       <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.7 }}>
         <DottedBackground 
           bgColor="transparent" 
-          colors={["rgba(139, 110, 87, 0.08)", "rgba(139, 110, 87, 0.18)"]}
+          colors={["rgba(0, 0, 0, 0.1)", "rgba(0, 0, 0, 0.2)"]}
           cellSize={30}
           frequency={3}
           speed={2}
@@ -117,10 +117,10 @@ export default function FeatureSlider() {
       
       {/* Section Header */}
       <div className="relative z-10 text-center mb-12 px-5">
-        <h2 className="text-3xl md:text-[40px] font-bold tracking-[-1px] text-[#1A1A1A] leading-tight drop-shadow-sm">
+        <h2 className="text-3xl md:text-[40px] font-black tracking-tighter text-black uppercase mb-4">
           Features that work where you do
         </h2>
-        <p className="mt-3 text-[15.5px] text-[#8B6E57] max-w-[520px] mx-auto leading-relaxed">
+        <p className="text-[16px] font-bold text-black max-w-[520px] mx-auto leading-relaxed">
           Open a GitHub repo, let the AI scan, and get duplicate flags in seconds — all in your browser.
         </p>
       </div>
@@ -133,16 +133,16 @@ export default function FeatureSlider() {
         <button
           onClick={scrollLeft}
           aria-label="Scroll left"
-          className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow-md transition-all border border-[#E8E5E0]"
+          className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-[#F8E71C] border-[3px] border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] hover:-translate-y-[calc(50%+2px)] hover:-translate-x-0.5 transition-all"
         >
-          <ChevronLeft className="w-4 h-4 text-[#1A1A1A]" strokeWidth={2} />
+          <ChevronLeft className="w-6 h-6 text-black" strokeWidth={3} />
         </button>
         <button
           onClick={scrollRight}
           aria-label="Scroll right"
-          className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm hover:shadow-md transition-all border border-[#E8E5E0]"
+          className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-[#F8E71C] border-[3px] border-black shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] hover:-translate-y-[calc(50%+2px)] hover:-translate-x-0.5 transition-all"
         >
-          <ChevronRight className="w-4 h-4 text-[#1A1A1A]" strokeWidth={2} />
+          <ChevronRight className="w-6 h-6 text-black" strokeWidth={3} />
         </button>
 
 
@@ -163,30 +163,30 @@ export default function FeatureSlider() {
           {FEATURES.map((feature, idx) => (
             <div
               key={idx}
-              className="snap-center shrink-0 flex flex-col bg-white border border-[#E8E5E0] rounded-2xl hover:shadow-md transition-shadow duration-200"
+              className="snap-center shrink-0 flex flex-col bg-white border-[3px] border-black rounded-xl shadow-[8px_8px_0px_#000] hover:shadow-[12px_12px_0px_#000] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-200"
               style={{
                 width: 'clamp(280px, 38vw, 420px)',
                 padding: '28px 28px 24px',
               }}
             >
               {/* Logo */}
-              <div className="mb-5">
+              <div className="mb-5 inline-flex items-center justify-center w-14 h-14 bg-[#50E3C2] border-2 border-black shadow-[4px_4px_0px_#000]">
                 <feature.Logo />
               </div>
 
               {/* Title */}
-              <h3 className="text-[17px] font-semibold text-[#1A1A1A] mb-2.5 leading-snug">
+              <h3 className="text-[18px] font-black uppercase tracking-tight text-black mb-2.5 leading-snug">
                 {feature.title}
               </h3>
 
               {/* Description */}
-              <p className="text-[13.5px] text-[#6B6A67] leading-[1.65] flex-grow">
+              <p className="text-[14px] font-bold text-black leading-[1.65] flex-grow">
                 {feature.desc}
               </p>
 
               {/* Tag */}
-              <div className="mt-8 pt-5 border-t border-[#F0EDE8]">
-                <span className="text-[10px] font-semibold text-[#9A9896] uppercase tracking-[1.2px]">
+              <div className="mt-8 pt-5 border-t-[3px] border-black flex">
+                <span className="text-[11px] font-black text-white bg-black px-2 py-1 uppercase tracking-widest border-2 border-black shadow-[2px_2px_0px_#FF4F5E]">
                   {feature.tag}
                 </span>
               </div>
