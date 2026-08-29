@@ -18,71 +18,26 @@ export default function ContributorsSection() {
   }, []);
 
   return (
-    <section className="relative w-full overflow-hidden py-24 flex flex-col items-center justify-center">
+    <section id="contributors" className="relative w-full overflow-hidden py-24 flex flex-col items-center justify-center" style={{ borderTop: '4px solid #000', backgroundColor: '#ffffff' }}>
       {/* Animated background */}
       <AsciiRadar
         background="transparent"
-        glyphColor="rgba(26,26,26,0.25)"
-        ringColor="rgba(26,26,26,0.4)"
+        glyphColor="rgba(0,0,0,0.15)"
+        ringColor="rgba(0,0,0,0.3)"
         className="absolute inset-0"
         style={{ position: 'absolute', zIndex: 0 }}
       />
 
-      {/* Content wrapper — cloud only covers this region */}
+      {/* Content wrapper */}
       <div
         className="relative z-10 flex flex-col items-center text-center pointer-events-auto w-full"
         style={{ maxWidth: '640px', padding: '2.5rem 3rem' }}
       >
-        {/* Cloud blob — Layer 1: primary opaque */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            inset: '-18px',
-            background: '#F0EDE8',
-            borderRadius: '45% 55% 60% 40% / 38% 48% 52% 62%',
-            filter: 'blur(16px)',
-            pointerEvents: 'none',
-            zIndex: -1,
-          }}
-        />
-        {/* Cloud blob — Layer 2: softer, offset */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: '-28px',
-            left: '-30px',
-            right: '-24px',
-            bottom: '-22px',
-            background: 'rgba(240,237,232,0.85)',
-            borderRadius: '60% 40% 35% 65% / 55% 62% 38% 45%',
-            filter: 'blur(26px)',
-            pointerEvents: 'none',
-            zIndex: -1,
-          }}
-        />
-        {/* Cloud blob — Layer 3: outermost wispy halo */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: '-44px',
-            left: '-48px',
-            right: '-40px',
-            bottom: '-38px',
-            background: 'rgba(240,237,232,0.45)',
-            borderRadius: '37% 63% 52% 48% / 60% 42% 58% 40%',
-            filter: 'blur(38px)',
-            pointerEvents: 'none',
-            zIndex: -1,
-          }}
-        />
 
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[#1A1A1A] mb-4">
-          Backed by Open Source
+        <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-black mb-4">
+          Backed by <span className="bg-[#BD10E0] text-white px-2 py-1 shadow-[4px_4px_0px_#000]">Open Source</span>
         </h2>
-        <p className="text-[#6B6A67] max-w-2xl mx-auto mb-8">
+        <p className="font-bold text-black max-w-2xl mx-auto mb-10">
           RepoOwl is built with the help of amazing contributors from around the world.
         </p>
 
@@ -106,27 +61,28 @@ export default function ContributorsSection() {
               style={{
                 display: 'block',
                 flexShrink: 0,
-                borderRadius: '50%',
+                borderRadius: '0',
+                border: '3px solid #000',
                 overflow: 'hidden',
-                width: '52px',
-                height: '52px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                width: '60px',
+                height: '60px',
+                boxShadow: '4px 4px 0px #000',
+                transition: 'transform 0.15s ease, box-shadow 0.15s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.12)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.28)';
+                e.currentTarget.style.transform = 'translate(-4px, -4px)';
+                e.currentTarget.style.boxShadow = '8px 8px 0px #000';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+                e.currentTarget.style.transform = 'translate(0px, 0px)';
+                e.currentTarget.style.boxShadow = '4px 4px 0px #000';
               }}
             >
               <img
                 src={`${c.avatar_url}&s=200`}
                 alt={`@${c.login}`}
-                width={52}
-                height={52}
+                width={60}
+                height={60}
                 style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
                 loading="lazy"
               />
@@ -139,11 +95,12 @@ export default function ContributorsSection() {
               <div
                 key={i}
                 style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '50%',
-                  background: 'rgba(26,26,26,0.08)',
-                  animation: 'pulse 1.4s ease-in-out infinite',
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '0',
+                  border: '3px solid #000',
+                  background: '#F8E71C',
+                  boxShadow: '4px 4px 0px #000',
                 }}
               />
             ))}

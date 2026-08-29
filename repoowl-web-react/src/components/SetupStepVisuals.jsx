@@ -186,73 +186,73 @@ export const Step3Visual = () => {
       <div className="flex flex-col gap-3">
         
         {/* Item 1 */}
-        <div className="border border-gray-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 bg-white">
-          <div className="flex flex-col">
-            <div className="font-bold text-[13px] sm:text-[14px] text-[#111827] mb-1">YASHK-arch/Triage-Sandbox</div>
-            <div className="text-[11px] sm:text-[12px] text-[#6B7280] flex items-center gap-1.5">
-              Default Baseline Repository <Check size={12} className="text-[#10B981] ml-1" /> <span className="text-[#10B981]">Mediator Synced</span>
+        <div className="border border-gray-200 rounded-lg p-3 flex flex-row items-center justify-between bg-white">
+          <div className="flex flex-col min-w-0 mr-2">
+            <div className="font-bold text-[12px] text-[#111827] mb-0.5 truncate">YASHK-arch/Triage-Sandbox</div>
+            <div className="text-[10px] text-[#6B7280] flex items-center gap-1">
+              Default Baseline Repository <Check size={10} className="text-[#10B981] ml-1" /> <span className="text-[#10B981]">Mediator Synced</span>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1 bg-[#ECFDF5] text-[#10B981] px-2.5 py-1.5 rounded-md border border-[#A7F3D0] text-[11px] font-medium">
-              <Check size={12} strokeWidth={2.5} /> Configured
+          <div className="flex items-center gap-1 ml-auto shrink-0">
+            <div className="flex items-center gap-1 bg-[#ECFDF5] text-[#10B981] px-2 py-1 rounded-md border border-[#A7F3D0] text-[10px] font-medium whitespace-nowrap">
+              <Check size={10} strokeWidth={2.5} /> Configured
             </div>
-            <div className="flex items-center gap-1.5 bg-[#F9FAFB] text-[#374151] px-2.5 py-1.5 rounded-md border border-gray-200 text-[11px] font-medium shadow-sm cursor-pointer hover:bg-gray-50">
-              <RefreshCw size={12} className="text-[#3B82F6]" strokeWidth={2.5} /> Manual Sync
+            <div className="flex items-center gap-1 bg-[#F9FAFB] text-[#374151] px-2 py-1 rounded-md border border-gray-200 text-[10px] font-medium shadow-sm cursor-pointer hover:bg-gray-50 whitespace-nowrap">
+              <RefreshCw size={10} className="text-[#3B82F6]" strokeWidth={2.5} /> Manual Sync
             </div>
-            <div className="flex items-center gap-1.5 bg-[#6366F1] text-white px-2.5 py-1.5 rounded-md text-[11px] font-medium shadow-sm cursor-pointer hover:bg-[#4F46E5]">
-              <Settings size={12} strokeWidth={2.5} className="opacity-80" /> Re-configure
+            <div className="flex items-center gap-1 bg-[#6366F1] text-white px-2 py-1 rounded-md text-[10px] font-medium shadow-sm cursor-pointer hover:bg-[#4F46E5] whitespace-nowrap">
+              <Settings size={10} strokeWidth={2.5} className="opacity-80" /> Re-configure
             </div>
           </div>
         </div>
 
         {/* Item 2 */}
-        <div className="border border-gray-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 bg-white">
-          <div className="flex flex-col">
-            <div className="font-bold text-[13px] sm:text-[14px] text-[#111827] mb-1">YASHK-arch/RepoOwl-extension</div>
-            <div className="text-[11px] sm:text-[12px] text-[#10B981] flex items-center gap-1.5">
-              <Check size={12} /> Mediator Synced
+        <div className="border border-gray-200 rounded-lg p-3 flex flex-row items-center justify-between bg-white">
+          <div className="flex flex-col min-w-0 mr-2">
+            <div className="font-bold text-[12px] text-[#111827] mb-0.5 truncate">YASHK-arch/RepoOwl-extension</div>
+            <div className="text-[10px] text-[#10B981] flex items-center gap-1">
+              <Check size={10} /> Mediator Synced
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1 bg-[#ECFDF5] text-[#10B981] px-2.5 py-1.5 rounded-md border border-[#A7F3D0] text-[11px] font-medium">
-              <Check size={12} strokeWidth={2.5} /> Configured
+          <div className="flex items-center gap-1 ml-auto shrink-0">
+            <div className="flex items-center gap-1 bg-[#ECFDF5] text-[#10B981] px-2 py-1 rounded-md border border-[#A7F3D0] text-[10px] font-medium whitespace-nowrap">
+              <Check size={10} strokeWidth={2.5} /> Configured
             </div>
-            <div className="flex items-center gap-1.5 bg-[#F9FAFB] text-[#374151] px-2.5 py-1.5 rounded-md border border-gray-200 text-[11px] font-medium shadow-sm cursor-pointer hover:bg-gray-50">
-              <RefreshCw size={12} className="text-[#3B82F6]" strokeWidth={2.5} /> Manual Sync
+            <div className="flex items-center gap-1 bg-[#F9FAFB] text-[#374151] px-2 py-1 rounded-md border border-gray-200 text-[10px] font-medium shadow-sm cursor-pointer hover:bg-gray-50 whitespace-nowrap">
+              <RefreshCw size={10} className="text-[#3B82F6]" strokeWidth={2.5} /> Manual Sync
             </div>
-            <div className="flex items-center gap-1.5 bg-[#6366F1] text-white px-2.5 py-1.5 rounded-md text-[11px] font-medium shadow-sm cursor-pointer hover:bg-[#4F46E5]">
-              <Settings size={12} strokeWidth={2.5} className="opacity-80" /> Re-configure
+            <div className="flex items-center gap-1 bg-[#6366F1] text-white px-2 py-1 rounded-md text-[10px] font-medium shadow-sm cursor-pointer hover:bg-[#4F46E5] whitespace-nowrap">
+              <Settings size={10} strokeWidth={2.5} className="opacity-80" /> Re-configure
             </div>
           </div>
         </div>
 
         {/* Item 3 */}
-        <div className="border border-gray-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 bg-white">
-          <div className="flex flex-col">
-            <div className="font-bold text-[13px] sm:text-[14px] text-[#111827] mb-1">Tom-Halland/Vivid_visualization_matrix</div>
-            <div className="text-[11px] sm:text-[12px] text-[#10B981] flex items-center gap-1.5">
-              <Check size={12} /> Mediator Synced
+        <div className="border border-gray-200 rounded-lg p-3 flex flex-row items-center justify-between bg-white">
+          <div className="flex flex-col min-w-0 mr-2">
+            <div className="font-bold text-[12px] text-[#111827] mb-0.5 truncate">Tom-Halland/Vivid_visualization_matrix</div>
+            <div className="text-[10px] text-[#10B981] flex items-center gap-1">
+              <Check size={10} /> Mediator Synced
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-[#ECFDF5] text-[#10B981] px-3 py-1.5 rounded-md border border-[#A7F3D0] text-[11px] font-medium">
-              <Check size={12} strokeWidth={2.5} /> Configured
+          <div className="flex items-center gap-1 ml-auto shrink-0">
+            <div className="flex items-center gap-1 bg-[#ECFDF5] text-[#10B981] px-2 py-1 rounded-md border border-[#A7F3D0] text-[10px] font-medium whitespace-nowrap">
+              <Check size={10} strokeWidth={2.5} /> Configured
             </div>
           </div>
         </div>
 
         {/* Item 4 */}
-        <div className="border border-gray-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 bg-white">
-          <div className="flex flex-col">
-            <div className="font-bold text-[13px] sm:text-[14px] text-[#111827] mb-1">YASHK-arch/AlgoGate</div>
-            <div className="text-[11px] sm:text-[12px] text-[#D97706] flex items-center gap-1.5">
-              <AlertTriangle size={12} /> Not in Mediator
+        <div className="border border-gray-200 rounded-lg p-3 flex flex-row items-center justify-between bg-white">
+          <div className="flex flex-col min-w-0 mr-2">
+            <div className="font-bold text-[12px] text-[#111827] mb-0.5 truncate">YASHK-arch/AlgoGate</div>
+            <div className="text-[10px] text-[#D97706] flex items-center gap-1">
+              <AlertTriangle size={10} /> Not in Mediator
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-[#6366F1] text-white px-4 py-1.5 rounded-md text-[11px] font-medium shadow-sm cursor-pointer hover:bg-[#4F46E5]">
-              <Settings size={12} strokeWidth={2.5} className="opacity-80" /> Configure
+          <div className="flex items-center gap-1 ml-auto shrink-0">
+            <div className="flex items-center gap-1 bg-[#6366F1] text-white px-2 py-1 rounded-md text-[10px] font-medium shadow-sm cursor-pointer hover:bg-[#4F46E5] whitespace-nowrap">
+              <Settings size={10} strokeWidth={2.5} className="opacity-80" /> Configure
             </div>
           </div>
         </div>
@@ -261,3 +261,4 @@ export const Step3Visual = () => {
     </div>
   );
 };
+
