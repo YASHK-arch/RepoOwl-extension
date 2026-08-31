@@ -11,6 +11,6 @@
     "build:extension": "npm run build --workspace=@repoowl/extension"
   },
   "devDependencies": {
-    "supabase": "^2.115.0"
+    "supabase": "^2.116.0"
   }
 }
