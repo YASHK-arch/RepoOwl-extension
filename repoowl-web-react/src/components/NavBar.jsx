@@ -44,7 +44,7 @@ export default function NavBar() {
         {/* Middle nav links */}
         <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-7">
           <NavLink href="#setup">Setup</NavLink>
-          <NavLink href="#documentation">Documentation</NavLink>
+          <NavLink href="https://github.com/YASHK-arch/RepoOwl-extension/tree/main/docs">Documentation</NavLink>
           <NavLink href="#contributors">Contributors</NavLink>
         </div>
 
